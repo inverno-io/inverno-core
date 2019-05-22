@@ -1,0 +1,6 @@
+Multiple beans matching socket io.winterframework.test.conflict:beanA:svc were found
+  - io.winterframework.test.conflict:serviceB of type io.winterframework.test.conflict.ServiceB
+  - io.winterframework.test.conflict:serviceA of type io.winterframework.test.conflict.ServiceA
+  
+  Consider specifying an explicit wiring in module io.winterframework.test.conflict (eg. @io.winterframework.core.annotation.Wire(beans="io.winterframework.test.conflict:serviceB", into="io.winterframework.test.conflict:beanA:svc") )
+   
