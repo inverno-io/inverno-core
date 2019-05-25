@@ -2,3 +2,5 @@
 - for optional module socket use Optional<E> instead of Supplier<E>
 - expose required modules in an enclosing module
 - merge core and annotation module? <=== no since the compiler only requires annotation.
+
+- ModuleSocketWiredBeansResolver line 124: why do we need to add external wired beans to a socket?

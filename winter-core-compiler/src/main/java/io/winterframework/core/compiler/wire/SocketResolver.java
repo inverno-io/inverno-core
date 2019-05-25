@@ -19,6 +19,7 @@ import javax.lang.model.type.WildcardType;
 import io.winterframework.core.annotation.Wire;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
+import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
@@ -142,6 +143,11 @@ public class SocketResolver {
 			socket.error("All beans wired to non-optional multi socket " + socket.getQualifiedName() + " can't be all optional: " + wiredBeans);
 			return null;
 		}*/
+		
+		if(socket instanceof ModuleBeanSocketInfo) {
+			// Filter out self
+			result = Arrays.stream(result).filter(beanInfo -> !beanInfo.getQualifiedName().equals(((ModuleBeanSocketInfo)socket).getQualifiedName().getBeanQName())).toArray(BeanInfo[]::new);
+		}
 		return result;
 	}
 	
@@ -186,9 +192,9 @@ public class SocketResolver {
 		if(result == null) {
 			// Autowiring for a single socket
 			List<BeanInfo> matchingBeans = beans.stream()
-				.filter(beanInfo -> this.isAssignable(beanInfo, socket))
+				.filter(beanInfo -> this.isAssignable(beanInfo, socket) && (!(socket instanceof ModuleBeanSocketInfo) ||  !beanInfo.getQualifiedName().equals(((ModuleBeanSocketInfo)socket).getQualifiedName().getBeanQName())))
 				.collect(Collectors.toList());
-			
+		
 			if(matchingBeans.size() == 0) {
 				if(!socket.isOptional()) {
 					socket.error("No bean was found matching required socket " + socket.getQualifiedName() + " of type " + socket.getType() + ", consider defining a bean or a socket bean matching the socket in module " + this.moduleQName);
@@ -217,6 +223,9 @@ public class SocketResolver {
 			socket.error("Bean " + result.getQualifiedName() + " wired to non-optional single socket " + socket.getQualifiedName() + " can't be optional");
 			return null;
 		}*/
+		
+		
+		
 		return result;
 	}
 }
