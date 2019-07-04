@@ -14,6 +14,7 @@ public class TestGenerics extends AbstractWinterTest {
 	
 	private static final String GENERICS_MODULE = "io.winterframework.test.generics";
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testGenerics() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException {
 		WinterModuleProxy genericsProxy = this.getWinterCompiler().compile(GENERICS_MODULE).load(GENERICS_MODULE).build();

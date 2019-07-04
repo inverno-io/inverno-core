@@ -29,8 +29,8 @@ class ModuleClassGeneration {
 
 	public static enum GenerationMode {
 		MODULE_CLASS,
-		MODULE_CREATOR_CLASS,
 		MODULE_BUILDER_CLASS,
+		MODULE_LINKER_CLASS,
 		MODULE_IMPORT,
 		BEAN_FIELD,
 		BEAN_NEW,
@@ -114,7 +114,9 @@ class ModuleClassGeneration {
 	}
 	
 	public void addImport(String className, String canonicalName) {
-		this.imports.put(className, canonicalName);
+		if(!this.imports.containsKey(className)) {
+			this.imports.put(className, canonicalName);
+		}
 	}
 	
 	public void removeImport(String className) {
@@ -152,6 +154,18 @@ class ModuleClassGeneration {
 	private boolean isImported(TypeMirror type) {
 		Element erasedElement = this.processingEnvironment.getTypeUtils().asElement(this.processingEnvironment.getTypeUtils().erasure(type));
 		return this.imports.containsKey(erasedElement.getSimpleName().toString()) && this.imports.get(erasedElement.getSimpleName().toString()).equals(erasedElement.toString());
+	}
+	
+	public String getTypeName(String canonicalName) {
+		String packageName = canonicalName.lastIndexOf(".") != -1 ? canonicalName.substring(0, canonicalName.lastIndexOf(".")) : "";
+		String className = canonicalName.substring(packageName.length() + 1);
+		
+		this.addImport(className, canonicalName);
+		
+		if(this.imports.containsKey(className) && this.imports.get(className).equals(canonicalName)) {
+			return className;
+		}
+		return canonicalName;
 	}
 	
 	public String getTypeName(TypeMirror type) {

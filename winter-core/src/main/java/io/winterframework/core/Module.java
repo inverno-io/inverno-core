@@ -93,21 +93,6 @@ public abstract class Module {
 		this.modules = new ArrayList<>();
 	}
 	
-	protected final void checkRequired(Object... sockets) {
-		if(sockets.length%2 != 0) {
-			throw new IllegalArgumentException("Invalid list of required socket");
-		}
-		List<String> nullSockets = new ArrayList<>();
-		for(int i=0;i<sockets.length;i=i+2) {
-			if(sockets[i+1] == null) {
-				nullSockets.add(sockets[i].toString());
-			}
-		}
-		if(nullSockets.size() > 0) {
-			throw new IllegalArgumentException("Following required sockets in module " + this.name + " are null: " + nullSockets.stream().collect(Collectors.joining(", ")));
-		}
-	}
-
 	/**
 	 * <p>
 	 * Set the module banner to be written to the log output if the module is a top
@@ -146,8 +131,8 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Create a module with the specified module creator and arguments and register
-	 * it in this module.
+	 * Create a module with the specified module linker and register it in this
+	 * module.
 	 * </p>
 	 * 
 	 * <p>
@@ -155,11 +140,10 @@ public abstract class Module {
 	 * </p>
 	 * 
 	 * @param moduleCreator The module creator to use to create the module
-	 * @param args          The arguments required to initialize the module
 	 * @return The registered module
 	 */
-	protected <T extends Module> T with(ModuleCreator<T> moduleCreator, Map<String, Object> args) {
-		T module = moduleCreator.create(args);
+	protected <T extends Module> T with(ModuleLinker<T> moduleLinker) {
+		T module = moduleLinker.link();
 		
 		((Module)module).parent = this;
 		this.modules.add(module);
@@ -169,20 +153,18 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Register the specified bean in this module.
+	 * Create a bean with the specified bean builder and register it in this module.
 	 * </p>
 	 * 
 	 * <p>
 	 * A bean can only be registered once to exactly one module.
 	 * </p>
 	 * 
-	 * @param bean The bean to register
+	 * @param beanBuilder The bean builder to use to create the bean
 	 * @return The registered bean
 	 */
-	protected <T> Bean<T> with(Bean<T> bean) {
-		if(this.parent != null) {
-			throw new IllegalStateException("Bean is already registered in module " + this.parent.getName());
-		}
+	protected <T> Bean<T> with(BeanBuilder<T> beanBuilder) {
+		Bean<T> bean = beanBuilder.build();
 		bean.parent = this;
 		this.beans.add(bean);
 		
@@ -224,30 +206,39 @@ public abstract class Module {
 	
 	/**
 	 * <p>
-	 * The Module Creator base class.
+	 * The Module Linker base class.
 	 * </p>
 	 * 
 	 * <p>
-	 * All module have to be created by a creator which can be used directly to
-	 * obtain a Module Builder instance (direct module creation ) or by other
-	 * modules to obtain a blank module instance (indirect module creation).
-	 * Implementers should provide a public method whose parameters corresponds to
-	 * the module required sockets and which return a proper Module Builder
-	 * instance.
+	 * A Module linker is used within modules implementations to link a dependent
+	 * modules into the current module. A linker shall never be used directly.
 	 * </p>
 	 * 
-	 * <p>
-	 * A module should register the module it imports.
-	 * </p>
-	 * 
-	 * @param <T> The module type to build.
+	 * @param <T> The module type to link.
 	 * 
 	 * @author jkuhn
 	 * @since 1.0
 	 */
-	protected static abstract class ModuleCreator<T extends Module> {
+	protected static abstract class ModuleLinker<T extends Module> {
 		
-		protected abstract T create(Map<String, Object> args);
+		/**
+		 * The socket map to be used during linking process.
+		 */
+		protected Map<String, Object> sockets;
+		
+		/**
+		 * <p>Create a new Module linker with the specified socket map.</p>
+		 * @param sockets The socket map
+		 */
+		public ModuleLinker(Map<String, Object> sockets) {
+			this.sockets = sockets;
+		}
+		
+		/**
+		 * </p>Link the socket map in a new module instance and return that instance.</p>
+		 * @return A new linked module instance
+		 */
+		protected abstract T link();
 	}
 
 	/**
@@ -277,20 +268,28 @@ public abstract class Module {
 		 * Create a new Module Builder.
 		 * </p>
 		 * 
-		 * @param args
-		 *            The list of non-optional sockets required to build the module
+		 * <p>
+		 * Check that non-optional sockets are not null.
+		 * </p>
+		 * 
+		 * @param nonOptionalSockets
+		 *            An even list of non-optional sockets pairs (name, value) required to build the module
+		 * @throws IllegalArgumentException If one or more non-optional sockets are null
 		 */
-		/*protected ModuleBuilder(Object... args) {
-			String[] nullSockets = Arrays.stream(args)
-				.filter(socket -> socket == null)
-				.map(socket -> {
-					String socketName = socket.getClass().getSimpleName();
-					return Character.toLowerCase(socketName.charAt(0)) + socketName.substring(1);
-				}).toArray(String[]::new);
-			if(nullSockets.length > 0) {
-				throw new IllegalArgumentException("The following sockets must not be null: " + String.join(", ", nullSockets));
+		public ModuleBuilder(Object... nonOptionalSockets) throws IllegalArgumentException {
+			if(nonOptionalSockets.length%2 != 0) {
+				throw new IllegalArgumentException("Invalid list of required socket");
 			}
-		}*/
+			List<String> nullSockets = new ArrayList<>();
+			for(int i=0;i<nonOptionalSockets.length;i=i+2) {
+				if(nonOptionalSockets[i+1] == null) {
+					nullSockets.add(nonOptionalSockets[i].toString());
+				}
+			}
+			if(nullSockets.size() > 0) {
+				throw new IllegalArgumentException("Following non-optional sockets are null: " + nullSockets.stream().collect(Collectors.joining(", ")));
+			}
+		}
 		
 		/**
 		 * <p>

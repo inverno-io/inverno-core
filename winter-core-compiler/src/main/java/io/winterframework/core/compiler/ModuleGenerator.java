@@ -168,7 +168,9 @@ class ModuleGenerator {
 					writer.write(moduleInfo.accept(this.moduleClassGenerator, new ModuleClassGeneration(this.processingEnv, GenerationMode.MODULE_CLASS)));
 					writer.flush();
 				}
-				this.processingEnv.getMessager().printMessage(Kind.NOTE, "Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri());
+				
+				System.out.println("Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri());
+//				this.processingEnv.getMessager().printMessage(Kind.NOTE, "Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri());
 			} catch (IOException e) {
 				this.processingEnv.getMessager().printMessage(Kind.ERROR, "Error generating Module " + moduleInfo.getQualifiedName() + ": " + e.getMessage());
 				e.printStackTrace();

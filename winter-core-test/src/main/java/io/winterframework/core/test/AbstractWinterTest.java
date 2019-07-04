@@ -5,6 +5,7 @@ package io.winterframework.core.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * @author jkuhn
@@ -41,5 +42,21 @@ public abstract class AbstractWinterTest {
 	
 	protected WinterCompiler getWinterCompiler() {
 		return this.winterCompiler;
+	}
+	
+	protected void clearModuleTarget() {
+		this.deleteDir(new File(MODULE_TARGET));
+	}
+	
+	private void deleteDir(File file) {
+	    File[] contents = file.listFiles();
+	    if (contents != null) {
+	        for (File f : contents) {
+	            if (! Files.isSymbolicLink(f.toPath())) {
+	                deleteDir(f);
+	            }
+	        }
+	    }
+	    file.delete();
 	}
 }

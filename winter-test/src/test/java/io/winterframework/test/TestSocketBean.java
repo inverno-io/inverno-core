@@ -130,13 +130,14 @@ public class TestSocketBean extends AbstractWinterTest {
 	@Test
 	public void testNullRequiredSocket() throws IOException, WinterCompilationException {
 		try {
-			WinterModuleProxy moduleProxy = this.moduleProxyBuilder
+			this.moduleProxyBuilder
 				.optionalDependency("extRunnable", this.extRunnable)
 				.optionalDependency("extHttpHandlerArray", this.extHttpHandlerArray)
 				.optionalDependency("extHttpHandlerList", this.extHttpHandlerList)
 				.optionalDependency("extHttpHandlerCollection", this.extHttpHandlerCollection)
 				.optionalDependency("extHttpHandlerSet", this.extHttpHandlerSet)
 				.dependencies(this.extCallableCollection, this.extCallableArray, null, this.extCallableSet, this.extCallableList).build();
+			Assertions.fail("Required socket can't be null");
 		} catch (Exception e) {
 			Throwable current = e;
 			while(current != null && !IllegalArgumentException.class.isAssignableFrom(current.getClass())) {
@@ -145,7 +146,7 @@ public class TestSocketBean extends AbstractWinterTest {
 			if(current == null) {
 				Assertions.fail("We must have an IllegalArgumentException");
 			}
-			Assertions.assertEquals("Following required sockets in module io.winterframework.test.socketbean are null: extDataSource", current.getMessage());
+			Assertions.assertEquals("Following non-optional sockets are null: extDataSource", current.getMessage());
 		}
 	}
 	

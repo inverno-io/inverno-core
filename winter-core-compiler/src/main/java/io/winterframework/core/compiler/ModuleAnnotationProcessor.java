@@ -160,7 +160,6 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 				);
 		}
 		this.moduleGenerator.generateNextRound();
-		
 		return true;
 	}
 }

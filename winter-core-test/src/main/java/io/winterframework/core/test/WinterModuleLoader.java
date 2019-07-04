@@ -50,9 +50,8 @@ public class WinterModuleLoader {
 				}
 				
 				try {
-					Class<?> moduleCreatorClass = layer.findLoader(moduleName).loadClass(moduleClassName + "$Creator");
 					Class<?> moduleBuilderClass = layer.findLoader(moduleName).loadClass(moduleClassName + "$Builder");
-					return new WinterModuleProxyBuilder(moduleName, moduleCreatorClass, moduleBuilderClass);
+					return new WinterModuleProxyBuilder(moduleName, moduleBuilderClass);
 					
 				} catch (ClassNotFoundException e) {
 					throw new RuntimeException("Error loading module " +  moduleName);

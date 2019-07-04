@@ -12,6 +12,7 @@ import java.util.Map;
 
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
+import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
@@ -23,9 +24,12 @@ import io.winterframework.core.compiler.spi.SocketInfo;
  */
 public class BeanCycleDetector {
 
+	private ModuleQualifiedName moduleQName;
+	
 	private List<BeanInfo> beans;
 	
-	public BeanCycleDetector(List<BeanInfo> beans) {
+	public BeanCycleDetector(ModuleQualifiedName moduleQName, List<BeanInfo> beans) {
+		this.moduleQName = moduleQName;
 		this.beans = beans;
 	}
 	
@@ -61,12 +65,14 @@ public class BeanCycleDetector {
 				}
 				else if(SocketBeanInfo.class.isAssignableFrom(bean.getClass())) {
 					context.pushSocket((SocketBeanInfo)bean);
-					if(SingleSocketInfo.class.isAssignableFrom(bean.getClass())) {
-						this.visitBean(((SingleSocketInfo)bean).getBean(), context);
-					}
-					else if(MultiSocketInfo.class.isAssignableFrom(bean.getClass())) {
-						if(((MultiSocketInfo)bean).getBeans() != null) {
-							Arrays.stream(((MultiSocketInfo)bean).getBeans()).forEach(b -> this.visitBean(b, context));
+					if(!bean.getQualifiedName().getModuleQName().equals(this.moduleQName)) {
+						if(SingleSocketInfo.class.isAssignableFrom(bean.getClass())) {
+							this.visitBean(((SingleSocketInfo)bean).getBean(), context);
+						}
+						else if(MultiSocketInfo.class.isAssignableFrom(bean.getClass())) {
+							if(((MultiSocketInfo)bean).getBeans() != null) {
+								Arrays.stream(((MultiSocketInfo)bean).getBeans()).forEach(b -> this.visitBean(b, context));
+							}
 						}
 					}
 					context.popSocket();
