@@ -22,43 +22,37 @@ public class WinterModuleProxyBuilder {
 
 	private String moduleName;
 	
-	private Class<?> moduleCreatorClass;
-	
 	private Class<?> moduleBuilderClass;
 	
 	private Supplier<Object> moduleBuilderSupplier;
 
 	private List<Consumer<Object>> moduleOptionalSetters;
 	
-	public WinterModuleProxyBuilder(String moduleName, Class<?> moduleCreatorClass, Class<?> moduleBuilderClass) {
+	public WinterModuleProxyBuilder(String moduleName, Class<?> moduleBuilderClass) {
 		this.moduleName = moduleName;
-		this.moduleCreatorClass = moduleCreatorClass;
 		this.moduleBuilderClass = moduleBuilderClass;
 		
 		this.moduleOptionalSetters = new ArrayList<>();
 	}
 	
 	public WinterModuleProxyBuilder dependencies(Object... values) {
-		final Constructor<?> moduleCreatorConstructor;
+		final Constructor<?> moduleBuilderConstructor;
 		try {
-			moduleCreatorConstructor = this.moduleCreatorClass.getConstructor();
+			Constructor<?>[] constructors = this.moduleBuilderClass.getConstructors();
+			if(constructors.length > 1 || constructors[0].getParameterCount() != values.length) {
+				throw new RuntimeException("Module Builder does not define constructor public Builder(" + Arrays.stream(values).map(o -> o.getClass().getCanonicalName()).collect(Collectors.joining(", ")) + ")");
+			}
+			moduleBuilderConstructor = constructors[0];
 		}
-		catch (NoSuchMethodException | SecurityException e) {
-			throw new IllegalArgumentException("Module Creator must define an empty-arg constructor.", e);
+		catch (SecurityException e) {
+			throw new RuntimeException("Module Builder does not define constructor Builder(" + Arrays.stream(values).map(o -> o.getClass().getCanonicalName()).collect(Collectors.joining(", ")) + ")", e);
 		}
-
-		Optional<Method> moduleCreatorWithMethodOptional = Arrays.stream(this.moduleCreatorClass.getMethods()).filter(m -> m.getName().equals("with")).findFirst();
-		if(!moduleCreatorWithMethodOptional.isPresent()) {
-			throw new IllegalArgumentException("Module Creator must define with(" + Arrays.stream(values).map(o -> o.getClass().getCanonicalName()).collect(Collectors.joining(", ")) + ") method.");
-		}
-		
-		final Method moduleCreatorWithMethod = moduleCreatorWithMethodOptional.get();
 		
 		this.moduleBuilderSupplier = () -> {
 			try {
-				Object moduleCreator = moduleCreatorConstructor.newInstance();
-				return moduleCreatorWithMethod.invoke(moduleCreator, values);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException	| InvocationTargetException e) {
+				return moduleBuilderConstructor.newInstance(values);
+			}
+			catch (InstantiationException | IllegalAccessException | IllegalArgumentException	| InvocationTargetException e) {
 				throw new RuntimeException("Error instantiating builder for module " + this.moduleName, e);
 			}
 		};
@@ -86,22 +80,18 @@ public class WinterModuleProxyBuilder {
 	}
 	
 	public WinterModuleProxy build() {
-
 		if(this.moduleBuilderSupplier == null) {
-			final Constructor<?> moduleCreatorConstructor;
-			final Method moduleCreatorWithMethod;
+			final Constructor<?> moduleBuilderConstructor;
 			try {
-				moduleCreatorConstructor = this.moduleCreatorClass.getConstructor();
-				moduleCreatorWithMethod = this.moduleCreatorClass.getMethod("with");
+				moduleBuilderConstructor = this.moduleBuilderClass.getConstructor();
 			}
 			catch (NoSuchMethodException | SecurityException e) {
-				throw new IllegalArgumentException("Module Creator with() is undefined.", e);
+				throw new RuntimeException("Module Builder does not define constructor Builder()", e);
 			}
 			
 			this.moduleBuilderSupplier = () -> {
 				try {
-					Object moduleCreator = moduleCreatorConstructor.newInstance();
-					return moduleCreatorWithMethod.invoke(moduleCreator);
+					return moduleBuilderConstructor.newInstance();
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException	| InvocationTargetException e) {
 					throw new RuntimeException("Error instantiating builder for module " + this.moduleName, e);
 				}

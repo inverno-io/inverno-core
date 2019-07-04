@@ -14,6 +14,6 @@ public class BeanA implements Callable<String> {
 	}
 	
 	public String call() {
-		
+		return null;
 	}
 }

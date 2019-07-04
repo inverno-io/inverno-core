@@ -20,7 +20,6 @@ public class TestMultiModule extends AbstractWinterTest {
 	private static final String MODULED_MODULE = "io.winterframework.test.multi.moduleD";
 	private static final String MODULEE_MODULE = "io.winterframework.test.multi.moduleE";
 	private static final String MODULEF_MODULE = "io.winterframework.test.multi.moduleF";
-	
 
 	@Test
 	public void testMultiModuleSimple() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {

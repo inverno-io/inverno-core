@@ -71,8 +71,8 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				.map(moduleBeanInfo -> this.visit(moduleBeanInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.BEAN_ACCESSOR)))
 				.collect(Collectors.joining("\n"));
 			
-			String module_creator = this.visit(moduleInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.MODULE_CREATOR_CLASS));
 			String module_builder = this.visit(moduleInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.MODULE_BUILDER_CLASS));
+			String module_linker = this.visit(moduleInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.MODULE_LINKER_CLASS));
 
 			String moduleClass = "";
 
@@ -82,7 +82,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			
 			generation.removeImport(className);
 			generation.removeImport("Builder");
-			generation.removeImport("ModuleCreator");
+			generation.removeImport("ModuleLinker");
 			generation.removeImport("ModuleBuilder");
 			generation.removeImport("BeanBuilder");
 			generation.removeImport("Bean");
@@ -107,71 +107,27 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			moduleClass += generation.indent(2) + "super(\"" + moduleInfo.getQualifiedName().getValue() + "\");\n\n";
 			
 			if(module_constructor_modules != null && !module_constructor_modules.equals("")) {
-				moduleClass += module_constructor_modules + "\n\n";
+				moduleClass += module_constructor_modules + "\n";
 			}
 			if(module_constructor_beans != null && !module_constructor_beans.equals("")) {
-				moduleClass += module_constructor_beans + "\n\n";
+				moduleClass += "\n" + module_constructor_beans + "\n";
 			}
 			
 			moduleClass += generation.indent(1) + "}\n";
 			
 			if(module_method_beans != null && !module_method_beans.equals("")) {
-				moduleClass += module_method_beans;
+				moduleClass += "\n" + module_method_beans + "\n";
 			}
 			
-			moduleClass += module_creator + "\n\n";
 			moduleClass += module_builder + "\n\n";
+			moduleClass += module_linker;
 			
 			moduleClass += "}\n";
 			
 			return moduleClass;
 		}
-		else if(generation.getMode() == GenerationMode.MODULE_CREATOR_CLASS) {
-			TypeMirror moduleCreatorType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.ModuleCreator").asType());
-			TypeMirror mapType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Map").asType());
-			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
-			
-			String creator_with_parameters = Arrays.stream(moduleInfo.getSockets())
-				.filter(moduleSocketInfo -> !moduleSocketInfo.isOptional())
-				.map(moduleSocketInfo -> generation.getTypeName(moduleSocketInfo.getType()) + " " + moduleSocketInfo.getQualifiedName().normalize())
-				.collect(Collectors.joining(", "));
-			
-			String creator_with_args = Arrays.stream(moduleInfo.getSockets())
-				.filter(moduleSocketInfo -> !moduleSocketInfo.isOptional())
-				.map(moduleSocketInfo -> moduleSocketInfo.getQualifiedName().normalize())
-				.collect(Collectors.joining(", "));
-			
-			String creator_create_args = Arrays.stream(moduleInfo.getSockets())
-				.map(moduleSocketInfo -> {
-					String result = "";
-					if(moduleSocketInfo.isOptional()) {
-						result += "(" + generation.getTypeName(optionalType) +"<" + generation.getTypeName(moduleSocketInfo.getSocketType()) + ">)";
-					}
-					else {
-						result += "(" + generation.getTypeName(moduleSocketInfo.getSocketType()) + ")";
-					}
-					result += "args.get(\"" + moduleSocketInfo.getQualifiedName().normalize() + "\")";
-					return result ;
-				})
-				.collect(Collectors.joining(", "));
-
-			String creatorClass = generation.indent(1) + "public static class Creator extends " + generation.getTypeName(moduleCreatorType) + "<" + className + "> {" + "\n\n";
-			
-			creatorClass += generation.indent(2) + "public static Builder with(" + creator_with_parameters + ") {" + "\n";
-			creatorClass += generation.indent(3) + "return new Builder(" + creator_with_args + ");\n";
-			creatorClass += generation.indent(2) + "}\n\n";
-
-			creatorClass += generation.indent(2) + "protected " + className + " create(" + generation.getTypeName(mapType) + "<String, Object> args) {\n";
-			creatorClass += generation.indent(3) + "return new " + className + "(" + creator_create_args + ");\n";
-			creatorClass += generation.indent(2) + "}\n";
-			
-			creatorClass += generation.indent(1) + "}\n";
-			
-			return creatorClass;
-		}
 		else if(generation.getMode() == GenerationMode.MODULE_BUILDER_CLASS) {
 			TypeMirror moduleBuilderType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.ModuleBuilder").asType());
-			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
 			
 			String module_builder_fields = Arrays.stream(moduleInfo.getSockets())
 				.map(moduleSocketInfo -> this.visit(moduleSocketInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.SOCKET_FIELD)))
@@ -182,20 +138,18 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				.map(moduleSocketInfo -> generation.getTypeName(moduleSocketInfo.getType()) + " " + moduleSocketInfo.getQualifiedName().normalize())
 				.collect(Collectors.joining(", "));
 			
-			String module_builder_constructor = Arrays.stream(moduleInfo.getSockets())
+			String module_builder_constructor_super_args = Arrays.stream(moduleInfo.getSockets())
+					.filter(moduleSocketInfo -> !moduleSocketInfo.isOptional())
+					.map(moduleSocketInfo -> "\"" + moduleSocketInfo.getQualifiedName().normalize() + "\", " + moduleSocketInfo.getQualifiedName().normalize())
+					.collect(Collectors.joining(", "));
+			
+			String module_builder_constructor_assignments = Arrays.stream(moduleInfo.getSockets())
 				.filter(moduleSocketInfo -> !moduleSocketInfo.isOptional())
 				.map(moduleSocketInfo -> this.visit(moduleSocketInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.SOCKET_ASSIGNMENT)))
 				.collect(Collectors.joining("\n"));
-
+			
 			String module_builder_build_args = Arrays.stream(moduleInfo.getSockets())
-				.map(moduleSocketInfo -> {
-					// TODO required socket have to be provided in the builder constructor as a result there shouldn't be a need for this for required socket at least
-					String result = "this." + moduleSocketInfo.getQualifiedName().normalize() + " != null ? () -> this." + moduleSocketInfo.getQualifiedName().normalize() + " : null";
-					if(moduleSocketInfo.isOptional()) {
-						result = generation.getTypeName(optionalType) + ".ofNullable(" + result + ")";
-					}
-					return result;
-				})
+				.map(moduleSocketInfo -> "this." + moduleSocketInfo.getQualifiedName().normalize())
 				.collect(Collectors.joining(", "));
 			
 			String module_builder_socket_methods = Arrays.stream(moduleInfo.getSockets())
@@ -208,8 +162,9 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				moduleBuilderClass += module_builder_fields + "\n\n";
 			}
 			if(module_builder_constructor_parameters != null && !module_builder_constructor_parameters.equals("")) {
-				moduleBuilderClass += generation.indent(2) + "protected Builder(" + module_builder_constructor_parameters + ") {\n";
-				moduleBuilderClass += module_builder_constructor + "\n";
+				moduleBuilderClass += generation.indent(2) + "public Builder(" + module_builder_constructor_parameters + ") {\n";
+				moduleBuilderClass += generation.indent(3) + "super(" + module_builder_constructor_super_args + ");\n\n";
+				moduleBuilderClass += module_builder_constructor_assignments + "\n";
 				moduleBuilderClass += generation.indent(2) + "}\n\n";
 			}
 			
@@ -225,13 +180,46 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			
 			return moduleBuilderClass;
 		}
+		else if(generation.getMode() == GenerationMode.MODULE_LINKER_CLASS) {
+			TypeMirror moduleLinkerType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.ModuleLinker").asType());
+			TypeMirror mapType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Map").asType());
+			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
+			
+			String linker_module_args = Arrays.stream(moduleInfo.getSockets())
+				.map(moduleSocketInfo -> {
+					String result = "";
+					if(moduleSocketInfo.isOptional()) {
+						result += "(" + generation.getTypeName(optionalType) +"<" + generation.getTypeName(moduleSocketInfo.getSocketType()) + ">)";
+					}
+					else {
+						result += "(" + generation.getTypeName(moduleSocketInfo.getSocketType()) + ")";
+					}
+					result += "this.sockets.get(\"" + moduleSocketInfo.getQualifiedName().normalize() + "\")";
+					return result ;
+				})
+				.collect(Collectors.joining(", "));
+
+			String linkerClass = generation.indent(1) + "public static class Linker extends " + generation.getTypeName(moduleLinkerType) + "<" + className + "> {" + "\n\n";
+			
+			linkerClass += generation.indent(2) + "public Linker(" + generation.getTypeName(mapType) + "<String, Object> sockets) {" + "\n";
+			linkerClass += generation.indent(3) + "super(sockets);\n";
+			linkerClass += generation.indent(2) + "}\n\n";
+
+			linkerClass += generation.indent(2) + "protected " + className + " link() {\n";
+			linkerClass += generation.indent(3) + "return new " + className + "(" + linker_module_args + ");\n";
+			linkerClass += generation.indent(2) + "}\n";
+			
+			linkerClass += generation.indent(1) + "}\n";
+			
+			return linkerClass;
+		}
 		else if(generation.getMode() == GenerationMode.IMPORT_MODULE_NEW) {
-			TypeMirror importedModuleType = generation.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
+			// TODO For some reason this doesn't work 100% (see TestMutiCycle)
+			//TypeMirror importedModuleType = generation.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
 			TypeMirror mapType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Map").asType());
 
 			String import_module_arguments = Arrays.stream(moduleInfo.getSockets())
 				.map(beanSocketInfo -> {
-					// TODO we must determine whether BEAN_REFERENCE or IMPORT_BEAN_REFERENCE, the only way would be to keep the module being built in the generation... but it sucks
 					String ret = generation.getTypeName(mapType) + ".entry(\"" + beanSocketInfo.getQualifiedName().normalize() + "\", ";
 					ret += this.visit(beanSocketInfo, generation.withMode(GenerationMode.IMPORT_BEAN_REFERENCE));
 					ret += ")";
@@ -239,20 +227,23 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				})
 				.collect(Collectors.joining(", "));
 			
-			String moduleNew = generation.indent(2) + "this." + moduleInfo.getQualifiedName().normalize() + " = this.with(new " + generation.getTypeName(importedModuleType) + ".Creator()";
+			String moduleNew = generation.indent(2) + "this." + moduleInfo.getQualifiedName().normalize() + " = this.with(new " + generation.getTypeName(moduleInfo.getQualifiedName().getClassName()) + ".Linker(";
 			if(import_module_arguments != null && !import_module_arguments.equals("")) {
-				moduleNew += ", " + generation.getTypeName(mapType) + ".ofEntries(" + import_module_arguments + ")";
+				moduleNew += generation.getTypeName(mapType) + ".ofEntries(" + import_module_arguments + ")";
 			}
 			else {
-				moduleNew += ", " + generation.getTypeName(mapType) + ".of()";
+				moduleNew += generation.getTypeName(mapType) + ".of()";
 			}
-			moduleNew += ");\n";
+			moduleNew += "));";
 			
 			return moduleNew;
 		}
 		else if(generation.getMode() == GenerationMode.IMPORT_MODULE_FIELD) {
-			TypeMirror importedModuleType = generation.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
-			return generation.indent(1) + "private " + generation.getTypeName(importedModuleType) + " " + moduleInfo.getQualifiedName().normalize() + ";"; 
+			// TODO For some reason this doesn't work 100% (see TestMutiCycle)
+			/*TypeMirror importedModuleType = generation.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
+			return generation.indent(1) + "private " + generation.getTypeName(importedModuleType) + " " + moduleInfo.getQualifiedName().normalize() + ";";*/
+			
+			return generation.indent(1) + "private " + generation.getTypeName(moduleInfo.getQualifiedName().getClassName()) + " " + moduleInfo.getQualifiedName().normalize() + ";";
 		}
 		return null;
 	}
@@ -343,7 +334,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 					.collect(Collectors.joining("\n")) + "\n";
 			}	
 
-			beanNew += generation.indent(3) + ".build());";
+			beanNew += generation.indent(2) + ");";
 			
 			return beanNew;
 		}
@@ -519,21 +510,23 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			return socketParameter;
 		}
 		else if(generation.getMode() == GenerationMode.SOCKET_FIELD) {
-			// TODO we should declare the SocketType instead of the type for required socket and Optional<SocketType> for optional sockets
-			// and initialize optional sockets to Optional.empty();
-			return generation.indent(2) + "private " + generation.getTypeName(socketBeanInfo.getType()) + " " + socketBeanInfo.getQualifiedName().normalize() + ";";
+			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
+			if(socketBeanInfo.isOptional()) {
+				return generation.indent(2) + "private " + generation.getTypeName(optionalType) + "<" + generation.getTypeName(socketBeanInfo.getSocketType()) + "> " + socketBeanInfo.getQualifiedName().normalize() + " = " + generation.getTypeName(optionalType) + ".empty();";
+			}
+			else {
+				return generation.indent(2) + "private " + generation.getTypeName(socketBeanInfo.getSocketType()) + " " + socketBeanInfo.getQualifiedName().normalize() + ";";
+			}
 		}
 		else if(generation.getMode() == GenerationMode.SOCKET_ASSIGNMENT) {
-			// TODO assuming SocketType is used in field declaration we should directly assign Suppliers: "() -> " + socketBeanInfo.getQualifiedName().normalize()
-			// and throw IllegalArgumentException in case a socket is null
-			return generation.indent(3) + "this." + socketBeanInfo.getQualifiedName().normalize() + " = " + socketBeanInfo.getQualifiedName().normalize() + ";";
+			return generation.indent(3) + "this." + socketBeanInfo.getQualifiedName().normalize() + " = () -> " + socketBeanInfo.getQualifiedName().normalize() + ";";
 		}
 		else if(generation.getMode() == GenerationMode.SOCKET_INJECTOR) {
-			// TODO assuming SocketType is used in field declaration we should assign an Optional.ofNullable(...)
+			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
 			String plugName = socketBeanInfo.getQualifiedName().normalize();
 			
 			String result = generation.indent(2) + "public Builder set" + Character.toUpperCase(plugName.charAt(0)) + plugName.substring(1) + "(" + generation.getTypeName(socketBeanInfo.getType()) + " " + plugName + ") {\n";
-			result += generation.indent(3) + "this." + plugName + " = " + plugName + ";\n";
+			result += generation.indent(3) + "this." + plugName + " = " + generation.getTypeName(optionalType) + ".ofNullable(" + plugName + " != null ? () -> " + plugName + " : null);\n";
 			result += generation.indent(3) + "return this;\n";
 			result += generation.indent(2) + "}\n";
 			

@@ -61,6 +61,7 @@ public class TestManualWire extends AbstractWinterTest {
 		this.moduleProxy.stop();
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testMultiWire() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		this.moduleProxy.start();

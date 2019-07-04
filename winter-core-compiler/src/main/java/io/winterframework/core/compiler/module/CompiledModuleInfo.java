@@ -42,7 +42,7 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	}
 	
 	void setFaulty(boolean faulty) {
-		this.faulty= faulty; 
+		this.faulty = faulty; 
 	}
 	
 	/*
@@ -111,6 +111,9 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 		return this.beanInfos.stream().filter(beanInfo -> beanInfo.getVisibility().equals(Bean.Visibility.PUBLIC)).toArray(ModuleBeanInfo[]::new);
 	}
 
+	/*(non-Javadoc)
+	 * @see io.winterframework.core.compiler.spi.ModuleInfo#accept(io.winterframework.core.compiler.spi.ModuleInfoVisitor, java.lang.Object)
+	 */
 	@Override
 	public <R, P> R accept(ModuleInfoVisitor<R, P> visitor, P p) {
 		return visitor.visit(this,  p);

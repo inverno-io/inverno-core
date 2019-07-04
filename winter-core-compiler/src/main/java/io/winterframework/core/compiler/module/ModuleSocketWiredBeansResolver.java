@@ -6,6 +6,7 @@ package io.winterframework.core.compiler.module;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.winterframework.core.compiler.socket.WirableSocketBeanInfo;
 import io.winterframework.core.compiler.spi.BeanInfo;
@@ -16,6 +17,7 @@ import io.winterframework.core.compiler.spi.ModuleBeanSingleSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
+import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
 import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
@@ -30,15 +32,17 @@ import io.winterframework.core.compiler.spi.WrapperBeanInfo;
  */
 class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<BeanQualifiedName>> {
 
+	private ModuleQualifiedName moduleQName;
+	
 	/* (non-Javadoc)
 	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleInfo, java.lang.Object)
 	 */
 	@Override
 	public Void visit(ModuleInfo moduleInfo, Set<BeanQualifiedName> wiredBeans) {
+		this.moduleQName = moduleInfo.getQualifiedName();
 		Arrays.stream(moduleInfo.getBeans()).forEach(bean -> {
 			this.visit(bean, new HashSet<>());
 		});
-		
 		return null;
 	}
 
@@ -120,8 +124,20 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 	 */
 	@Override
 	public Void visit(SocketBeanInfo moduleSocketInfo, Set<BeanQualifiedName> wiredBeans) {
-		wiredBeans.addAll(Arrays.asList(moduleSocketInfo.getWiredBeans()));
-		((WirableSocketBeanInfo)moduleSocketInfo).setWiredBeans(wiredBeans);
+		if(moduleSocketInfo.getQualifiedName().getModuleQName().equals(this.moduleQName)) {
+			// this module
+			wiredBeans.addAll(Arrays.asList(moduleSocketInfo.getWiredBeans()));
+			((WirableSocketBeanInfo)moduleSocketInfo).setWiredBeans(wiredBeans.stream().filter(beanQName -> beanQName.getModuleQName().equals(this.moduleQName)).collect(Collectors.toSet()));
+		}
+		else {
+			// imported module
+			if(SingleSocketBeanInfo.class.isAssignableFrom(moduleSocketInfo.getClass())) {
+				return this.visit((SingleSocketBeanInfo)moduleSocketInfo, wiredBeans);
+			}
+			else if(MultiSocketBeanInfo.class.isAssignableFrom(moduleSocketInfo.getClass())) {
+				return this.visit((MultiSocketBeanInfo)moduleSocketInfo, wiredBeans);
+			}
+		}
 		return null;
 	}
 
@@ -130,6 +146,12 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 	 */
 	@Override
 	public Void visit(SingleSocketBeanInfo moduleSingleSocketInfo, Set<BeanQualifiedName> wiredBeans) {
+		if(moduleSingleSocketInfo.getBean() != null) {
+			/*wiredBeans.addAll(Arrays.stream(moduleSingleSocketInfo.getWiredBeans())
+				.filter(beanQName -> beanQName.getModuleQName().equals(this.moduleQName))
+				.collect(Collectors.toList()));*/
+			this.visit(moduleSingleSocketInfo.getBean(), wiredBeans);
+		}
 		return null;
 	}
 
@@ -138,6 +160,12 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 	 */
 	@Override
 	public Void visit(MultiSocketBeanInfo moduleMultiSocketInfo, Set<BeanQualifiedName> wiredBeans) {
+		if(moduleMultiSocketInfo.getBeans() != null) {
+			/*wiredBeans.addAll(Arrays.stream(moduleMultiSocketInfo.getWiredBeans())
+				.filter(beanQName -> beanQName.getModuleQName().equals(this.moduleQName))
+				.collect(Collectors.toList()));*/
+			Arrays.stream(moduleMultiSocketInfo.getBeans()).forEach(bean -> this.visit(bean, wiredBeans));
+		}
 		return null;
 	}
 
