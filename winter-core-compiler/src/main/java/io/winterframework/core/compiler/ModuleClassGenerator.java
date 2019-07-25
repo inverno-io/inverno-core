@@ -1,14 +1,10 @@
 package io.winterframework.core.compiler;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.lang.model.type.ArrayType;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
@@ -82,6 +78,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			
 			generation.removeImport(className);
 			generation.removeImport("Builder");
+			generation.removeImport("BeanAggregator");
 			generation.removeImport("ModuleLinker");
 			generation.removeImport("ModuleBuilder");
 			generation.removeImport("BeanBuilder");
@@ -104,10 +101,10 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			}
 			
 			moduleClass += generation.indent(1) + "public " + className + "(" + module_constructor_parameters + ") {\n";
-			moduleClass += generation.indent(2) + "super(\"" + moduleInfo.getQualifiedName().getValue() + "\");\n\n";
+			moduleClass += generation.indent(2) + "super(\"" + moduleInfo.getQualifiedName().getValue() + "\");\n";
 			
 			if(module_constructor_modules != null && !module_constructor_modules.equals("")) {
-				moduleClass += module_constructor_modules + "\n";
+				moduleClass += "\n" + module_constructor_modules + "\n";
 			}
 			if(module_constructor_beans != null && !module_constructor_beans.equals("")) {
 				moduleClass += "\n" + module_constructor_beans + "\n";
@@ -220,16 +217,18 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 
 			String import_module_arguments = Arrays.stream(moduleInfo.getSockets())
 				.map(beanSocketInfo -> {
-					String ret = generation.getTypeName(mapType) + ".entry(\"" + beanSocketInfo.getQualifiedName().normalize() + "\", ";
-					ret += this.visit(beanSocketInfo, generation.withMode(GenerationMode.IMPORT_BEAN_REFERENCE));
+					String ret = generation.indent(3) + generation.getTypeName(mapType) + ".entry(\"" + beanSocketInfo.getQualifiedName().normalize() + "\", ";
+					ret += this.visit(beanSocketInfo, generation.withMode(GenerationMode.IMPORT_BEAN_REFERENCE).withIndentDepth(4));
 					ret += ")";
 					return ret;
 				})
-				.collect(Collectors.joining(", "));
+				.collect(Collectors.joining(",\n"));
 			
 			String moduleNew = generation.indent(2) + "this." + moduleInfo.getQualifiedName().normalize() + " = this.with(new " + generation.getTypeName(moduleInfo.getQualifiedName().getClassName()) + ".Linker(";
 			if(import_module_arguments != null && !import_module_arguments.equals("")) {
-				moduleNew += generation.getTypeName(mapType) + ".ofEntries(" + import_module_arguments + ")";
+				moduleNew += generation.getTypeName(mapType) + ".ofEntries(\n"; 
+				moduleNew += import_module_arguments;
+				moduleNew += "\n" + generation.indent(2) + ")";
 			}
 			else {
 				moduleNew += generation.getTypeName(mapType) + ".of()";
@@ -299,24 +298,29 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			}
 			
 			beanNew += generation.indent(4) + generation.getTypeName(beanType) + " " + variable + " = new " + generation.getTypeName(beanType) + "(";
-			beanNew += Arrays.stream(moduleBeanInfo.getRequiredSockets())
-				.sorted(new Comparator<ModuleBeanSocketInfo>() {
-					public int compare(ModuleBeanSocketInfo s1, ModuleBeanSocketInfo s2) {
-						if(s1.getSocketElement() != s2.getSocketElement()) {
-							throw new IllegalStateException("Comparing required sockets with different socket elements");
+			if(moduleBeanInfo.getRequiredSockets().length > 0) {
+				beanNew += "\n";
+				beanNew += Arrays.stream(moduleBeanInfo.getRequiredSockets())
+					.sorted(new Comparator<ModuleBeanSocketInfo>() {
+						public int compare(ModuleBeanSocketInfo s1, ModuleBeanSocketInfo s2) {
+							if(s1.getSocketElement() != s2.getSocketElement()) {
+								throw new IllegalStateException("Comparing required sockets with different socket elements");
+							}
+							List<String> orderedDependencyNames = s1.getSocketElement().getParameters().stream().map(element -> element.getSimpleName().toString()).collect(Collectors.toList());
+							return orderedDependencyNames.indexOf(s1.getQualifiedName().getSimpleValue()) - orderedDependencyNames.indexOf(s2.getQualifiedName().getSimpleValue());
 						}
-						List<String> orderedDependencyNames = s1.getSocketElement().getParameters().stream().map(element -> element.getSimpleName().toString()).collect(Collectors.toList());
-						return orderedDependencyNames.indexOf(s1.getQualifiedName().getSimpleValue()) - orderedDependencyNames.indexOf(s2.getQualifiedName().getSimpleValue());
-					}
-				})
-				.map(socketInfo -> this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE)))
-				.collect(Collectors.joining(", "));
-			beanNew += ");\n";
-			
+					})
+					.map(socketInfo -> generation.indent(5) + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(5)))
+					.collect(Collectors.joining(", \n"));
+				beanNew += "\n" + generation.indent(4) + ");\n";
+			}
+			else {
+				beanNew += ");\n";
+			}
 			// TODO: optionalSocket.ifPresent(bean::setXxx)
 			beanNew += Arrays.stream(moduleBeanInfo.getOptionalSockets())
 				.filter(socketInfo -> socketInfo.isResolved())
-				.map(socketInfo -> generation.indent(4) + variable + "." + socketInfo.getSocketElement().getSimpleName().toString() + "(" + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE)) + ");")
+				.map(socketInfo -> generation.indent(4) + variable + "." + socketInfo.getSocketElement().getSimpleName().toString() + "(" + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(4)) + ");")
 				.collect(Collectors.joining("\n")) + "\n";
 
 			beanNew += generation.indent(4) + "return " + variable + ";\n";
@@ -399,7 +403,24 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				unwildDependencyType = multiSocketInfo.getType();
 			}
 			
-			DeclaredType dependencyCollectionType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement(Collection.class.getCanonicalName()), generation.getTypeUtils().getWildcardType(unwildDependencyType, null));
+			TypeMirror beanAggregatorType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.BeanAggregator").asType());
+			
+			String beanSocketReference = "new " + generation.getTypeName(beanAggregatorType) + "<" + generation.getTypeName(unwildDependencyType) + ">()\n";
+			beanSocketReference += Arrays.stream(multiSocketInfo.getBeans())
+				.map(beanInfo -> generation.indent(1) + ".add(" + this.visit(beanInfo, generation) + ")")
+				.collect(Collectors.joining("\n")) + "\n";
+			
+			if(multiSocketInfo.getMultiType().equals(MultiSocketType.ARRAY)) {
+				beanSocketReference += generation.indent(0) + ".toArray(" + generation.getTypeName(unwildDependencyType) + "[]::new)";
+			}
+			else if(multiSocketInfo.getMultiType().equals(MultiSocketType.COLLECTION) || multiSocketInfo.getMultiType().equals(MultiSocketType.LIST)) {
+				beanSocketReference += generation.indent(0) + ".toList()";
+			}
+			else if(multiSocketInfo.getMultiType().equals(MultiSocketType.SET)) {
+				beanSocketReference += generation.indent(0) + ".toSet()";
+			}
+			
+			/*DeclaredType dependencyCollectionType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement(Collection.class.getCanonicalName()), generation.getTypeUtils().getWildcardType(unwildDependencyType, null));
 			DeclaredType dependencyListType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement(List.class.getCanonicalName()), generation.getTypeUtils().getWildcardType(unwildDependencyType, null));
 			DeclaredType dependencySetType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement(Set.class.getCanonicalName()), generation.getTypeUtils().getWildcardType(unwildDependencyType, null));
 			ArrayType dependencyArrayType =  generation.getTypeUtils().getArrayType(unwildDependencyType);
@@ -411,11 +432,8 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			TypeMirror arraysType = generation.getElementUtils().getTypeElement("java.util.Arrays").asType();
 			TypeMirror objectsType = generation.getElementUtils().getTypeElement("java.util.Objects").asType();
 			TypeMirror collectorsType = generation.getElementUtils().getTypeElement("java.util.stream.Collectors").asType();
-//			TypeMirror functionType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement("java.util.function.Function").asType());
-			
-			String beanSocketReference = "";
-			
-			beanSocketReference = generation.getTypeName(streamType) + ".of(";
+			 
+			String beanSocketReference = generation.getTypeName(streamType) + ".of(\n" + generation.indent(1);
 			beanSocketReference += Arrays.stream(multiSocketInfo.getBeans())
 				.map(beanInfo -> {
 					if(generation.getTypeUtils().isAssignable(beanInfo.getType(), unwildDependencyType)) {
@@ -450,9 +468,8 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 					}
 					return "";
 				})
-				.collect(Collectors.joining(", "));
-			beanSocketReference += ").flatMap(t -> t).filter(" + generation.getTypeName(objectsType) + "::nonNull)";
-			//beanSocketReference += ").flatMap(" + generation.getTypeName(functionType) + ".identity())"; // Apparently this fails compilation with OpenJDK compiler but not with ECJ
+				.collect(Collectors.joining(", \n" + generation.indent(1))) + "\n";
+			beanSocketReference += generation.indent(0) + ").flatMap(t -> t).filter(" + generation.getTypeName(objectsType) + "::nonNull)";
 
 			if(multiSocketInfo.getMultiType().equals(MultiSocketType.ARRAY)) {
 				beanSocketReference += ".toArray(" + generation.getTypeName(unwildDependencyType) + "[]::new)";
@@ -462,7 +479,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			}
 			else if(multiSocketInfo.getMultiType().equals(MultiSocketType.SET)) {
 				beanSocketReference += ".collect(" + generation.getTypeName(collectorsType) + ".toSet())";
-			}
+			}*/
 			return beanSocketReference;
 		}
 		return "";
