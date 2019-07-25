@@ -6,9 +6,14 @@ package io.winterframework.core;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -170,7 +175,7 @@ public abstract class Module {
 		
 		return bean;
 	}
-	
+		
 	/**
 	 * <p>
 	 * Start the module.
@@ -202,6 +207,96 @@ public abstract class Module {
 		this.modules.stream().forEach(module -> module.stop());
 		this.beans.stream().forEach(bean -> bean.destroy());
 		this.logger.info("Module " + this.name + " stopped in " + ((System.nanoTime() - t0) / 1000000) + "ms");
+	}
+	
+
+	/**
+	 * <p>
+	 * Aggregate single beans, collections of beans and arrays of beans.
+	 * </p>
+	 * @author jkuhn
+	 *
+	 * @param <E> The bean type 
+	 */
+	protected static class BeanAggregator<E> {
+		
+		private List<E> aggregate;
+		
+		/**
+		 * Create an aggregator.
+		 */
+		public BeanAggregator() {
+			this.aggregate = new ArrayList<>();
+		}
+		
+		/**
+		 * <p>
+		 * Append the specified bean to the aggregate.
+		 * </p>
+		 * 
+		 * @param bean The bean to add.
+		 * @return The aggregator instance.
+		 */
+		public BeanAggregator<E> add(E bean) {
+			this.aggregate.add(bean);
+			return this;
+		}
+		
+		/**
+		 * <p>
+		 * Append the specified collection of beans to the aggregate.
+		 * </p>
+		 * 
+		 * @param beans The beans to add.
+		 * @return The aggregator instance.
+		 */
+		public BeanAggregator<E> add(Collection<E> beans) {
+			this.aggregate.addAll(beans);
+			return this;
+		}
+		
+		/**
+		 * <p>
+		 * Append the specified array of beans to the aggregate.
+		 * </p>
+		 * 
+		 * @param beans The beans to add.
+		 * @return The aggregator instance.
+		 */
+		public BeanAggregator<E> add(E[] beans) {
+			this.aggregate.addAll(Arrays.asList(beans));
+			return this;
+		}
+		
+		/**
+		 * <p>
+		 * Filter null bean and return a list representation of the aggregate.
+		 * </p>
+		 * @return A list of beans
+		 */
+		public List<E> toList() {
+			return this.aggregate.stream().filter(Objects::nonNull).collect(Collectors.toList());
+		}
+		
+		/**
+		 * <p>
+		 * Filter null bean and return a set representation of the aggregate.
+		 * </p>
+		 * @return A set of beans
+		 */
+		public Set<E> toSet() {
+			return this.aggregate.stream().filter(Objects::nonNull).collect(Collectors.toSet());
+		}
+		
+		/**
+		 * <p>
+		 * Filter null bean and return an array representation of the aggregate.
+		 * </p>
+		 * @return An array of beans
+		 */
+		public E[] toArray(IntFunction<E[]> generator) {
+			return this.aggregate.stream().filter(Objects::nonNull).toArray(generator);
+		}
 	}
 	
 	/**

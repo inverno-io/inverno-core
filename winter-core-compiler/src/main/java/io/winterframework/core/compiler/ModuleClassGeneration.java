@@ -53,6 +53,8 @@ class ModuleClassGeneration {
 	
 	private ProcessingEnvironment processingEnvironment;
 	
+	private int indentDepth = 0;
+	
 	private static final String DEFAULT_INDENT = "\t";
 	
 	private String indent = DEFAULT_INDENT;
@@ -67,6 +69,15 @@ class ModuleClassGeneration {
 		this.imports = parentGeneration.imports;
 		this.processingEnvironment = parentGeneration.processingEnvironment;
 		this.mode = mode;
+		this.indentDepth = parentGeneration.indentDepth;
+		this.moduleQualifiedName = parentGeneration.getModule();
+	}
+	
+	private ModuleClassGeneration(ModuleClassGeneration parentGeneration, int indentDepth) {
+		this.imports = parentGeneration.imports;
+		this.processingEnvironment = parentGeneration.processingEnvironment;
+		this.mode = parentGeneration.getMode();
+		this.indentDepth = indentDepth;
 		this.moduleQualifiedName = parentGeneration.getModule();
 	}
 	
@@ -74,6 +85,7 @@ class ModuleClassGeneration {
 		this.imports = parentGeneration.imports;
 		this.processingEnvironment = parentGeneration.processingEnvironment;
 		this.mode = parentGeneration.getMode();
+		this.indentDepth = parentGeneration.indentDepth;
 		this.moduleQualifiedName = moduleQualifiedName;
 	}
 	
@@ -83,7 +95,7 @@ class ModuleClassGeneration {
 	
 	public String indent(int depth) {
 		String repeatIndent = "";
-		for(int i=0;i<depth;i++) {
+		for(int i=0;i<this.indentDepth + depth;i++) {
 			repeatIndent += this.indent;
 		}
 		return repeatIndent;
@@ -91,6 +103,10 @@ class ModuleClassGeneration {
 	
 	public ModuleClassGeneration withMode(GenerationMode mode) {
 		return new ModuleClassGeneration(this, mode);
+	}
+	
+	public ModuleClassGeneration withIndentDepth(int indentDepth) {
+		return new ModuleClassGeneration(this, indentDepth);
 	}
 	
 	public ModuleClassGeneration forModule(ModuleQualifiedName moduleQualifiedName) {
