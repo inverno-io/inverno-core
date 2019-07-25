@@ -1,5 +1,5 @@
 module io.winterframework.core.test {
-	requires java.compiler;
+	requires transitive java.compiler;
 	
 	requires io.winterframework.core;
 	requires io.winterframework.core.compiler;
