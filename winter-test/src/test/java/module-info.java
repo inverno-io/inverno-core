@@ -9,5 +9,8 @@ module io.winterframework.test {
 	requires io.winterframework.core.test;
 	
 	requires org.junit.jupiter.api;
+	requires org.junit.platform.launcher;
+	requires org.junit.platform.commons;
+	requires org.junit.jupiter.engine;
 	requires org.mockito;
 }
