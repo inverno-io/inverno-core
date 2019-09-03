@@ -35,33 +35,32 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 	
 	private List<? extends ModuleBeanSocketInfo> socketInfos;
 	
-	/**
-	 * @param processingEnvironment
-	 * @param element
-	 * @param annotation
-	 * @param qname
-	 * @param type
-	 */
-	public CommonModuleBeanInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, BeanQualifiedName qname, TypeMirror type, List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
-		this(processingEnvironment, element, annotation, qname, type, Bean.Visibility.PUBLIC, Scope.Type.PROTOTYPE, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
+	private TypeMirror providedType;
+	
+	public CommonModuleBeanInfo(ProcessingEnvironment processingEnvironment, 
+			Element element, 
+			AnnotationMirror annotation, 
+			BeanQualifiedName qname, 
+			TypeMirror type, 
+			TypeMirror providedType,
+			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
+		this(processingEnvironment, element, annotation, qname, type, providedType, Bean.Visibility.PUBLIC, Scope.Type.PROTOTYPE, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
 	}
 	
-	/**
-	 * @param processingEnvironment
-	 * @param element
-	 * @param annotation
-	 * @param qname
-	 * @param type
-	 * @param supplied
-	 * @param visibility
-	 * @param scope
-	 * @param initElements
-	 * @param destroyElements
-	 * @param beanSocketInfos
-	 */
-	public CommonModuleBeanInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, BeanQualifiedName qname, TypeMirror type, Bean.Visibility visibility, Scope.Type scope, List<ExecutableElement> initElements, List<ExecutableElement> destroyElements, List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
+	public CommonModuleBeanInfo(ProcessingEnvironment processingEnvironment,
+			Element element, 
+			AnnotationMirror annotation, 
+			BeanQualifiedName qname, 
+			TypeMirror type, 
+			TypeMirror providedType,
+			Bean.Visibility visibility, 
+			Scope.Type scope, 
+			List<ExecutableElement> initElements, 
+			List<ExecutableElement> destroyElements, 
+			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
 		super(processingEnvironment, element, annotation, qname, type);
 		
+		this.providedType = providedType;
 		this.visibility = visibility != null ? visibility : Bean.Visibility.PUBLIC;
 		this.scope = scope != null ? scope : Scope.Type.SINGLETON;
 		this.initElements = initElements != null ? Collections.unmodifiableList(initElements) : Collections.emptyList();
@@ -69,57 +68,41 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 		this.socketInfos = beanSocketInfos != null ? Collections.unmodifiableList(beanSocketInfos) : Collections.emptyList();
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanInfo#getVisibility()
-	 */
 	@Override
-	public Bean.Visibility getVisibility() {
-		return this.visibility;
+	public TypeMirror getProvidedType() {
+		return this.providedType;
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanInfo#getScope()
-	 */
 	@Override
 	public Scope.Type getScope() {
 		return this.scope;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanInfo#getInitElements()
-	 */
+	@Override
+	public Bean.Visibility getVisibility() {
+		return this.visibility;
+	}
+	
 	@Override
 	public ExecutableElement[] getInitElements() {
 		return this.initElements.stream().toArray(ExecutableElement[]::new);
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanInfo#getDestroyElements()
-	 */
 	@Override
 	public ExecutableElement[] getDestroyElements() {
 		return this.destroyElements.stream().toArray(ExecutableElement[]::new);
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanInfo#getSockets()
-	 */
 	@Override
 	public ModuleBeanSocketInfo[] getSockets() {
 		return this.socketInfos.stream().toArray(ModuleBeanSocketInfo[]::new);
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanInfo#getRequiredSockets()
-	 */
 	@Override
 	public ModuleBeanSocketInfo[] getRequiredSockets() {
 		return this.socketInfos.stream().filter(socketInfo -> !socketInfo.isOptional()).toArray(ModuleBeanSocketInfo[]::new);
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanInfo#getOptionalSockets()
-	 */
 	@Override
 	public ModuleBeanSocketInfo[] getOptionalSockets() {
 		return this.socketInfos.stream().filter(socketInfo -> socketInfo.isOptional()).toArray(ModuleBeanSocketInfo[]::new);

@@ -14,11 +14,13 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 
 import io.winterframework.core.annotation.Wire;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
+import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
@@ -76,6 +78,18 @@ public class SocketResolver {
 	}
 	
 	private boolean isAssignable(BeanInfo bean, SocketInfo socket) {
+		if(ModuleBeanInfo.class.isAssignableFrom(bean.getClass()) && !bean.getQualifiedName().getModuleQName().equals(this.moduleQName) && ((ModuleBeanInfo)bean).getProvidedType() != null) {
+			if(this.isAssignable(((ModuleBeanInfo)bean).getProvidedType(), socket)) {
+				return true;
+			}
+			return false;
+		}
+		else {
+			return this.isAssignable(bean.getType(), socket);
+		}
+	}
+
+	private boolean isAssignable(TypeMirror type, SocketInfo socket) {
 		if(MultiSocketInfo.class.isAssignableFrom(socket.getClass())) {
 			DeclaredType socketCollectionType = this.processingEnvironment.getTypeUtils().getDeclaredType(this.processingEnvironment.getElementUtils().getTypeElement(Collection.class.getCanonicalName()), socket.getType());
 			ArrayType socketArrayType;
@@ -85,11 +99,11 @@ public class SocketResolver {
 			else {
 				socketArrayType = this.processingEnvironment.getTypeUtils().getArrayType(((WildcardType)socket.getType()).getExtendsBound());
 			}
-			return this.processingEnvironment.getTypeUtils().isAssignable(bean.getType(), socket.getType()) || this.processingEnvironment.getTypeUtils().isAssignable(bean.getType(), socketArrayType) || this.processingEnvironment.getTypeUtils().isAssignable(bean.getType(), socketCollectionType);
+			return this.processingEnvironment.getTypeUtils().isAssignable(type, socket.getType()) || this.processingEnvironment.getTypeUtils().isAssignable(type, socketArrayType) || this.processingEnvironment.getTypeUtils().isAssignable(type, socketCollectionType);
 		}
 		else {
 			// Single socket
-			return this.processingEnvironment.getTypeUtils().isAssignable(bean.getType(), socket.getType());
+			return this.processingEnvironment.getTypeUtils().isAssignable(type, socket.getType());
 		}
 	}
 	

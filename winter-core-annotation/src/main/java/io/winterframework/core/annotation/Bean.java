@@ -143,6 +143,23 @@ import java.util.function.Supplier;
 public @interface Bean {
 
 	/**
+	 * Indicates the visibility of a bean in a module.
+	 * 
+	 * @author jkuhn
+	 * @Since 1.0
+	 */
+	public static enum Visibility {
+		/**
+		 * A private bean is only accessible inside the module.
+		 */
+		PRIVATE,
+		/**
+		 * A public bean is accessible inside the module and in enclosing modules.
+		 */
+		PUBLIC;
+	}
+
+	/**
 	 * <p>
 	 * Indicates a name identifying the bean in the module, defaults to the name of
 	 * the class (eg. [MODULE_NAME]:[BEAN_NAME]).
@@ -157,26 +174,24 @@ public @interface Bean {
 	 * 
 	 * <p>
 	 * Usually, you're most likely to create public beans exposed to other modules.
-	 * Private beanq are provided as a convenience to let the framework instantiate
+	 * Private bean are provided as a convenience to let the framework instantiate
 	 * and wire internal beans instead of doing it explicitly.
 	 * </p>
 	 */
 	Visibility visibility() default Visibility.PUBLIC;
 
 	/**
-	 * Indicates the visibility of a bean in a module.
+	 * <p>
+	 * Defines the types actually provided by the bean, defaults to the actual bean
+	 * type.
+	 * </p>
 	 * 
-	 * @author jkuhn
-	 * @Since 1.0
+	 * <p>
+	 * This allows to control how a bean is exposed to other modules. For instance,
+	 * you might not want to expose the actual bean type which is most likely an
+	 * implementation class that should not be exported by a module, you'd rather
+	 * choose to expose one or more public interface instead.
+	 * </p>
 	 */
-	public static enum Visibility {
-		/**
-		 * A private bean is only accessible inside the module.
-		 */
-		PRIVATE, 
-		/**
-		 * A public bean is accessible inside the module and in enclosing modules.
-		 */
-		PUBLIC;
-	}
+	Class<?>[] provides() default {};
 }

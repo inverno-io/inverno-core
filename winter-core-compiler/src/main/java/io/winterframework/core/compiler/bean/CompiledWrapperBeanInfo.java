@@ -26,12 +26,29 @@ class CompiledWrapperBeanInfo extends CommonModuleBeanInfo implements WrapperBea
 
 	private TypeMirror wrapperType;
 	
-	public CompiledWrapperBeanInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, BeanQualifiedName qname, TypeMirror wrapperType, TypeMirror type, List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
+	public CompiledWrapperBeanInfo(ProcessingEnvironment processingEnvironment, 
+			Element element, 
+			AnnotationMirror annotation, 
+			BeanQualifiedName qname, 
+			TypeMirror wrapperType, 
+			TypeMirror type,
+			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
 		this(processingEnvironment, element, annotation, qname, wrapperType, type, Bean.Visibility.PUBLIC, Scope.Type.SINGLETON, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
 	}
 	
-	public CompiledWrapperBeanInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, BeanQualifiedName qname, TypeMirror wrapperType, TypeMirror type, Bean.Visibility visibility, Scope.Type scope, List<ExecutableElement> initElements, List<ExecutableElement> destroyElements, List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
-		super(processingEnvironment, element, annotation, qname, type, visibility, scope, initElements, destroyElements, beanSocketInfos);
+	public CompiledWrapperBeanInfo(
+			ProcessingEnvironment processingEnvironment, 
+			Element element, 
+			AnnotationMirror annotation, 
+			BeanQualifiedName qname, 
+			TypeMirror wrapperType, 
+			TypeMirror type,
+			Bean.Visibility visibility, 
+			Scope.Type scope, 
+			List<ExecutableElement> initElements, 
+			List<ExecutableElement> destroyElements, 
+			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
+		super(processingEnvironment, element, annotation, qname, type, null, visibility, scope, initElements, destroyElements, beanSocketInfos);
 		
 		this.wrapperType = wrapperType;
 	}

@@ -14,13 +14,13 @@ import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
 import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
-import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
-import io.winterframework.core.compiler.spi.SocketBeanInfo;
-import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
 import io.winterframework.core.compiler.spi.MultiSocketType;
+import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
+import io.winterframework.core.compiler.spi.SocketBeanInfo;
 import io.winterframework.core.compiler.spi.SocketInfo;
+import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 
 /**
  * @author jkuhn
@@ -95,17 +95,20 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		
 		result.append(pad).append("- ").append("name: ").append(moduleBeanInfo.getQualifiedName().getSimpleValue()).append("\n");
 		result.append(pad).append("  ").append("type: ").append(moduleBeanInfo.getType().toString()).append("\n");
+		if(moduleBeanInfo.getProvidedType() != null) {
+			result.append(pad).append("  ").append("providedType: ").append(moduleBeanInfo.getProvidedType().toString()).append("\n");
+		}
 		result.append(pad).append("  ").append("scope: ").append(moduleBeanInfo.getScope().toString()).append("\n");
 		if(WrapperBeanInfo.class.isAssignableFrom(moduleBeanInfo.getClass())) {
 			result.append(pad).append("  ").append("wrapperType:").append(((WrapperBeanInfo)moduleBeanInfo).getWrapperType().toString()).append("\n");
 		}
 		result.append(pad).append("  ").append("init: ").append("\n");
 		if(moduleBeanInfo.getInitElements().length > 0) {
-			result.append(Arrays.stream(moduleBeanInfo.getInitElements()).map(init -> pad +  "  " +  this.indent +  "- " +  init.toString()).collect(Collectors.joining("\n"))).append("\n");
+			result.append(Arrays.stream(moduleBeanInfo.getInitElements()).map(init -> pad +  "  " +  this.indent +  "- " + init.toString()).collect(Collectors.joining("\n"))).append("\n");
 		}
 		result.append(pad).append("  ").append("destroy:").append("\n");
 		if(moduleBeanInfo.getDestroyElements().length > 0) {
-			result.append(Arrays.stream(moduleBeanInfo.getDestroyElements()).map(destroy -> pad +  "  " +  this.indent +  "- " +  destroy.toString()).collect(Collectors.joining("\n"))).append("\n");
+			result.append(Arrays.stream(moduleBeanInfo.getDestroyElements()).map(destroy -> pad +  "  " +  this.indent +  "- " + destroy.toString()).collect(Collectors.joining("\n"))).append("\n");
 		}
 		result.append(pad).append("  ").append("sockets:");
 		if(moduleBeanInfo.getSockets().length > 0) {
