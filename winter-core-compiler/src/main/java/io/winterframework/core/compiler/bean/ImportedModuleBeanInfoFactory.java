@@ -72,7 +72,6 @@ class ImportedModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		BeanQualifiedName beanQName = new BeanQualifiedName(this.moduleQName, executableElement.getSimpleName().toString());
 		ModuleBeanSocketInfoFactory beanSocketInfoFactory = ModuleBeanSocketInfoFactory.create(this.processingEnvironment, this.moduleElement, beanQName);
 		
-		
 		List<? extends ModuleBeanSocketInfo> beanSocketInfos = null;
 		if(this.moduleSocketInfosByWiredBeanQName.containsKey(beanQName)) {
 			beanSocketInfos = this.moduleSocketInfosByWiredBeanQName.get(beanQName).stream()
@@ -84,6 +83,6 @@ class ImportedModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 				.collect(Collectors.toList());
 		}
 		// Use compiledModuleElement instead of moduleElement to report compilation errors on the compiled module
-		return new CommonModuleBeanInfo(this.processingEnvironment, this.compiledModuleElement, null, beanQName, executableElement.getReturnType(), beanSocketInfos);
+		return new CommonModuleBeanInfo(this.processingEnvironment, this.compiledModuleElement, null, beanQName, executableElement.getReturnType(), null, beanSocketInfos);
 	}
 }

@@ -267,9 +267,10 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 		}
 		else if(generation.getMode() == GenerationMode.BEAN_ACCESSOR) {
 			String beanAccessor = "";
+			TypeMirror type = moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType(); 
 			beanAccessor += generation.indent(1);
 			beanAccessor += moduleBeanInfo.getVisibility().equals(Bean.Visibility.PUBLIC) ? "public " : "private ";
-			beanAccessor += generation.getTypeName(moduleBeanInfo.getType()) + " ";
+			beanAccessor += generation.getTypeName(type) + " ";
 			beanAccessor += moduleBeanInfo.getQualifiedName().normalize() + "() {\n";
 			
 			beanAccessor += generation.indent(2);
@@ -344,7 +345,9 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 		}
 		else if(generation.getMode() == GenerationMode.BEAN_REFERENCE) {
 			if(moduleBeanInfo.getQualifiedName().getModuleQName().equals(generation.getModule())) {
-				return "this." + moduleBeanInfo.getQualifiedName().normalize() + "()";
+				// We can't use bean accessor for internal beans since provided types are ignored inside a module
+				return "this." + moduleBeanInfo.getQualifiedName().normalize() + ".get()" + (isWrapperBean ? ".get()" :"");
+//				return "this." + moduleBeanInfo.getQualifiedName().normalize() + "()";
 			}
 			else {
 				return "this." + moduleBeanInfo.getQualifiedName().getModuleQName().normalize() + "." + moduleBeanInfo.getQualifiedName().normalize() + "()";

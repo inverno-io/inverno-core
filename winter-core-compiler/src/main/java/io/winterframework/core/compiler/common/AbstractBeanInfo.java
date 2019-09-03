@@ -19,19 +19,10 @@ public abstract class AbstractBeanInfo extends AbstractInfo<BeanQualifiedName> i
 
 	protected TypeMirror type;
 	
-	/**
-	 * @param processingEnvironment
-	 * @param element
-	 */
 	public AbstractBeanInfo(ProcessingEnvironment processingEnvironment, Element element, BeanQualifiedName qname, TypeMirror type) {
 		this(processingEnvironment, element, null, qname, type);
 	}
 
-	/**
-	 * @param processingEnvironment
-	 * @param element
-	 * @param annotation
-	 */
 	public AbstractBeanInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, BeanQualifiedName qname, TypeMirror type) {
 		super(processingEnvironment, element, annotation, qname);
 		
@@ -39,9 +30,6 @@ public abstract class AbstractBeanInfo extends AbstractInfo<BeanQualifiedName> i
 		this.type = type;
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.BeanInfo#getType()
-	 */
 	@Override
 	public TypeMirror getType() {
 		return this.type;

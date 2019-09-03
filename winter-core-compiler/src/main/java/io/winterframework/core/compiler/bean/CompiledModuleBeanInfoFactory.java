@@ -28,6 +28,7 @@ import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.BeanSocket;
 import io.winterframework.core.annotation.Destroy;
 import io.winterframework.core.annotation.Init;
+import io.winterframework.core.annotation.Provide;
 import io.winterframework.core.annotation.Scope;
 import io.winterframework.core.annotation.Wrapper;
 import io.winterframework.core.compiler.common.ReporterInfo;
@@ -43,6 +44,7 @@ import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
 class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 
 	private TypeMirror beanAnnotationType;
+	private TypeMirror provideAnnotationType;
 	private TypeMirror scopeAnnotationType;
 	private TypeMirror wrapperAnnotationType;
 	private TypeMirror supplierType;
@@ -55,6 +57,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		super(processingEnvironment, moduleElement);
 		
 		this.beanAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
+		this.provideAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Provide.class.getCanonicalName()).asType();
 		this.scopeAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Scope.class.getCanonicalName()).asType();
 		this.wrapperAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wrapper.class.getCanonicalName()).asType();
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
@@ -142,14 +145,34 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 				}
 			}
 		}
+
 		
+		// Get provided type
+		TypeMirror providedType = null;
+		List<? extends TypeMirror> providedTypes = this.processingEnvironment.getTypeUtils().directSupertypes(beanType).stream()
+			.filter(superType -> superType.getAnnotationMirrors().stream().anyMatch(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.provideAnnotationType)))
+			.map(superType -> {
+				TypeMirror[] superTypeArguments = ((DeclaredType)superType).getTypeArguments().stream().toArray(TypeMirror[]::new);
+				TypeElement superTypeElement = (TypeElement)((DeclaredType)this.processingEnvironment.getTypeUtils().erasure(superType)).asElement();
+				
+				return this.processingEnvironment.getTypeUtils().getDeclaredType(superTypeElement, superTypeArguments);
+			})
+			.collect(Collectors.toList());
+		
+		if(providedTypes.size() == 1) {
+			providedType = providedTypes.get(0);
+		}
+		else if(providedTypes.size() > 1) {
+			beanReporter.error("Bean " + beanQName + " can't provide multiple types ");
+		}
+		 
 		// Get Init
 		List<ExecutableElement> initElements = element.getEnclosedElements().stream()
 			.filter(e -> e.getAnnotation(Init.class) != null)
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {
 				if(((ExecutableElement)e).getParameters().size() > 0) {
-					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid " + Init.class.getSimpleName() + "method which should be a no-argument method, it will be ignored", e);
+					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid " + Init.class.getSimpleName() + " method which should be a no-argument method, it will be ignored", e);
 					return false;
 				}
 				return true;
@@ -181,7 +204,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			.collect(Collectors.toList());
 		if(constructorSocketElements.size() == 0) {
 			// This should never happen
-			beanReporter.error("no constructors defined in bean " + beanQName);
+			beanReporter.error("No constructors defined in bean " + beanQName);
 			return null;
 		}
 		else if(constructorSocketElements.size() == 1) {
@@ -242,10 +265,13 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			}
 		}
 		if(wrapperType != null) {
+			if(providedType != null) {
+				beanReporter.error("Wrapper bean " + beanQName + " can't provide other types than its supplied type");
+			}
 			return new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, visibility, scope, initElements, destroyElements, beanSocketInfos);
 		}
 		else {
-			return new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, visibility, scope, initElements, destroyElements, beanSocketInfos);
+			return new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, providedType, visibility, scope, initElements, destroyElements, beanSocketInfos);
 		}
 	}
 }
