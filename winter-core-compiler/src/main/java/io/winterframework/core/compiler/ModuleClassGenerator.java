@@ -132,7 +132,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			
 			String module_builder_constructor_parameters = Arrays.stream(moduleInfo.getSockets())
 				.filter(moduleSocketInfo -> !moduleSocketInfo.isOptional())
-				.map(moduleSocketInfo -> generation.getTypeName(moduleSocketInfo.getType()) + " " + moduleSocketInfo.getQualifiedName().normalize())
+				.map(moduleSocketInfo -> (moduleSocketInfo instanceof MultiSocketInfo ? generation.getMultiTypeName(moduleSocketInfo.getType(), ((MultiSocketInfo)moduleSocketInfo).getMultiType()) : generation.getTypeName(moduleSocketInfo.getType())) + " " + moduleSocketInfo.getQualifiedName().normalize())
 				.collect(Collectors.joining(", "));
 			
 			String module_builder_constructor_super_args = Arrays.stream(moduleInfo.getSockets())
@@ -170,7 +170,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			moduleBuilderClass += generation.indent(2) + "}\n";
 			
 			if(module_builder_socket_methods != null && !module_builder_socket_methods.equals("")) {
-				moduleBuilderClass += module_builder_socket_methods + "\n";
+				moduleBuilderClass += "\n" + module_builder_socket_methods + "\n";
 			}
 			
 			moduleBuilderClass += generation.indent(1) + "}";
@@ -423,66 +423,6 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				beanSocketReference += generation.indent(0) + ".toSet()";
 			}
 			
-			/*DeclaredType dependencyCollectionType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement(Collection.class.getCanonicalName()), generation.getTypeUtils().getWildcardType(unwildDependencyType, null));
-			DeclaredType dependencyListType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement(List.class.getCanonicalName()), generation.getTypeUtils().getWildcardType(unwildDependencyType, null));
-			DeclaredType dependencySetType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement(Set.class.getCanonicalName()), generation.getTypeUtils().getWildcardType(unwildDependencyType, null));
-			ArrayType dependencyArrayType =  generation.getTypeUtils().getArrayType(unwildDependencyType);
-			
-			TypeMirror streamType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.stream.Stream").asType());
-			TypeMirror listType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.List").asType());
-			TypeMirror setType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Set").asType());
-			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
-			TypeMirror arraysType = generation.getElementUtils().getTypeElement("java.util.Arrays").asType();
-			TypeMirror objectsType = generation.getElementUtils().getTypeElement("java.util.Objects").asType();
-			TypeMirror collectorsType = generation.getElementUtils().getTypeElement("java.util.stream.Collectors").asType();
-			 
-			String beanSocketReference = generation.getTypeName(streamType) + ".of(\n" + generation.indent(1);
-			beanSocketReference += Arrays.stream(multiSocketInfo.getBeans())
-				.map(beanInfo -> {
-					if(generation.getTypeUtils().isAssignable(beanInfo.getType(), unwildDependencyType)) {
-						if(SocketBeanInfo.class.isAssignableFrom(beanInfo.getClass()) && ((SocketBeanInfo)beanInfo).isOptional()) {
-							return generation.getTypeName(optionalType) + ".ofNullable(" + this.visit(beanInfo, generation) + ").stream()";
-						}
-						return generation.getTypeName(streamType) + ".of(" + this.visit(beanInfo, generation) + ")";
-					}
-					else if(generation.getTypeUtils().isAssignable(beanInfo.getType(), dependencyListType)) {
-						if(SocketBeanInfo.class.isAssignableFrom(beanInfo.getClass()) && ((SocketBeanInfo)beanInfo).isOptional()) {
-							return generation.getTypeName(optionalType) + ".ofNullable(" + this.visit(beanInfo, generation) + ").orElse(" + generation.getTypeName(listType) + ".of()).stream()";
-						}
-						return this.visit(beanInfo, generation) + ".stream()";
-					}
-					else if(generation.getTypeUtils().isAssignable(beanInfo.getType(), dependencySetType)) {
-						if(SocketBeanInfo.class.isAssignableFrom(beanInfo.getClass()) && ((SocketBeanInfo)beanInfo).isOptional()) {
-							return generation.getTypeName(optionalType) + ".ofNullable(" + this.visit(beanInfo, generation) + ").orElse(" + generation.getTypeName(setType) + ".of()).stream()";
-						}
-						return this.visit(beanInfo, generation) + ".stream()";
-					}
-					else if(generation.getTypeUtils().isAssignable(beanInfo.getType(), dependencyCollectionType)) {
-						if(SocketBeanInfo.class.isAssignableFrom(beanInfo.getClass()) && ((SocketBeanInfo)beanInfo).isOptional()) {
-							return generation.getTypeName(optionalType) + ".ofNullable(" + this.visit(beanInfo, generation) + ").orElse(" + generation.getTypeName(listType) + ".of()).stream()";
-						}
-						return this.visit(beanInfo, generation) + ".stream()";
-					}
-					else if(generation.getTypeUtils().isAssignable(beanInfo.getType(), dependencyArrayType)) {
-						if(SocketBeanInfo.class.isAssignableFrom(beanInfo.getClass()) && ((SocketBeanInfo)beanInfo).isOptional()) {
-							return generation.getTypeName(arraysType) + ".stream(" + generation.getTypeName(optionalType) + ".ofNullable(" + this.visit(beanInfo, generation) + ").orElse(new " + generation.getTypeName(multiSocketInfo.getType()) + "[0]))";
-						}
-						return generation.getTypeName(arraysType) + ".stream(" + this.visit(beanInfo, generation) + ")";
-					}
-					return "";
-				})
-				.collect(Collectors.joining(", \n" + generation.indent(1))) + "\n";
-			beanSocketReference += generation.indent(0) + ").flatMap(t -> t).filter(" + generation.getTypeName(objectsType) + "::nonNull)";
-
-			if(multiSocketInfo.getMultiType().equals(MultiSocketType.ARRAY)) {
-				beanSocketReference += ".toArray(" + generation.getTypeName(unwildDependencyType) + "[]::new)";
-			}
-			else if(multiSocketInfo.getMultiType().equals(MultiSocketType.COLLECTION) || multiSocketInfo.getMultiType().equals(MultiSocketType.LIST)) {
-				beanSocketReference += ".collect(" + generation.getTypeName(collectorsType) + ".toList())";
-			}
-			else if(multiSocketInfo.getMultiType().equals(MultiSocketType.SET)) {
-				beanSocketReference += ".collect(" + generation.getTypeName(collectorsType) + ".toSet())";
-			}*/
 			return beanSocketReference;
 		}
 		return "";
@@ -518,6 +458,11 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				socketParameter += "@" + generation.getTypeName(wiredToType) + "({" + Arrays.stream(socketBeanInfo.getWiredBeans()).map(beanQName -> "\"" + beanQName.getSimpleValue() + "\"").collect(Collectors.joining(", ")) + "}) ";
 			}
 			
+			if(socketBeanInfo.getSelectors().length > 0) {
+				// TODO use a recursive method to add imports and reduce the generated line
+				socketParameter += Arrays.stream(socketBeanInfo.getSelectors()).map(selector -> selector.toString()).collect(Collectors.joining(", ")) + " ";
+			}
+			
 			if(socketBeanInfo.isOptional()) {
 				TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
 				socketParameter += generation.getTypeName(optionalType) + "<" + generation.getTypeName(socketBeanInfo.getSocketType()) + ">";
@@ -545,7 +490,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
 			String plugName = socketBeanInfo.getQualifiedName().normalize();
 			
-			String result = generation.indent(2) + "public Builder set" + Character.toUpperCase(plugName.charAt(0)) + plugName.substring(1) + "(" + generation.getTypeName(socketBeanInfo.getType()) + " " + plugName + ") {\n";
+			String result = generation.indent(2) + "public Builder set" + Character.toUpperCase(plugName.charAt(0)) + plugName.substring(1) + "(" + (socketBeanInfo instanceof MultiSocketInfo ? generation.getMultiTypeName(socketBeanInfo.getType(), ((MultiSocketInfo)socketBeanInfo).getMultiType() ) : generation.getTypeName(socketBeanInfo.getType())) + " " + plugName + ") {\n";
 			result += generation.indent(3) + "this." + plugName + " = " + generation.getTypeName(optionalType) + ".ofNullable(" + plugName + " != null ? () -> " + plugName + " : null);\n";
 			result += generation.indent(3) + "return this;\n";
 			result += generation.indent(2) + "}\n";

@@ -193,7 +193,7 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 	public String visit(MultiSocketBeanInfo moduleMultiSocketInfo, String pad) {
 		StringBuilder result = new StringBuilder();
 		
-		result.append(this.visit((MultiSocketInfo)moduleMultiSocketInfo, pad));
+		result.append(this.visit((MultiSocketInfo)moduleMultiSocketInfo, pad)).append("\n");
 		result.append(pad).append("  ").append("wiredTo:");
 		if(moduleMultiSocketInfo.getWiredBeans().length > 0) {
 			result.append("\n");
@@ -240,6 +240,13 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		if(singleSocketInfo.isResolved()) {
 			result.append(singleSocketInfo.getBean().getQualifiedName().toString());
 		}
+		result.append("\n");
+		result.append(pad).append("  ").append("selectors:");
+		if(singleSocketInfo.getSelectors().length > 0) {
+			result.append("\n");
+			result.append(Arrays.stream(singleSocketInfo.getSelectors()).map(selector -> pad + "  " + this.indent + "- " + selector.toString()).collect(Collectors.joining("\n")));
+		}
+		
 		return result.toString();
 	}
 
@@ -257,13 +264,13 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 			type = multiSocketInfo.getType().toString()+"[]";
 		}
 		else if(multiSocketInfo.getMultiType().equals(MultiSocketType.COLLECTION)) {
-			type = "java.util.Collection<"+multiSocketInfo.getType().toString()+">";
+			type = "java.util.Collection<" + multiSocketInfo.getType().toString() + ">";
 		}
 		else if(multiSocketInfo.getMultiType().equals(MultiSocketType.LIST)) {
-			type = "java.util.List<"+multiSocketInfo.getType().toString()+">";
+			type = "java.util.List<" + multiSocketInfo.getType().toString() + ">";
 		}
 		else if(multiSocketInfo.getMultiType().equals(MultiSocketType.SET)) {
-			type = "java.util.Set<"+multiSocketInfo.getType().toString()+">";
+			type = "java.util.Set<" + multiSocketInfo.getType().toString() + ">";
 		}
 		result.append(pad).append("  ").append("type: ").append(type).append("\n");
 		result.append(pad).append("  ").append("optional: ").append(multiSocketInfo.isOptional()).append("\n");
@@ -271,10 +278,16 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		if(multiSocketInfo.getSocketElement() != null) {
 			result.append(multiSocketInfo.getSocketElement().toString());
 		}
-		result.append("\n").append(pad).append("  ").append("beans: ").append("\n");
-
+		result.append("\n").append(pad).append("  ").append("beans: ");
 		if(multiSocketInfo.isResolved()) {
+			result.append("\n");
 			result.append(Arrays.stream(multiSocketInfo.getBeans()).map(bean -> pad + "  " + this.indent + "- " + bean.getQualifiedName().toString()).collect(Collectors.joining("\n")));
+		}
+		result.append("\n");
+		result.append(pad).append("  ").append("selectors:");
+		if(multiSocketInfo.getSelectors().length > 0) {
+			result.append("\n");
+			result.append(Arrays.stream(multiSocketInfo.getSelectors()).map(selector -> pad + "  " + this.indent + "- " + selector.toString()).collect(Collectors.joining("\n")));
 		}
 		return result.toString();
 	}

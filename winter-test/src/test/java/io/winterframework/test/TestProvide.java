@@ -1,6 +1,7 @@
 package io.winterframework.test;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ public class TestProvide extends AbstractWinterTest {
 
 	private static final String MODULEA_MODULE = "io.winterframework.test.provide.moduleA";
 	private static final String MODULEB_MODULE = "io.winterframework.test.provide.moduleB";
+	private static final String MODULEC_MODULE = "io.winterframework.test.provide.moduleC";
 	
 	@Test
 	public void testProvideInternalWiring() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
@@ -56,6 +58,18 @@ public class TestProvide extends AbstractWinterTest {
 		}
 		finally {
 			moduleB.stop();
+		}
+	}
+	
+	@Test
+	public void testProvideMultipleError() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEC_MODULE);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals("Bean io.winterframework.test.provide.moduleC:beanA can't provide multiple types", e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
 		}
 	}
 }

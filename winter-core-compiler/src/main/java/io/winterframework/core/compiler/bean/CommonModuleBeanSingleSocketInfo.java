@@ -4,6 +4,7 @@
 package io.winterframework.core.compiler.bean;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.VariableElement;
@@ -29,28 +30,38 @@ class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo
 	 * @param qname
 	 * @param type
 	 * @param socketElement
+	 * @param selectors
 	 * @param optional
 	 */
-	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, ModuleElement element, BeanSocketQualifiedName qname, TypeMirror type, ExecutableElement socketElement, boolean optional) {
-		super(processingEnvironment, element, qname, type, socketElement, optional);
+	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, 
+			ModuleElement element, 
+			BeanSocketQualifiedName qname, 
+			TypeMirror type, 
+			ExecutableElement socketElement,
+			AnnotationMirror[] selectors,
+			boolean optional) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
 	}
 
 	/**
 	 * @param processingEnvironment
 	 * @param element
-	 * @param annotation
 	 * @param qname
 	 * @param type
 	 * @param socketElement
+	 * @param selectors
 	 * @param optional
 	 */
-	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, VariableElement element, BeanSocketQualifiedName qname, TypeMirror type, ExecutableElement socketElement, boolean optional) {
-		super(processingEnvironment, element, qname, type, socketElement, optional);
+	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, 
+			VariableElement element, 
+			BeanSocketQualifiedName qname, 
+			TypeMirror type, 
+			ExecutableElement socketElement, 
+			AnnotationMirror[] selectors,
+			boolean optional) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanSocketInfo#isResolved()
-	 */
 	@Override
 	public boolean isResolved() {
 		return this.beanInfo != null;
@@ -61,12 +72,8 @@ class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo
 		this.beanInfo = bean;
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanSingleSocketInfo#getBean()
-	 */
 	@Override
 	public BeanInfo getBean() {
 		return this.beanInfo;
 	}
-
 }

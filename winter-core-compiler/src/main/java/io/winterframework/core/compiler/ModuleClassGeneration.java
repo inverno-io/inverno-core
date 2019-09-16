@@ -20,6 +20,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
+import io.winterframework.core.compiler.spi.MultiSocketType;
 
 /**
  * @author jkuhn
@@ -214,5 +215,21 @@ class ModuleClassGeneration {
 		else {
 			return type.toString();
 		}
+	}
+	
+	public String getMultiTypeName(TypeMirror type, MultiSocketType multiType) {
+		if(multiType.equals(MultiSocketType.ARRAY)) {
+			return this.getTypeName(this.getTypeUtils().getArrayType(type));
+		}
+		else if(multiType.equals(MultiSocketType.COLLECTION)) {
+			return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Collection"), type));
+		}
+		else if(multiType.equals(MultiSocketType.LIST)) {
+			return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.List"), type));
+		}
+		else if(multiType.equals(MultiSocketType.SET)) {
+			return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Set"), type));
+		}
+		throw new IllegalArgumentException("Unexpected multi type: " + multiType);
 	}
 }

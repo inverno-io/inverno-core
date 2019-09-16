@@ -4,6 +4,7 @@
 package io.winterframework.core.compiler.bean;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.VariableElement;
@@ -25,19 +26,31 @@ class CommonModuleBeanMultiSocketInfo extends AbstractModuleBeanSocketInfo imple
 	
 	private MultiSocketType multiType;
 	
-	public CommonModuleBeanMultiSocketInfo(ProcessingEnvironment processingEnvironment, ModuleElement element, BeanSocketQualifiedName qname, TypeMirror type, ExecutableElement socketElement, boolean optional, MultiSocketType multiType) {
-		super(processingEnvironment, element, qname, type, socketElement, optional);
+	public CommonModuleBeanMultiSocketInfo(ProcessingEnvironment processingEnvironment, 
+			ModuleElement element, 
+			BeanSocketQualifiedName qname, 
+			TypeMirror type, 
+			ExecutableElement socketElement,
+			AnnotationMirror[] selectors,
+			boolean optional, 
+			MultiSocketType multiType) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
 		this.multiType = multiType;
 	}
 	
-	public CommonModuleBeanMultiSocketInfo(ProcessingEnvironment processingEnvironment, VariableElement element, BeanSocketQualifiedName qname, TypeMirror type, ExecutableElement socketElement, boolean optional, MultiSocketType multiType) {
-		super(processingEnvironment, element, qname, type, socketElement, optional);
+	public CommonModuleBeanMultiSocketInfo(
+			ProcessingEnvironment processingEnvironment, 
+			VariableElement element, 
+			BeanSocketQualifiedName qname, 
+			TypeMirror type, 
+			ExecutableElement socketElement,
+			AnnotationMirror[] selectors,
+			boolean optional, 
+			MultiSocketType multiType) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
 		this.multiType = multiType;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanSocketInfo#isResolved()
-	 */
 	@Override
 	public boolean isResolved() {
 		return this.beanInfos != null && this.beanInfos.length > 0;
@@ -48,20 +61,13 @@ class CommonModuleBeanMultiSocketInfo extends AbstractModuleBeanSocketInfo imple
 		this.beanInfos = beanInfos;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanMultiSocketInfo#getBeans()
-	 */
 	@Override
 	public BeanInfo[] getBeans() {
 		return this.beanInfos;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleBeanMultiSocketInfo#getMultiType()
-	 */
 	@Override
 	public MultiSocketType getMultiType() {
 		return this.multiType;
 	}
-
 }

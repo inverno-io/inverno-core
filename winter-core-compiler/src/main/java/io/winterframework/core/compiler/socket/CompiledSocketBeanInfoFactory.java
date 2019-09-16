@@ -19,6 +19,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.annotation.Selector;
 import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketType;
@@ -30,7 +31,6 @@ import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
  */
 class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 
-//	private TypeMirror moduleSocketAnnotationType;
 	private TypeMirror beanAnnotationType;
 	private TypeMirror supplierType;
 	
@@ -41,7 +41,6 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 	public CompiledSocketBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 		super(processingEnvironment, moduleElement);
 		
-//		this.moduleSocketAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(ModuleSocket.class.getCanonicalName()).asType();
 		this.beanAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
 	}
@@ -112,15 +111,16 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			beanReporter.error("Invalid socket bean qualified name: " + e.getMessage());
 			return null;
 		}
+		
+		AnnotationMirror[] selectors = element.getAnnotationMirrors().stream().filter(a -> a.getAnnotationType().asElement().getAnnotation(Selector.class) != null).toArray(AnnotationMirror[]::new);
 
 		// Optional or non-optional will be resolved during wiring {@see io.winterframework.core.compiler.wire.SocketResolver}
 		MultiSocketType multiType = this.getMultiType(beanType);
 		if(multiType != null) {
-			return new CommonMultiSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, beanType, typeElement.asType(), true, multiType);
+			return new CommonMultiSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, this.getComponentType(beanType), typeElement.asType(), selectors, true, multiType);
 		}
 		else {
-			return new CommonSingleSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, beanType, typeElement.asType(), true);
+			return new CommonSingleSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, beanType, typeElement.asType(), selectors, true);
 		}
 	}
-
 }

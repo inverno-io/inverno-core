@@ -22,7 +22,7 @@ import io.winterframework.core.test.WinterModuleProxyBuilder;
 
 public class TestSocketBean extends AbstractWinterTest {
 
-	private static final String SOCKET_BEAN_MODULE = "io.winterframework.test.socketbean";
+	private static final String SOCKET_BEAN_MODULEA = "io.winterframework.test.socketbean.moduleA";
 
 	private WinterModuleProxyBuilder moduleProxyBuilder;
 	
@@ -45,7 +45,7 @@ public class TestSocketBean extends AbstractWinterTest {
 	@BeforeEach
 	public void init() throws IOException, WinterCompilationException {
 		if(this.moduleProxyBuilder == null) {
-			this.moduleProxyBuilder = this.getWinterCompiler().compile(SOCKET_BEAN_MODULE).load(SOCKET_BEAN_MODULE);
+			this.moduleProxyBuilder = this.getWinterCompiler().compile(SOCKET_BEAN_MODULEA).load(SOCKET_BEAN_MODULEA);
 		}
 		
 		this.extDataSource = Mockito.mock(DataSource.class);

@@ -23,16 +23,26 @@ class CommonSingleSocketBeanInfo extends AbstractSocketBeanInfo implements Singl
 
 	private BeanInfo beanInfo;
 	
-	public CommonSingleSocketBeanInfo(ProcessingEnvironment processingEnvironment, TypeElement element,
-			AnnotationMirror annotation, BeanQualifiedName qname, TypeMirror type, TypeMirror socketType,
+	public CommonSingleSocketBeanInfo(ProcessingEnvironment processingEnvironment, 
+			TypeElement element,
+			AnnotationMirror annotation, 
+			BeanQualifiedName qname, 
+			TypeMirror type, 
+			TypeMirror socketType,
+			AnnotationMirror[] selectors,
 			boolean optional) {
-		super(processingEnvironment, element, annotation, qname, type, socketType, optional);
+		super(processingEnvironment, element, annotation, qname, type, socketType, selectors, optional);
 	}
 
-	public CommonSingleSocketBeanInfo(ProcessingEnvironment processingEnvironment, ModuleElement element,
-			BeanQualifiedName qname, TypeMirror type, TypeMirror socketType, ExecutableElement socketElement,
+	public CommonSingleSocketBeanInfo(ProcessingEnvironment processingEnvironment, 
+			ModuleElement element,
+			BeanQualifiedName qname,
+			TypeMirror type, 
+			TypeMirror socketType, 
+			ExecutableElement socketElement,
+			AnnotationMirror[] selectors,
 			boolean optional) {
-		super(processingEnvironment, element, qname, type, socketType, socketElement, optional);
+		super(processingEnvironment, element, qname, type, socketType, socketElement, selectors, optional);
 	}
 
 	/* (non-Javadoc)
