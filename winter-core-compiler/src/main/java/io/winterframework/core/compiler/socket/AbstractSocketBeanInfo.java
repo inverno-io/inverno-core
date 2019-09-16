@@ -23,59 +23,68 @@ import io.winterframework.core.compiler.spi.BeanQualifiedName;
 abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements MutableModuleSocketInfo, WirableSocketBeanInfo {
 
 	private TypeMirror socketType;
+
+	private ExecutableElement socketElement;
+	
+	protected AnnotationMirror[] selectors;
 	
 	private boolean optional;
 	
-	private ExecutableElement socketElement;
-	
 	private Set<BeanQualifiedName> wiredBeans;
 	
-	public AbstractSocketBeanInfo(ProcessingEnvironment processingEnvironment, Element element,
-			BeanQualifiedName qname, TypeMirror type, TypeMirror socketType, ExecutableElement socketElement, boolean optional) {
+	public AbstractSocketBeanInfo(ProcessingEnvironment processingEnvironment, 
+			Element element,
+			BeanQualifiedName qname, 
+			TypeMirror type, 
+			TypeMirror socketType, 
+			ExecutableElement socketElement,
+			AnnotationMirror[] selectors,
+			boolean optional) {
 		super(processingEnvironment, element, null, qname, type);
 		
 		this.socketType = socketType;
 		this.socketElement = socketElement;
+		this.selectors = selectors != null ? selectors : new AnnotationMirror[0];
 		this.optional = optional;
 		this.wiredBeans = Collections.emptySet();
 	}
 	
-	public AbstractSocketBeanInfo(ProcessingEnvironment processingEnvironment, Element element,
-			AnnotationMirror annotation, BeanQualifiedName qname, TypeMirror type, TypeMirror socketType, boolean optional) {
+	public AbstractSocketBeanInfo(ProcessingEnvironment processingEnvironment, 
+			Element element,
+			AnnotationMirror annotation, 
+			BeanQualifiedName qname, 
+			TypeMirror type, 
+			TypeMirror socketType, 
+			AnnotationMirror[] selectors,
+			boolean optional) {
 		super(processingEnvironment, element, annotation, qname, type);
 		
 		this.socketType = socketType;
+		this.selectors = selectors != null ? selectors : new AnnotationMirror[0];
 		this.optional = optional;
 		this.wiredBeans = Collections.emptySet();
 	}
+	
+	@Override
+	public AnnotationMirror[] getSelectors() {
+		return this.selectors;
+	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleSocketInfo#getSocketType()
-	 */
 	@Override
 	public TypeMirror getSocketType() {
 		return this.socketType;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleSocketInfo#getSocketElement()
-	 */
 	@Override
 	public ExecutableElement getSocketElement() {
 		return this.socketElement;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleSocketInfo#isOptional()
-	 */
 	@Override
 	public boolean isOptional() {
 		return this.optional;
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleSocketInfo#setOptional(boolean)
-	 */
 	@Override
 	public void setOptional(boolean optional) {
 		this.optional = optional;
@@ -85,12 +94,8 @@ abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements Mutabl
 		this.wiredBeans = wiredBeans != null ? Collections.unmodifiableSet(wiredBeans) : Collections.emptySet();
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleSocketInfo#getWiredBeans()
-	 */
 	@Override
 	public BeanQualifiedName[] getWiredBeans() {
 		return this.wiredBeans.stream().toArray(BeanQualifiedName[]::new);
 	}
-
 }

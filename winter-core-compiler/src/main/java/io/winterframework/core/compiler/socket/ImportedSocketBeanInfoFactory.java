@@ -23,6 +23,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.annotation.Selector;
 import io.winterframework.core.annotation.WiredTo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketType;
@@ -38,7 +39,6 @@ class ImportedSocketBeanInfoFactory extends SocketBeanInfoFactory {
 	private TypeMirror supplierType;
 	private TypeMirror optionalType;
 	
-//	private TypeMirror moduleSocketAnnotationType;
 	private TypeMirror beanAnnotationType;
 	
 	private TypeMirror wiredToAnnotationType;
@@ -53,7 +53,6 @@ class ImportedSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		this.compiledModuleElement = compiledModuleElement;
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
 		this.optionalType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Optional.class.getCanonicalName()).asType());
-//		this.moduleSocketAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(ModuleSocket.class.getCanonicalName()).asType();
 		this.beanAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
 		this.wiredToAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(WiredTo.class.getCanonicalName()).asType();
 	}
@@ -124,14 +123,16 @@ class ImportedSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		// This should never throw a QualifiedNameFormatException as it should have already been tested when the module was compiled
 		BeanQualifiedName socketQName = new BeanQualifiedName(this.moduleQName, socketName);
 
+		AnnotationMirror[] selectors = element.getAnnotationMirrors().stream().filter(a -> a.getAnnotationType().asElement().getAnnotation(Selector.class) != null).toArray(AnnotationMirror[]::new);
+		
 		MultiSocketType multiType = this.getMultiType(beanType);
 		final AbstractSocketBeanInfo moduleSocketInfo;
 		// Use compiledModuleElement instead of moduleElement to report compilation errors on the compiled module 
 		if(multiType != null) {
-			moduleSocketInfo = new CommonMultiSocketBeanInfo(this.processingEnvironment, this.compiledModuleElement, socketQName, beanType, moduleSocketElement.asType(), socketElement, optional, multiType);
+			moduleSocketInfo = new CommonMultiSocketBeanInfo(this.processingEnvironment, this.compiledModuleElement, socketQName, this.getComponentType(beanType), moduleSocketElement.asType(), socketElement, selectors, optional, multiType);
 		}
 		else {
-			moduleSocketInfo = new CommonSingleSocketBeanInfo(this.processingEnvironment, this.compiledModuleElement, socketQName, beanType, moduleSocketElement.asType(), socketElement, optional);
+			moduleSocketInfo = new CommonSingleSocketBeanInfo(this.processingEnvironment, this.compiledModuleElement, socketQName, beanType, moduleSocketElement.asType(), socketElement, selectors, optional);
 		}
 		
 		moduleSocketInfo.setWiredBeans(variableElement.getAnnotationMirrors().stream()

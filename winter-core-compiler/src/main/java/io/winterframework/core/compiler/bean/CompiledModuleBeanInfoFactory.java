@@ -163,7 +163,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			providedType = providedTypes.get(0);
 		}
 		else if(providedTypes.size() > 1) {
-			beanReporter.error("Bean " + beanQName + " can't provide multiple types ");
+			beanReporter.error("Bean " + beanQName + " can't provide multiple types");
 		}
 		 
 		// Get Init

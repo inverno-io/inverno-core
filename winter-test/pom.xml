@@ -76,7 +76,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<includes>
-						<include>**/TestProvide.java</include>
+<!-- 						<include>**/TestMultiSocketBean.java</include> -->
 					</includes>
 				</configuration>
 			</plugin>
