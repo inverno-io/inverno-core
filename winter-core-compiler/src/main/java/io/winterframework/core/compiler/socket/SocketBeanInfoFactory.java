@@ -7,6 +7,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ModuleElement;
 
+import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.AbstractSocketInfoFactory;
 
 /**
@@ -34,5 +35,5 @@ public abstract class SocketBeanInfoFactory extends AbstractSocketInfoFactory {
 		return new ImportedSocketBeanInfoFactory(processingEnvironment, importedModuleElement, moduleElement);
 	}
 	
-	public abstract WirableSocketBeanInfo createModuleSocket(Element element);
+	public abstract WirableSocketBeanInfo createModuleSocket(Element element) throws TypeErrorException;
 }

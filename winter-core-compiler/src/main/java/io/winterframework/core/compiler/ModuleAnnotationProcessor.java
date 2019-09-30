@@ -83,13 +83,24 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 					.filter(element -> element.getKind().equals(ElementKind.CLASS))
 					.map(element -> {
 						ModuleBeanInfoFactory beanFactory = beanFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
+						AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 						if(beanFactory == null) {
-							AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Bean might be out of sync with the module please consider recompiling the module" , element, beanAnnotation );
 							return null;
 						}
 						
-						ModuleBeanInfo moduleBean = beanFactory.createBean(element);
+						ModuleBeanInfo moduleBean;
+						try {
+							moduleBean = beanFactory.createBean(element);
+						} 
+						catch (TypeErrorException e) {
+							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Type " + e.getType() + " could not be resolved." , element, beanAnnotation );
+							return null;
+						}
+						catch (Exception e) {
+							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Unable to create bean: " + e.getMessage() , element, beanAnnotation );
+							return null;
+						}
 						moduleOriginatingElements.get(moduleBean.getQualifiedName().getModuleQName().getValue()).add(element);
 						return moduleBean;
 					})
@@ -99,12 +110,23 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 					.filter(element -> element.getKind().equals(ElementKind.INTERFACE))
 					.map(element -> {
 						SocketBeanInfoFactory socketFactory = socketFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
+						AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 						if(socketFactory == null) {
-							AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Module socket bean might be out of sync with the module please consider recompiling the module" , element, beanAnnotation );
 							return null;
 						}
-						SocketBeanInfo moduleSocket = socketFactory.createModuleSocket(element);
+						SocketBeanInfo moduleSocket;
+						try {
+							moduleSocket = socketFactory.createModuleSocket(element);
+						} 
+						catch (TypeErrorException e) {
+							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Type " + e.getType() + " could not be resolved." , element, beanAnnotation );
+							return null;
+						}
+						catch (Exception e) {
+							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Unable to create socket bean: " + e.getMessage() , element, beanAnnotation );
+							return null;
+						}
 						moduleOriginatingElements.get(moduleSocket.getQualifiedName().getModuleQName().getValue()).add(element);
 						return moduleSocket;
 					})

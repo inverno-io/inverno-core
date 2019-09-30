@@ -10,8 +10,11 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Selector;
+import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.AbstractSocketInfoFactory;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.BeanSocketQualifiedName;
@@ -41,7 +44,7 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 	}
 	
 	// Compiled
-	public ModuleBeanSocketInfo createBeanSocket(VariableElement variableElement) {
+	public ModuleBeanSocketInfo createBeanSocket(VariableElement variableElement) throws TypeErrorException {
 		if(!variableElement.getKind().equals(ElementKind.PARAMETER)) {
 			throw new IllegalArgumentException("Element must be a parameter");
 		}
@@ -68,12 +71,17 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 		// This should never throw a QualifiedNameFormatException as a Java variable is a valid qualified name part
 		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(this.beanQName, socketName);
 		
-		MultiSocketType multiType = this.getMultiType(variableElement.asType());
+		TypeMirror socketType = variableElement.asType();
+		if(socketType.getKind().equals(TypeKind.ERROR)) {
+			throw new TypeErrorException(socketType);
+		}
+		
+		MultiSocketType multiType = this.getMultiType(socketType);
 		if(multiType != null) {
-			return new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, variableElement, socketQName, this.getComponentType(variableElement.asType()), socketElement, selectors, optional, multiType);
+			return new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, variableElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, multiType);
 		}
 		else {
-			return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, variableElement, socketQName, variableElement.asType(), socketElement, selectors, optional);
+			return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, variableElement, socketQName, socketType, socketElement, selectors, optional);
 		}
 	}
 	

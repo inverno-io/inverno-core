@@ -44,7 +44,7 @@ import java.lang.annotation.Target;
  * 	&#64;code
  * 	&#64;code
  * 	&#64;Bean
- * 	public class ModuleBean implements &#64;Provide SomeService {
+ * 	public class ModuleBean implements &#64;Provide SomeService, SomeOtherService {
  * 
  * 	}
  * }
