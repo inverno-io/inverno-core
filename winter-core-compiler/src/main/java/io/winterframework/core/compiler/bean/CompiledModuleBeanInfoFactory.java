@@ -31,6 +31,7 @@ import io.winterframework.core.annotation.Init;
 import io.winterframework.core.annotation.Provide;
 import io.winterframework.core.annotation.Scope;
 import io.winterframework.core.annotation.Wrapper;
+import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
@@ -67,7 +68,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	 * @see io.winterframework.core.compiler.model.ModuleBeanInfoFactory#createBean(javax.lang.model.element.Element)
 	 */
 	@Override
-	public ModuleBeanInfo createBean(Element element) {
+	public ModuleBeanInfo createBean(Element element) throws TypeErrorException {
 		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
 			throw new IllegalArgumentException("Element must be a TypeElement");
 		}

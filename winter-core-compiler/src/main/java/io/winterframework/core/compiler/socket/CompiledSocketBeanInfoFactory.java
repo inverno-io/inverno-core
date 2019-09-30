@@ -16,10 +16,12 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.Selector;
+import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketType;
@@ -46,7 +48,7 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 	}
 
 	@Override
-	public WirableSocketBeanInfo createModuleSocket(Element element) {
+	public WirableSocketBeanInfo createModuleSocket(Element element) throws TypeErrorException {
 		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
 			throw new IllegalArgumentException("Element must be a TypeElement");
 		}
@@ -90,12 +92,16 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			return null;
 		}
 		
-		TypeMirror beanType = null;
+		TypeMirror socketType = null;
 		if(((DeclaredType)supplierType.get()).getTypeArguments().size() == 0) {
-			beanType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
+			socketType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
 		}
 		else {
-			beanType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
+			socketType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
+		}
+		
+		if(socketType.getKind().equals(TypeKind.ERROR)) {
+			throw new TypeErrorException(socketType);
 		}
 		
 		// Socket name
@@ -115,12 +121,12 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		AnnotationMirror[] selectors = element.getAnnotationMirrors().stream().filter(a -> a.getAnnotationType().asElement().getAnnotation(Selector.class) != null).toArray(AnnotationMirror[]::new);
 
 		// Optional or non-optional will be resolved during wiring {@see io.winterframework.core.compiler.wire.SocketResolver}
-		MultiSocketType multiType = this.getMultiType(beanType);
+		MultiSocketType multiType = this.getMultiType(socketType);
 		if(multiType != null) {
-			return new CommonMultiSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, this.getComponentType(beanType), typeElement.asType(), selectors, true, multiType);
+			return new CommonMultiSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, this.getComponentType(socketType), typeElement.asType(), selectors, true, multiType);
 		}
 		else {
-			return new CommonSingleSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, beanType, typeElement.asType(), selectors, true);
+			return new CommonSingleSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, socketType, typeElement.asType(), selectors, true);
 		}
 	}
 }

@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * The Selector annotation should is used on annotations to identify selectors.
+ * The Selector annotation is used to identify selector annotations.
  * </p>
  * 
  * <pre>
@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
  * Selectors are particular types of annotations used to annotate bean socket or
  * socket bean in order to filter beans during dependency injection (eg. beans
  * annotated with a particular annotation, beans whose name match a particular
- * regexp...).
+ * regular expression...).
  * </p>
  * 
  * @author jkuhn
