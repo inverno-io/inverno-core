@@ -179,19 +179,4 @@ public @interface Bean {
 	 * </p>
 	 */
 	Visibility visibility() default Visibility.PUBLIC;
-
-	/**
-	 * <p>
-	 * Defines the types actually provided by the bean, defaults to the actual bean
-	 * type.
-	 * </p>
-	 * 
-	 * <p>
-	 * This allows to control how a bean is exposed to other modules. For instance,
-	 * you might not want to expose the actual bean type which is most likely an
-	 * implementation class that should not be exported by a module, you'd rather
-	 * choose to expose one or more public interface instead.
-	 * </p>
-	 */
-	Class<?>[] provides() default {};
 }
