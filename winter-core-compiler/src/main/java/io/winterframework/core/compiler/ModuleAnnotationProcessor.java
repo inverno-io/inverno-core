@@ -6,12 +6,14 @@ package io.winterframework.core.compiler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -19,6 +21,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -51,6 +54,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 		return this.processingEnv.getSourceVersion().compareTo(SourceVersion.RELEASE_9) < 0 ? SourceVersion.RELEASE_9 : this.processingEnv.getSourceVersion();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if(this.moduleGenerator == null) {
@@ -137,15 +141,34 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 						element -> ((ModuleElement)element).getQualifiedName().toString(), 
 						element -> {
 							ModuleElement moduleElement = (ModuleElement)element;
-					
+
+							AnnotationMirror moduleAnnotation = this.processingEnv.getElementUtils().getAllAnnotationMirrors(moduleElement).stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst().get();
+							
+							final Set<String> includes = new HashSet<>();
+							final Set<String> excludes = new HashSet<>();;
+							for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnv.getElementUtils().getElementValuesWithDefaults(moduleAnnotation).entrySet()) {
+								switch(value.getKey().getSimpleName().toString()) {
+									case "includes" : includes.addAll(((List<AnnotationValue>)value.getValue().getValue()).stream().map(v -> v.getValue().toString()).collect(Collectors.toSet()));
+										break;
+									case "excludes" : excludes.addAll(((List<AnnotationValue>)value.getValue().getValue()).stream().map(v -> v.getValue().toString()).collect(Collectors.toSet()));
+										break;
+								}
+							}
+							
 							return moduleElement.getDirectives().stream()
 								.filter(directive -> {
 									if(!directive.getKind().equals(ModuleElement.DirectiveKind.REQUIRES)) {
 										return false;
 									}
+									
 									ModuleElement importedModuleElement = ((ModuleElement.RequiresDirective)directive).getDependency();
-									Optional<? extends AnnotationMirror> moduleAnnotation = this.processingEnv.getElementUtils().getAllAnnotationMirrors(importedModuleElement).stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst();
-									return moduleAnnotation.isPresent();
+
+									if( (excludes.size() > 0 && excludes.contains(importedModuleElement.getQualifiedName().toString())) || (includes.size() > 0 && !includes.contains(importedModuleElement.getQualifiedName().toString()))) {
+										return false;
+									}
+									
+									Optional<? extends AnnotationMirror> importedModuleAnnotation = this.processingEnv.getElementUtils().getAllAnnotationMirrors(importedModuleElement).stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst();
+									return importedModuleAnnotation.isPresent();
 								})
 								.map(directive -> {
 									ModuleElement importedModuleElement = ((ModuleElement.RequiresDirective)directive).getDependency();

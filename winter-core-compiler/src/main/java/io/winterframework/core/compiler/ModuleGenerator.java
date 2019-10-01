@@ -37,7 +37,6 @@ class ModuleGenerator {
 	private Set<String> faultyModules;
 	
 	private ProcessingEnvironment processingEnv;
-//	private ModuleClassGenerator moduleClassGenerator;
 	private ModuleClassGenerator moduleClassGenerator;
 	private ModuleReporter moduleReporter;
 	
@@ -49,7 +48,6 @@ class ModuleGenerator {
 	
 	public ModuleGenerator(ProcessingEnvironment processingEnv) {
 		this.processingEnv = processingEnv;
-//		this.moduleClassGenerator = new ModuleClassGenerator(this.processingEnv);
 		this.moduleClassGenerator = new ModuleClassGenerator();
 		this.moduleReporter = new ModuleReporter();
 

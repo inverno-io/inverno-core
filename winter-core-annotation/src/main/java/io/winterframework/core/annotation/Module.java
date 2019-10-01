@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 /**
  * <p>
  * Indicates that a module is a winter module that must be processed and a
- * module class generated during compilation .
+ * module class generated during compilation.
  * </p>
  * 
  * <p>
@@ -34,7 +34,13 @@ import java.lang.annotation.Target;
  * 
  * <p>
  * In case of name conflict, it is possible to explicitly specify the name of
- * the generated class.s
+ * the generated class.
+ * </p>
+ * 
+ * <p>
+ * A winter module might require one or more winter modules without importing
+ * them which is the default behavior. This can be achieved using includes
+ * and/or excludes.
  * </p>
  * 
  * @author jkuhn
@@ -51,4 +57,18 @@ public @interface Module {
 	 * </p>
 	 */
 	String className() default "";
+	
+	/**
+	 * <p>
+	 * List required modules that must be included during compilation, if none are specified consider all of them.
+	 * </p>
+	 */
+	String[] includes() default {};
+	
+	/**
+	 * <p>
+	 * List required modules that must be excluded during compilation.
+	 * </p>
+	 */
+	String[] excludes() default {};
 }
