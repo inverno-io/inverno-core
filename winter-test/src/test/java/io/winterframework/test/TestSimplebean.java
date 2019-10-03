@@ -11,11 +11,11 @@ import io.winterframework.core.test.WinterModuleProxy;
 
 public class TestSimplebean extends AbstractWinterTest {
 
-	private static final String SIMPLEBEAN_MODULE = "io.winterframework.test.simplebean";
+	private static final String MODULE = "io.winterframework.test.simplebean";
 	
 	@Test
 	public void testBeanCreation() throws IOException, WinterCompilationException {
-		WinterModuleProxy simpleProxy = this.getWinterCompiler().compile(SIMPLEBEAN_MODULE).load(SIMPLEBEAN_MODULE).build();
+		WinterModuleProxy simpleProxy = this.getWinterCompiler().compile(MODULE).load(MODULE).build();
 		
 		simpleProxy.start();
 		Assertions.assertNotNull(simpleProxy.getBean("beanA"));

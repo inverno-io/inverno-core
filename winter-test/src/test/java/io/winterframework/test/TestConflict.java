@@ -11,12 +11,12 @@ import io.winterframework.core.test.WinterCompilationException;
 
 public class TestConflict extends AbstractWinterTest {
 
-	private static final String CONFLICT_MODULE = "io.winterframework.test.conflict";
+	private static final String MODULE = "io.winterframework.test.conflict";
 	
 	@Test
 	public void testConflict() throws IOException {
 		try {
-			this.getWinterCompiler().compile(CONFLICT_MODULE);
+			this.getWinterCompiler().compile(MODULE);
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {

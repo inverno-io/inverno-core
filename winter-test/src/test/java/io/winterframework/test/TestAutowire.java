@@ -16,14 +16,14 @@ import io.winterframework.core.test.WinterModuleProxy;
 
 public class TestAutowire extends AbstractWinterTest {
 
-	private static final String AUTOWIRE_MODULE = "io.winterframework.test.autowire";
+	private static final String MODULE = "io.winterframework.test.autowire";
 	
 	private WinterModuleProxy moduleProxy;
 	
 	@BeforeEach
 	public void init() throws IOException, WinterCompilationException {
 		if(this.moduleProxy == null) {
-			this.moduleProxy = this.getWinterCompiler().compile(AUTOWIRE_MODULE).load(AUTOWIRE_MODULE).build();
+			this.moduleProxy = this.getWinterCompiler().compile(MODULE).load(MODULE).build();
 		}
 	}
 	

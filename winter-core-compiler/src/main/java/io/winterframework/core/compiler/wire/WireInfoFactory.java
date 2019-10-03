@@ -147,13 +147,13 @@ public class WireInfoFactory extends AbstractInfoFactory {
 				// ModuleSocket <module>:<socket>
 				moduleSocketQName = BeanQualifiedName.valueOf(into);
 				if(moduleSocketQName.getModuleQName().equals(this.moduleQName)) {
-					wireReporter.error("You can't wire beans to a socket defined on this module");
+					wireReporter.error("You can't wire beans to a socket bean defined in this module");
 					return null;
 				}
 			}
 		}
 		catch(QualifiedNameFormatException e) {
-			wireReporter.error("Invalid dependency qualified name: " + e.getMessage());
+			wireReporter.error("Invalid socket qualified name: " + e.getMessage());
 			return null;
 		}
 		
@@ -165,7 +165,7 @@ public class WireInfoFactory extends AbstractInfoFactory {
 		else {
 			// Module Socket
 			if(!this.importedModuleSockets.containsKey(moduleSocketQName)) {
-				wireReporter.error("There's no socket named: " + moduleSocketQName);
+				wireReporter.error("There's no socket bean named: " + moduleSocketQName);
 				return null;
 			}
 			return new SocketBeanWireInfo(this.processingEnvironment, this.moduleElement, annotation, beanQNames, moduleSocketQName);

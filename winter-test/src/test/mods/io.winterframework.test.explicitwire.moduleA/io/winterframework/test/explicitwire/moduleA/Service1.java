@@ -1,4 +1,4 @@
-package io.winterframework.test.manualwire;
+package io.winterframework.test.explicitwire.moduleA;
 
 import io.winterframework.core.annotation.Bean;
 
