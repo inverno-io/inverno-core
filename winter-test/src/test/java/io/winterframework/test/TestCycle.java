@@ -18,12 +18,12 @@ import io.winterframework.core.test.WinterCompilationException;
  */
 public class TestCycle extends AbstractWinterTest {
 
-	private static final String CYCLE_MODULE = "io.winterframework.test.cycle";
+	private static final String MODULE = "io.winterframework.test.cycle";
 
 	@Test
 	public void testCycle() throws IOException {
 		try {
-			this.getWinterCompiler().compile(CYCLE_MODULE);
+			this.getWinterCompiler().compile(MODULE);
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {

@@ -14,18 +14,18 @@ import io.winterframework.core.test.WinterModuleProxy;
 
 public class TestMultiModule extends AbstractWinterTest {
 
-	private static final String MODULEA_MODULE = "io.winterframework.test.multi.moduleA";
-	private static final String MODULEB_MODULE = "io.winterframework.test.multi.moduleB";
-	private static final String MODULEC_MODULE = "io.winterframework.test.multi.moduleC";
-	private static final String MODULED_MODULE = "io.winterframework.test.multi.moduleD";
-	private static final String MODULEE_MODULE = "io.winterframework.test.multi.moduleE";
-	private static final String MODULEF_MODULE = "io.winterframework.test.multi.moduleF";
+	private static final String MODULEA = "io.winterframework.test.multi.moduleA";
+	private static final String MODULEB = "io.winterframework.test.multi.moduleB";
+	private static final String MODULEC = "io.winterframework.test.multi.moduleC";
+	private static final String MODULED = "io.winterframework.test.multi.moduleD";
+	private static final String MODULEE = "io.winterframework.test.multi.moduleE";
+	private static final String MODULEF = "io.winterframework.test.multi.moduleF";
 
 	@Test
 	public void testMultiModuleSimple() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA_MODULE, MODULEB_MODULE);
+		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA, MODULEB);
 		
-		WinterModuleProxy moduleA = moduleLoader.load(MODULEA_MODULE).build();
+		WinterModuleProxy moduleA = moduleLoader.load(MODULEA).build();
 		moduleA.start();
 		try {
 			Object beanA = moduleA.getBean("beanA");
@@ -35,7 +35,7 @@ public class TestMultiModule extends AbstractWinterTest {
 			moduleA.stop();
 		}
 		
-		WinterModuleProxy moduleB = moduleLoader.load(MODULEB_MODULE).build();
+		WinterModuleProxy moduleB = moduleLoader.load(MODULEB).build();
 		moduleB.start();
 		try {
 			Object beanB = moduleB.getBean("beanB");
@@ -51,7 +51,7 @@ public class TestMultiModule extends AbstractWinterTest {
 	
 	@Test
 	public void testMultiModuleImport() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.getWinterCompiler().compile(MODULEA_MODULE, MODULEB_MODULE);
+		this.getWinterCompiler().compile(MODULEA, MODULEB);
 		
 		WinterCompiler extraCompiler = new WinterCompiler(new File(WINTER_CORE), 
 				new File(WINTER_CORE_ANNOTATION), 
@@ -59,11 +59,11 @@ public class TestMultiModule extends AbstractWinterTest {
 				new File(MODULE_SOURCE), 
 				new File(MODULE_SOURCE_TARGET),
 				new File(MODULE_TARGET),
-				new File[] {new File(MODULE_TARGET, MODULEA_MODULE), new File(MODULE_TARGET, MODULEB_MODULE)});
+				new File[] {new File(MODULE_TARGET, MODULEA), new File(MODULE_TARGET, MODULEB)});
 		
-		WinterModuleLoader moduleLoader = extraCompiler.compile(MODULEC_MODULE);
+		WinterModuleLoader moduleLoader = extraCompiler.compile(MODULEC);
 		
-		WinterModuleProxy moduleC = moduleLoader.load(MODULEC_MODULE).build();
+		WinterModuleProxy moduleC = moduleLoader.load(MODULEC).build();
 		moduleC.start();
 		try {
 			Object beanC = moduleC.getBean("beanC");
@@ -85,9 +85,9 @@ public class TestMultiModule extends AbstractWinterTest {
 	
 	@Test
 	public void testMultiModuleSocket() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA_MODULE, MODULED_MODULE, MODULEE_MODULE, MODULEF_MODULE);
+		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA, MODULED, MODULEE, MODULEF);
 		
-		WinterModuleProxy moduleD = moduleLoader.load(MODULED_MODULE).build();
+		WinterModuleProxy moduleD = moduleLoader.load(MODULED).build();
 		moduleD.start();
 		try {
 			Object beanD = moduleD.getBean("beanD");

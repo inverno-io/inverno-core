@@ -13,12 +13,12 @@ import io.winterframework.core.test.WinterCompilationException;
 
 public class TestMissing extends AbstractWinterTest {
 
-	private static final String MISSING_MODULE = "io.winterframework.test.missing";
+	private static final String MODULE = "io.winterframework.test.missing";
 
 	@Test
 	public void testMissing() throws IOException {
 		try {
-			this.getWinterCompiler().compile(MISSING_MODULE);
+			this.getWinterCompiler().compile(MODULE);
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {

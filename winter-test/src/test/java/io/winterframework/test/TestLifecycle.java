@@ -12,14 +12,14 @@ import io.winterframework.core.test.WinterModuleProxy;
 
 public class TestLifecycle extends AbstractWinterTest {
 
-	private static final String LIFECYCLE_MODULE = "io.winterframework.test.lifecycle";
+	private static final String MODULE = "io.winterframework.test.lifecycle";
 	
 	private WinterModuleProxy lifecycleModuleProxy;
 	
 	@BeforeEach
 	public void init() throws IOException, WinterCompilationException {
 		if(this.lifecycleModuleProxy == null) {
-			this.lifecycleModuleProxy = this.getWinterCompiler().compile(LIFECYCLE_MODULE).load(LIFECYCLE_MODULE).build();
+			this.lifecycleModuleProxy = this.getWinterCompiler().compile(MODULE).load(MODULE).build();
 		}
 	}
 	

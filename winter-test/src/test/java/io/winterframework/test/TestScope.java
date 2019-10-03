@@ -12,14 +12,14 @@ import io.winterframework.core.test.WinterModuleProxy;
 
 public class TestScope extends AbstractWinterTest {
 
-	private static final String SCOPE_MODULE = "io.winterframework.test.scope";
+	private static final String MODULE = "io.winterframework.test.scope";
 	
 	private WinterModuleProxy scopeModuleProxy;
 	
 	@BeforeEach
 	public void init() throws IOException, WinterCompilationException {
 		if(this.scopeModuleProxy == null) {
-			this.scopeModuleProxy = this.getWinterCompiler().compile(SCOPE_MODULE).load(SCOPE_MODULE).build();
+			this.scopeModuleProxy = this.getWinterCompiler().compile(MODULE).load(MODULE).build();
 		}
 	}
 	

@@ -20,7 +20,7 @@ public class ModuleQualifiedName extends QualifiedName {
 	}
 	
 	public ModuleQualifiedName(String packageName, String moduleName, String className) throws QualifiedNameFormatException {
-		super((packageName == null ? "" : packageName) + "." + moduleName);
+		super((packageName == null || packageName.equals("") ? "" : packageName + ".") + moduleName);
 
 		this.packageName = packageName == null ? "" : packageName;
 		this.moduleName = moduleName;

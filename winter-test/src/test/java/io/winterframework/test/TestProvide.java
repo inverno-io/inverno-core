@@ -13,15 +13,15 @@ import io.winterframework.core.test.WinterModuleProxy;
 
 public class TestProvide extends AbstractWinterTest {
 
-	private static final String MODULEA_MODULE = "io.winterframework.test.provide.moduleA";
-	private static final String MODULEB_MODULE = "io.winterframework.test.provide.moduleB";
-	private static final String MODULEC_MODULE = "io.winterframework.test.provide.moduleC";
+	private static final String MODULEA = "io.winterframework.test.provide.moduleA";
+	private static final String MODULEB = "io.winterframework.test.provide.moduleB";
+	private static final String MODULEC = "io.winterframework.test.provide.moduleC";
 	
 	@Test
 	public void testProvideInternalWiring() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA_MODULE);
+		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA);
 		
-		WinterModuleProxy moduleA = moduleLoader.load(MODULEA_MODULE).build();
+		WinterModuleProxy moduleA = moduleLoader.load(MODULEA).build();
 		moduleA.start();
 		try {
 			Object beanA = moduleA.getBean("beanA");
@@ -42,9 +42,9 @@ public class TestProvide extends AbstractWinterTest {
 	
 	@Test
 	public void testProvideExternalWiring() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA_MODULE, MODULEB_MODULE);
+		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA, MODULEB);
 		
-		WinterModuleProxy moduleB = moduleLoader.load(MODULEB_MODULE).build();
+		WinterModuleProxy moduleB = moduleLoader.load(MODULEB).build();
 		moduleB.start();
 		try {
 			Object beanC = moduleB.getBean("beanC");
@@ -64,7 +64,7 @@ public class TestProvide extends AbstractWinterTest {
 	@Test
 	public void testProvideMultipleError() throws IOException {
 		try {
-			this.getWinterCompiler().compile(MODULEC_MODULE);
+			this.getWinterCompiler().compile(MODULEC);
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
