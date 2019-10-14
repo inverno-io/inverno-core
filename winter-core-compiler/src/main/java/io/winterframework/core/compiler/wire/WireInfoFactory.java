@@ -147,7 +147,7 @@ public class WireInfoFactory extends AbstractInfoFactory {
 				// ModuleSocket <module>:<socket>
 				moduleSocketQName = BeanQualifiedName.valueOf(into);
 				if(moduleSocketQName.getModuleQName().equals(this.moduleQName)) {
-					wireReporter.error("You can't wire beans to a socket bean defined in this module");
+					wireReporter.error("You can't wire beans to a socket bean defined in the same module");
 					return null;
 				}
 			}

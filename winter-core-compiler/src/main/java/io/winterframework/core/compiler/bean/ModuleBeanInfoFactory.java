@@ -38,5 +38,5 @@ public abstract class ModuleBeanInfoFactory extends AbstractInfoFactory {
 		return new ImportedModuleBeanInfoFactory(processingEnvironment, importedModuleElement, moduleElement, moduleSocketInfos);
 	}
 	
-	public abstract ModuleBeanInfo createBean(Element element) throws TypeErrorException;
+	public abstract ModuleBeanInfo createBean(Element element) throws BeanCompilationException, TypeErrorException;
 }

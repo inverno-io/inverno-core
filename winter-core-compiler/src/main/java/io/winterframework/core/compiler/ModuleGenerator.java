@@ -155,10 +155,10 @@ class ModuleGenerator {
 			roundFaultyModules.add(moduleName);
 		}
 
-		// Report
-		System.out.println(moduleInfo.accept(this.moduleReporter, ""));
-		
 		if(generate && !moduleInfo.isFaulty()) {
+			// Report
+			System.out.println(moduleInfo.accept(this.moduleReporter, ""));
+			
 			// Generate class
 			try {
 				JavaFileObject moduleSourceFile = this.processingEnv.getFiler().createSourceFile(moduleInfo.getQualifiedName().getClassName(), this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));

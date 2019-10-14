@@ -25,6 +25,7 @@ import javax.lang.model.type.TypeMirror;
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.Selector;
 import io.winterframework.core.annotation.WiredTo;
+import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketType;
 
@@ -59,7 +60,7 @@ class ImportedSocketBeanInfoFactory extends SocketBeanInfoFactory {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public WirableSocketBeanInfo createModuleSocket(Element element) {
+	public WirableSocketBeanInfo createModuleSocket(Element element) throws SocketCompilationException, TypeErrorException {
 		if(!element.getKind().equals(ElementKind.PARAMETER)) {
 			throw new IllegalArgumentException("Element must be a parameter");
 		}

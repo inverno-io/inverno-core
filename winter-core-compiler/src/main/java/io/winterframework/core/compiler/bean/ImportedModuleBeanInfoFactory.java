@@ -56,7 +56,7 @@ class ImportedModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	 * @see io.winterframework.core.compiler.model.ModuleBeanInfoFactory#createBean(javax.lang.model.element.Element)
 	 */
 	@Override
-	public ModuleBeanInfo createBean(Element element) {
+	public ModuleBeanInfo createBean(Element element) throws BeanCompilationException {
 		if(!element.getKind().equals(ElementKind.METHOD)) {
 			throw new IllegalArgumentException("Element must be a Method");
 		}

@@ -144,6 +144,9 @@ class CompiledModuleInfoBuilder extends AbstractInfoFactory implements ModuleInf
 		wirableBeans.addAll(Arrays.stream(this.sockets).collect(Collectors.toList()));
 		wirableBeans.addAll(Arrays.stream(this.modules).flatMap(moduleInfo -> Arrays.stream(moduleInfo.getPublicBeans())).collect(Collectors.toList()));
 		
+		// Ignore beans with conflicting name
+		wirableBeans = wirableBeans.stream().collect(Collectors.groupingBy(BeanInfo::getQualifiedName)).entrySet().stream().filter(e -> e.getValue().size() == 1).map(e -> e.getValue().get(0)).collect(Collectors.toList());
+		
 		List<ModuleBeanSocketInfo> beanSockets = Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getSockets())).collect(Collectors.toList());
 		
 		List<SocketBeanInfo> importedModuleSockets = Arrays.stream(this.modules).flatMap(moduleInfo -> Arrays.stream(moduleInfo.getSockets())).collect(Collectors.toList());

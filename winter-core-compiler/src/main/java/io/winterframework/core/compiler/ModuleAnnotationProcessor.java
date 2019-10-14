@@ -33,9 +33,11 @@ import javax.tools.Diagnostic.Kind;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.Module;
+import io.winterframework.core.compiler.bean.BeanCompilationException;
 import io.winterframework.core.compiler.bean.ModuleBeanInfoFactory;
 import io.winterframework.core.compiler.module.ModuleInfoBuilderFactory;
 import io.winterframework.core.compiler.socket.SocketBeanInfoFactory;
+import io.winterframework.core.compiler.socket.SocketCompilationException;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
@@ -96,15 +98,15 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 						ModuleBeanInfo moduleBean;
 						try {
 							moduleBean = beanFactory.createBean(element);
-						} 
-						catch (TypeErrorException e) {
-							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Type " + e.getType() + " could not be resolved." , element, beanAnnotation );
+						}
+						catch (BeanCompilationException | TypeErrorException e) {
 							return null;
 						}
 						catch (Exception e) {
 							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Unable to create bean: " + e.getMessage() , element, beanAnnotation );
 							return null;
 						}
+						
 						moduleOriginatingElements.get(moduleBean.getQualifiedName().getModuleQName().getValue()).add(element);
 						return moduleBean;
 					})
@@ -122,9 +124,8 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 						SocketBeanInfo moduleSocket;
 						try {
 							moduleSocket = socketFactory.createModuleSocket(element);
-						} 
-						catch (TypeErrorException e) {
-							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Type " + e.getType() + " could not be resolved." , element, beanAnnotation );
+						}
+						catch (SocketCompilationException | TypeErrorException e) {
 							return null;
 						}
 						catch (Exception e) {
@@ -134,7 +135,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 						moduleOriginatingElements.get(moduleSocket.getQualifiedName().getModuleQName().getValue()).add(element);
 						return moduleSocket;
 					})
-					.filter(socket -> socket != null)
+					.filter(Objects::nonNull)
 					.collect(Collectors.groupingBy(socket -> socket.getQualifiedName().getModuleQName().getValue())))
 				.withImportedModules(roundEnv.getElementsAnnotatedWith(Module.class).stream()
 					.collect(Collectors.toMap(
@@ -185,7 +186,14 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 									List<? extends SocketBeanInfo> importedModuleSockets = ((ExecutableElement)moduleType.getEnclosedElements().stream()
 										.filter(e -> e.getKind().equals(ElementKind.CONSTRUCTOR)).findFirst().get())
 										.getParameters().stream()
-										.map(ve -> importedModuleSocketFactory.createModuleSocket(ve))
+										.map(ve -> {
+											try {
+												return importedModuleSocketFactory.createModuleSocket(ve);
+											} 
+											catch (SocketCompilationException | TypeErrorException e1) {
+												return null;
+											}
+										})
 										.collect(Collectors.toList());
 	
 									importedModuleBuilder.sockets(importedModuleSockets.stream().toArray(SocketBeanInfo[]::new));
@@ -193,7 +201,15 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 									ModuleBeanInfoFactory importedModuleBeanFactory = ModuleBeanInfoFactory.create(this.processingEnv, moduleElement, importedModuleElement, importedModuleSockets);
 									List<? extends ModuleBeanInfo> importedModuleBeans = moduleType.getEnclosedElements().stream()
 										.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getModifiers().contains(Modifier.PUBLIC) && ((ExecutableElement)e).getParameters().size() == 0)
-										.map(e -> importedModuleBeanFactory.createBean(e))
+										.map(e -> {
+											try {
+												return importedModuleBeanFactory.createBean(e);
+											} 
+											catch (BeanCompilationException | TypeErrorException e1) {
+												return null;
+											}
+										})
+										.filter(Objects::nonNull)
 										.collect(Collectors.toList());
 							
 									importedModuleBuilder.beans(importedModuleBeans.stream().toArray(ModuleBeanInfo[]::new));
