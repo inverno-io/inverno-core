@@ -12,6 +12,7 @@ import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic.Kind;
 
 import io.winterframework.core.annotation.Selector;
 import io.winterframework.core.compiler.TypeErrorException;
@@ -73,6 +74,7 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 		
 		TypeMirror socketType = variableElement.asType();
 		if(socketType.getKind().equals(TypeKind.ERROR)) {
+			this.processingEnvironment.getMessager().printMessage(Kind.WARNING, "Type " + socketType + " could not be resolved.", variableElement );
 			throw new TypeErrorException(socketType);
 		}
 		

@@ -9,7 +9,7 @@ import javax.lang.model.type.TypeMirror;
  * @author jkuhn
  *
  */
-public class TypeErrorException extends RuntimeException {
+public class TypeErrorException extends Exception {
 
 	/**
 	 * 

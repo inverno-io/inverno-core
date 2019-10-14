@@ -1,7 +1,9 @@
 package io.winterframework.test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -68,8 +70,12 @@ public class TestProvide extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
-			Assertions.assertEquals("Bean io.winterframework.test.provide.moduleC:beanA can't provide multiple types", e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(2, e.getDiagnotics().size());
+			
+			String multipleProvideError = "Bean io.winterframework.test.provide.moduleC:beanA can't provide multiple types";
+			String wrapperProvideError = "Wrapper bean io.winterframework.test.provide.moduleC:beanB can't provide other types than its supplied type";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleProvideError, wrapperProvideError)));
 		}
 	}
 }

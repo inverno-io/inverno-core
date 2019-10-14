@@ -68,7 +68,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	 * @see io.winterframework.core.compiler.model.ModuleBeanInfoFactory#createBean(javax.lang.model.element.Element)
 	 */
 	@Override
-	public ModuleBeanInfo createBean(Element element) throws TypeErrorException {
+	public ModuleBeanInfo createBean(Element element) throws BeanCompilationException, TypeErrorException {
 		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
 			throw new IllegalArgumentException("Element must be a TypeElement");
 		}
@@ -87,30 +87,13 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 		}
 		
-		ReporterInfo beanReporter = this.getReporter(element);
+		ReporterInfo beanReporter = this.getReporter(element, beanAnnotation.get());
 		if(!element.getKind().equals(ElementKind.CLASS) || element.getModifiers().contains(Modifier.ABSTRACT)) {
-			beanReporter.error("Module beans or a Wrapper beans must be concrete classes");
-			return null;
+			beanReporter.error("A module bean or a wrapper bean must be a concrete class");
+			throw new BeanCompilationException();
 		}
 		
 		// Get Bean metadata
-		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
-		TypeMirror wrapperType = null;
-		if(wrapperAnnotation.isPresent()) {
-			wrapperType = beanType;
-			Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
-			if(!supplierType.isPresent()) {
-				beanReporter.error("A wrapper bean element must extend " + Supplier.class.getCanonicalName());
-				return null;
-			}
-			if(((DeclaredType)supplierType.get()).getTypeArguments().size() == 0) {
-				beanType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
-			}
-			else {
-				beanType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
-			}
-		}
-		
 		String name = null;
 		Bean.Visibility visibility = null;
 		for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(beanAnnotation.get()).entrySet()) {
@@ -131,9 +114,10 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		BeanQualifiedName beanQName;
 		try {
 			beanQName = new BeanQualifiedName(this.moduleQName, name);
-		} catch (QualifiedNameFormatException e) {
+		} 
+		catch (QualifiedNameFormatException e) {
 			beanReporter.error("Invalid bean qualified name: " + e.getMessage());
-			return null;
+			throw new BeanCompilationException();
 		}
 
 		Scope.Type scope = null;
@@ -147,7 +131,6 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			}
 		}
 
-		
 		// Get provided type
 		TypeMirror providedType = null;
 		List<? extends TypeMirror> providedTypes = this.processingEnvironment.getTypeUtils().directSupertypes(beanType).stream()
@@ -166,7 +149,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		else if(providedTypes.size() > 1) {
 			beanReporter.error("Bean " + beanQName + " can't provide multiple types");
 		}
-		 
+		
 		// Get Init
 		List<ExecutableElement> initElements = element.getEnclosedElements().stream()
 			.filter(e -> e.getAnnotation(Init.class) != null)
@@ -201,12 +184,13 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		List<ExecutableElement> constructorSocketElements = element.getEnclosedElements().stream()
 			.filter(e -> e.getKind().equals(ElementKind.CONSTRUCTOR))
+			.filter(e -> e.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PUBLIC)))
 			.map(e -> (ExecutableElement)e)
 			.collect(Collectors.toList());
 		if(constructorSocketElements.size() == 0) {
 			// This should never happen
-			beanReporter.error("No constructors defined in bean " + beanQName);
-			return null;
+			beanReporter.error("No public constructor defined in bean " + beanQName);
+			throw new BeanCompilationException();
 		}
 		else if(constructorSocketElements.size() == 1) {
 			// OK
@@ -217,21 +201,16 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			constructorSocketElements = constructorSocketElements.stream().filter(e -> e.getAnnotation(BeanSocket.class) != null).collect(Collectors.toList());
 			
 			if(constructorSocketElements.size() == 0) {
-				beanReporter.error("Multiple constructors are defined in module bean " + beanQName + ", consider specifying a " + BeanSocket.class.getSimpleName() + " to select one");
-				return null;
+				beanReporter.error("Multiple constructors are defined in module bean " + beanQName + ", consider specifying a " + BeanSocket.class.getSimpleName() + " on the one to select");
+				throw new BeanCompilationException();
 			}
 			else if(constructorSocketElements.size() == 1) {
 				constructorSocketElement = constructorSocketElements.get(0);
 			}
 			else {
-				beanReporter.error("Multiple constructor " + BeanSocket.class.getSimpleName() + " are defined in module bean " + beanQName + " which is not permitted");
-				return null;
+				beanReporter.error("Multiple constructors annotated with " + BeanSocket.class.getSimpleName() + " are defined in module bean " + beanQName + " which is not permitted");
+				throw new BeanCompilationException();
 			}
-		}
-		
-		if(!constructorSocketElement.getModifiers().stream().filter(m -> m.equals(Modifier.PUBLIC)).findFirst().isPresent()) {
-			this.processingEnvironment.getMessager().printMessage(Kind.ERROR, "Module bean constructor is not visible", constructorSocketElement);
-			return null;
 		}
 		
 		for(VariableElement ve : constructorSocketElement.getParameters()) {
@@ -241,9 +220,10 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		}
 		
 		// ... from setters
-		// Get optional dependencies from setters
+		// Get optional dependencies from public setters
 		List<ExecutableElement> socketElements = (List<ExecutableElement>)element.getEnclosedElements().stream()
 			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getSimpleName().toString().startsWith("set") && ((ExecutableElement)e).getParameters().size() == 1)
+			.filter(e -> e.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PUBLIC)))
 			.map(e -> (ExecutableElement)e)
 			.collect(Collectors.toList());
 		List<ExecutableElement> annotatedSocketElements = socketElements.stream().filter(e -> e.getAnnotation(BeanSocket.class) != null).collect(Collectors.toList());
@@ -258,16 +238,33 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			else {
 				ModuleBeanSocketInfo optionalBeanSocket =  beanSocketFactory.createBeanSocket(socketElement.getParameters().get(0));
 				if(requiredSocketSimpleNames.contains(optionalBeanSocket.getQualifiedName().getName())) {
-					optionalBeanSocket.error("Dependency name is conflicting with a required dependency name");
+					optionalBeanSocket.error("Optional socket name is conflicting with a required socket name: " + optionalBeanSocket.getQualifiedName().getName());
 				}
 				else {
 					beanSocketInfos.add(optionalBeanSocket);
 				}
 			}
 		}
-		if(wrapperType != null) {
+		
+		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
+		TypeMirror wrapperType = null;
+		if(wrapperAnnotation.isPresent()) {
+			wrapperType = beanType;
+			Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
+			if(!supplierType.isPresent()) {
+				beanReporter.error("A wrapper bean element must extend " + Supplier.class.getCanonicalName());
+				throw new BeanCompilationException();
+			}
+			if(((DeclaredType)supplierType.get()).getTypeArguments().size() == 0) {
+				beanType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
+			}
+			else {
+				beanType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
+			}
+			
 			if(providedType != null) {
 				beanReporter.error("Wrapper bean " + beanQName + " can't provide other types than its supplied type");
+				throw new BeanCompilationException();
 			}
 			return new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, visibility, scope, initElements, destroyElements, beanSocketInfos);
 		}

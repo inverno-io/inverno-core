@@ -18,6 +18,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic.Kind;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.Selector;
@@ -48,7 +49,7 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 	}
 
 	@Override
-	public WirableSocketBeanInfo createModuleSocket(Element element) throws TypeErrorException {
+	public WirableSocketBeanInfo createModuleSocket(Element element) throws SocketCompilationException, TypeErrorException {
 		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
 			throw new IllegalArgumentException("Element must be a TypeElement");
 		}
@@ -67,13 +68,13 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		
 		if(!element.getKind().equals(ElementKind.INTERFACE)) {
 			beanReporter.error("A socket bean element must be an interface");
-			return null;
+			throw new SocketCompilationException();
 		}
 		
 		Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
 		if(!supplierType.isPresent()) {
 			beanReporter.error("A socket bean element must extend " + Supplier.class.getCanonicalName());
-			return null;
+			throw new SocketCompilationException();
 		}
 		
 		String socketName = null;
@@ -89,7 +90,7 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		
 		if(visibility.equals(Bean.Visibility.PRIVATE)) {
 			beanReporter.error("A socket bean must always be public");
-			return null;
+			throw new SocketCompilationException();
 		}
 		
 		TypeMirror socketType = null;
@@ -101,7 +102,7 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		}
 		
 		if(socketType.getKind().equals(TypeKind.ERROR)) {
-			throw new TypeErrorException(socketType);
+			this.processingEnvironment.getMessager().printMessage(Kind.WARNING, "Type " + socketType + " could not be resolved.", element);
 		}
 		
 		// Socket name
@@ -115,7 +116,7 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			socketQName = new BeanQualifiedName(this.moduleQName, socketName);
 		} catch (QualifiedNameFormatException e) {
 			beanReporter.error("Invalid socket bean qualified name: " + e.getMessage());
-			return null;
+			throw new SocketCompilationException();
 		}
 		
 		AnnotationMirror[] selectors = element.getAnnotationMirrors().stream().filter(a -> a.getAnnotationType().asElement().getAnnotation(Selector.class) != null).toArray(AnnotationMirror[]::new);

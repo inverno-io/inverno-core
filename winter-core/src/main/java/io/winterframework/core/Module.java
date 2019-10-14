@@ -209,7 +209,6 @@ public abstract class Module {
 		this.logger.info("Module " + this.name + " stopped in " + ((System.nanoTime() - t0) / 1000000) + "ms");
 	}
 	
-
 	/**
 	 * <p>
 	 * Aggregate single beans, collections of beans and arrays of beans.

@@ -35,5 +35,5 @@ public abstract class SocketBeanInfoFactory extends AbstractSocketInfoFactory {
 		return new ImportedSocketBeanInfoFactory(processingEnvironment, importedModuleElement, moduleElement);
 	}
 	
-	public abstract WirableSocketBeanInfo createModuleSocket(Element element) throws TypeErrorException;
+	public abstract WirableSocketBeanInfo createModuleSocket(Element element) throws SocketCompilationException, TypeErrorException;
 }
