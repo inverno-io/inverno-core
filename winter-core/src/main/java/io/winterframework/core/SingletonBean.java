@@ -73,7 +73,7 @@ abstract class SingletonBean<T> extends AbstractBean<T> {
 	public synchronized  final void create() {
 		if(this.instance == null) {
 			LOGGER.info("Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
-			this.instance = this.createInstance();	
+			this.instance = this.createInstance();
 		}
 	}
 	

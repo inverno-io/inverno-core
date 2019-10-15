@@ -21,6 +21,8 @@ public class TestCompilationError extends AbstractWinterTest {
 	private static final String MODULEE = "io.winterframework.test.error.moduleE";
 	private static final String MODULEF = "io.winterframework.test.error.moduleF";
 	private static final String MODULEG = "io.winterframework.test.error.moduleG";
+	private static final String MODULEH = "io.winterframework.test.error.moduleH";
+	private static final String MODULEI = "io.winterframework.test.error.moduleI";
 	
 	@Test
 	public void testBeanConcreteClass() throws IOException {
@@ -131,9 +133,19 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.assertTrue(messages.containsAll(Set.of(conflict1, conflict2, conflict3)));
 		}
 	}
-	
+
 	@Test
 	public void testModuleBeanModuleConflict() throws IOException {
-		// TODO Bean is conflicting with module: 
+		try {
+			this.getWinterCompiler().compile(MODULEH, MODULEI);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnotics().size());
+			
+			String beanModuleNameConflict = "Bean is conflicting with module: io.winterframework.test.error.moduleH";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+		}
 	}
 }

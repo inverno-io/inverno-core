@@ -67,6 +67,7 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		ReporterInfo beanReporter = this.getReporter(element, annotation.get());
 		
 		if(!element.getKind().equals(ElementKind.INTERFACE)) {
+			// This should never happen, we shouldn't get there if it wasn't an interface
 			beanReporter.error("A socket bean element must be an interface");
 			throw new SocketCompilationException();
 		}

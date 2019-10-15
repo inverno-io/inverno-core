@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
@@ -181,5 +182,21 @@ public class TestSocketBean extends AbstractWinterTest {
 		finally {
 			moduleProxy.stop();
 		}
+	}
+	
+	// TODO
+	@Test
+	public void testExtendsSupplierError() {
+		// beanReporter.error("A socket bean element must extend " + Supplier.class.getCanonicalName());
+	}
+	
+	@Test
+	public void testPublicError() {
+		// beanReporter.error("A socket bean must always be public");
+	}
+	
+	@Test
+	public void testInvalidNameError() {
+		// beanReporter.error("Invalid socket bean qualified name: " + e.getMessage());
 	}
 }
