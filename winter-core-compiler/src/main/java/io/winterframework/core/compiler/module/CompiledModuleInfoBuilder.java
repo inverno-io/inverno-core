@@ -128,7 +128,9 @@ class CompiledModuleInfoBuilder extends AbstractInfoFactory implements ModuleInf
 				hasConflicts = true; 
 			}
 			if(moduleNames.contains(e.getKey())) {
+				// If a bean has the same name as a required module, we can have conflict when explicitly wire beans into imported module socket (beanName:socketName vs moduleName:socketName)
 				e.getValue().stream().forEach(beanInfo -> beanInfo.error("Bean is conflicting with module: " + e.getKey()));
+				hasConflicts = true;
 			}
 		}
 		return hasConflicts;
