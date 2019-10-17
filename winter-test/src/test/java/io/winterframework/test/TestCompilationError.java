@@ -33,8 +33,8 @@ public class TestCompilationError extends AbstractWinterTest {
 		catch(WinterCompilationException e) {
 			Assertions.assertEquals(2, e.getDiagnotics().size());
 			
-			String abstractBeanError = "A module bean or a wrapper bean must be a concrete class";
-			String socketBeanSupplierError = "A socket bean element must extend java.util.function.Supplier";
+			String abstractBeanError = "A bean must be a concrete class";
+			String socketBeanSupplierError = "A socket bean must extend java.util.function.Supplier";
 			
 			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(abstractBeanError, socketBeanSupplierError)));
 		}

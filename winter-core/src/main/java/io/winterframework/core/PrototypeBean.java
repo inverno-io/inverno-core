@@ -77,6 +77,7 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 		if(this.instances == null) {
 			LOGGER.info(() -> "Creating Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
 			this.instances = new ArrayList<>();
+			this.parent.recordBean(this);
 		}
 	}
 	

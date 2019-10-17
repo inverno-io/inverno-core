@@ -68,13 +68,13 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		
 		if(!element.getKind().equals(ElementKind.INTERFACE)) {
 			// This should never happen, we shouldn't get there if it wasn't an interface
-			beanReporter.error("A socket bean element must be an interface");
+			beanReporter.error("A socket bean must be an interface");
 			throw new SocketCompilationException();
 		}
 		
 		Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
 		if(!supplierType.isPresent()) {
-			beanReporter.error("A socket bean element must extend " + Supplier.class.getCanonicalName());
+			beanReporter.error("A socket bean must extend " + Supplier.class.getCanonicalName());
 			throw new SocketCompilationException();
 		}
 		
@@ -89,8 +89,8 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			}
 		}
 		
-		if(visibility.equals(Bean.Visibility.PRIVATE)) {
-			beanReporter.error("A socket bean must always be public");
+		if(!visibility.equals(Bean.Visibility.PUBLIC)) {
+			beanReporter.error("A socket bean must be public");
 			throw new SocketCompilationException();
 		}
 		

@@ -89,7 +89,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		ReporterInfo beanReporter = this.getReporter(element, beanAnnotation.get());
 		if(!element.getKind().equals(ElementKind.CLASS) || element.getModifiers().contains(Modifier.ABSTRACT)) {
-			beanReporter.error("A module bean or a wrapper bean must be a concrete class");
+			beanReporter.error("A bean must be a concrete class");
 			throw new BeanCompilationException();
 		}
 		
@@ -147,7 +147,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			providedType = providedTypes.get(0);
 		}
 		else if(providedTypes.size() > 1) {
-			beanReporter.error("Bean " + beanQName + " can't provide multiple types");
+			beanReporter.error("A bean " + beanQName + " can't provide multiple types");
 		}
 		
 		// Get Init
@@ -263,7 +263,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			}
 			
 			if(providedType != null) {
-				beanReporter.error("Wrapper bean " + beanQName + " can't provide other types than its supplied type");
+				beanReporter.error("A wrapper bean " + beanQName + " can't provide other types than its supplied type");
 				throw new BeanCompilationException();
 			}
 			return new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, visibility, scope, initElements, destroyElements, beanSocketInfos);
