@@ -3,14 +3,14 @@ package io.winterframework.test;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -24,6 +24,9 @@ import io.winterframework.core.test.WinterModuleProxyBuilder;
 public class TestSocketBean extends AbstractWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.socketbean.moduleA";
+	private static final String MODULED = "io.winterframework.test.socketbean.moduleD";
+	private static final String MODULEE = "io.winterframework.test.socketbean.moduleE";
+	private static final String MODULEF = "io.winterframework.test.socketbean.moduleF";
 
 	private WinterModuleProxyBuilder moduleProxyBuilder;
 	
@@ -43,7 +46,6 @@ public class TestSocketBean extends AbstractWinterTest {
 	private List<HttpHandler> httpHandlers;
 	
 	@SuppressWarnings("unchecked")
-	@BeforeEach
 	public void init() throws IOException, WinterCompilationException {
 		if(this.moduleProxyBuilder == null) {
 			this.moduleProxyBuilder = this.getWinterCompiler().compile(MODULEA).load(MODULEA);
@@ -82,6 +84,8 @@ public class TestSocketBean extends AbstractWinterTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testSockets() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		this.init();
+		
 		WinterModuleProxy moduleProxy = this.moduleProxyBuilder
 			.optionalDependency("extRunnable", this.extRunnable)
 			.optionalDependency("extHttpHandlerArray", this.extHttpHandlerArray)
@@ -130,6 +134,8 @@ public class TestSocketBean extends AbstractWinterTest {
 	
 	@Test
 	public void testNullRequiredSocket() throws IOException, WinterCompilationException {
+		this.init();
+		
 		try {
 			this.moduleProxyBuilder
 				.optionalDependency("extRunnable", this.extRunnable)
@@ -153,6 +159,8 @@ public class TestSocketBean extends AbstractWinterTest {
 	
 	@Test
 	public void testNullOptionalSocket() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		this.init();
+		
 		WinterModuleProxy moduleProxy = this.moduleProxyBuilder
 			.optionalDependency("extHttpHandlerArray", this.extHttpHandlerArray)
 			.optionalDependency("extHttpHandlerList", this.extHttpHandlerList)
@@ -186,17 +194,47 @@ public class TestSocketBean extends AbstractWinterTest {
 	
 	// TODO
 	@Test
-	public void testExtendsSupplierError() {
-		// beanReporter.error("A socket bean element must extend " + Supplier.class.getCanonicalName());
+	public void testExtendsSupplierError() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULED);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnotics().size());
+			
+			String beanModuleNameConflict = "A socket bean must extend java.util.function.Supplier";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+		}
 	}
 	
 	@Test
-	public void testPublicError() {
-		// beanReporter.error("A socket bean must always be public");
+	public void testPublicError() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEE);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnotics().size());
+			
+			String beanModuleNameConflict = "A socket bean must be public";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+		}
 	}
 	
 	@Test
-	public void testInvalidNameError() {
-		// beanReporter.error("Invalid socket bean qualified name: " + e.getMessage());
+	public void testInvalidNameError() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEF);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnotics().size());
+			
+			String beanModuleNameConflict = "Invalid socket bean qualified name: QName part must be a valid Java identifier: # invalid 123";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+		}
 	}
 }

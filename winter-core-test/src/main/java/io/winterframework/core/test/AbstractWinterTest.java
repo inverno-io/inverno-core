@@ -13,6 +13,10 @@ import java.nio.file.Files;
  */
 public abstract class AbstractWinterTest {
 
+	static {
+		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tF %1$tT] [%4$-7s] %5$s %n");
+	}
+	
 	private WinterCompiler winterCompiler;
 	
 	protected static final String WINTER_CORE = "../winter-core/target/classes";

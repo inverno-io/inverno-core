@@ -5,9 +5,11 @@ package io.winterframework.core;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -79,6 +81,8 @@ public abstract class Module {
 	 */
 	private List<Bean<?>> beans;
 	
+	private Deque<Bean<?>> beansStack;
+	
 	/**
 	 * The module banner.
 	 */
@@ -95,7 +99,18 @@ public abstract class Module {
 	protected Module(String moduleName) {
 		this.name = moduleName;
 		this.beans = new ArrayList<>();
+		this.beansStack = new ArrayDeque<>();
 		this.modules = new ArrayList<>();
+	}
+	
+	void recordBean(Bean<?> bean) {
+		// Beans must be recorded as they are created
+		if(this.parent != null) {
+			this.parent.recordBean(bean);
+		}
+		else {
+			this.beansStack.push(bean);
+		}
 	}
 	
 	/**
@@ -109,17 +124,6 @@ public abstract class Module {
 	 */
 	void setBanner(Banner banner) {
 		this.banner = banner;
-	}
-
-	/**
-	 * <p>
-	 * Return the name of the module.
-	 * </p>
-	 * 
-	 * @return The name of the module
-	 */
-	public String getName() {
-		return this.name;
 	}
 
 	/**
@@ -175,6 +179,17 @@ public abstract class Module {
 		
 		return bean;
 	}
+
+	/**
+	 * <p>
+	 * Return the name of the module.
+	 * </p>
+	 * 
+	 * @return The name of the module
+	 */
+	public String getName() {
+		return this.name;
+	}
 		
 	/**
 	 * <p>
@@ -191,9 +206,10 @@ public abstract class Module {
 		}
 		long t0 = System.nanoTime();
 		this.logger.info("Starting Module " + this.name + "...");
-		this.modules.stream().forEach(module -> module.start());
 		this.beans.stream().forEach(bean -> bean.create());
+		this.modules.stream().forEach(module -> module.start());
 		this.logger.info("Module " + this.name + " started in " + ((System.nanoTime() - t0) / 1000000) + "ms");
+//		this.logger.info(this.beansStack.stream().map(bean -> bean.name.toString()).collect(Collectors.joining(", "))); // TEST
 	}
 
 	/**
@@ -204,8 +220,9 @@ public abstract class Module {
 	public void stop() {
 		long t0 = System.nanoTime();
 		this.logger.info("Stopping Module " + this.name + "...");
+		this.beansStack.forEach(bean -> bean.destroy());
 		this.modules.stream().forEach(module -> module.stop());
-		this.beans.stream().forEach(bean -> bean.destroy());
+		this.beansStack.clear();
 		this.logger.info("Module " + this.name + " stopped in " + ((System.nanoTime() - t0) / 1000000) + "ms");
 	}
 	
