@@ -334,7 +334,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 					.collect(Collectors.joining("\n")) + "\n";
 			}
 				
-			if(moduleBeanInfo.getInitElements().length > 0) {
+			if(moduleBeanInfo.getDestroyElements().length > 0) {
 				beanNew += Arrays.stream(moduleBeanInfo.getDestroyElements())
 					.map(element -> generation.indent(3) + ".destroy(" + generation.getTypeName(beanType) + "::" + element.getSimpleName().toString() + ")")
 					.collect(Collectors.joining("\n")) + "\n";

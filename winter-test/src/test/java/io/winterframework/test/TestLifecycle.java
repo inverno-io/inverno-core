@@ -12,8 +12,7 @@ import io.winterframework.core.test.WinterModuleProxy;
 public class TestLifecycle extends AbstractWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.lifecycle.moduleA";
-	
-	private WinterModuleProxy lifecycleModuleProxy;
+	private static final String MODULEB = "io.winterframework.test.lifecycle.moduleB";
 	
 	@Test
 	public void testInitDestroy() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException {
@@ -23,9 +22,9 @@ public class TestLifecycle extends AbstractWinterTest {
 		try {
 			moduleA.start();
 			
-			singletonBean = this.lifecycleModuleProxy.getBean("singletonScopeBean");
-			prototypeBean1 = this.lifecycleModuleProxy.getBean("prototypeScopeBean");
-			prototypeBean2 = this.lifecycleModuleProxy.getBean("prototypeScopeBean");
+			singletonBean = moduleA.getBean("singletonScopeBean");
+			prototypeBean1 = moduleA.getBean("prototypeScopeBean");
+			prototypeBean2 = moduleA.getBean("prototypeScopeBean");
 
 			Assertions.assertEquals(1, singletonBean.getClass().getField("initCount").get(singletonBean));
 			Assertions.assertEquals(1, prototypeBean1.getClass().getField("initCount").get(prototypeBean1));
@@ -47,9 +46,9 @@ public class TestLifecycle extends AbstractWinterTest {
 		try {
 			moduleA.start();
 			
-			singletonBean = this.lifecycleModuleProxy.getBean("singletonScopeBean");
-			prototypeBean1 = this.lifecycleModuleProxy.getBean("prototypeScopeBean");
-			prototypeBean2 = this.lifecycleModuleProxy.getBean("prototypeScopeBean");
+			singletonBean = moduleA.getBean("singletonScopeBean");
+			prototypeBean1 = moduleA.getBean("prototypeScopeBean");
+			prototypeBean2 = moduleA.getBean("prototypeScopeBean");
 
 			Assertions.assertTrue((boolean)singletonBean.getClass().getField("beanInjected").get(singletonBean));
 			Assertions.assertTrue((boolean)prototypeBean1.getClass().getField("beanInjected").get(prototypeBean1));
@@ -61,7 +60,37 @@ public class TestLifecycle extends AbstractWinterTest {
 	}
 	
 	@Test
-	public void testDestroyWithDI() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+	public void testDestroyWithDI() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException {
+		WinterModuleProxy moduleB = this.getWinterCompiler().compile(MODULEB).load(MODULEB).build();
 		
+		Object beanA = null, beanB = null, beanC = null, beanD = null, beanE = null;
+		try {
+			moduleB.start();
+			
+			beanA = moduleB.getBean("beanA");
+			beanB = moduleB.getBean("beanB");
+			beanC = moduleB.getBean("beanC");
+			beanD = moduleB.getBean("beanD");
+			beanE = moduleB.getBean("beanE");
+
+			Assertions.assertNotNull(beanA);
+			Assertions.assertNotNull(beanB);
+			Assertions.assertNotNull(beanC);
+			Assertions.assertNotNull(beanD);
+			Assertions.assertNotNull(beanE);
+		} 
+		finally {
+			moduleB.stop();
+			Assertions.assertFalse(beanA.getClass().getField("destroyFailed").getBoolean(beanA));
+			Assertions.assertTrue(beanA.getClass().getField("destroyed").getBoolean(beanA));
+			Assertions.assertFalse(beanB.getClass().getField("destroyFailed").getBoolean(beanB));
+			Assertions.assertTrue(beanB.getClass().getField("destroyed").getBoolean(beanB));
+			Assertions.assertFalse(beanC.getClass().getField("destroyFailed").getBoolean(beanC));
+			Assertions.assertTrue(beanC.getClass().getField("destroyed").getBoolean(beanC));
+			Assertions.assertFalse(beanD.getClass().getField("destroyFailed").getBoolean(beanD));
+			Assertions.assertTrue(beanD.getClass().getField("destroyed").getBoolean(beanD));
+			Assertions.assertFalse(beanE.getClass().getField("destroyFailed").getBoolean(beanE));
+			Assertions.assertTrue(beanE.getClass().getField("destroyed").getBoolean(beanE));
+		}
 	}
 }
