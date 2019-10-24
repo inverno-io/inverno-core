@@ -31,11 +31,18 @@ public abstract class ModuleBeanInfoFactory extends AbstractInfoFactory {
 		return new CompiledModuleBeanInfoFactory(processingEnvironment, moduleElement);
 	}
 	
-	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement importedModuleElement, List<? extends SocketBeanInfo> moduleSocketInfos) {
+	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement importedModuleElement, List<? extends SocketBeanInfo> moduleSocketInfos, Integer version) {
 		if(moduleElement.getDirectives().stream().noneMatch(directive -> directive.getKind().equals(ModuleElement.DirectiveKind.REQUIRES) && ((ModuleElement.RequiresDirective)directive).getDependency().equals(importedModuleElement))) {
 			throw new IllegalArgumentException("The specified element is not imported in module " + moduleElement.getQualifiedName().toString());
 		}
-		return new ImportedModuleBeanInfoFactory(processingEnvironment, importedModuleElement, moduleElement, moduleSocketInfos);
+		
+		if(version == null) {
+			throw new IllegalStateException("Version of imported module can't be null");			
+		}
+		switch(version) {
+			case 1: return new ImportedModuleBeanInfoFactory(processingEnvironment, importedModuleElement, moduleElement, moduleSocketInfos);
+			default: throw new IllegalStateException("Unsupported version: " + version);
+		}
 	}
 	
 	public abstract ModuleBeanInfo createBean(Element element) throws BeanCompilationException, TypeErrorException;

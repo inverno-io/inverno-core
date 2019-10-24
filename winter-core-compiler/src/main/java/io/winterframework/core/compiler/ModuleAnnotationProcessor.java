@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -36,6 +36,7 @@ import io.winterframework.core.annotation.Module;
 import io.winterframework.core.compiler.bean.BeanCompilationException;
 import io.winterframework.core.compiler.bean.ModuleBeanInfoFactory;
 import io.winterframework.core.compiler.module.ModuleInfoBuilderFactory;
+import io.winterframework.core.compiler.module.ModuleVersionExtractor;
 import io.winterframework.core.compiler.socket.SocketBeanInfoFactory;
 import io.winterframework.core.compiler.socket.SocketCompilationException;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
@@ -49,6 +50,8 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
 @SupportedAnnotationTypes({"javax.annotation.processing.Generated", "io.winterframework.core.annotation/io.winterframework.core.annotation.Module","io.winterframework.core.annotation/io.winterframework.core.annotation.Bean"})
 public class ModuleAnnotationProcessor extends AbstractProcessor {
 
+	public static final int VERSION = 1;
+	
 	private ModuleGenerator moduleGenerator;
 	
 	@Override
@@ -178,43 +181,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 										return moduleBuilders.get(importedModuleName);
 									}
 								
-									ModuleInfoBuilder importedModuleBuilder = ModuleInfoBuilderFactory.createModuleBuilder(this.processingEnv, moduleElement, importedModuleElement);
-									TypeElement moduleType = this.processingEnv.getElementUtils().getTypeElement(importedModuleBuilder.getQualifiedName().getClassName());
-									
-									SocketBeanInfoFactory importedModuleSocketFactory = SocketBeanInfoFactory.create(this.processingEnv, moduleElement, importedModuleElement);
-								
-									List<? extends SocketBeanInfo> importedModuleSockets = ((ExecutableElement)moduleType.getEnclosedElements().stream()
-										.filter(e -> e.getKind().equals(ElementKind.CONSTRUCTOR)).findFirst().get())
-										.getParameters().stream()
-										.map(ve -> {
-											try {
-												return importedModuleSocketFactory.createModuleSocket(ve);
-											} 
-											catch (SocketCompilationException | TypeErrorException e1) {
-												return null;
-											}
-										})
-										.collect(Collectors.toList());
-	
-									importedModuleBuilder.sockets(importedModuleSockets.stream().toArray(SocketBeanInfo[]::new));
-	
-									ModuleBeanInfoFactory importedModuleBeanFactory = ModuleBeanInfoFactory.create(this.processingEnv, moduleElement, importedModuleElement, importedModuleSockets);
-									List<? extends ModuleBeanInfo> importedModuleBeans = moduleType.getEnclosedElements().stream()
-										.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getModifiers().contains(Modifier.PUBLIC) && ((ExecutableElement)e).getParameters().size() == 0)
-										.map(e -> {
-											try {
-												return importedModuleBeanFactory.createBean(e);
-											} 
-											catch (BeanCompilationException | TypeErrorException e1) {
-												return null;
-											}
-										})
-										.filter(Objects::nonNull)
-										.collect(Collectors.toList());
-							
-									importedModuleBuilder.beans(importedModuleBeans.stream().toArray(ModuleBeanInfo[]::new));
-								
-									return importedModuleBuilder;
+									return this.processImportedModule(moduleElement, importedModuleElement);
 								})
 								.collect(Collectors.toList());
 						}))
@@ -222,5 +189,57 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 		}
 		this.moduleGenerator.generateNextRound();
 		return true;
+	}
+	
+	private ModuleInfoBuilder processImportedModule(ModuleElement moduleElement, ModuleElement importedModuleElement) {
+		ModuleVersionExtractor moduleVersionExtractor = new ModuleVersionExtractor(this.processingEnv, importedModuleElement);
+		if(moduleVersionExtractor.getModuleVersion() == null) {
+			throw new IllegalStateException("Version of imported module " + moduleVersionExtractor.getModuleQualifiedName().toString() + " can't be null");			
+		}
+		TypeElement moduleType = this.processingEnv.getElementUtils().getTypeElement(moduleVersionExtractor.getModuleQualifiedName().getClassName());
+		
+		switch(moduleVersionExtractor.getModuleVersion()) {
+			case 1: return this.processImportedModuleV1(moduleElement, importedModuleElement, moduleType);
+			default: throw new IllegalStateException("Version of module " + moduleVersionExtractor.getModuleQualifiedName().toString() + " is not supported: " + moduleVersionExtractor.getModuleVersion());
+		}
+	}
+	
+	private ModuleInfoBuilder processImportedModuleV1(ModuleElement moduleElement, ModuleElement importedModuleElement, TypeElement moduleType) {
+		ModuleInfoBuilder importedModuleBuilder = ModuleInfoBuilderFactory.createModuleBuilder(this.processingEnv, moduleElement, importedModuleElement, 1);
+		
+		SocketBeanInfoFactory importedModuleSocketFactory = SocketBeanInfoFactory.create(this.processingEnv, moduleElement, importedModuleElement, 1);
+	
+		List<? extends SocketBeanInfo> importedModuleSockets = ((ExecutableElement)moduleType.getEnclosedElements().stream()
+			.filter(e -> e.getKind().equals(ElementKind.CONSTRUCTOR)).findFirst().get())
+			.getParameters().stream()
+			.map(ve -> {
+				try {
+					return importedModuleSocketFactory.createModuleSocket(ve);
+				} 
+				catch (SocketCompilationException | TypeErrorException e1) {
+					return null;
+				}
+			})
+			.collect(Collectors.toList());
+
+		importedModuleBuilder.sockets(importedModuleSockets.stream().toArray(SocketBeanInfo[]::new));
+
+		ModuleBeanInfoFactory importedModuleBeanFactory = ModuleBeanInfoFactory.create(this.processingEnv, moduleElement, importedModuleElement, importedModuleSockets, 1);
+		List<? extends ModuleBeanInfo> importedModuleBeans = moduleType.getEnclosedElements().stream()
+			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getModifiers().contains(Modifier.PUBLIC) && ((ExecutableElement)e).getParameters().size() == 0)
+			.map(e -> {
+				try {
+					return importedModuleBeanFactory.createBean(e);
+				} 
+				catch (BeanCompilationException | TypeErrorException e1) {
+					return null;
+				}
+			})
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+
+		importedModuleBuilder.beans(importedModuleBeans.stream().toArray(ModuleBeanInfo[]::new));
+	
+		return importedModuleBuilder;
 	}
 }

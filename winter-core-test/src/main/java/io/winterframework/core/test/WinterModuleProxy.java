@@ -5,7 +5,7 @@ package io.winterframework.core.test;
 
 import java.lang.reflect.InvocationTargetException;
 
-import io.winterframework.core.Module;
+import io.winterframework.core.v1.Module;
 
 /**
  * @author jkuhn

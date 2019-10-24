@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.core;
+package io.winterframework.core.v1;
 
 import java.util.logging.Logger;
 
-import io.winterframework.core.Module.Bean;
+import io.winterframework.core.v1.Module.Bean;
 
 /**
  * <p>

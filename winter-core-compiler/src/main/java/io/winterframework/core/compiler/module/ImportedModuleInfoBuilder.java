@@ -9,7 +9,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.compiler.common.AbstractInfoFactory;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
@@ -20,7 +19,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  * @author jkuhn
  *
  */
-class ImportedModuleInfoBuilder extends AbstractInfoFactory implements ModuleInfoBuilder {
+class ImportedModuleInfoBuilder extends AbstractModuleInfoBuilder {
 
 	private ModuleBeanInfo[] beans;
 	
@@ -77,7 +76,7 @@ class ImportedModuleInfoBuilder extends AbstractInfoFactory implements ModuleInf
 	 */
 	@Override
 	public ModuleInfo build() {
-		return new ImportedModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleQName, Arrays.asList(this.beans), Arrays.asList(this.sockets));
+		return new ImportedModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleQName, this.version, Arrays.asList(this.beans), Arrays.asList(this.sockets));
 	}
 
 }

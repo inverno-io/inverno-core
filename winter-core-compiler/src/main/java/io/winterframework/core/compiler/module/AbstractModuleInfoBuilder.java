@@ -11,9 +11,11 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Module;
+import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 
@@ -25,49 +27,62 @@ abstract class AbstractModuleInfoBuilder implements ModuleInfoBuilder {
 
 	protected ProcessingEnvironment processingEnvironment;
 	
-	protected ModuleElement element;
+	protected ModuleElement moduleElement;
 	
-	protected AnnotationMirror annotation;
+	protected AnnotationMirror moduleAnnotation;
 
 	protected ModuleQualifiedName moduleQName;
+	
+	protected int version;
 	
 	/**
 	 * 
 	 */
-	public AbstractModuleInfoBuilder(ProcessingEnvironment processingEnvironment, ModuleElement element) {
+	public AbstractModuleInfoBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 		this.processingEnvironment = processingEnvironment;
-		this.element = element;
+		this.moduleElement = moduleElement;
 		
 		TypeMirror moduleAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Module.class.getCanonicalName()).asType();
-		Optional<? extends AnnotationMirror> moduleAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst();
+		Optional<? extends AnnotationMirror> moduleAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(moduleElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst();
 		if(!moduleAnnotation.isPresent()) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Module.class.getSimpleName());
 		}
 		
-		this.annotation = moduleAnnotation.get();
+		this.moduleAnnotation = moduleAnnotation.get();
 		
 		String packageName = "";
 		String moduleName = "";
 		String moduleClassName = null;
 		
-		for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(this.annotation).entrySet()) {
+		for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(this.moduleAnnotation).entrySet()) {
 			switch(value.getKey().getSimpleName().toString()) {
 				case "className" : moduleClassName = (String)value.getValue().getValue();
 					break;
 			}
 		}
 		
-		if(element.isUnnamed()) {
+		if(moduleElement.isUnnamed()) {
 			moduleName = "DefaultModule";
 		}
 		else {
-			packageName = this.element.getQualifiedName().toString();
+			packageName = this.moduleElement.getQualifiedName().toString();
 			packageName = packageName.substring(0, packageName.lastIndexOf("."));
 			
-//			moduleName = this.element.getSimpleName().toString();
-			moduleName = this.element.getQualifiedName().toString().substring(packageName.length() + 1);
+			moduleName = this.moduleElement.getQualifiedName().toString().substring(packageName.length() + 1);
 		}
 		
 		this.moduleQName = new ModuleQualifiedName(packageName, moduleName, moduleClassName);
+		
+		TypeElement moduleType = this.processingEnvironment.getElementUtils().getTypeElement(this.moduleQName.getClassName());
+		
+		if(moduleType != null) {
+			String name = this.processingEnvironment.getTypeUtils().asElement(moduleType.getSuperclass()).toString();
+			if(name.equals("io.winterframework.core.v1.Module")) {
+				this.version = 1;
+			}
+		}
+		else {
+			this.version = ModuleAnnotationProcessor.VERSION;
+		}
 	}
 }

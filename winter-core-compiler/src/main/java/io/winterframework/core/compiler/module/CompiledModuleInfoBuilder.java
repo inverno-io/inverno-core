@@ -21,7 +21,6 @@ import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Wire;
 import io.winterframework.core.annotation.Wires;
-import io.winterframework.core.compiler.common.AbstractInfoFactory;
 import io.winterframework.core.compiler.common.MutableModuleSocketInfo;
 import io.winterframework.core.compiler.common.MutableMultiSocketInfo;
 import io.winterframework.core.compiler.common.MutableSingleSocketInfo;
@@ -45,7 +44,7 @@ import io.winterframework.core.compiler.wire.WireInfoFactory;
  * @author jkuhn
  *
  */
-class CompiledModuleInfoBuilder extends AbstractInfoFactory implements ModuleInfoBuilder {
+class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 
 	private ModuleBeanInfo[] beans;
 	
@@ -106,7 +105,7 @@ class CompiledModuleInfoBuilder extends AbstractInfoFactory implements ModuleInf
 		boolean socketsResolved = this.resolveSockets();
 		boolean hasBeanCycles = this.checkBeanCycles();
 		
-		CompiledModuleInfo moduleInfo = new CompiledModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleAnnotation, this.moduleQName, Arrays.asList(this.beans), Arrays.asList(this.sockets), Arrays.asList(this.modules));
+		CompiledModuleInfo moduleInfo = new CompiledModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleAnnotation, this.moduleQName, this.version, Arrays.asList(this.beans), Arrays.asList(this.sockets), Arrays.asList(this.modules));
 		moduleInfo.setFaulty(hasNameConflicts || hasBeanCycles || !socketsResolved);
 		if(!hasBeanCycles) {
 			moduleInfo.accept(this.moduleSocketWiredBeansResolver, null);

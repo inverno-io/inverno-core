@@ -28,11 +28,18 @@ public abstract class SocketBeanInfoFactory extends AbstractSocketInfoFactory {
 		return new CompiledSocketBeanInfoFactory(processingEnvironment, moduleElement);
 	}
 	
-	public static SocketBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement importedModuleElement) {
+	public static SocketBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement importedModuleElement, Integer version) {
 		if(moduleElement.getDirectives().stream().noneMatch(directive -> directive.getKind().equals(ModuleElement.DirectiveKind.REQUIRES) && ((ModuleElement.RequiresDirective)directive).getDependency().equals(importedModuleElement))) {
 			throw new IllegalArgumentException("The specified element is not imported in module " + moduleElement.getQualifiedName().toString());
 		}
-		return new ImportedSocketBeanInfoFactory(processingEnvironment, importedModuleElement, moduleElement);
+		
+		if(version == null) {
+			throw new IllegalStateException("Version of imported module can't be null");			
+		}
+		switch(version) {
+			case 1: return new ImportedSocketBeanInfoFactory(processingEnvironment, importedModuleElement, moduleElement);
+			default: throw new IllegalStateException("Unsupported version: " + version);
+		}
 	}
 	
 	public abstract WirableSocketBeanInfo createModuleSocket(Element element) throws SocketCompilationException, TypeErrorException;

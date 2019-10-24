@@ -34,5 +34,5 @@ module io.winterframework.core {
 	requires java.logging;
 	requires transitive java.compiler;
 
-	exports io.winterframework.core;
+	exports io.winterframework.core.v1;
 }

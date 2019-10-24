@@ -21,7 +21,7 @@ import io.winterframework.core.compiler.spi.ModuleQualifiedName;
  * @author jkuhn
  *
  */
-public class AbstractInfoFactory {
+public abstract class AbstractInfoFactory {
 
 	protected ProcessingEnvironment processingEnvironment;
 
