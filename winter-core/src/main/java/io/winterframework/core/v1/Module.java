@@ -206,8 +206,8 @@ public abstract class Module {
 		}
 		long t0 = System.nanoTime();
 		this.logger.info("Starting Module " + this.name + "...");
-		this.beans.stream().forEach(bean -> bean.create());
 		this.modules.stream().forEach(module -> module.start());
+		this.beans.stream().forEach(bean -> bean.create());
 		this.logger.info("Module " + this.name + " started in " + ((System.nanoTime() - t0) / 1000000) + "ms");
 //		this.logger.info(this.beansStack.stream().map(bean -> bean.name.toString()).collect(Collectors.joining(", "))); // TEST
 	}
