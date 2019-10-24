@@ -1,14 +1,14 @@
 /**
  * 
  */
-package io.winterframework.core;
+package io.winterframework.core.v1;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import io.winterframework.core.Module.BeanBuilder;
+import io.winterframework.core.v1.Module.BeanBuilder;
 
 /**
  * <p>Base class for {@link BeanBuilder} implementations</p>

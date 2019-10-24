@@ -18,10 +18,17 @@ public abstract class ModuleInfoBuilderFactory {
 		return new CompiledModuleInfoBuilder(processingEnvironment, moduleElement);
 	}
 	
-	public static ModuleInfoBuilder createModuleBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement importedModuleElement) {
+	public static ModuleInfoBuilder createModuleBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement importedModuleElement, Integer version) {
 		if(moduleElement.getDirectives().stream().noneMatch(directive -> directive.getKind().equals(ModuleElement.DirectiveKind.REQUIRES) && ((ModuleElement.RequiresDirective)directive).getDependency().equals(importedModuleElement))) {
 			throw new IllegalArgumentException("The specified element is not imported in module " + moduleElement.getQualifiedName().toString());
 		}
-		return new ImportedModuleInfoBuilder(processingEnvironment, importedModuleElement);
+		
+		if(version == null) {
+			throw new IllegalStateException("Version of imported module can't be null");			
+		}
+		switch(version) {
+			case 1: return new ImportedModuleInfoBuilder(processingEnvironment, importedModuleElement);
+			default: throw new IllegalStateException("Unsupported version: " + version);
+		}
 	}
 }

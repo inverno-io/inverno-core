@@ -1,5 +1,6 @@
 package io.winterframework.core.compiler;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -38,7 +39,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 		
 		if(generation.getMode() == GenerationMode.MODULE_CLASS) {
 			TypeMirror generatedType = generation.getElementUtils().getTypeElement(generation.getElementUtils().getModuleElement("java.compiler"), "javax.annotation.processing.Generated").asType();
-			TypeMirror moduleType = generation.getElementUtils().getTypeElement("io.winterframework.core.Module").asType();
+			TypeMirror moduleType = generation.getElementUtils().getTypeElement("io.winterframework.core.v1.Module").asType();
 
 			generation.addImport(className, moduleInfo.getQualifiedName().getClassName());
 			generation.addImport("Builder", moduleInfo.getQualifiedName().getClassName() + ".Builder");
@@ -90,7 +91,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			moduleClass += generation.getImports().stream().sorted().map(i -> "import " + i + ";").collect(Collectors.joining("\n")) + "\n\n";
 			
 			// TODO add version
-			moduleClass += "@" + generation.getTypeName(generatedType) + "(\"" + ModuleAnnotationProcessor.class.getCanonicalName() + "\")\n";
+			moduleClass += "@" + generation.getTypeName(generatedType) + "(value= {\"" + ModuleAnnotationProcessor.class.getCanonicalName() + "\", \"" + moduleInfo.getVersion() + "\"}, date = \"" + ZonedDateTime.now().toString() +"\")\n";
 			moduleClass += "public class " + className + " extends " + generation.getTypeName(moduleType) + " {" + "\n\n";
 
 			if(module_field_modules != null && !module_field_modules.equals("")) {
@@ -124,7 +125,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			return moduleClass;
 		}
 		else if(generation.getMode() == GenerationMode.MODULE_BUILDER_CLASS) {
-			TypeMirror moduleBuilderType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.ModuleBuilder").asType());
+			TypeMirror moduleBuilderType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.v1.Module.ModuleBuilder").asType());
 			
 			String module_builder_fields = Arrays.stream(moduleInfo.getSockets())
 				.map(moduleSocketInfo -> this.visit(moduleSocketInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.SOCKET_FIELD)))
@@ -178,7 +179,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			return moduleBuilderClass;
 		}
 		else if(generation.getMode() == GenerationMode.MODULE_LINKER_CLASS) {
-			TypeMirror moduleLinkerType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.ModuleLinker").asType());
+			TypeMirror moduleLinkerType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.v1.Module.ModuleLinker").asType());
 			TypeMirror mapType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Map").asType());
 			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Optional").asType());
 			
@@ -262,7 +263,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 	public String visit(ModuleBeanInfo moduleBeanInfo, ModuleClassGeneration generation) {
 		boolean isWrapperBean = WrapperBeanInfo.class.isAssignableFrom(moduleBeanInfo.getClass());
 		if(generation.getMode() == GenerationMode.BEAN_FIELD) {
-			TypeMirror moduleBeanType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.Bean"), moduleBeanInfo.getType());
+			TypeMirror moduleBeanType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement("io.winterframework.core.v1.Module.Bean"), moduleBeanInfo.getType());
 			return generation.indent(1) + "private " + generation.getTypeName(moduleBeanType) + " " + moduleBeanInfo.getQualifiedName().normalize() + ";";
 		}
 		else if(generation.getMode() == GenerationMode.BEAN_ACCESSOR) {
@@ -284,7 +285,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			String variable = moduleBeanInfo.getQualifiedName().normalize();
 			
 			TypeMirror beanType = isWrapperBean ? ((WrapperBeanInfo)moduleBeanInfo).getWrapperType() : moduleBeanInfo.getType();
-			TypeMirror beanBuilderType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.BeanBuilder").asType());
+			TypeMirror beanBuilderType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.v1.Module.BeanBuilder").asType());
 			
 			String beanNew = generation.indent(2) + "this." + variable + " = this.with(" + generation.getTypeName(beanBuilderType) + "\n";
 			
@@ -406,7 +407,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				unwildDependencyType = multiSocketInfo.getType();
 			}
 			
-			TypeMirror beanAggregatorType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.Module.BeanAggregator").asType());
+			TypeMirror beanAggregatorType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.v1.Module.BeanAggregator").asType());
 			
 			String beanSocketReference = "new " + generation.getTypeName(beanAggregatorType) + "<" + generation.getTypeName(unwildDependencyType) + ">()\n";
 			beanSocketReference += Arrays.stream(multiSocketInfo.getBeans())

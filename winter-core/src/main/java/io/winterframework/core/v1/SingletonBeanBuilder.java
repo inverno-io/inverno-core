@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.core;
+package io.winterframework.core.v1;
 
 import java.util.function.Supplier;
 
-import io.winterframework.core.Module.Bean;
-import io.winterframework.core.Module.BeanBuilder;
+import io.winterframework.core.v1.Module.Bean;
+import io.winterframework.core.v1.Module.BeanBuilder;
 
 /**
  * <p>
- * Prototype {@link BeanBuilder} implementation.
+ * Singleton {@link BeanBuilder} implementation.
  * </p>
  * 
  * <p>
- * A {@link PrototypeBeanBuilder} must be used to create prototype beans, when
- * distinct bean instances must be injected into all dependent beans through the
+ * A {@link SingletonBeanBuilder} must be used to create singleton beans, when
+ * the same bean instance must be injected into all dependent beans through the
  * application.
  * </p>
  * 
@@ -41,11 +41,11 @@ import io.winterframework.core.Module.BeanBuilder;
  * @see Bean
  * @see SingletonBean
  */
-class PrototypeBeanBuilder<T> extends AbstractBeanBuilder<T> {
+class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
 
 	/**
 	 * <p>
-	 * Create a prototype bean builder with the specified bean name and constructor.
+	 * Create a singleton bean builder with the specified bean name and constructor.
 	 * </p>
 	 * 
 	 * @param beanName
@@ -53,7 +53,7 @@ class PrototypeBeanBuilder<T> extends AbstractBeanBuilder<T> {
 	 * @param constructor
 	 *            The bean constructor
 	 */
-	public PrototypeBeanBuilder(String beanName, Supplier<T> constructor) {
+	public SingletonBeanBuilder(String beanName, Supplier<T> constructor) {
 		super(beanName, constructor);
 	}
 
@@ -66,10 +66,10 @@ class PrototypeBeanBuilder<T> extends AbstractBeanBuilder<T> {
 	 * A bean should be registered in a module to be used.
 	 * </p>
 	 * 
-	 * @return A prototype bean
+	 * @return A singleton bean
 	 */
 	public Bean<T> build() {
-		return new PrototypeBean<T>(this.beanName) {
+		return new SingletonBean<T>(this.beanName) {
 
 			@Override
 			protected T createInstance() {

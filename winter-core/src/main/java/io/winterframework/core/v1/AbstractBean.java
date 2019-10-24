@@ -1,10 +1,10 @@
 /**
  * 
  */
-package io.winterframework.core;
+package io.winterframework.core.v1;
 
-import io.winterframework.core.Module.Bean;
-import io.winterframework.core.Module.BeanBuilder;
+import io.winterframework.core.v1.Module.Bean;
+import io.winterframework.core.v1.Module.BeanBuilder;
 
 /**
  * <p>

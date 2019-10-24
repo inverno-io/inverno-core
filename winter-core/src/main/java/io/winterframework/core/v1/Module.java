@@ -1,7 +1,7 @@
 /**
  * 
  */
-package io.winterframework.core;
+package io.winterframework.core.v1;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

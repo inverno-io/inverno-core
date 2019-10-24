@@ -4,6 +4,8 @@ public interface ModuleInfo extends Info {
 
 	ModuleQualifiedName getQualifiedName();
 	
+	int getVersion();
+	
 	ModuleInfo[] getModules();
 	
 	SocketBeanInfo[] getSockets();
