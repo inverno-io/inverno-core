@@ -1,7 +1,7 @@
 /**
  * 
  */
-package io.winterframework.test.lifecycle;
+package io.winterframework.test.lifecycle.moduleA;
 
 import io.winterframework.core.annotation.Bean;
 

@@ -1,4 +1,4 @@
-package io.winterframework.test.lifecycle;
+package io.winterframework.test.lifecycle.moduleA;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.Destroy;
@@ -7,8 +7,8 @@ import io.winterframework.core.annotation.Scope;
 import io.winterframework.core.annotation.Scope.Type;
 
 @Bean
-@Scope(Type.PROTOTYPE)
-public class PrototypeScopeBean {
+@Scope(Type.SINGLETON)
+public class SingletonScopeBean {
 
 	public int initCount;
 	
@@ -18,7 +18,7 @@ public class PrototypeScopeBean {
 	
 	public InjectedBean bean;
 	
-	public PrototypeScopeBean(InjectedBean bean) {
+	public SingletonScopeBean(InjectedBean bean) {
 		this.bean = bean;
 	}
 	
