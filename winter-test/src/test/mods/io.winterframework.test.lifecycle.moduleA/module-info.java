@@ -1,7 +1,7 @@
 @io.winterframework.core.annotation.Module
-module io.winterframework.test.lifecycle {
+module io.winterframework.test.lifecycle.moduleA {
 	requires io.winterframework.core;
 	requires io.winterframework.core.annotation;
 	
-	exports io.winterframework.test.lifecycle;
+	exports io.winterframework.test.lifecycle.moduleA;
 }

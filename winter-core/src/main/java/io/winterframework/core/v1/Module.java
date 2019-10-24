@@ -220,7 +220,14 @@ public abstract class Module {
 	public void stop() {
 		long t0 = System.nanoTime();
 		this.logger.info("Stopping Module " + this.name + "...");
-		this.beansStack.forEach(bean -> bean.destroy());
+		this.beansStack.forEach(bean -> {
+			try {
+				bean.destroy();
+			}
+			catch(Exception e) {
+				this.logger.warning("Error destroying Bean " + (bean.parent != null ? bean.parent.getName() : "")  + ":" + bean.name);
+			}
+		});
 		this.modules.stream().forEach(module -> module.stop());
 		this.beansStack.clear();
 		this.logger.info("Module " + this.name + " stopped in " + ((System.nanoTime() - t0) / 1000000) + "ms");
