@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -97,65 +98,58 @@ public class WireInfoFactory extends AbstractInfoFactory {
 			}
 		}
 		
-		BeanQualifiedName[] beanQNames = null;
-		try {
-			beanQNames = Arrays.stream(beans)
-				.map(bean -> {
+		BeanQualifiedName[] beanQNames = Arrays.stream(beans)
+			.map(bean -> {
+				try {
+					return BeanQualifiedName.valueOf(bean);
+				}
+				catch(QualifiedNameFormatException e) {
 					try {
-						return BeanQualifiedName.valueOf(bean);
-					}
-					catch(QualifiedNameFormatException e) {
 						return new BeanQualifiedName(this.moduleQName, bean);
 					}
-				})
-				.toArray(BeanQualifiedName[]::new);
-		}
-		catch(QualifiedNameFormatException e) {
-			wireReporter.error("Invalid bean qualified name: " + e.getMessage());
-			return null;
-		}
+					catch(QualifiedNameFormatException e1) {
+						wireReporter.error("Invalid bean qualified name:\n- " + e.getMessage() + "\n- " + e1.getMessage() + "\n ");
+						return null;
+					}
+				}
+			})
+			.filter(Objects::nonNull)
+			.toArray(BeanQualifiedName[]::new);
 		
-		String unresolvedBeans = Arrays.stream(beanQNames)
-			.filter(beanQName -> !this.beans.containsKey(beanQName))
-			.map(beanQName -> beanQName.toString())
-			.collect(Collectors.joining(", "));
-		
-		if(unresolvedBeans != null && !unresolvedBeans.equals("")) {
-			wireReporter.error("Unkown beans: " + unresolvedBeans);
-		}
 		
 		BeanSocketQualifiedName beanSocketQName = null;
 		BeanQualifiedName moduleSocketQName = null;
 		try {
 			try {
-				try {
-					// BeanSocket with explicit module: <module>:<bean>:<socket>
-					beanSocketQName = BeanSocketQualifiedName.valueOf(into);
-				}
-				catch(QualifiedNameFormatException e) {
-					// BeanSocket with implicit module: <bean>:<socket>
-					beanSocketQName = BeanSocketQualifiedName.valueOf(this.moduleQName, into);
-				}
-
-				if(!this.beanSockets.containsKey(beanSocketQName)) {
-					// There's no bean socket with that name so let's try to interpret this as a ModuleSocket: <module>:<socket>
-					beanSocketQName = null;
-					throw new QualifiedNameFormatException();
-				}
+				// BeanSocket with explicit module: <module>:<bean>:<socket>
+				beanSocketQName = BeanSocketQualifiedName.valueOf(into);
 			}
 			catch(QualifiedNameFormatException e) {
-				// ModuleSocket <module>:<socket>
+				// BeanSocket with implicit module: <bean>:<socket>
+				beanSocketQName = BeanSocketQualifiedName.valueOf(this.moduleQName, into);
+			}
+
+			if(!this.beanSockets.containsKey(beanSocketQName)) {
+				// There's no bean socket with that name so let's try to interpret this as a ModuleSocket: <module>:<socket>
+				beanSocketQName = null;
+				throw new QualifiedNameFormatException();
+			}
+		}
+		catch(QualifiedNameFormatException e) {
+			// ModuleSocket <module>:<socket>
+			try {
 				moduleSocketQName = BeanQualifiedName.valueOf(into);
 				if(moduleSocketQName.getModuleQName().equals(this.moduleQName)) {
 					wireReporter.error("You can't wire beans to a socket bean defined in the same module");
 					return null;
 				}
 			}
+			catch(QualifiedNameFormatException e1) {
+				wireReporter.error("Invalid socket qualified name:\n- " + e.getMessage() + "\n- " + e1.getMessage() + "\n ");
+				return null;
+			}
 		}
-		catch(QualifiedNameFormatException e) {
-			wireReporter.error("Invalid socket qualified name: " + e.getMessage());
-			return null;
-		}
+	
 		
 		if(beanSocketQName != null) {
 			// Bean Socket
@@ -165,7 +159,11 @@ public class WireInfoFactory extends AbstractInfoFactory {
 		else {
 			// Module Socket
 			if(!this.importedModuleSockets.containsKey(moduleSocketQName)) {
-				wireReporter.error("There's no socket bean named: " + moduleSocketQName);
+				Arrays.stream(beanQNames)
+					.filter(beanQName -> !this.beans.containsKey(beanQName))
+					.forEach(beanQName -> wireReporter.error("There's no bean named " + beanQName));
+				
+				wireReporter.error("There's no socket named: " + moduleSocketQName);
 				return null;
 			}
 			return new SocketBeanWireInfo(this.processingEnvironment, this.moduleElement, annotation, beanQNames, moduleSocketQName);
