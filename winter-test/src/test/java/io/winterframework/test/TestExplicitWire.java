@@ -18,6 +18,9 @@ public class TestExplicitWire extends AbstractWinterTest {
 	private static final String MODULEB = "io.winterframework.test.explicitwire.moduleB";
 	private static final String MODULEC = "io.winterframework.test.explicitwire.moduleC";
 	private static final String MODULED = "io.winterframework.test.explicitwire.moduleD";
+	private static final String MODULEE = "io.winterframework.test.explicitwire.moduleE";
+	private static final String MODULEF = "io.winterframework.test.explicitwire.moduleF";
+	private static final String MODULEG = "io.winterframework.test.explicitwire.moduleG";
 	
 	@Test
 	public void testSimpleWire() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException {
@@ -85,7 +88,7 @@ public class TestExplicitWire extends AbstractWinterTest {
 	}
 	
 	@Test
-	public void testUnknownBean() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException {
+	public void testSimpleUnkownBeansAndSockets() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException {
 		try {
 			this.getWinterCompiler().compile(MODULEB);
 			Assertions.fail("Should throw a WinterCompilationException");
@@ -93,16 +96,35 @@ public class TestExplicitWire extends AbstractWinterTest {
 		catch(WinterCompilationException e) {
 			Assertions.assertEquals(3, e.getDiagnotics().size());
 			
-			String unknnownBeansMessage = "Unkown beans: io.winterframework.test.explicitwire.moduleB:service1";
-			String unknownSocketMessage = "There's no socket bean named: beanA:service";
-			String conflictMessage = "Multiple beans matching socket io.winterframework.test.explicitwire.moduleB:beanB:service were found\n" +
-					"  - io.winterframework.test.explicitwire.moduleB:service3 of type io.winterframework.test.explicitwire.moduleB.Service3\n" +
-					"  - io.winterframework.test.explicitwire.moduleB:service2 of type io.winterframework.test.explicitwire.moduleB.Service2\n" +
-					"  \n" + 
-					"  Consider specifying an explicit wiring in module io.winterframework.test.explicitwire.moduleB (eg. @io.winterframework.core.annotation.Wire(beans=\"io.winterframework.test.explicitwire.moduleB:service3\", into=\"io.winterframework.test.explicitwire.moduleB:beanB:service\") )\n" +
-					"   ";
+			String noService1Message = "There's no bean named io.winterframework.test.explicitwire.moduleB:service1";
+			String noSocketMessage = "There's no socket named: beanA:service";
+			String noUnkownMessage = "There's no bean named io.winterframework.test.explicitwire.moduleB:unkown";
+			/*String conflictMessage = "Multiple beans matching socket io.winterframework.test.explicitwire.moduleB:beanB:service were found\n" +
+				"  - io.winterframework.test.explicitwire.moduleB:service3 of type io.winterframework.test.explicitwire.moduleB.Service3\n" +
+				"  - io.winterframework.test.explicitwire.moduleB:service2 of type io.winterframework.test.explicitwire.moduleB.Service2\n" +
+				"  \n" + 
+				"  Consider specifying an explicit wiring in module io.winterframework.test.explicitwire.moduleB (eg. @io.winterframework.core.annotation.Wire(beans=\"io.winterframework.test.explicitwire.moduleB:service3\", into=\"io.winterframework.test.explicitwire.moduleB:beanB:service\") )\n" +
+				"   ";*/
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(unknnownBeansMessage, unknownSocketMessage, conflictMessage)));
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(noService1Message, noSocketMessage, noUnkownMessage/*, conflictMessage*/)));
+		}
+	}
+	
+	@Test
+	public void testMultiUnkownBeansAndSockets() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEE);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(4, e.getDiagnotics().size());
+			
+			String noService1Message = "There's no bean named io.winterframework.test.explicitwire.moduleE:service1";
+			String noSocketMessage = "There's no socket named: beanA:service";
+			String noService4Message = "There's no bean named io.winterframework.test.explicitwire.moduleE:service4";
+			String noUnkownMessage = "There's no bean named io.winterframework.test.explicitwire.moduleE:unkown";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(noService1Message, noSocketMessage, noService4Message, noUnkownMessage)));
 		}
 	}
 	
@@ -158,5 +180,48 @@ public class TestExplicitWire extends AbstractWinterTest {
 		Assertions.assertTrue(((List)beanC_beanD_runnables).containsAll(List.of(runnable1, runnable3)));
 		
 		moduleProxy.stop();
+	}
+	
+	@Test
+	public void testWireIntoBeanSocketSameModule() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEF);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnotics().size());
+			
+			String wireBeanToSocketSameModuleMessage = "You can't wire beans to a socket bean defined in the same module";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(wireBeanToSocketSameModuleMessage)));
+		}
+	}
+	
+	@Test
+	public void testInvalidSocketQualifiedName() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEG);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(2, e.getDiagnotics().size());
+			
+			String invalidSocketQNameMessage = "Invalid socket qualified name:\n" +
+				"  - Invalid qname test, was expecting: <beanName>:<socketName>\n" +
+				"  - Invalid qname test, was expecting: ModuleQualifiedName():<beanName>\n" +
+				"   ";
+			String invalidBeanQNameMessage = "Invalid bean qualified name:\n" +
+					"  - Invalid qname #bad, was expecting: ModuleQualifiedName():<beanName>\n" +
+					"  - QName part must be a valid Java identifier: #bad\n" +
+					"   ";
+			/*String conflictMessage = "Multiple beans matching socket io.winterframework.test.explicitwire.moduleG:beanG:runnable were found\n" +
+				"  - io.winterframework.test.explicitwire.moduleG:runnable2 of type io.winterframework.test.explicitwire.moduleG.Runnable2\n" +
+				"  - io.winterframework.test.explicitwire.moduleG:runnable1 of type io.winterframework.test.explicitwire.moduleG.Runnable1\n" +
+				"  \n" + 
+				"  Consider specifying an explicit wiring in module io.winterframework.test.explicitwire.moduleG (eg. @io.winterframework.core.annotation.Wire(beans=\"io.winterframework.test.explicitwire.moduleG:runnable2\", into=\"io.winterframework.test.explicitwire.moduleG:beanG:runnable\") )\n" +
+				"   ";*/
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(invalidSocketQNameMessage, invalidBeanQNameMessage/*, conflictMessage*/)));
+		}
 	}
 }

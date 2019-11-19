@@ -70,7 +70,7 @@ public class SocketResolver {
 					}
 					else {
 						// Incompatible type
-						wire.error("Bean " + bean.getQualifiedName() + " of type " + bean.getType() + " is not wirable to socket " + socket.getQualifiedName() + " of type " + socket.getType());
+						wire.error("Bean " + bean.getQualifiedName() + " of type " + bean.getType() + " is not wirable into socket " + socket.getQualifiedName() + " of type " + socket.getType());
 					}
 				}
 			}
@@ -93,6 +93,8 @@ public class SocketResolver {
 					result = explicitWiredBeans;
 				}
 				else {
+					// No beans found due to a defective wire, errors already reported
+					// continue with auto wiring
 					return null;
 				}
 			}
@@ -156,7 +158,8 @@ public class SocketResolver {
 						return null;
 					}
 					else {
-						// No bean found due to a defective wire, errors already reported; 
+						// No bean found due to a defective wire, errors already reported
+						// continue with auto wiring
 						return null;
 					}
 				}
