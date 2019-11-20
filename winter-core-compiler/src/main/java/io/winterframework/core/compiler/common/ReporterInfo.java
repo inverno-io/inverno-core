@@ -70,7 +70,6 @@ public class ReporterInfo {
 		else {
 			this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, message, this.element, this.annotation);
 		}
-		this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, message, this.element, this.annotation);
 		this.warningCount++;
 	}
 }

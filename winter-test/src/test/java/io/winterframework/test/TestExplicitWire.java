@@ -1,6 +1,7 @@
 package io.winterframework.test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -21,6 +22,9 @@ public class TestExplicitWire extends AbstractWinterTest {
 	private static final String MODULEE = "io.winterframework.test.explicitwire.moduleE";
 	private static final String MODULEF = "io.winterframework.test.explicitwire.moduleF";
 	private static final String MODULEG = "io.winterframework.test.explicitwire.moduleG";
+	private static final String MODULEH = "io.winterframework.test.explicitwire.moduleH";
+	private static final String MODULEI = "io.winterframework.test.explicitwire.moduleI";
+	private static final String MODULEJ = "io.winterframework.test.explicitwire.moduleJ";
 	
 	@Test
 	public void testSimpleWire() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException {
@@ -206,14 +210,8 @@ public class TestExplicitWire extends AbstractWinterTest {
 		catch(WinterCompilationException e) {
 			Assertions.assertEquals(2, e.getDiagnotics().size());
 			
-			String invalidSocketQNameMessage = "Invalid socket qualified name:\n" +
-				"  - Invalid qname test, was expecting: <beanName>:<socketName>\n" +
-				"  - Invalid qname test, was expecting: ModuleQualifiedName():<beanName>\n" +
-				"   ";
-			String invalidBeanQNameMessage = "Invalid bean qualified name:\n" +
-					"  - Invalid qname #bad, was expecting: ModuleQualifiedName():<beanName>\n" +
-					"  - QName part must be a valid Java identifier: #bad\n" +
-					"   ";
+			String invalidSocketQNameMessage = "Invalid socket qualified name: test, expecting (<moduleName>):<beanName>:<socketName> OR <moduleName>:<beanName> with valid Java identifiers";
+			String invalidBeanQNameMessage = "Invalid bean qualified name: #bad, expecting (<moduleName>):<beanName> with valid Java identifiers";
 			/*String conflictMessage = "Multiple beans matching socket io.winterframework.test.explicitwire.moduleG:beanG:runnable were found\n" +
 				"  - io.winterframework.test.explicitwire.moduleG:runnable2 of type io.winterframework.test.explicitwire.moduleG.Runnable2\n" +
 				"  - io.winterframework.test.explicitwire.moduleG:runnable1 of type io.winterframework.test.explicitwire.moduleG.Runnable1\n" +
@@ -222,6 +220,54 @@ public class TestExplicitWire extends AbstractWinterTest {
 				"   ";*/
 			
 			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(invalidSocketQNameMessage, invalidBeanQNameMessage/*, conflictMessage*/)));
+		}
+	}
+	
+	@Test
+	public void testMultipleBeansWithName() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEH);
+			//Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(4, e.getDiagnotics().size());
+			
+			String multipleRunnable1Message = "Multiple beans with name runnable1 exist in module io.winterframework.test.explicitwire.moduleH";
+			String duplicateBeansWireMessage = "The following beans are specified multiple times: io.winterframework.test.explicitwire.moduleH:runnable1";
+			String cantWireSameNameMessage = "Can't wire different beans with same name io.winterframework.test.explicitwire.moduleH:runnable1 into io.winterframework.test.explicitwire.moduleH:beanH:runnables";
+
+			Assertions.assertEquals(2, Collections.frequency(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()), multipleRunnable1Message));
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleRunnable1Message, duplicateBeansWireMessage, cantWireSameNameMessage)));
+		}
+	}
+	
+	@Test
+	public void testMultipleWiresTargetingSocket() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEI);
+			//Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(2, e.getDiagnotics().size());
+			
+			String multipleWiresMessage = "Multiple wires targeting socket io.winterframework.test.explicitwire.moduleI:beanI:runnables were found";
+
+			Assertions.assertEquals(2, Collections.frequency(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()), multipleWiresMessage));
+		}
+	}
+	
+	@Test
+	public void testMultipleBeansSingleSocket() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEJ);
+			//Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnotics().size());
+			
+			String cantWireMultipleBeansInSingleSocketMessage = "Can't wire multiple beans in single socket io.winterframework.test.explicitwire.moduleJ:beanJ:runnable";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(cantWireMultipleBeansInSingleSocketMessage)));
 		}
 	}
 }

@@ -60,7 +60,7 @@ public class SocketResolver {
 				List<BeanInfo> beans = this.beansByQName.get(wiredBeanQName);
 				if(beans.size() > 1) {
 					// Can't wire: multiple beans exist with name...
-					wire.error("Can't wire multiple beans with name " + wiredBeanQName + " into " + socket.getQualifiedName());
+					wire.error("Can't wire different beans with same name " + wiredBeanQName + " into " + socket.getQualifiedName());
 				}
 				else {
 					BeanInfo bean = beans.get(0);
@@ -94,7 +94,6 @@ public class SocketResolver {
 				}
 				else {
 					// No beans found due to a defective wire, errors already reported
-					// continue with auto wiring
 					return null;
 				}
 			}
@@ -142,7 +141,7 @@ public class SocketResolver {
 				WireInfo<?> wire = wires.get(0);
 				if(wire.getBeans().length > 1) {
 					// Invalid wire: multipe beans to be injected in a single socket
-					wires.get(0).error("Can't wire multiple beans in single socket " + socket.getQualifiedName() + ": " + Arrays.stream(wire.getBeans()).map(bean -> bean.getValue()).collect(Collectors.joining(", ")));
+					wires.get(0).error("Can't wire multiple beans in single socket " + socket.getQualifiedName());
 					return null;
 				}
 				else {
@@ -153,13 +152,13 @@ public class SocketResolver {
 						result = explicitWiredBeans[0];
 					}
 					else if(explicitWiredBeans.length > 1) {
+						// This should never happen since we made sure only one bean is specified in the wire
 						// We can't wire multiple beans in a single socket
 						wire.error("Can't wire multiple beans in single socket " + socket.getQualifiedName());
 						return null;
 					}
 					else {
 						// No bean found due to a defective wire, errors already reported
-						// continue with auto wiring
 						return null;
 					}
 				}
