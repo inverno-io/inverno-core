@@ -5,6 +5,8 @@ package io.winterframework.core.compiler.wire;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -98,7 +100,7 @@ public class WireInfoFactory extends AbstractInfoFactory {
 			}
 		}
 		
-		BeanQualifiedName[] beanQNames = Arrays.stream(beans)
+		List<BeanQualifiedName> beanQNamesList = Arrays.stream(beans)
 			.map(bean -> {
 				try {
 					return BeanQualifiedName.valueOf(bean);
@@ -108,14 +110,20 @@ public class WireInfoFactory extends AbstractInfoFactory {
 						return new BeanQualifiedName(this.moduleQName, bean);
 					}
 					catch(QualifiedNameFormatException e1) {
-						wireReporter.error("Invalid bean qualified name:\n- " + e.getMessage() + "\n- " + e1.getMessage() + "\n ");
+						wireReporter.error("Invalid bean qualified name: " + bean + ", expecting (<moduleName>):<beanName> with valid Java identifiers");
 						return null;
 					}
 				}
 			})
 			.filter(Objects::nonNull)
-			.toArray(BeanQualifiedName[]::new);
+			.collect(Collectors.toList());
 		
+		String duplicateBeans = String.join(", ", beanQNamesList.stream().filter(beanQName -> Collections.frequency(beanQNamesList, beanQName) > 1).map(Object::toString).collect(Collectors.toSet()));
+		if(duplicateBeans != null && !duplicateBeans.equals("")) {
+			wireReporter.warning("The following beans are specified multiple times: " + duplicateBeans);
+		}
+		
+		BeanQualifiedName[] beanQNames = new HashSet<>(beanQNamesList).stream().toArray(BeanQualifiedName[]::new);
 		
 		BeanSocketQualifiedName beanSocketQName = null;
 		BeanQualifiedName moduleSocketQName = null;
@@ -145,7 +153,7 @@ public class WireInfoFactory extends AbstractInfoFactory {
 				}
 			}
 			catch(QualifiedNameFormatException e1) {
-				wireReporter.error("Invalid socket qualified name:\n- " + e.getMessage() + "\n- " + e1.getMessage() + "\n ");
+				wireReporter.error("Invalid socket qualified name: " + into + ", expecting (<moduleName>):<beanName>:<socketName> OR <moduleName>:<beanName> with valid Java identifiers");
 				return null;
 			}
 		}

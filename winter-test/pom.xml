@@ -76,7 +76,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<includes>
-<!-- 						<include>**/TestSelector.java</include> -->
+<!--						<include>**/TestExplicitWire.java</include>-->
 					</includes>
 				</configuration>
 			</plugin>
