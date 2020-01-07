@@ -18,18 +18,21 @@ package io.winterframework.core.v1;
 import java.io.PrintStream;
 import java.util.Optional;
 
+import io.winterframework.core.v1.Module.ModuleBuilder;
+
 /**
  * <p>
  * The default {@link Banner} implementation which is used when no custom banner
- * is specified when building a module.
+ * is specified in the {@link ModuleBuilder} used to create the module.
  * </p>
  * 
  * <p>
  * It outputs the following information:
  * </p>
+ * 
  * <ul>
  * <li>Java runtime, version and home.</li>
- * <li>application module (top module), version and class.</li>
+ * <li>Name of the root module, version and class.</li>
  * <li>The list of modules in the application module layer.</li>
  * </ul>
  * 
@@ -69,10 +72,11 @@ class DefaultBanner implements Banner {
 	 * The displayed banner.
 	 */
 	private String banner;
-	
 
 	/**
-	 * <p>Create the default banner.</p>
+	 * <p>
+	 * Create the default banner.
+	 * </p>
 	 */
 	public DefaultBanner() {
 		String version = "<< n/a >>";
@@ -120,12 +124,8 @@ class DefaultBanner implements Banner {
 		this.banner = bannerBuilder.toString();
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.Banner#write(java.io.PrintStream)
-	 */
 	@Override
 	public void print(PrintStream out) {
 		out.println(this.banner);
 	}
-
 }

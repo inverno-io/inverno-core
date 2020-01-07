@@ -19,7 +19,7 @@ import java.io.PrintStream;
 
 /**
  * <p>
- * A Banner prints information to a stream when a top module is starting.
+ * A Banner prints information to a stream when a root module is starting.
  * </p>
  * 
  * @author jkuhn

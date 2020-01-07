@@ -58,7 +58,7 @@ public class WinterCompiler {
 		this.compiler = ToolProvider.getSystemJavaCompiler();
 		
 		this.fileManager = this.compiler.getStandardFileManager(null, null, null);
-		List<File> modulePaths = Stream.concat(Arrays.stream(extraModulePath), List.of(this.winterCorePath, this.winterCoreAnnotationPath, this.winterCoreCompilerPath).stream()).collect(Collectors.toList());
+		List<File> modulePaths;
 		if(extraModulePath != null && extraModulePath.length > 0) {
 			modulePaths = Stream.concat(List.of(this.winterCorePath, this.winterCoreAnnotationPath, this.winterCoreCompilerPath).stream(), Arrays.stream(extraModulePath)).collect(Collectors.toList());
 		}
