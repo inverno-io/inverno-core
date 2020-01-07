@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.v1;
 
@@ -31,20 +43,27 @@ import java.util.stream.Collectors;
  * </p>
  * 
  * <p>
- * The following describes the module startup steps:
+ * The following describes module startup steps:
  * </p>
+ * 
  * <ol>
- * <li>Write the banner to the log output if the module is a top module.</li>
+ * <li>Write the banner to the log output if the module is a root module.</li>
  * <li>Start the imported modules.</li>
- * <li>Create the module beans.</li>
+ * <li>Create the module beans that weren't already created.</li>
  * </ol>
+ * 
+ * <p>
+ * Dependencies between beans determine the order in which they are created, as
+ * a result a bean can be created before the enclosing module is actually
+ * started.
+ * </p>
  * 
  * <p>
  * The following describes the module destroy steps:
  * </p>
  * <ol>
+ * <li>Destroy the module beans in the reverse creation order.</li>
  * <li>Stop the imported modules.</li>
- * <li>Destroy the module beans.</li>
  * </ol>
  * 
  * <p>
@@ -81,6 +100,9 @@ public abstract class Module {
 	 */
 	private List<Bean<?>> beans;
 	
+	/**
+	 * The bean stack used to track bean creation order.
+	 */
 	private Deque<Bean<?>> beansStack;
 	
 	/**
@@ -102,7 +124,14 @@ public abstract class Module {
 		this.beansStack = new ArrayDeque<>();
 		this.modules = new ArrayList<>();
 	}
-	
+
+	/**
+	 * <p>
+	 * Record a bean creation into the module.
+	 * </p>
+	 * 
+	 * @param bean The bean to record
+	 */
 	void recordBean(Bean<?> bean) {
 		// Beans must be recorded as they are created
 		if(this.parent != null) {
@@ -115,12 +144,11 @@ public abstract class Module {
 	
 	/**
 	 * <p>
-	 * Set the module banner to be written to the log output if the module is a top
+	 * Set the module banner to be written to the log output if the module is a root
 	 * module.
 	 * </p>
 	 * 
-	 * @param banner
-	 *            The banner to set
+	 * @param banner The banner to set
 	 */
 	void setBanner(Banner banner) {
 		this.banner = banner;
@@ -128,7 +156,7 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Determine whether the banner should be displayed, only top module should
+	 * Determine whether the banner should be displayed, only root module should
 	 * display the banner.
 	 * </p>
 	 * 
@@ -148,8 +176,9 @@ public abstract class Module {
 	 * A module can only be registered once to exactly one module.
 	 * </p>
 	 * 
-	 * @param moduleCreator The module creator to use to create the module
-	 * @return The registered module
+	 * @param moduleLinker The module linker to use to create the module.
+	 * 
+	 * @return The registered module.
 	 */
 	protected <T extends Module> T with(ModuleLinker<T> moduleLinker) {
 		T module = moduleLinker.link();
@@ -195,6 +224,17 @@ public abstract class Module {
 	 * <p>
 	 * Start the module.
 	 * </p>
+	 * 
+	 * <p>
+	 * This method displays banner to the log output when the module is a root
+	 * module (ie. a module with no parent).
+	 * </p>
+	 * 
+	 * <p>
+	 * It creates and wires the beans defined within this module and its imported
+	 * modules, the bean dependency graph determines the order into which beans are
+	 * created. When the module is stopped, beans are detroyed in the reverse order.
+	 * </p>
 	 */
 	public void start() {
 		if(this.isBannerVisible()) {
@@ -215,6 +255,11 @@ public abstract class Module {
 	/**
 	 * <p>
 	 * Stop the module.
+	 * </p>
+	 * 
+	 * </p>
+	 * This methods basically destroy the beans created during startup in the
+	 * reverse order.
 	 * </p>
 	 */
 	public void stop() {
@@ -258,6 +303,7 @@ public abstract class Module {
 		 * </p>
 		 * 
 		 * @param bean The bean to add.
+		 * 
 		 * @return The aggregator instance.
 		 */
 		public BeanAggregator<E> add(E bean) {
@@ -271,6 +317,7 @@ public abstract class Module {
 		 * </p>
 		 * 
 		 * @param beans The beans to add.
+		 * 
 		 * @return The aggregator instance.
 		 */
 		public BeanAggregator<E> add(Collection<E> beans) {
@@ -284,6 +331,7 @@ public abstract class Module {
 		 * </p>
 		 * 
 		 * @param beans The beans to add.
+		 * 
 		 * @return The aggregator instance.
 		 */
 		public BeanAggregator<E> add(E[] beans) {
@@ -295,6 +343,7 @@ public abstract class Module {
 		 * <p>
 		 * Filter null bean and return a list representation of the aggregate.
 		 * </p>
+		 * 
 		 * @return A list of beans
 		 */
 		public List<E> toList() {
@@ -305,6 +354,7 @@ public abstract class Module {
 		 * <p>
 		 * Filter null bean and return a set representation of the aggregate.
 		 * </p>
+		 * 
 		 * @return A set of beans
 		 */
 		public Set<E> toSet() {
@@ -315,6 +365,7 @@ public abstract class Module {
 		 * <p>
 		 * Filter null bean and return an array representation of the aggregate.
 		 * </p>
+		 * 
 		 * @return An array of beans
 		 */
 		public E[] toArray(IntFunction<E[]> generator) {
@@ -329,7 +380,8 @@ public abstract class Module {
 	 * 
 	 * <p>
 	 * A Module linker is used within modules implementations to link a dependent
-	 * modules into the current module. A linker shall never be used directly.
+	 * modules into the current module. A linker is only used within a module and
+	 * shall never be used directly.
 	 * </p>
 	 * 
 	 * @param <T> The module type to link.
@@ -345,15 +397,21 @@ public abstract class Module {
 		protected Map<String, Object> sockets;
 		
 		/**
-		 * <p>Create a new Module linker with the specified socket map.</p>
+		 * <p>
+		 * Create a new Module linker with the specified socket map.
+		 * </p>
+		 * 
 		 * @param sockets The socket map
 		 */
 		public ModuleLinker(Map<String, Object> sockets) {
 			this.sockets = sockets;
 		}
-		
+
 		/**
-		 * </p>Link the socket map in a new module instance and return that instance.</p>
+		 * </p>
+		 * Link the socket map in a new module instance and return that instance.
+		 * </p>
+		 * 
 		 * @return A new linked module instance
 		 */
 		protected abstract T link();
@@ -365,8 +423,7 @@ public abstract class Module {
 	 * </p>
 	 * 
 	 * <p>
-	 * All module have to be built by a builder. A module should register the module
-	 * it imports.
+	 * All module have to be built by a builder.
 	 * </p>
 	 * 
 	 * @param <T> The module type to build.
@@ -386,12 +443,9 @@ public abstract class Module {
 		 * Create a new Module Builder.
 		 * </p>
 		 * 
-		 * <p>
-		 * Check that non-optional sockets are not null.
-		 * </p>
-		 * 
 		 * @param nonOptionalSockets
 		 *            An even list of non-optional sockets pairs (name, value) required to build the module
+		 * 
 		 * @throws IllegalArgumentException If one or more non-optional sockets are null
 		 */
 		public ModuleBuilder(Object... nonOptionalSockets) throws IllegalArgumentException {
@@ -411,7 +465,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Set the banner for the module to build.
+		 * Set the banner to be displayed by the module to build.
 		 * </p>
 		 * 
 		 * @param banner
@@ -430,7 +484,7 @@ public abstract class Module {
 		 * 
 		 * </p>
 		 * This method actually delegates the actual module creation to the
-		 * {@link #doBuild()} method and set its banner when specified.
+		 * {@link #doBuild()} method and sets its banner when specified.
 		 * </p>
 		 * 
 		 * @return A new module instance
@@ -446,7 +500,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * This method should be implemented by concrete module builder to return the
+		 * This method should be implemented by concrete implementation to return the
 		 * actual module instance.
 		 * </p>
 		 * 
@@ -462,14 +516,16 @@ public abstract class Module {
 	 * 
 	 * <p>
 	 * {@link Bean} instances are used within modules during initialization to
-	 * perform dependency injection in order to defer the instantiation of actual
+	 * perform dependency injection in order to defer the actual beans instantiation
 	 * beans at module startup. Dependency cycles, missing dependencies and other
-	 * issues related to dependency injection should have been raised at compile
-	 * time.
+	 * issues related to dependency injection are normally raised at compile time.
 	 * </p>
 	 * 
-	 * @param <T>
-	 *            The actual type of the bean.
+	 * <p>
+	 * A bean has to be registered in a module before it can be used.
+	 * </p>
+	 * 
+	 * @param <T> The actual type of the bean.
 	 * 
 	 * @author jkuhn
 	 * @since 1.0
@@ -478,7 +534,7 @@ public abstract class Module {
 	protected static abstract class Bean<T> implements Supplier<T> {
 
 		/**
-		 * The module enclosing the bean.
+		 * The module into which the bean is registered.
 		 */
 		protected Module parent;
 
@@ -489,7 +545,7 @@ public abstract class Module {
 
 		/**
 		 * <p>
-		 * Create an abstract bean with the specified name.
+		 * Create a bean with the specified name.
 		 * </p>
 		 * 
 		 * @param name
@@ -512,16 +568,18 @@ public abstract class Module {
 	
 	/**
 	 * <p>
-	 * A BeanBuilder is used within a generated module class to create {@link Bean}
-	 * instances.
+	 * A BeanBuilder is used within a module class to create {@link Bean} instances.
 	 * </p>
 	 * 
 	 * <p>
 	 * A {@link Bean} instance is built from a {@link Supplier} which is used to
-	 * defer the actual bean creation, {@link Consumer} post construction and
-	 * destroy operations invoked after the actual bean creation and before its
-	 * destruction respectively. It is always created for a specific module
-	 * instance.
+	 * defer the actual instantiation of the bean. Post construction and destroy
+	 * operations are invoked once the bean instance has been created (after
+	 * dependency injection) and before its destruction respectively.
+	 * </p>
+	 * 
+	 * <p>
+	 * A BeanBuilder is always created for a specific module instance.
 	 * </p>
 	 * 
 	 * <pre>
@@ -537,8 +595,7 @@ public abstract class Module {
 	 * }
 	 * </pre>
 	 * 
-	 * @param <T>
-	 *            The actual type of the bean to build
+	 * @param <T> The actual type of the bean to build
 	 * 
 	 * @author jkuhn
 	 * @since 1.0

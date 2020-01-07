@@ -62,10 +62,6 @@ class PrototypeBeanBuilder<T> extends AbstractBeanBuilder<T> {
 	 * Build the bean.
 	 * </p>
 	 * 
-	 * <p>
-	 * A bean should be registered in a module to be used.
-	 * </p>
-	 * 
 	 * @return A prototype bean
 	 */
 	public Bean<T> build() {

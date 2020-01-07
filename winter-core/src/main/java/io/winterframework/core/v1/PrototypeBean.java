@@ -27,12 +27,11 @@ import io.winterframework.core.v1.Module.Bean;
  * </p>
  * 
  * <p>
- * A Prototype bean is instantiated each time it is requested, each dependent
- * bean receives a distinct instance.
+ * A Prototype bean is instantiated each time it is requested, a distinct
+ * instance is injected into each dependent bean.
  * </p>
  * 
- * @param <T>
- *            The actual type of the bean.
+ * @param <T> The actual type of the bean.
  * 
  * @author jkuhn
  * @since 1.0
@@ -87,7 +86,7 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 	 * </p>
 	 * 
 	 * <p>
-	 * This method delegates bean instance destruction to the
+	 * This method delegates bean instance creation to the
 	 * {@link #createInstance()} method.
 	 * </p>
 	 * 
