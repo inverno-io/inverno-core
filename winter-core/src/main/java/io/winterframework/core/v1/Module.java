@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * </p>
  * 
  * <ol>
- * <li>Write the banner to the log output if the module is a root module.</li>
+ * <li>Write the banner to the log output if the module is a root module and a banner has been set.</li>
  * <li>Start the imported modules.</li>
  * <li>Create the module beans that weren't already created.</li>
  * </ol>
@@ -156,8 +156,8 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Determine whether the banner should be displayed, only root module should
-	 * display the banner.
+	 * Determine whether the banner should be displayed, only root module can
+	 * display a banner.
 	 * </p>
 	 * 
 	 * @return true when the banner is displayed
@@ -227,7 +227,7 @@ public abstract class Module {
 	 * 
 	 * <p>
 	 * This method displays banner to the log output when the module is a root
-	 * module (ie. a module with no parent).
+	 * module (ie. a module with no parent) and a banner is set.
 	 * </p>
 	 * 
 	 * <p>
@@ -491,9 +491,6 @@ public abstract class Module {
 		 */
 		public final T build() {
 			T thisModule = this.doBuild();
-			if(this.banner == null) {
-				this.banner = new DefaultBanner();
-			}
 			thisModule.setBanner(this.banner);
 			return thisModule;
 		}
