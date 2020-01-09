@@ -23,14 +23,15 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Used on a module builder class to specify how socket beans inside a module
- * are wired to module beans or imported module beans. This is actually required
- * to be able to import modules in a module while preventing dependency cycles.
+ * Used on a module builder class to specify how the socket beans of a module
+ * are wired to module beans and/or imported module beans. This is actually
+ * necessary to be able to import required modules beans in a module while
+ * preventing dependency cycles.
  * </p>
  * 
  * <p>
- * This annotation has to be exposed in the API for the module to compile but is
- * only useful to the winter compiler and as a result should never be used in
+ * This annotation has to be exposed in the API for the module to compile but it
+ * is only useful to the winter compiler and as a result should never be used in
  * the development of a module.
  * </p>
  * 

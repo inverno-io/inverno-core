@@ -27,11 +27,11 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * <p>
- * This allows to control how a bean is actually exposed to other modules. For
- * instance, you might not want to expose the actual bean type which is most
- * likely an implementation class not exported by the module and therefore not
- * accessible to other modules anyway, you'd rather choose to expose an extended
- * class or a public interface implemented by the bean class.
+ * This allows to control how a bean is actually exposed. For instance, you
+ * might not want to expose the actual bean type which is most likely an
+ * implementation class not exported by the module and therefore not accessible
+ * to external Java modules anyway, you'd rather choose to expose a public class
+ * or a interface extended or implemented by the bean class.
  * </p>
  * 
  * <p>
@@ -52,7 +52,7 @@ import java.lang.annotation.Target;
  * 
  * <p>
  * Note that this also has an impact on bean wiring. From within the module the
- * bean provides its own visible type which can then be wired to any assignable
+ * bean provides its actual visible type which can then be wired to any assignable
  * socket. From outside the module, wiring is only based on the provided type.
  * </p>
  * 

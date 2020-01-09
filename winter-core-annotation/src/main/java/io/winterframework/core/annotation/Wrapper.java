@@ -30,7 +30,7 @@ import java.util.function.Supplier;
  * A wrapper bean should be created when there's a need to expose legacy code
  * which can't be annotated with {@link Bean}, it allows to delegate the actual
  * instantiation to a {@link Supplier} instead of a bean constructor. As a
- * result a wrapper bean must implements {@link Supplier}.
+ * result a wrapper bean must implement {@link Supplier}.
  * </p>
  * 
  * <p>

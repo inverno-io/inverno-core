@@ -23,13 +23,19 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Used on a module to specify an explicit wire when multiple matches are found
- * during the auto-wiring process.
+ * Used on a module to specify an explicit wire directive when multiple matches
+ * are found during the auto-wiring process for instance.
  * </p>
  * 
  * <p>
  * When the compiler find multiple beans matching a single bean or module
- * socket.
+ * socket, you'll have to use a Wire annotation on the module to explicitly tell
+ * the compiler which one has to be injected in which socket.
+ * </p>
+ * 
+ * <p>
+ * A Wire annotation can also be used to explicitly specify which beans must be
+ * injected in a multi-socket.
  * </p>
  * 
  * @author jkuhn
@@ -42,7 +48,7 @@ public @interface Wire {
 
 	/**
 	 * <p>
-	 * Indicates the names of the bean to wire.
+	 * Indicates the names of the beans to wire.
 	 * </p>
 	 * 
 	 * </p>
@@ -55,16 +61,23 @@ public @interface Wire {
 
 	/**
 	 * <p>
-	 * Indicate the socket where to plug the beans.
+	 * Indicate the socket where to inject the beans.
 	 * </p>
 	 * 
 	 * <p>
 	 * A socket name can be of three forms evaluated in this order:
-	 * <em>[MODULE_NAME]:[BEAN_NAME]:[SOCKET_NAME]</em>,
-	 * <em>[BEAN_NAME]:[SOCKET_NAME]</em> where the module is implicitly the current
-	 * module, <em>[MODULE_NAME]:[SOCKET_NAME]</em> to refer to a module socket.
-	 * Hopefully the compiler shouldn't let you define a bean with the same name as
-	 * a required module which prevent conflicts between the laste two identifiers.
+	 * </p>
+	 * 
+	 * <ul>
+	 * <li><em>[MODULE_NAME]:[BEAN_NAME]:[SOCKET_NAME]</em></li>
+	 * <li><em>[BEAN_NAME]:[SOCKET_NAME]</em> where the module is implicitly the current
+	 * module</li>
+	 * <li><em>[MODULE_NAME]:[SOCKET_NAME]</em> to refer to a module socket.</li>
+	 * </ul>
+	 * 
+	 * <p>
+	 * Hopefully the compiler doesn't let you define a bean with the same name as
+	 * a required module which prevent conflicts between the last two identifiers.
 	 * </p>
 	 */
 	String into();

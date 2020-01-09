@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Indicates a method that must be executed before a bean is removed.
+ * Indicates a method that must be executed before a bean is destroyed.
  * </p>
  * 
  * @author jkuhn
