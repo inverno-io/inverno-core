@@ -18,12 +18,10 @@ package io.winterframework.core.v1;
 import java.io.PrintStream;
 import java.util.Optional;
 
-import io.winterframework.core.v1.Module.ModuleBuilder;
-
 /**
  * <p>
- * The default {@link Banner} implementation which is used when no custom banner
- * is specified in the {@link ModuleBuilder} used to create the module.
+ * A standard {@link Banner} implementation that displays basic useful
+ * information about the module and the runtime environment.
  * </p>
  * 
  * <p>
@@ -39,7 +37,7 @@ import io.winterframework.core.v1.Module.ModuleBuilder;
  * @author jkuhn
  * @since 1.0
  */
-class DefaultBanner implements Banner {
+public class StandardBanner implements Banner {
 
 	/**
 	 * The Banner header.
@@ -75,10 +73,10 @@ class DefaultBanner implements Banner {
 
 	/**
 	 * <p>
-	 * Create the default banner.
+	 * Create the standard banner.
 	 * </p>
 	 */
-	public DefaultBanner() {
+	public StandardBanner() {
 		String version = "<< n/a >>";
 		
 		java.lang.Module thisModule = this.getClass().getModule();
