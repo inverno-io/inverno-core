@@ -22,25 +22,26 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Indicates that a module is a winter module that must be processed and a
- * module class generated during compilation.
+ * Indicates that a module is a winter module that must be processed in order to
+ * generate a module class during compilation.
  * </p>
  * 
  * <p>
  * By default, the name of the generated class is the name of the module. In
- * order for the module to be functional its package must be exported by the
- * module.
+ * order for the module to be functional its package must be exported in the
+ * Java module.
  * </p>
  * 
  * <p>
  * In case of name conflict, it is possible to explicitly specify the name of
- * the generated class.
+ * the generated class.by
  * </p>
  * 
  * <p>
- * A winter module might require one or more winter modules without importing
- * them which is the default behavior. This can be achieved using includes
- * and/or excludes.
+ * By default, any Winter module that is required by another Winter module will
+ * be imported in that module (ie. module and beans created by the enclosing
+ * module and imported in that module). You can use includes and/or excludes to
+ * control that behavior.
  * </p>
  * 
  * @author jkuhn
@@ -52,22 +53,22 @@ public @interface Module {
 
 	/**
 	 * <p>
-	 * Indicates the name of the module's generated class, defaults to the name of
-	 * the module.
+	 * Indicates the name of the generated module class, defaults to the name of the
+	 * module.
 	 * </p>
 	 */
 	String className() default "";
 	
 	/**
 	 * <p>
-	 * List required modules that must be included during compilation, if none are specified consider all of them.
+	 * List required Winter modules that must be included in the generated module class by the Winter compiler, if none are specified include all.
 	 * </p>
 	 */
 	String[] includes() default {};
 	
 	/**
 	 * <p>
-	 * List required modules that must be excluded during compilation.
+	 * List required Winter modules that must be excluded from the generated module class by the Winter compiler.
 	 * </p>
 	 */
 	String[] excludes() default {};

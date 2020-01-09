@@ -21,13 +21,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>Used in conjunction with {@link Bean} to indicate the bean life cycle.</p>
+ * <p>
+ * Used in conjunction with {@link Bean} to indicate the bean life cycle.
+ * </p>
  * 
- * <p>For a {@link Type#SINGLETON} bean, one single instance is created and injected in dependent beans. This is the default behavior when no scope is specified.</p>
+ * <p>
+ * For a {@link Type#SINGLETON} bean, one single instance is created and
+ * injected in dependent beans. This is the default behavior when no scope is
+ * specified.
+ * </p>
  * 
- * <p>For a {@link Type#PROTOTYPE} bean, a new instance is created when requested which means every dependent beans receive a distinct instance.</p>
+ * <p>
+ * For a {@link Type#PROTOTYPE} bean, a new instance is created when requested
+ * which means every dependent beans receive a distinct instance.
+ * </p>
  * 
- * <p>Note that this annotation is irrelevant and therefore ignored when specified on a socket bean</p>
+ * <p>
+ * Note that this annotation is irrelevant and therefore ignored when specified
+ * on a socket bean
+ * </p>
  * 
  * @author jkuhn
  * @since 1.0
@@ -47,7 +59,7 @@ public @interface Scope {
 		 */
 		SINGLETON,
 		/**
-		 * A prototype bean results in multiple instance being created when requested
+		 * A prototype bean results in multiple instance being created when requested.
 		 */
 		PROTOTYPE
 	}

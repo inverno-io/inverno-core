@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * An AnnotationSelector is used to filer beans annotated with a particular
+ * An AnnotationSelector is used to filter beans annotated with a particular
  * annotation during dependency injection.
  * </p>
  * 

@@ -23,15 +23,15 @@ import java.util.function.Supplier;
 
 /**
  * <p>
- * Indicates that a annotated class or interface is a bean. Inside a module, a
- * bean represents an instance that can be wired to other bean instances visible
- * by this module.
+ * Indicates that an annotated class or interface is a bean. Inside a module, a
+ * bean represents one or more instance that can be wired to other bean
+ * instances visible to this module.
  * </p>
  * 
  * <p>
  * A bean is fully identified by its name (which defaults to the name of the
  * class) and the name of the module exposing the bean (eg.
- * [MODULE_NAME]:[BEAN_NAME]). We can differentiate three kind of beans: module
+ * [MODULE_NAME]:[BEAN_NAME]). We can differentiate three kinds of beans: module
  * bean, wrapper bean and socket bean.
  * </p>
  * 
@@ -41,7 +41,7 @@ import java.util.function.Supplier;
  * for required dependencies or setter methods for optional dependencies. By
  * convention, any setter method is considered as a socket which may lead to
  * ambiguities. In that case a {@link BeanSocket} annotation can be used to
- * specify bean sockets explicitly.
+ * specify explicit bean sockets.
  * </p>
  * 
  * <pre>
@@ -71,9 +71,9 @@ import java.util.function.Supplier;
  * </pre>
  * 
  * <p>
- * A wrapper bean should be created to expose legacy code that can't be
- * instrumented by creating a bean class implementing {@link Supplier} and
- * annotated with {@link Wrapper}.
+ * A wrapper bean is used to expose legacy code that can't be instrumented. A
+ * wrapper bean must implement {@link Supplier} and be annotated with
+ * {@link Wrapper}.
  * </p>
  * 
  * <pre>
@@ -115,14 +115,14 @@ import java.util.function.Supplier;
  * 
  * <p>
  * A socket bean is a particular type of bean which is used to declare a module
- * dependency which is a bean required or desirable by the beans in the module
- * to operate properly. As for bean socket, it should be seen as an injection
- * point at module level to inject an external bean into the module (hence the
+ * dependency that is a bean required or desirable by the beans in the module to
+ * operate properly. As for bean socket, it should be seen as an injection point
+ * at module level to inject an external bean into the module (hence the
  * "socket" designation). From a dependency injection perspective, inside the
  * module, a socket bean is considered just like any other bean and is
- * automatically or explicitly injected in beans in the module or imported
- * modules. A socket bean must be an interface annotated with {@link Bean} with
- * a {@link Visibility#PUBLIC} visibility and extends {@link Supplier}.
+ * automatically or explicitly injected in beans visible to the module. A socket
+ * bean must be an interface annotated with {@link Bean} with a
+ * {@link Visibility#PUBLIC} visibility and extends {@link Supplier}.
  * </p>
  * 
  * <pre>
