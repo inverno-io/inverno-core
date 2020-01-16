@@ -47,7 +47,8 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  * @author jkuhn
  *
  */
-@SupportedAnnotationTypes({"javax.annotation.processing.Generated", "io.winterframework.core.annotation/io.winterframework.core.annotation.Module","io.winterframework.core.annotation/io.winterframework.core.annotation.Bean"})
+//@SupportedAnnotationTypes({"io.winterframework.core.annotation/io.winterframework.core.annotation.Module","io.winterframework.core.annotation/io.winterframework.core.annotation.Bean"})
+@SupportedAnnotationTypes({"io.winterframework.core.annotation.Module","io.winterframework.core.annotation.Bean"})
 public class ModuleAnnotationProcessor extends AbstractProcessor {
 
 	public static final int VERSION = 1;
