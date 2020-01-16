@@ -5,7 +5,7 @@ import io.winterframework.core.annotation.Bean;
 @Bean
 public class BeanE {
 
-	public Service services;
+	public Service[] services;
 	
 	public BeanE(Service[] services) {
 		this.services = services;

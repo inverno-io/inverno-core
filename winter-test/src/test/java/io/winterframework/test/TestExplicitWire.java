@@ -227,7 +227,7 @@ public class TestExplicitWire extends AbstractWinterTest {
 	public void testMultipleBeansWithName() throws IOException {
 		try {
 			this.getWinterCompiler().compile(MODULEH);
-			//Assertions.fail("Should throw a WinterCompilationException");
+			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
 			Assertions.assertEquals(4, e.getDiagnotics().size());
@@ -245,7 +245,7 @@ public class TestExplicitWire extends AbstractWinterTest {
 	public void testMultipleWiresTargetingSocket() throws IOException {
 		try {
 			this.getWinterCompiler().compile(MODULEI);
-			//Assertions.fail("Should throw a WinterCompilationException");
+			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
 			Assertions.assertEquals(2, e.getDiagnotics().size());
@@ -260,7 +260,7 @@ public class TestExplicitWire extends AbstractWinterTest {
 	public void testMultipleBeansSingleSocket() throws IOException {
 		try {
 			this.getWinterCompiler().compile(MODULEJ);
-			//Assertions.fail("Should throw a WinterCompilationException");
+			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
 			Assertions.assertEquals(1, e.getDiagnotics().size());
