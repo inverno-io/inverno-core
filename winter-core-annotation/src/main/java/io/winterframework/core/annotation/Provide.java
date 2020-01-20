@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Specify the type actually provided by a bean, defaulting to the actual bean
+ * Specifies the type actually provided by a bean, defaulting to the actual bean
  * type.
  * </p>
  * 
@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * might not want to expose the actual bean type which is most likely an
  * implementation class not exported by the module and therefore not accessible
  * to external Java modules anyway, you'd rather choose to expose a public class
- * or a interface extended or implemented by the bean class.
+ * or an interface extended or implemented by the bean class.
  * </p>
  * 
  * <p>

@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler.module;
 
@@ -21,9 +33,9 @@ import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Wire;
 import io.winterframework.core.annotation.Wires;
-import io.winterframework.core.compiler.common.MutableModuleSocketInfo;
 import io.winterframework.core.compiler.common.MutableMultiSocketInfo;
 import io.winterframework.core.compiler.common.MutableSingleSocketInfo;
+import io.winterframework.core.compiler.common.MutableSocketBeanInfo;
 import io.winterframework.core.compiler.cycle.BeanCycleDetector;
 import io.winterframework.core.compiler.cycle.BeanCycleDetector.CycleInfo;
 import io.winterframework.core.compiler.spi.BeanInfo;
@@ -41,6 +53,11 @@ import io.winterframework.core.compiler.wire.WireInfo;
 import io.winterframework.core.compiler.wire.WireInfoFactory;
 
 /**
+ * <p>
+ * A module info builder used to build compiled module info from module elements
+ * annotated with {@link Module} and currently compiled by the Java compiler.
+ * </p>
+ * 
  * @author jkuhn
  *
  */
@@ -68,37 +85,25 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		return this.moduleQName;
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoBuilder#beans(io.winterframework.core.compiler.spi.ModuleBeanInfo[])
-	 */
 	@Override
 	public ModuleInfoBuilder beans(ModuleBeanInfo[] beans) {
 		this.beans = beans != null ? beans : new ModuleBeanInfo[0];
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoBuilder#sockets(io.winterframework.core.compiler.spi.ModuleSocketInfo[])
-	 */
 	@Override
 	public ModuleInfoBuilder sockets(SocketBeanInfo[] sockets) {
 		this.sockets = sockets != null ? sockets : new SocketBeanInfo[0];
-		Arrays.stream(this.sockets).forEach(socket -> ((MutableModuleSocketInfo)socket).setOptional(true));
+		Arrays.stream(this.sockets).forEach(socket -> ((MutableSocketBeanInfo)socket).setOptional(true));
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoBuilder#modules(io.winterframework.core.compiler.spi.ModuleInfo[])
-	 */
 	@Override
 	public ModuleInfoBuilder modules(ModuleInfo[] modules) {
 		this.modules = modules != null ? modules : new ModuleInfo[0];
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoBuilder#build()
-	 */
 	@Override
 	public ModuleInfo build() {
 		boolean hasNameConflicts = this.checkNameConflicts();
@@ -127,7 +132,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 				hasConflicts = true; 
 			}
 			if(moduleNames.contains(e.getKey())) {
-				// If a bean has the same name as a required module, we can have conflict when explicitly wire beans into imported module socket (beanName:socketName vs moduleName:socketName)
+				// If a bean has the same name as a required module, we can have conflict when explicitly wire beans into required module socket (beanName:socketName vs moduleName:socketName)
 				e.getValue().stream().forEach(beanInfo -> beanInfo.error("Bean is conflicting with module: " + e.getKey()));
 				hasConflicts = true;
 			}
@@ -140,7 +145,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		List<WireInfo<?>> result = new ArrayList<>();
 		
 		List<BeanInfo> wirableBeans = new ArrayList<>();
-		// complied module beans + sockets + public beans in imported modules
+		// complied module beans + sockets + public beans in required modules
 		wirableBeans.addAll(Arrays.stream(this.beans).collect(Collectors.toList()));
 		wirableBeans.addAll(Arrays.stream(this.sockets).collect(Collectors.toList()));
 		wirableBeans.addAll(Arrays.stream(this.modules).flatMap(moduleInfo -> Arrays.stream(moduleInfo.getPublicBeans())).collect(Collectors.toList()));
@@ -150,9 +155,9 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		
 		List<ModuleBeanSocketInfo> beanSockets = Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getSockets())).collect(Collectors.toList());
 		
-		List<SocketBeanInfo> importedModuleSockets = Arrays.stream(this.modules).flatMap(moduleInfo -> Arrays.stream(moduleInfo.getSockets())).collect(Collectors.toList());
+		List<SocketBeanInfo> requiredModuleSockets = Arrays.stream(this.modules).flatMap(moduleInfo -> Arrays.stream(moduleInfo.getSockets())).collect(Collectors.toList());
 		
-		WireInfoFactory wireInfoFactory = WireInfoFactory.create(this.processingEnvironment, this.moduleElement, wirableBeans, beanSockets, importedModuleSockets);
+		WireInfoFactory wireInfoFactory = WireInfoFactory.create(this.processingEnvironment, this.moduleElement, wirableBeans, beanSockets, requiredModuleSockets);
 		
 		TypeMirror wireAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wire.class.getCanonicalName()).asType();
 		TypeMirror wiresAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wires.class.getCanonicalName()).asType();
@@ -206,7 +211,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 					if(resolvedBeans != null && !socket.isOptional()) {
 						Arrays.stream(resolvedBeans)
 							.filter(resolvedBeanInfo -> SocketBeanInfo.class.isAssignableFrom(resolvedBeanInfo.getClass()))
-							.forEach(resolvedSocket -> ((MutableModuleSocketInfo)resolvedSocket).setOptional(false));
+							.forEach(resolvedSocket -> ((MutableSocketBeanInfo)resolvedSocket).setOptional(false));
 					}
 				}
 				else if(SingleSocketInfo.class.isAssignableFrom(socket.getClass())) {
@@ -214,7 +219,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 					((MutableSingleSocketInfo)socket).setBean(resolvedBean);
 					
 					if(resolvedBean != null && !socket.isOptional() && SocketBeanInfo.class.isAssignableFrom(resolvedBean.getClass())) {
-						((MutableModuleSocketInfo)resolvedBean).setOptional(false);
+						((MutableSocketBeanInfo)resolvedBean).setOptional(false);
 					}
 				}
 				else {
@@ -243,7 +248,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 					if(resolvedBeans != null && !socket.isOptional()) {
 						Arrays.stream(resolvedBeans)
 							.filter(resolvedBeanInfo -> SocketBeanInfo.class.isAssignableFrom(resolvedBeanInfo.getClass()))
-							.forEach(resolvedSocket -> ((MutableModuleSocketInfo)resolvedSocket).setOptional(false));
+							.forEach(resolvedSocket -> ((MutableSocketBeanInfo)resolvedSocket).setOptional(false));
 					}
 				}
 				else if(SingleSocketInfo.class.isAssignableFrom(socket.getClass())) {
@@ -251,7 +256,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 					((MutableSingleSocketInfo)socket).setBean(resolvedBean);
 					
 					if(resolvedBean != null && !socket.isOptional() && SocketBeanInfo.class.isAssignableFrom(resolvedBean.getClass())) {
-						((MutableModuleSocketInfo)resolvedBean).setOptional(false);
+						((MutableSocketBeanInfo)resolvedBean).setOptional(false);
 					}
 				}
 				resolved = resolved ? socket.isOptional() || socket.isResolved() : false;	
@@ -326,5 +331,4 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		
 		return beanCycles.size() > 0;
 	}
-
 }

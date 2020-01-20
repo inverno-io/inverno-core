@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
  * 
  * <p>
  * This annotation has to be exposed in the API for the module to compile but it
- * is only useful to the winter compiler and as a result should never be used in
- * the development of a module.
+ * is only useful to the Winter compiler in generate module classes and as a
+ * result should never be used in the development of a module.
  * </p>
  * 
  * @author jkuhn

@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler.module;
 
@@ -19,10 +31,15 @@ import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
+ * <p>
+ * Represents module info of a binary module required and included in other
+ * modules (possibly compiled modules).
+ * </p>
+ * 
  * @author jkuhn
  *
  */
-class ImportedModuleInfo extends AbstractInfo<ModuleQualifiedName> implements ModuleInfo {
+class BinaryModuleInfo extends AbstractInfo<ModuleQualifiedName> implements ModuleInfo {
 
 	private int version;
 	
@@ -32,13 +49,13 @@ class ImportedModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	
 	private List<ModuleBeanInfo> beanInfos;
 	
-	public ImportedModuleInfo(ProcessingEnvironment processingEnvironment, Element element, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos) {
+	public BinaryModuleInfo(ProcessingEnvironment processingEnvironment, Element element, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos) {
 		super(processingEnvironment, element, qname);
 		
 		this.version = version;
 		
 		if(beanInfos.stream().anyMatch(beanInfo -> !beanInfo.getVisibility().equals(Bean.Visibility.PUBLIC))) {
-			throw new IllegalArgumentException("Only public beans can be injected to an imported module");
+			throw new IllegalArgumentException("Only public beans can be injected to a required module");
 		}
 		this.beanInfos = beanInfos != null ? Collections.unmodifiableList(beanInfos) : Collections.emptyList();
 		this.socketInfos = socketInfos != null ? Collections.unmodifiableList(socketInfos) : Collections.emptyList();

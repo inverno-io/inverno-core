@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler.module;
 
@@ -16,16 +28,22 @@ import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
+ * <p>
+ * A module info builder used to build binary Winter module info from module
+ * elements annotated with {@link Module}, required and included in other
+ * modules (possibly compiled modules).
+ * </p>
+ * 
  * @author jkuhn
  *
  */
-class ImportedModuleInfoBuilder extends AbstractModuleInfoBuilder {
+class BinaryModuleInfoBuilder extends AbstractModuleInfoBuilder {
 
 	private ModuleBeanInfo[] beans;
 	
 	private SocketBeanInfo[] sockets;
 	
-	public ImportedModuleInfoBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
+	public BinaryModuleInfoBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 		super(processingEnvironment, moduleElement);
 		
 		this.beans = new ModuleBeanInfo[0];
@@ -37,9 +55,6 @@ class ImportedModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		return this.moduleQName;
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoBuilder#beans(io.winterframework.core.compiler.spi.ModuleBeanInfo[])
-	 */
 	@Override
 	public ModuleInfoBuilder beans(ModuleBeanInfo[] beans) {
 		if(beans == null) {
@@ -47,36 +62,26 @@ class ImportedModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		}
 		else {
 			if(Arrays.stream(beans).anyMatch(beanInfo -> !beanInfo.getVisibility().equals(Bean.Visibility.PUBLIC))) {
-				throw new IllegalArgumentException("Only public beans can be injected to an imported module");
+				throw new IllegalArgumentException("Only public beans can be injected to a required module");
 			}
 			this.beans = beans;
 		}
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoBuilder#sockets(io.winterframework.core.compiler.spi.ModuleSocketInfo[])
-	 */
 	@Override
 	public ModuleInfoBuilder sockets(SocketBeanInfo[] sockets) {
 		this.sockets = sockets != null ? sockets : new SocketBeanInfo[0];
 		return this;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoBuilder#modules(io.winterframework.core.compiler.spi.ModuleInfo[])
-	 */
 	@Override
 	public ModuleInfoBuilder modules(ModuleInfo[] modules) {
-		throw new UnsupportedOperationException("You can't inject modules to an imported module");
+		throw new UnsupportedOperationException("You can't inject modules to a required module");
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoBuilder#build()
-	 */
 	@Override
 	public ModuleInfo build() {
-		return new ImportedModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleQName, this.version, Arrays.asList(this.beans), Arrays.asList(this.sockets));
+		return new BinaryModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleQName, this.version, Arrays.asList(this.beans), Arrays.asList(this.sockets));
 	}
-
 }

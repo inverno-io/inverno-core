@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2019 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler;
 
@@ -25,14 +37,23 @@ import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
+ * <p>
+ * A Module generator is used to generate Winter module classes in the correct
+ * order taking compilation round into account.
+ * </p>
+ * 
+ * <p>
+ * A module can't be generated if one or more of the modules it requires are not
+ * compiled and generated yet.
+ * </p>
+ * 
  * @author jkuhn
- *
  */
 class ModuleGenerator {
 
 	private Map<String, ModuleInfo> generatedModules;
 	
-	private Map<String, ModuleInfo> importedModules;
+	private Map<String, ModuleInfo> requiredModules;
 	
 	private Set<String> faultyModules;
 	
@@ -44,7 +65,7 @@ class ModuleGenerator {
 	private Map<String, List<Element>> moduleOriginatingElements;
 	private Map<String, List<ModuleBeanInfo>> moduleBeans;
 	private Map<String, List<SocketBeanInfo>> moduleSockets;
-	private Map<String, List<ModuleInfoBuilder>> importedModuleBuilders;
+	private Map<String, List<ModuleInfoBuilder>> requiredModuleBuilders;
 	
 	public ModuleGenerator(ProcessingEnvironment processingEnv) {
 		this.processingEnv = processingEnv;
@@ -52,7 +73,7 @@ class ModuleGenerator {
 		this.moduleReporter = new ModuleReporter();
 
 		this.generatedModules = new HashMap<>();
-		this.importedModules = new HashMap<>();
+		this.requiredModules = new HashMap<>();
 		this.faultyModules = new HashSet<>();
 	}
 	
@@ -76,8 +97,8 @@ class ModuleGenerator {
 		return this;
 	}
 	
-	public ModuleGenerator withImportedModules(Map<String, List<ModuleInfoBuilder>> importedModuleBuilders) {
-		this.importedModuleBuilders = importedModuleBuilders;
+	public ModuleGenerator withRequiredModules(Map<String, List<ModuleInfoBuilder>> requiredModuleBuilders) {
+		this.requiredModuleBuilders = requiredModuleBuilders;
 		return this;
 	}
 	
@@ -112,41 +133,41 @@ class ModuleGenerator {
 		if(this.moduleSockets.containsKey(moduleName)) {
 			moduleBuilder.sockets(this.moduleSockets.get(moduleName).stream().toArray(SocketBeanInfo[]::new));					
 		}
-		if(this.importedModuleBuilders.containsKey(moduleName)) {
-			List<ModuleInfo> importedModules = new ArrayList<>();
-			for(ModuleInfoBuilder importedModuleBuilder : this.importedModuleBuilders.get(moduleName)) {
-				String importedModuleName = importedModuleBuilder.getQualifiedName().toString();
-				if(this.generatedModules.containsKey(importedModuleName)) {
+		if(this.requiredModuleBuilders.containsKey(moduleName)) {
+			List<ModuleInfo> requiredModules = new ArrayList<>();
+			for(ModuleInfoBuilder requiredModuleBuilder : this.requiredModuleBuilders.get(moduleName)) {
+				String requiredModuleName = requiredModuleBuilder.getQualifiedName().toString();
+				if(this.generatedModules.containsKey(requiredModuleName)) {
 					// Previous rounds
-					importedModules.add(this.generatedModules.get(importedModuleName));
+					requiredModules.add(this.generatedModules.get(requiredModuleName));
 				}
-				else if(this.importedModules.containsKey(importedModuleName)) {
+				else if(this.requiredModules.containsKey(requiredModuleName)) {
 					// compiled module
-					importedModules.add(this.importedModules.get(importedModuleName));
+					requiredModules.add(this.requiredModules.get(requiredModuleName));
 				} 
-				else if(this.faultyModules.contains(importedModuleName)) {
+				else if(this.faultyModules.contains(requiredModuleName)) {
 					// Faulty module
 					roundFaultyModules.add(moduleName);
 				}
-				else if(this.moduleBuilders.containsValue(importedModuleBuilder)) {
+				else if(this.moduleBuilders.containsValue(requiredModuleBuilder)) {
 					// Compiling Module
 					generate = false;
-					if(roundModules.containsKey(importedModuleName)) {
-						importedModules.add(roundModules.get(importedModuleName));
+					if(roundModules.containsKey(requiredModuleName)) {
+						requiredModules.add(roundModules.get(requiredModuleName));
 					}
 					else {
-						ModuleInfo importedModule = this.generateModule(importedModuleBuilder, roundModules, roundGeneratedModules, roundFaultyModules);
-						importedModules.add(importedModule);
+						ModuleInfo requiredModule = this.generateModule(requiredModuleBuilder, roundModules, roundGeneratedModules, roundFaultyModules);
+						requiredModules.add(requiredModule);
 					}
 				}
 				else {
-					// Imported Module
-					ModuleInfo importedModule = importedModuleBuilder.build();
-					this.importedModules.put(importedModuleName, importedModule);
-					importedModules.add(importedModule);
+					// Required Module
+					ModuleInfo requiredModule = requiredModuleBuilder.build();
+					this.requiredModules.put(requiredModuleName, requiredModule);
+					requiredModules.add(requiredModule);
 				}
 			}
-			moduleBuilder.modules(importedModules.toArray(new ModuleInfo[importedModules.size()]));
+			moduleBuilder.modules(requiredModules.toArray(new ModuleInfo[requiredModules.size()]));
 		}
 		
 		ModuleInfo moduleInfo = moduleBuilder.build();

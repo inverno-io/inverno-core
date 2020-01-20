@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler;
 
@@ -23,6 +35,8 @@ import io.winterframework.core.compiler.spi.SocketInfo;
 import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 
 /**
+ * <p>A {@link ModuleInfoVisitor} used to display module data in a readable YAML format.</p>
+ * 
  * @author jkuhn
  *
  */
@@ -40,9 +54,6 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		this.indent = indent;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(ModuleInfo moduleInfo, String pad) {
 		StringBuilder result = new StringBuilder();
@@ -72,9 +83,6 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return result.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.BeanInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(BeanInfo beanInfo, String pad) {
 		if(ModuleBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
@@ -86,9 +94,6 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return "";
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleBeanInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(ModuleBeanInfo moduleBeanInfo, String pad) {
 		StringBuilder result = new StringBuilder();
@@ -118,17 +123,11 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return result.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleWrapperBeanInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(WrapperBeanInfo moduleWrapperBeanInfo, String pad) {
 		return this.visit((ModuleBeanInfo)moduleWrapperBeanInfo, pad);
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleBeanSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(ModuleBeanSocketInfo beanSocketInfo, String pad) {
 		if(ModuleBeanSingleSocketInfo.class.isAssignableFrom(beanSocketInfo.getClass())) {
@@ -140,25 +139,16 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return "";
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleBeanSingleSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(ModuleBeanSingleSocketInfo beanSingleSocketInfo, String pad) {
 		return this.visit((SingleSocketInfo)beanSingleSocketInfo, pad);
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleBeanMultiSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(ModuleBeanMultiSocketInfo beanMultiSocketInfo, String pad) {
 		return this.visit((MultiSocketInfo)beanMultiSocketInfo, pad);
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(SocketBeanInfo moduleSocketInfo, String pad) {
 		if(SingleSocketBeanInfo.class.isAssignableFrom(moduleSocketInfo.getClass())) {
@@ -170,9 +160,6 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return "";
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleSingleSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(SingleSocketBeanInfo moduleSingleSocketInfo, String pad) {
 		StringBuilder result = new StringBuilder();
@@ -186,9 +173,6 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return result.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleMultiSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(MultiSocketBeanInfo moduleMultiSocketInfo, String pad) {
 		StringBuilder result = new StringBuilder();
@@ -202,9 +186,6 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return result.toString();
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.SocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(SocketInfo socketInfo, String pad) {
 		if(ModuleBeanSocketInfo.class.isAssignableFrom(socketInfo.getClass())) {
@@ -222,9 +203,6 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return "";
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.SingleSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(SingleSocketInfo singleSocketInfo, String pad) {
 		StringBuilder result = new StringBuilder();
@@ -250,9 +228,6 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		return result.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.MultiSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public String visit(MultiSocketInfo multiSocketInfo, String pad) {
 		StringBuilder result = new StringBuilder();
@@ -291,5 +266,4 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		}
 		return result.toString();
 	}
-
 }

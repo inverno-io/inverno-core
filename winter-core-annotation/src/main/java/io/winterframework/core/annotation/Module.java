@@ -22,8 +22,8 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Indicates that a module is a winter module that must be processed in order to
- * generate a module class during compilation.
+ * Indicates that a module is a Winter module that must be processed during
+ * compilation in order to generate a module class.
  * </p>
  * 
  * <p>
@@ -34,14 +34,16 @@ import java.lang.annotation.Target;
  * 
  * <p>
  * In case of name conflict, it is possible to explicitly specify the name of
- * the generated class.by
+ * the generated class.
  * </p>
  * 
  * <p>
- * By default, any Winter module that is required by another Winter module will
- * be imported in that module (ie. module and beans created by the enclosing
- * module and imported in that module). You can use includes and/or excludes to
- * control that behavior.
+ * By default, any Winter module required by another Winter module will be
+ * imported in that module which means that it will be instantiated in the
+ * module and its public beans made available for dependency injection. As a
+ * consequence, an enclosing bean must provide all the beans required by the
+ * modules it imports otherwise it won't be able to instantiate them. You can
+ * use includes and/or excludes values to control that behavior.
  * </p>
  * 
  * @author jkuhn
