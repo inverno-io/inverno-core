@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler.wire;
 
@@ -34,6 +46,8 @@ import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
+ * <p>Used when building a compiled module to create wire info from the compiled module element.</p>
+ * 
  * @author jkuhn
  *
  */
@@ -43,26 +57,26 @@ public class WireInfoFactory extends AbstractInfoFactory {
 	
 	private Map<BeanSocketQualifiedName, ? extends ModuleBeanSocketInfo> beanSockets;
 	
-	private Map<BeanQualifiedName, ? extends SocketBeanInfo> importedModuleSockets;
+	private Map<BeanQualifiedName, ? extends SocketBeanInfo> requiredModuleSockets;
 	
 	private TypeMirror wireAnnotationType;
 	private TypeMirror wiresAnnotationType;
 	
-	protected WireInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, List<? extends BeanInfo> beans, List<? extends ModuleBeanSocketInfo> beanSockets, List<? extends SocketBeanInfo> importedModuleSockets) {
+	protected WireInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, List<? extends BeanInfo> beans, List<? extends ModuleBeanSocketInfo> beanSockets, List<? extends SocketBeanInfo> requiredModuleSockets) {
 		super(processingEnvironment, moduleElement);
 		this.processingEnvironment = processingEnvironment;
 		this.moduleElement = moduleElement;
 		
 		this.beans = beans.stream().collect(Collectors.toMap(beanInfo -> beanInfo.getQualifiedName(), Function.identity()));
 		this.beanSockets = beanSockets.stream().collect(Collectors.toMap(beanSocketInfo -> beanSocketInfo.getQualifiedName(), Function.identity()));
-		this.importedModuleSockets = importedModuleSockets.stream().collect(Collectors.toMap(moduleSocketInfo -> moduleSocketInfo.getQualifiedName(), Function.identity()));
+		this.requiredModuleSockets = requiredModuleSockets.stream().collect(Collectors.toMap(moduleSocketInfo -> moduleSocketInfo.getQualifiedName(), Function.identity()));
 		
 		this.wireAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wire.class.getCanonicalName()).asType();
 		this.wiresAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wires.class.getCanonicalName()).asType();
 	}
 	
-	public static WireInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, List<? extends BeanInfo> beans, List<? extends ModuleBeanSocketInfo> beanSockets, List<? extends SocketBeanInfo> importedModuleSockets) {
-		return new WireInfoFactory(processingEnvironment, moduleElement, beans,beanSockets, importedModuleSockets);
+	public static WireInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, List<? extends BeanInfo> beans, List<? extends ModuleBeanSocketInfo> beanSockets, List<? extends SocketBeanInfo> requiredModuleSockets) {
+		return new WireInfoFactory(processingEnvironment, moduleElement, beans,beanSockets, requiredModuleSockets);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -166,7 +180,7 @@ public class WireInfoFactory extends AbstractInfoFactory {
 		}
 		else {
 			// Module Socket
-			if(!this.importedModuleSockets.containsKey(moduleSocketQName)) {
+			if(!this.requiredModuleSockets.containsKey(moduleSocketQName)) {
 				Arrays.stream(beanQNames)
 					.filter(beanQName -> !this.beans.containsKey(beanQName))
 					.forEach(beanQName -> wireReporter.error("There's no bean named " + beanQName));

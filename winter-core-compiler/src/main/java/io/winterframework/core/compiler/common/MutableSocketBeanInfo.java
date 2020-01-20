@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.core.compiler.socket;
+package io.winterframework.core.compiler.common;
 
-import java.util.Set;
-
-import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * Wirable socket beans should be created when building a compiled module info
- * so that module info builder can resolve and set the wired beans in the socket
- * bean info.
+ * Mutable socket bean info for internal use.
  * </p>
  * 
  * @author jkuhn
  *
  */
-public interface WirableSocketBeanInfo extends SocketBeanInfo {
+public interface MutableSocketBeanInfo extends SocketBeanInfo {
 
-	void setWiredBeans(Set<BeanQualifiedName> wiredBeans);
+	void setOptional(boolean optional);
 }

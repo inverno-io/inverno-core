@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler.bean;
 
@@ -17,16 +29,24 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 
+import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
+ * <p>
+ * A {@link ModuleBeanInfoFactory} implementation used by the
+ * {@link ModuleAnnotationProcessor} to create {@link ModuleBeanInfo} for binary
+ * modules (ie. already compiled) required and included in other modules
+ * (possibly compiled modules).
+ * </p>
+ * 
  * @author jkuhn
  *
  */
-class ImportedModuleBeanInfoFactory extends ModuleBeanInfoFactory {
+class BinaryModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 
 	private ModuleElement compiledModuleElement;
 	
@@ -36,7 +56,7 @@ class ImportedModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	 * @param processingEnvironment
 	 * @param moduleElement
 	 */
-	public ImportedModuleBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement compiledModuleElement, List<? extends SocketBeanInfo> moduleSocketInfos) {
+	public BinaryModuleBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement compiledModuleElement, List<? extends SocketBeanInfo> moduleSocketInfos) {
 		super(processingEnvironment, moduleElement);
 		
 		this.compiledModuleElement = compiledModuleElement;
@@ -52,9 +72,6 @@ class ImportedModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.model.ModuleBeanInfoFactory#createBean(javax.lang.model.element.Element)
-	 */
 	@Override
 	public ModuleBeanInfo createBean(Element element) throws BeanCompilationException {
 		if(!element.getKind().equals(ElementKind.METHOD)) {

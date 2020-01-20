@@ -162,7 +162,7 @@ public @interface Bean {
 	/**
 	 * <p>
 	 * Indicates a name identifying the bean in the module, defaults to the name of
-	 * the class (eg. [MODULE_NAME]:[BEAN_NAME]).
+	 * the class.
 	 * </p>
 	 */
 	String name() default "";

@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler.module;
 
@@ -27,6 +39,11 @@ import io.winterframework.core.compiler.spi.SocketInfo;
 import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 
 /**
+ * <p>
+ * Traverses the bean graph of a module and populates module's socket bean info
+ * with the direct and indirect beans they are wired to.
+ * </p>
+ * 
  * @author jkuhn
  *
  */
@@ -34,9 +51,6 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 
 	private ModuleQualifiedName moduleQName;
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(ModuleInfo moduleInfo, Set<BeanQualifiedName> wiredBeans) {
 		this.moduleQName = moduleInfo.getQualifiedName();
@@ -46,9 +60,6 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.BeanInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(BeanInfo beanInfo, Set<BeanQualifiedName> wiredBeans) {
 		// Optional unresolved sockets
@@ -64,9 +75,6 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleBeanInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(ModuleBeanInfo moduleBeanInfo, Set<BeanQualifiedName> wiredBeans) {
 		wiredBeans.add(moduleBeanInfo.getQualifiedName());
@@ -75,17 +83,11 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleWrapperBeanInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(WrapperBeanInfo moduleWrapperBeanInfo, Set<BeanQualifiedName> wiredBeans) {
 		return this.visit((ModuleBeanInfo)moduleWrapperBeanInfo, wiredBeans);
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleBeanSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(ModuleBeanSocketInfo beanSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		if(ModuleBeanSingleSocketInfo.class.isAssignableFrom(beanSocketInfo.getClass())) {
@@ -97,9 +99,6 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleBeanSingleSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(ModuleBeanSingleSocketInfo beanSingleSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		if(beanSingleSocketInfo.getBean() != null) {
@@ -108,9 +107,6 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleBeanMultiSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(ModuleBeanMultiSocketInfo beanMultiSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		if(beanMultiSocketInfo.getBeans() != null) {
@@ -119,9 +115,6 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(SocketBeanInfo moduleSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		if(moduleSocketInfo.getQualifiedName().getModuleQName().equals(this.moduleQName)) {
@@ -130,7 +123,7 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 			((WirableSocketBeanInfo)moduleSocketInfo).setWiredBeans(wiredBeans.stream().filter(beanQName -> beanQName.getModuleQName().equals(this.moduleQName)).collect(Collectors.toSet()));
 		}
 		else {
-			// imported module
+			// required module
 			if(SingleSocketBeanInfo.class.isAssignableFrom(moduleSocketInfo.getClass())) {
 				return this.visit((SingleSocketBeanInfo)moduleSocketInfo, wiredBeans);
 			}
@@ -141,9 +134,6 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleSingleSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(SingleSocketBeanInfo moduleSingleSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		if(moduleSingleSocketInfo.getBean() != null) {
@@ -155,9 +145,6 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.ModuleMultiSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(MultiSocketBeanInfo moduleMultiSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		if(moduleMultiSocketInfo.getBeans() != null) {
@@ -169,28 +156,18 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.SocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(SocketInfo socketInfo, Set<BeanQualifiedName> wiredBeans) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.SingleSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(SingleSocketInfo singleSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.spi.ModuleInfoVisitor#visit(io.winterframework.core.compiler.spi.MultiSocketInfo, java.lang.Object)
-	 */
 	@Override
 	public Void visit(MultiSocketInfo multiSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		return null;
 	}
-
 }

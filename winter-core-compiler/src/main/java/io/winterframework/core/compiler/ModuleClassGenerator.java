@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.winterframework.core.compiler;
 
 import java.time.ZonedDateTime;
@@ -29,6 +44,12 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
 import io.winterframework.core.compiler.spi.SocketInfo;
 import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 
+/**
+ * <p>A {@link ModuleInfoVisitor} implementation that generates a Winter module class.</p>
+ * 
+ * @author jkuhn
+ *
+ */
 class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGeneration> {
 
 	@Override
@@ -49,7 +70,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				.map(moduleBeanInfo -> this.visit(moduleBeanInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.BEAN_FIELD)))
 				.collect(Collectors.joining("\n"));
 			String module_field_modules = Arrays.stream(moduleInfo.getModules())
-				.map(importedModuleInfo -> this.visit(importedModuleInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.IMPORT_MODULE_FIELD)))
+				.map(requiredModuleInfo -> this.visit(requiredModuleInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.IMPORT_MODULE_FIELD)))
 				.collect(Collectors.joining("\n"));
 			
 			String module_constructor_parameters = Arrays.stream(moduleInfo.getSockets())
@@ -57,7 +78,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				.collect(Collectors.joining(", "));
 			
 			String module_constructor_modules = Arrays.stream(moduleInfo.getModules())
-				.map(importedModuleInfo -> this.visit(importedModuleInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.IMPORT_MODULE_NEW)))
+				.map(requiredModuleInfo -> this.visit(requiredModuleInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.IMPORT_MODULE_NEW)))
 				.collect(Collectors.joining("\n"));
 			
 			String module_constructor_beans = Arrays.stream(moduleInfo.getBeans())
@@ -213,7 +234,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 		}
 		else if(generation.getMode() == GenerationMode.IMPORT_MODULE_NEW) {
 			// TODO For some reason this doesn't work 100% (see TestMutiCycle)
-			//TypeMirror importedModuleType = generation.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
+			//TypeMirror requiredModuleType = generation.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
 			TypeMirror mapType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("java.util.Map").asType());
 
 			String import_module_arguments = Arrays.stream(moduleInfo.getSockets())
@@ -240,8 +261,8 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 		}
 		else if(generation.getMode() == GenerationMode.IMPORT_MODULE_FIELD) {
 			// TODO For some reason this doesn't work 100% (see TestMutiCycle)
-			/*TypeMirror importedModuleType = generation.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
-			return generation.indent(1) + "private " + generation.getTypeName(importedModuleType) + " " + moduleInfo.getQualifiedName().normalize() + ";";*/
+			/*TypeMirror requiredModuleType = generation.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
+			return generation.indent(1) + "private " + generation.getTypeName(requiredModuleType) + " " + moduleInfo.getQualifiedName().normalize() + ";";*/
 			
 			return generation.indent(1) + "private " + generation.getTypeName(moduleInfo.getQualifiedName().getClassName()) + " " + moduleInfo.getQualifiedName().normalize() + ";";
 		}

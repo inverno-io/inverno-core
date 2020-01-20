@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * 
  * <ol>
  * <li>Write the banner to the log output if the module is a root module and a banner has been set.</li>
- * <li>Start the imported modules.</li>
+ * <li>Start the required Winter modules included in the module.</li>
  * <li>Create the module beans that weren't already created.</li>
  * </ol>
  * 
@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
  * </p>
  * <ol>
  * <li>Destroy the module beans in the reverse creation order.</li>
- * <li>Stop the imported modules.</li>
+ * <li>Stop the required Winter modules included in the module.</li>
  * </ol>
  * 
  * <p>
@@ -91,7 +91,7 @@ public abstract class Module {
 	private Module parent;
 	
 	/**
-	 * The list of modules imported by the module.
+	 * The list of required Winter modules include in the module.
 	 */
 	private List<Module> modules;
 	
@@ -231,9 +231,10 @@ public abstract class Module {
 	 * </p>
 	 * 
 	 * <p>
-	 * It creates and wires the beans defined within this module and its imported
-	 * modules, the bean dependency graph determines the order into which beans are
-	 * created. When the module is stopped, beans are detroyed in the reverse order.
+	 * It creates and wires the beans defined within the module and the required
+	 * Winter modules it includes, the bean dependency graph determines the order
+	 * into which beans are created. When the module is stopped, beans are detroyed
+	 * in the reverse order.
 	 * </p>
 	 */
 	public void start() {

@@ -1,5 +1,17 @@
-/**
- * 
+/*
+ * Copyright 2018 Jeremy KUHN
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package io.winterframework.core.compiler.bean;
 
@@ -31,6 +43,7 @@ import io.winterframework.core.annotation.Init;
 import io.winterframework.core.annotation.Provide;
 import io.winterframework.core.annotation.Scope;
 import io.winterframework.core.annotation.Wrapper;
+import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
@@ -39,6 +52,12 @@ import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
 
 /**
+ * <p>
+ * A {@link ModuleBeanInfoFactory} implementation used by the
+ * {@link ModuleAnnotationProcessor} to create {@link ModuleBeanInfo} for
+ * modules being compiled.
+ * </p>
+ * 
  * @author jkuhn
  *
  */
@@ -64,9 +83,6 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
 	}
 
-	/* (non-Javadoc)
-	 * @see io.winterframework.core.compiler.model.ModuleBeanInfoFactory#createBean(javax.lang.model.element.Element)
-	 */
 	@Override
 	public ModuleBeanInfo createBean(Element element) throws BeanCompilationException, TypeErrorException {
 		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
