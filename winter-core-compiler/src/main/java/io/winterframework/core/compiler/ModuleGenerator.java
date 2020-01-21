@@ -28,7 +28,9 @@ import java.util.stream.Collectors;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic.Kind;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
 import io.winterframework.core.compiler.ModuleClassGeneration.GenerationMode;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
@@ -51,6 +53,8 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  */
 class ModuleGenerator {
 
+	private ModuleAnnotationProcessor.Options options;
+	
 	private Map<String, ModuleInfo> generatedModules;
 	
 	private Map<String, ModuleInfo> requiredModules;
@@ -59,7 +63,7 @@ class ModuleGenerator {
 	
 	private ProcessingEnvironment processingEnv;
 	private ModuleClassGenerator moduleClassGenerator;
-	private ModuleReporter moduleReporter;
+	private ModuleDescriptorGenerator moduleDescriptorGenerator;
 	
 	private Map<String, ModuleInfoBuilder> moduleBuilders;
 	private Map<String, List<Element>> moduleOriginatingElements;
@@ -67,10 +71,11 @@ class ModuleGenerator {
 	private Map<String, List<SocketBeanInfo>> moduleSockets;
 	private Map<String, List<ModuleInfoBuilder>> requiredModuleBuilders;
 	
-	public ModuleGenerator(ProcessingEnvironment processingEnv) {
+	public ModuleGenerator(ProcessingEnvironment processingEnv, ModuleAnnotationProcessor.Options options) {
 		this.processingEnv = processingEnv;
+		this.options = options;
 		this.moduleClassGenerator = new ModuleClassGenerator();
-		this.moduleReporter = new ModuleReporter();
+		this.moduleDescriptorGenerator = new ModuleDescriptorGenerator();
 
 		this.generatedModules = new HashMap<>();
 		this.requiredModules = new HashMap<>();
@@ -177,10 +182,27 @@ class ModuleGenerator {
 		}
 
 		if(generate && !moduleInfo.isFaulty()) {
-			// Report
-			System.out.println(moduleInfo.accept(this.moduleReporter, ""));
+			// Descriptor
+			if(this.options.isVerbose()) {
+				System.out.println(moduleInfo.accept(this.moduleDescriptorGenerator, ""));
+			}
 			
-			// Generate class
+			if(this.options.isGenerateModuleDescriptor()) {
+				try {
+					FileObject moduleDescriptorFile = this.processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, moduleInfo.getQualifiedName().getValue() + "/", "META-INF/winter/module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
+					try (Writer writer = moduleDescriptorFile.openWriter()) {
+						writer.write(moduleInfo.accept(this.moduleDescriptorGenerator, ""));
+						writer.flush();
+					}
+				} 
+				catch (IOException e) {
+					this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Error generating Module descriptor " + moduleInfo.getQualifiedName() + ": " + e.getMessage());
+					if(this.options.isDebug()) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
 			try {
 				JavaFileObject moduleSourceFile = this.processingEnv.getFiler().createSourceFile(moduleInfo.getQualifiedName().getClassName(), this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
 				try (Writer writer = moduleSourceFile.openWriter()) {
@@ -188,12 +210,16 @@ class ModuleGenerator {
 					writer.flush();
 				}
 				
-				System.out.println("Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri());
+				if(this.options.isVerbose()) {
+					System.out.println("Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri());
+				}
 //				this.processingEnv.getMessager().printMessage(Kind.NOTE, "Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri());
 			} 
 			catch (IOException e) {
 				this.processingEnv.getMessager().printMessage(Kind.ERROR, "Error generating Module " + moduleInfo.getQualifiedName() + ": " + e.getMessage());
-				e.printStackTrace();
+				if(this.options.isDebug()) {
+					e.printStackTrace();
+				}
 			}
 			roundGeneratedModules.put(moduleName, moduleInfo);
 		}
