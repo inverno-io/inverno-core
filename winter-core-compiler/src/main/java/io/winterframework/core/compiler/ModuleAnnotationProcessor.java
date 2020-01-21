@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -66,11 +67,50 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  */
 //@SupportedAnnotationTypes({"io.winterframework.core.annotation/io.winterframework.core.annotation.Module","io.winterframework.core.annotation/io.winterframework.core.annotation.Bean"})
 @SupportedAnnotationTypes({"io.winterframework.core.annotation.Module","io.winterframework.core.annotation.Bean"})
+@SupportedOptions({ModuleAnnotationProcessor.Options.DEBUG, ModuleAnnotationProcessor.Options.VERBOSE, ModuleAnnotationProcessor.Options.GENERATE_DESCRIPTOR})
 public class ModuleAnnotationProcessor extends AbstractProcessor {
 
 	public static final int VERSION = 1;
 	
 	private ModuleGenerator moduleGenerator;
+	
+	/**
+	 * <p>
+	 * Provides the options that can be passed to the module annotation processor.
+	 * </p>
+	 */
+	public static class Options {
+		
+		public static final String DEBUG = "winter.debug";
+		
+		public static final String VERBOSE = "winter.verbose";
+		
+		public static final String GENERATE_DESCRIPTOR = "winter.generateDescriptor";
+		
+		private boolean generateModuleDescriptor;
+		
+		private boolean debug;
+		
+		private boolean verbose;
+		
+		public Options(Map<String, String> processingEnvOptions) {
+			this.debug = processingEnvOptions.containsKey(DEBUG);
+			this.verbose = processingEnvOptions.containsKey(VERBOSE);
+			this.generateModuleDescriptor = processingEnvOptions.containsKey(GENERATE_DESCRIPTOR);
+		}
+
+		public boolean isDebug() {
+			return debug;
+		}
+
+		public boolean isVerbose() {
+			return verbose;
+		}
+		
+		public boolean isGenerateModuleDescriptor() {
+			return generateModuleDescriptor;
+		}
+	}
 	
 	@Override
 	public SourceVersion getSupportedSourceVersion() {
@@ -81,6 +121,8 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if(this.moduleGenerator == null) {
+			Options options = new ModuleAnnotationProcessor.Options(this.processingEnv.getOptions());
+			
 			TypeMirror moduleAnnotationType = this.processingEnv.getElementUtils().getTypeElement(Module.class.getCanonicalName()).asType();
 			TypeMirror beanAnnotationType = this.processingEnv.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
 		
@@ -103,7 +145,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 					moduleOriginatingElements.get(moduleName).add(element);
 				});
 			
-			this.moduleGenerator = new ModuleGenerator(this.processingEnv)
+			this.moduleGenerator = new ModuleGenerator(this.processingEnv, options)
 				.forModules(moduleBuilders)
 				.withOriginatingElements(moduleOriginatingElements)
 				.withModuleBeans(roundEnv.getElementsAnnotatedWith(Bean.class).stream()

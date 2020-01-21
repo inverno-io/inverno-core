@@ -27,9 +27,11 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * <p>
- * By default, the name of the generated class is the name of the module. In
- * order for the module to be functional its package must be exported in the
- * Java module.
+ * By default, the class is generated in a package named after the module's name
+ * and the class name is the last part of the module's name starting with a
+ * capital letter. For instance, class <code>com.example.foo.Foo</code> is
+ * generated for module <code>com.example.foo</code>. In order for the module to
+ * be usable its package must be exported in the Java module.
  * </p>
  * 
  * <p>

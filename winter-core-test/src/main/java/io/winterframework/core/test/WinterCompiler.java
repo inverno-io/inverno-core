@@ -74,7 +74,7 @@ public class WinterCompiler {
 	}
 	
 	public WinterModuleLoader compile(String... modules) throws IOException, WinterCompilationException {
-		CompilationTask task = this.compiler.getTask(new PrintWriter(System.out), this.fileManager, this.diagnosticListener, Arrays.asList("--module", Arrays.stream(modules).collect(Collectors.joining(","))), null, null);
+		CompilationTask task = this.compiler.getTask(new PrintWriter(System.out), this.fileManager, this.diagnosticListener, Arrays.asList("--module", Arrays.stream(modules).collect(Collectors.joining(",")), "-Awinter.debug=true", "-Awinter.verbose=true", "-Awinter.generateDescriptor=true"), null, null);
 		if(!task.call()) {
 			for(Diagnostic<? extends JavaFileObject> d : this.diagnosticListener.getDiagnotics()) {
 				System.err.println(d.toString());

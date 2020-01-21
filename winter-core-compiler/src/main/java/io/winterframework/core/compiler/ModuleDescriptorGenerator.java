@@ -35,12 +35,12 @@ import io.winterframework.core.compiler.spi.SocketInfo;
 import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 
 /**
- * <p>A {@link ModuleInfoVisitor} used to display module data in a readable YAML format.</p>
+ * <p>A {@link ModuleInfoVisitor} used to generate module descriptor in a readable YAML format.</p>
  * 
  * @author jkuhn
  *
  */
-class ModuleReporter implements ModuleInfoVisitor<String, String> {
+class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 
 	private String indent = DEFAULT_INDENT;
 	
@@ -60,6 +60,7 @@ class ModuleReporter implements ModuleInfoVisitor<String, String> {
 		
 		result.append(pad).append("module:").append("\n");
 		result.append(pad).append(this.indent).append("name: ").append(moduleInfo.getQualifiedName().toString()).append("\n");
+		result.append(pad).append(this.indent).append("class: ").append(moduleInfo.getQualifiedName().getClassName()).append("\n");
 		result.append(pad).append(this.indent).append("modules:").append("\n");
 		for(ModuleInfo module : moduleInfo.getModules()) {
 			result.append(this.visit(module, pad + this.indent + this.indent)).append("\n");
