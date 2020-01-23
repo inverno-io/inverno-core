@@ -93,9 +93,8 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	}
 
 	@Override
-	public ModuleBeanInfo getBean(String name) {
-		Optional<ModuleBeanInfo> moduleBean = this.beanInfos.stream().filter(bean -> bean.getQualifiedName().getSimpleValue().equals(name)).findFirst();
-		return moduleBean.isPresent() ? moduleBean.get() : null;
+	public Optional<ModuleBeanInfo> getBean(String name) {
+		return this.beanInfos.stream().filter(bean -> bean.getQualifiedName().getSimpleValue().equals(name)).findFirst();
 	}
 
 	@Override

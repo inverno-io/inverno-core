@@ -15,6 +15,8 @@
  */
 package io.winterframework.core.compiler.bean;
 
+import java.util.Optional;
+
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -72,8 +74,9 @@ abstract class AbstractModuleBeanSocketInfo extends AbstractInfo<BeanSocketQuali
 	}
 
 	@Override
-	public ExecutableElement getSocketElement() {
-		return this.socketElement;
+	public Optional<ExecutableElement> getSocketElement() {
+		// A bean socket should always have a socket element
+		return Optional.ofNullable(this.socketElement);
 	}
 
 	@Override
