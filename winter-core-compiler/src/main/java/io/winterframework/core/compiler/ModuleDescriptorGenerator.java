@@ -212,8 +212,8 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 		result.append(pad).append("  ").append("type: ").append(singleSocketInfo.getType().toString()).append("\n");
 		result.append(pad).append("  ").append("optional: ").append(singleSocketInfo.isOptional()).append("\n");
 		result.append(pad).append("  ").append("socket: ");
-		if(singleSocketInfo.getSocketElement() != null) {
-			result.append(singleSocketInfo.getSocketElement().toString());
+		if(singleSocketInfo.getSocketElement().isPresent()) {
+			result.append(singleSocketInfo.getSocketElement().get().toString());
 		}
 		result.append("\n").append(pad).append("  ").append("bean: ");
 		if(singleSocketInfo.isResolved()) {
@@ -251,8 +251,8 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 		result.append(pad).append("  ").append("type: ").append(type).append("\n");
 		result.append(pad).append("  ").append("optional: ").append(multiSocketInfo.isOptional()).append("\n");
 		result.append(pad).append("  ").append("socket: ");
-		if(multiSocketInfo.getSocketElement() != null) {
-			result.append(multiSocketInfo.getSocketElement().toString());
+		if(multiSocketInfo.getSocketElement().isPresent()) {
+			result.append(multiSocketInfo.getSocketElement().get().toString());
 		}
 		result.append("\n").append(pad).append("  ").append("beans: ");
 		if(multiSocketInfo.isResolved()) {

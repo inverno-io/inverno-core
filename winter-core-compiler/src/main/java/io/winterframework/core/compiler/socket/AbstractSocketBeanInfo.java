@@ -16,6 +16,7 @@
 package io.winterframework.core.compiler.socket;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -92,8 +93,8 @@ abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements Mutabl
 	}
 
 	@Override
-	public ExecutableElement getSocketElement() {
-		return this.socketElement;
+	public Optional<ExecutableElement> getSocketElement() {
+		return Optional.ofNullable(this.socketElement);
 	}
 
 	@Override

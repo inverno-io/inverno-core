@@ -326,10 +326,10 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				beanNew += Arrays.stream(moduleBeanInfo.getRequiredSockets())
 					.sorted(new Comparator<ModuleBeanSocketInfo>() {
 						public int compare(ModuleBeanSocketInfo s1, ModuleBeanSocketInfo s2) {
-							if(s1.getSocketElement() != s2.getSocketElement()) {
+							if(s1.getSocketElement().get() != s2.getSocketElement().get()) {
 								throw new IllegalStateException("Comparing required sockets with different socket elements");
 							}
-							List<String> orderedDependencyNames = s1.getSocketElement().getParameters().stream().map(element -> element.getSimpleName().toString()).collect(Collectors.toList());
+							List<String> orderedDependencyNames = s1.getSocketElement().get().getParameters().stream().map(element -> element.getSimpleName().toString()).collect(Collectors.toList());
 							return orderedDependencyNames.indexOf(s1.getQualifiedName().getSimpleValue()) - orderedDependencyNames.indexOf(s2.getQualifiedName().getSimpleValue());
 						}
 					})
@@ -343,7 +343,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			// TODO: optionalSocket.ifPresent(bean::setXxx)
 			beanNew += Arrays.stream(moduleBeanInfo.getOptionalSockets())
 				.filter(socketInfo -> socketInfo.isResolved())
-				.map(socketInfo -> generation.indent(4) + variable + "." + socketInfo.getSocketElement().getSimpleName().toString() + "(" + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(4)) + ");")
+				.map(socketInfo -> generation.indent(4) + variable + "." + socketInfo.getSocketElement().get().getSimpleName().toString() + "(" + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(4)) + ");")
 				.collect(Collectors.joining("\n")) + "\n";
 
 			beanNew += generation.indent(4) + "return " + variable + ";\n";
