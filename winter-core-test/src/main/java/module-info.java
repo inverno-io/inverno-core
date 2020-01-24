@@ -13,6 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * <p>
+ * Winter unit test utility module.
+ * </p>
+ * 
+ * @author jkuhn
+ *
+ */
 module io.winterframework.core.test {
 	requires transitive java.compiler;
 	

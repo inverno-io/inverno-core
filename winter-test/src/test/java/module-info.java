@@ -13,6 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/**
+ * <p>
+ * Winter framework unit tests module.
+ * </p>
+ * 
+ * @author jkuhn
+ *
+ */
 module io.winterframework.test {
 	requires java.compiler;
 	
