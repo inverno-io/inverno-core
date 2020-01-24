@@ -1,7 +1,0 @@
-- see if we can reunite @ModuleSocket with @Bean: a module socket is a bean which is an interface extending Supplier<E> or Optional<E> if it happens to be a concrete class implementing Supplier<E> it can be a compatibility pattern (define a supplier with constructor and setters for DI and a get() returning the actual E instance) 
-- for optional module socket use Optional<E> instead of Supplier<E> <=== optional or required is automatically determined
-- expose required modules in an enclosing module
-- merge core and annotation module? <=== no since the compiler only requires annotation.
-
-- ModuleSocketWiredBeansResolver line 124: why do we need to add external wired beans to a socket?
-- !!!!!!!!! debug cascade sockets !!!!!!!!!!!!
