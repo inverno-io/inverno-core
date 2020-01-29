@@ -16,9 +16,12 @@
 package io.winterframework.core.compiler.bean;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -47,6 +50,7 @@ import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
+import io.winterframework.core.compiler.spi.BeanSocketQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
@@ -192,7 +196,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		// Get sockets...
 		List<ModuleBeanSocketInfo> beanSocketInfos = new ArrayList<>();
-		List<String> requiredSocketSimpleNames = new ArrayList<>();
+		Map<String, ModuleBeanSocketInfo> requiredSocketByName = new HashMap<>();
 		ModuleBeanSocketInfoFactory beanSocketFactory = ModuleBeanSocketInfoFactory.create(this.processingEnvironment, this.moduleElement, beanQName);
 		
 		// ... from Constructor
@@ -231,34 +235,63 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		for(VariableElement ve : constructorSocketElement.getParameters()) {
 			ModuleBeanSocketInfo requiredBeanSocket = beanSocketFactory.createBeanSocket(ve);
-			requiredSocketSimpleNames.add(requiredBeanSocket.getQualifiedName().getName());
+			requiredSocketByName.put(requiredBeanSocket.getQualifiedName().getName(), requiredBeanSocket);
 			beanSocketInfos.add(requiredBeanSocket);
 		}
 		
 		// ... from setters
 		// Get optional dependencies from public setters
-		List<ExecutableElement> socketElements = (List<ExecutableElement>)element.getEnclosedElements().stream()
+		List<ExecutableElement> optionalSocketElements = (List<ExecutableElement>)element.getEnclosedElements().stream()
 			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getSimpleName().toString().startsWith("set") && ((ExecutableElement)e).getParameters().size() == 1)
 			.filter(e -> e.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PUBLIC)))
 			.map(e -> (ExecutableElement)e)
 			.collect(Collectors.toList());
-		List<ExecutableElement> annotatedSocketElements = socketElements.stream().filter(e -> e.getAnnotation(BeanSocket.class) != null).collect(Collectors.toList());
+		List<ExecutableElement> annotatedSocketElements = optionalSocketElements.stream().filter(e -> e.getAnnotation(BeanSocket.class) != null).collect(Collectors.toList());
 		if(annotatedSocketElements.size() > 0) {
-			socketElements = annotatedSocketElements;
+			optionalSocketElements = annotatedSocketElements;
 		}
 		
-		for(ExecutableElement socketElement : socketElements) {
+		optionalSocketElements = optionalSocketElements.stream().filter(socketElement -> {
 			if(socketElement.getParameters().size() > 1) {
 				this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid setter method which should be a single-argument method, socket will be ignored", socketElement);
+				return false;
 			}
-			else {
-				ModuleBeanSocketInfo optionalBeanSocket =  beanSocketFactory.createBeanSocket(socketElement.getParameters().get(0));
-				if(requiredSocketSimpleNames.contains(optionalBeanSocket.getQualifiedName().getName())) {
-					optionalBeanSocket.error("Optional socket name is conflicting with a required socket name: " + optionalBeanSocket.getQualifiedName().getName());
+			return true;
+		}).collect(Collectors.toList());
+
+		Predicate<ModuleBeanSocketInfo> requiredSocketConflictPredicate = optionalBeanSocketInfo -> {
+			if(requiredSocketByName.containsKey(optionalBeanSocketInfo.getQualifiedName().getName())) {
+				requiredSocketByName.get(optionalBeanSocketInfo.getQualifiedName().getName()).error("Required socket name is conflicting with an optional socket: " + optionalBeanSocketInfo.getQualifiedName().getName());
+				optionalBeanSocketInfo.error("Optional socket name is conflicting with a required socket: " + optionalBeanSocketInfo.getQualifiedName().getName());
+				return false;
+			}
+			return true;
+		};
+		for(List<ExecutableElement> socketElementsBySocketName : optionalSocketElements.stream().collect(Collectors.groupingBy(ExecutableElement::getSimpleName)).values()) {
+			if(socketElementsBySocketName.size() > 1) {
+				List<ModuleBeanSocketInfo> optionalModuleSocketInfos = new ArrayList<>();
+				for(ExecutableElement socketElement : socketElementsBySocketName) {
+					optionalModuleSocketInfos.add(beanSocketFactory.createBeanSocket(socketElement.getParameters().get(0)));
 				}
-				else {
-					beanSocketInfos.add(optionalBeanSocket);
-				}
+				Map<BeanSocketQualifiedName, List<ModuleBeanSocketInfo>> socketInfosByName = optionalModuleSocketInfos.stream().collect(Collectors.groupingBy(ModuleBeanSocketInfo::getQualifiedName));
+				socketInfosByName.values().stream()
+					.filter(socketInfos -> socketInfos.size() > 1)
+					.forEach(socketInfos -> {
+						socketInfos.forEach(socketInfo -> {
+							socketInfo.error("Optional socket name is conflicting with another optional socket: " + socketInfo.getQualifiedName().getName());
+						});
+					});
+				
+				socketInfosByName.values().stream()
+					.filter(socketInfos -> socketInfos.size() == 1)
+					.map(socketInfos -> socketInfos.get(0))
+					.filter(requiredSocketConflictPredicate)
+					.forEach(beanSocketInfos::add);
+			}
+			
+			ModuleBeanSocketInfo optionalBeanSocketInfo = beanSocketFactory.createBeanSocket(socketElementsBySocketName.get(0).getParameters().get(0));
+			if(requiredSocketConflictPredicate.test(optionalBeanSocketInfo)) {
+				beanSocketInfos.add(optionalBeanSocketInfo);
 			}
 		}
 		

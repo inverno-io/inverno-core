@@ -43,6 +43,7 @@ public class TestCompilationError extends AbstractWinterTest {
 	private static final String MODULEG = "io.winterframework.test.error.moduleG";
 	private static final String MODULEH = "io.winterframework.test.error.moduleH";
 	private static final String MODULEI = "io.winterframework.test.error.moduleI";
+	private static final String MODULEJ = "io.winterframework.test.error.moduleJ";
 	
 	@Test
 	public void testBeanConcreteClass() throws IOException {
@@ -121,17 +122,20 @@ public class TestCompilationError extends AbstractWinterTest {
 	}
 	
 	@Test
-	public void testOptionalSocketNameConflict() throws IOException {
+	public void testOptionalRequiredSocketNameConflict() throws IOException {
 		try {
 			this.getWinterCompiler().compile(MODULEF);
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Set<String> messages = e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toSet());
 			
-			String optionalSocketNameConflict = "Optional socket name is conflicting with a required socket name: runnable";
+			Assertions.assertEquals(2, messages.size());
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(optionalSocketNameConflict)));
+			String requiredSocketNameConflict = "Required socket name is conflicting with an optional socket: runnable";
+			String optionalSocketNameConflict = "Optional socket name is conflicting with a required socket: runnable";
+			
+			Assertions.assertTrue(messages.containsAll(Set.of(requiredSocketNameConflict, optionalSocketNameConflict)));
 		}
 	}
 	
@@ -168,4 +172,23 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
 		}
 	}
+	
+	// TODO Test two optional socket with same name different type
+	@Test
+	public void testOptionalOptionalSocketNameConflict() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEJ);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(2, e.getDiagnotics().size());
+			
+			String optionaSocketNameConflict1 = "Optional socket name is conflicting with another optional socket: foo";
+			String optionaSocketNameConflict2 = "Optional socket name is conflicting with another optional socket: foo";
+			
+			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(optionaSocketNameConflict1, optionaSocketNameConflict2)));
+		}
+	}
+	
+	// TODO Test two optional socket with same method name different type and different parameter names
 }

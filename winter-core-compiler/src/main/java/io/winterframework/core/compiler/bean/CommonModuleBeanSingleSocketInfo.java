@@ -40,15 +40,6 @@ class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo
 
 	private BeanInfo beanInfo;
 	
-	/**
-	 * @param processingEnvironment
-	 * @param element
-	 * @param qname
-	 * @param type
-	 * @param socketElement
-	 * @param selectors
-	 * @param optional
-	 */
 	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, 
 			ModuleElement element, 
 			BeanSocketQualifiedName qname, 
@@ -59,17 +50,18 @@ class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo
 		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
 	}
 
-	/**
-	 * @param processingEnvironment
-	 * @param element
-	 * @param qname
-	 * @param type
-	 * @param socketElement
-	 * @param selectors
-	 * @param optional
-	 */
 	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, 
 			VariableElement element, 
+			BeanSocketQualifiedName qname, 
+			TypeMirror type, 
+			ExecutableElement socketElement, 
+			AnnotationMirror[] selectors,
+			boolean optional) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
+	}
+	
+	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, 
+			ExecutableElement element, 
 			BeanSocketQualifiedName qname, 
 			TypeMirror type, 
 			ExecutableElement socketElement, 

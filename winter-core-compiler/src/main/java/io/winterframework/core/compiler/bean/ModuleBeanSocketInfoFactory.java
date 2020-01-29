@@ -97,10 +97,20 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 		
 		MultiSocketType multiType = this.getMultiType(socketType);
 		if(multiType != null) {
-			return new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, variableElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, multiType);
+			if(optional) {
+				return new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, socketElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, multiType);
+			}
+			else {
+				return new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, variableElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, multiType);
+			}
 		}
 		else {
-			return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, variableElement, socketQName, socketType, socketElement, selectors, optional);
+			if(optional) {
+				return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, socketElement, socketQName, socketType, socketElement, selectors, optional);
+			}
+			else {
+				return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, variableElement, socketQName, socketType, socketElement, selectors, optional);
+			}
 		}
 	}
 	
