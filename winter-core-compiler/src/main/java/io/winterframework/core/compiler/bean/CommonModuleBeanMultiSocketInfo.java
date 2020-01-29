@@ -66,6 +66,19 @@ class CommonModuleBeanMultiSocketInfo extends AbstractModuleBeanSocketInfo imple
 		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
 		this.multiType = multiType;
 	}
+	
+	public CommonModuleBeanMultiSocketInfo(
+			ProcessingEnvironment processingEnvironment, 
+			ExecutableElement element, 
+			BeanSocketQualifiedName qname, 
+			TypeMirror type, 
+			ExecutableElement socketElement,
+			AnnotationMirror[] selectors,
+			boolean optional, 
+			MultiSocketType multiType) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
+		this.multiType = multiType;
+	}
 
 	@Override
 	public boolean isResolved() {
