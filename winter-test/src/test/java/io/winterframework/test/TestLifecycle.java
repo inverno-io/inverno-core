@@ -35,17 +35,21 @@ public class TestLifecycle extends AbstractWinterTest {
 	private static final String MODULEB = "io.winterframework.test.lifecycle.moduleB";
 	
 	@Test
-	public void testInitDestroy() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException {
+	public void testInitDestroy() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException, InterruptedException {
 		WinterModuleProxy moduleA = this.getWinterCompiler().compile(MODULEA).load(MODULEA).build();
 		
-		Object singletonBean = null, prototypeBean1 = null, prototypeBean2 = null;
+		Object singletonBean = null, prototypeBean1 = null, prototypeBean2 = null, prototypeBean3 = null;
 		try {
 			moduleA.start();
 			
 			singletonBean = moduleA.getBean("singletonScopeBean");
 			prototypeBean1 = moduleA.getBean("prototypeScopeBean");
 			prototypeBean2 = moduleA.getBean("prototypeScopeBean");
-
+			prototypeBean3 = moduleA.getBean("prototypeScopeBean");
+			prototypeBean3 = null;
+			
+			System.gc();
+			
 			Assertions.assertEquals(1, singletonBean.getClass().getField("initCount").get(singletonBean));
 			Assertions.assertEquals(1, prototypeBean1.getClass().getField("initCount").get(prototypeBean1));
 			Assertions.assertEquals(1, prototypeBean2.getClass().getField("initCount").get(prototypeBean2));
@@ -55,6 +59,8 @@ public class TestLifecycle extends AbstractWinterTest {
 			Assertions.assertEquals(1, singletonBean.getClass().getField("destroyCount").get(singletonBean));
 			Assertions.assertEquals(1, prototypeBean1.getClass().getField("destroyCount").get(prototypeBean1));
 			Assertions.assertEquals(1, prototypeBean2.getClass().getField("destroyCount").get(prototypeBean2));
+			// Only two are destroyed since the third one is no longer referenced and GC has been invoked
+			Assertions.assertEquals(2, prototypeBean2.getClass().getField("globalDestroyCount").get(null));
 		}
 	}
 	

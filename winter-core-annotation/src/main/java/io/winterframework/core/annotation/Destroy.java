@@ -24,7 +24,29 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Indicates a method that must be executed before a bean instance is destroyed.
+ * Indicates a method that must be executed before a bean instance is destroyed
+ * when a module is stopped.
+ * </p>
+ * 
+ * <p>
+ * Unlike Beans with scope {@link Scope.Type#SINGLETON}, beans with scope
+ * {@link Scope.Type#PROTOTYPE} might not be destroyed and therefore destroy
+ * methods not invoked when they are created outside of a module and
+ * dereferenced before the module is stopped. As a result you should generally
+ * avoid defining destroy methods on beans with scope prototype. If you have
+ * this kind of use case, consider creating prototype beans that implement
+ * {@link AutoCloseable}, define the <code>close()</code> as destroy method,
+ * make sure it can be invoked twice, and create new instances as follows to
+ * make sure instance are properly destroyed:
+ * </p>
+ * 
+ * <pre>
+ * {@code
+ *     try (MyPrototype instance = myModuleInstance.myPrototype()) {
+ *         ...
+ *     }
+ * }
+ * </pre>
  * </p>
  * 
  * @author jkuhn
