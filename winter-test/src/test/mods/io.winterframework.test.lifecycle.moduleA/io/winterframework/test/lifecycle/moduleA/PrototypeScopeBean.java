@@ -29,6 +29,8 @@ public class PrototypeScopeBean {
 	
 	public int destroyCount;
 	
+	public static int globalDestroyCount;
+	
 	public boolean beanInjected;
 	
 	public InjectedBean bean;
@@ -46,5 +48,6 @@ public class PrototypeScopeBean {
 	@Destroy
 	public void destroy() {
 		this.destroyCount++;
+		globalDestroyCount++;
 	}
 }
