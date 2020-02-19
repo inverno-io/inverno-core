@@ -16,6 +16,7 @@
 package io.winterframework.core.v1;
 
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import io.winterframework.core.v1.Module.Bean;
 import io.winterframework.core.v1.Module.BeanBuilder;
@@ -42,10 +43,10 @@ import io.winterframework.core.v1.Module.BeanBuilder;
  * @see SingletonBean
  */
 class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
-
+	
 	/**
 	 * <p>
-	 * Create a singleton bean builder with the specified bean name and constructor.
+	 * Creates a singleton bean builder with the specified bean name and constructor.
 	 * </p>
 	 * 
 	 * @param beanName
@@ -59,7 +60,7 @@ class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
 
 	/**
 	 * <p>
-	 * Build the bean.
+	 * Builds the bean.
 	 * </p>
 	 * 
 	 * @return A singleton bean
@@ -70,13 +71,28 @@ class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
 			@Override
 			protected T createInstance() {
 				T instance = constructor.get();
-				inits.stream().forEach(init -> init.accept(instance));
+				inits.stream().forEach(init -> {
+					try {
+						init.accept(instance);
+					}
+					catch (Exception e) {
+						LOGGER.log(Level.SEVERE, e, () -> "Error initializing bean " + name);
+						throw new RuntimeException("Error initializing bean " + name, e);
+					}
+				});
 				return instance;
 			}
 
 			@Override
 			protected void destroyInstance(T instance) {
-				destroys.stream().forEach(destroy -> destroy.accept(instance));
+				destroys.stream().forEach(destroy -> {
+					try {
+						destroy.accept(instance);
+					}
+					catch (Exception e) {
+						LOGGER.log(Level.WARNING, e, () -> "Error destroying bean " + name);
+					}
+				});
 			}
 		};
 	}

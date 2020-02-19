@@ -73,7 +73,7 @@ public class StandardBanner implements Banner {
 
 	/**
 	 * <p>
-	 * Create the standard banner.
+	 * Creates the standard banner.
 	 * </p>
 	 */
 	public StandardBanner() {

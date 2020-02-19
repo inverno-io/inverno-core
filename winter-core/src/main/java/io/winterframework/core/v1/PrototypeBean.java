@@ -140,7 +140,7 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 	 * 
 	 * @return A bean instance
 	 */
-	public final T get() {
+	public final T doGet() {
 		this.create();
 		this.expungeStaleInstances();
 		T instance = this.createInstance();

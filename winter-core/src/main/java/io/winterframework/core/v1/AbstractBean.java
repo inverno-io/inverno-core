@@ -41,7 +41,7 @@ abstract class AbstractBean<T> extends Bean<T> {
 
 	/**
 	 * <p>
-	 * Create an abstract bean with the specified name.
+	 * Creates an abstract bean with the specified name.
 	 * </p>
 	 * 
 	 * @param name
@@ -53,7 +53,7 @@ abstract class AbstractBean<T> extends Bean<T> {
 
 	/**
 	 * <p>
-	 * Create a bean instance.
+	 * Creates a bean instance.
 	 * </p>
 	 * 
 	 * @return A bean instance
@@ -62,7 +62,7 @@ abstract class AbstractBean<T> extends Bean<T> {
 
 	/**
 	 * <p>
-	 * Destroy the specified bean instance.
+	 * Destroys the specified bean instance.
 	 * </p>
 	 * 
 	 * @param instance
