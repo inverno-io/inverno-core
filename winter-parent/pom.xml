@@ -20,86 +20,30 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.winterframework</groupId>
-	<artifactId>winter-root</artifactId>
+	<artifactId>winter-parent</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>winter-root</name>
+	<name>winter-parent</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>9</maven.compiler.source>
 		<maven.compiler.target>9</maven.compiler.target>
-
-		<version.junit.jupiter>5.5.1</version.junit.jupiter>
-		<version.junit.platform>1.5.1</version.junit.platform>
 	</properties>
-
-	<modules>
-		<module>winter-core</module>
-		<module>winter-core-annotation</module>
-		<module>winter-core-compiler</module>
-		<module>winter-core-test</module>
-		<module>winter-parent</module>
-		<module>winter-test</module>
-	</modules>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-api</artifactId>
-				<version>${version.junit.jupiter}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-params</artifactId>
-				<version>${version.junit.jupiter}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-engine</artifactId>
-				<version>${version.junit.jupiter}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.platform</groupId>
-				<artifactId>junit-platform-launcher</artifactId>
-				<version>${version.junit.platform}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.platform</groupId>
-				<artifactId>junit-platform-commons</artifactId>
-				<version>${version.junit.platform}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>2.23.4</version>
-				<scope>test</scope>
-			</dependency>
+        		<groupId>io.winterframework</groupId>
+        		<artifactId>winter-core</artifactId>
+        		<version>${project.version}</version>
+    		</dependency>
 		</dependencies>
 	</dependencyManagement>
 
 	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -114,18 +58,14 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.1</version>
 					<configuration>
-						<release>9</release>
-						<compilerArgs>
-							<arg>--module-version=${project.version}</arg>
-						</compilerArgs>
+	                    <annotationProcessorPaths>
+	                        <path>
+	                            <groupId>io.winterframework</groupId>
+	                            <artifactId>winter-core-compiler</artifactId>
+	                            <version>${project.version}</version>
+	                        </path>
+	                    </annotationProcessorPaths>
 					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>org.ow2.asm</groupId>
-							<artifactId>asm</artifactId>
-							<version>7.3.1</version> <!-- Use newer version of ASM -->
-						</dependency>
-					</dependencies>
 				</plugin>
 				<plugin>
 					<artifactId>maven-source-plugin</artifactId>
@@ -137,7 +77,7 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>3.1.0</version>
 					<configuration>
 						<archive>
 							<manifest>
