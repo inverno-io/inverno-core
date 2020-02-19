@@ -17,7 +17,6 @@ package io.winterframework.core.v1;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import io.winterframework.core.v1.Module.BeanBuilder;
@@ -49,13 +48,13 @@ abstract class AbstractBeanBuilder<T> implements BeanBuilder<T> {
 	 * The list of bean initialization operations that must be executed after
 	 * bean instance creation and dependency injection.
 	 */
-	protected List<Consumer<T>> inits;
+	protected List<FallibleConsumer<T>> inits;
 
 	/**
 	 * The list of bean destructions operations that must be executed after a
 	 * bean instance creation and dependency injection.
 	 */
-	protected List<Consumer<T>> destroys;
+	protected List<FallibleConsumer<T>> destroys;
 	
 	/**
 	 * <p>
@@ -85,7 +84,7 @@ abstract class AbstractBeanBuilder<T> implements BeanBuilder<T> {
 	 * @return This builder
 	 */
 	@Override
-	public BeanBuilder<T> init(Consumer<T> init) {
+	public BeanBuilder<T> init(FallibleConsumer<T> init) {
 		this.inits.add(init);
 		return this;
 	}
@@ -100,7 +99,7 @@ abstract class AbstractBeanBuilder<T> implements BeanBuilder<T> {
 	 * @return This builder
 	 */
 	@Override
-	public BeanBuilder<T> destroy(Consumer<T> destroy) {
+	public BeanBuilder<T> destroy(FallibleConsumer<T> destroy) {
 		this.destroys.add(destroy);
 		return this;
 	}

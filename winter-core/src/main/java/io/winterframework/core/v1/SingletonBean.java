@@ -50,7 +50,7 @@ abstract class SingletonBean<T> extends AbstractBean<T> {
 	
 	/**
 	 * <p>
-	 * Create a singleton bean with the specified name.
+	 * Creates a singleton bean with the specified name.
 	 * </p>
 	 * 
 	 * @param name
@@ -62,7 +62,7 @@ abstract class SingletonBean<T> extends AbstractBean<T> {
 
 	/**
 	 * <p>
-	 * Create the singleton bean.
+	 * Creates the singleton bean.
 	 * </p>
 	 * 
 	 * <p>
@@ -80,19 +80,19 @@ abstract class SingletonBean<T> extends AbstractBean<T> {
 	
 	/**
 	 * <p>
-	 * Return the bean singleton.
+	 * Returns the bean singleton.
 	 * </p>
 	 * 
 	 * @return The bean singleton
 	 */
-	public final T get() {
+	public final T doGet() {
 		this.create();
 		return this.instance;
 	}
 	
 	/**
 	 * <p>
-	 * Destroy the singleton bean and as a result the enclosed instance.
+	 * Destroys the singleton bean and as a result the enclosed instance.
 	 * </p>
 	 * 
 	 * <p>

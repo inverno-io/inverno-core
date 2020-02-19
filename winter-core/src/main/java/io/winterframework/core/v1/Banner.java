@@ -29,7 +29,7 @@ public interface Banner {
 
 	/**
 	 * <p>
-	 * Print the banner to the specified output.
+	 * Prints the banner to the specified output.
 	 * </p>
 	 * 
 	 * @param out

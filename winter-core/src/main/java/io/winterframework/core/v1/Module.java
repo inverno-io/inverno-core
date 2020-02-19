@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -111,8 +110,13 @@ public abstract class Module {
 	private Banner banner;
 	
 	/**
+	 * THe module's state
+	 */
+	private boolean active;
+	
+	/**
 	 * <p>
-	 * Create a new Module with the specified name.
+	 * Creates a new Module with the specified name.
 	 * </p>
 	 * 
 	 * @param moduleName
@@ -127,7 +131,7 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Record a bean creation into the module.
+	 * Records a bean creation into the module.
 	 * </p>
 	 * 
 	 * @param bean The bean to record
@@ -144,7 +148,7 @@ public abstract class Module {
 	
 	/**
 	 * <p>
-	 * Set the module banner to be written to the log output if the module is a root
+	 * Sets the module banner to be written to the log output if the module is a root
 	 * module.
 	 * </p>
 	 * 
@@ -168,7 +172,7 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Create a module with the specified module linker and register it in this
+	 * Creates a module with the specified module linker and register it in this
 	 * module.
 	 * </p>
 	 * 
@@ -191,7 +195,7 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Create a bean with the specified bean builder and register it in this module.
+	 * Creates a bean with the specified bean builder and register it in this module.
 	 * </p>
 	 * 
 	 * <p>
@@ -211,7 +215,7 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Return the name of the module.
+	 * Returns the name of the module.
 	 * </p>
 	 * 
 	 * @return The name of the module
@@ -219,10 +223,21 @@ public abstract class Module {
 	public String getName() {
 		return this.name;
 	}
+	
+	/**
+	 * <p>
+	 * Determines whether the module is active (ie. started).
+	 * </p>
+	 * 
+	 * @return true if the module is active, false otherwise.
+	 */
+	public boolean isActive() {
+		return active;
+	}
 		
 	/**
 	 * <p>
-	 * Start the module.
+	 * Starts the module.
 	 * </p>
 	 * 
 	 * <p>
@@ -233,11 +248,17 @@ public abstract class Module {
 	 * <p>
 	 * It creates and wires the beans defined within the module and the required
 	 * Winter modules it includes, the bean dependency graph determines the order
-	 * into which beans are created. When the module is stopped, beans are detroyed
+	 * into which beans are created. When the module is stopped, beans are destroyed
 	 * in the reverse order.
 	 * </p>
+	 * 
+	 * @throws IllegalStateException if the module is active.
 	 */
-	public void start() {
+	public void start() throws IllegalStateException {
+		if(this.isActive()) {
+			throw new IllegalStateException("Module " + this.name + " is already active");
+		}
+		this.active = true;
 		if(this.isBannerVisible()) {
 			this.logger.info(() -> {
 				ByteArrayOutputStream bannerStream = new ByteArrayOutputStream();
@@ -255,7 +276,7 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Stop the module.
+	 * Stops the module.
 	 * </p>
 	 * 
 	 * </p>
@@ -277,11 +298,12 @@ public abstract class Module {
 		this.modules.stream().forEach(module -> module.stop());
 		this.beansStack.clear();
 		this.logger.info("Module " + this.name + " stopped in " + ((System.nanoTime() - t0) / 1000000) + "ms");
+		this.active = false;
 	}
 	
 	/**
 	 * <p>
-	 * Aggregate single beans, collections of beans and arrays of beans.
+	 * Aggregates single beans, collections of beans and arrays of beans.
 	 * </p>
 	 * @author jkuhn
 	 *
@@ -292,7 +314,7 @@ public abstract class Module {
 		private List<E> aggregate;
 		
 		/**
-		 * Create an aggregator.
+		 * Creates an aggregator.
 		 */
 		public BeanAggregator() {
 			this.aggregate = new ArrayList<>();
@@ -300,7 +322,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Append the specified bean to the aggregate.
+		 * Appends the specified bean to the aggregate.
 		 * </p>
 		 * 
 		 * @param bean The bean to add.
@@ -314,7 +336,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Append the specified collection of beans to the aggregate.
+		 * Appends the specified collection of beans to the aggregate.
 		 * </p>
 		 * 
 		 * @param beans The beans to add.
@@ -328,7 +350,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Append the specified array of beans to the aggregate.
+		 * Appends the specified array of beans to the aggregate.
 		 * </p>
 		 * 
 		 * @param beans The beans to add.
@@ -342,7 +364,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Filter null bean and return a list representation of the aggregate.
+		 * Filters null bean and return a list representation of the aggregate.
 		 * </p>
 		 * 
 		 * @return A list of beans
@@ -353,7 +375,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Filter null bean and return a set representation of the aggregate.
+		 * Filters null bean and return a set representation of the aggregate.
 		 * </p>
 		 * 
 		 * @return A set of beans
@@ -364,7 +386,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Filter null bean and return an array representation of the aggregate.
+		 * Filters null bean and return an array representation of the aggregate.
 		 * </p>
 		 * 
 		 * @return An array of beans
@@ -399,7 +421,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Create a new Module linker with the specified socket map.
+		 * Creates a new Module linker with the specified socket map.
 		 * </p>
 		 * 
 		 * @param sockets The socket map
@@ -410,7 +432,7 @@ public abstract class Module {
 
 		/**
 		 * </p>
-		 * Link the socket map in a new module instance and return that instance.
+		 * Links the socket map in a new module instance and return that instance.
 		 * </p>
 		 * 
 		 * @return A new linked module instance
@@ -441,7 +463,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Create a new Module Builder.
+		 * Creates a new Module Builder.
 		 * </p>
 		 * 
 		 * @param nonOptionalSockets
@@ -466,7 +488,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Set the banner to be displayed by the module to build.
+		 * Sets the banner to be displayed by the module to build.
 		 * </p>
 		 * 
 		 * @param banner
@@ -480,7 +502,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Build the module.
+		 * Builds the module.
 		 * </p>
 		 * 
 		 * </p>
@@ -543,7 +565,7 @@ public abstract class Module {
 
 		/**
 		 * <p>
-		 * Create a bean with the specified name.
+		 * Creates a bean with the specified name.
 		 * </p>
 		 * 
 		 * @param name
@@ -554,12 +576,38 @@ public abstract class Module {
 		}
 		
 		/**
-		 * Create the underlying bean instance
+		 * <p>
+		 * Returns the requested bean instance while making sure the enclosing module is active.
+		 * </p>
+		 * @throws IllegalStateException if the enclosing module is inactive.
+		 */
+		@Override
+		public final T get() throws IllegalStateException {
+			if(!this.parent.isActive()) {
+				throw new IllegalArgumentException("Module " + this.parent.getName() + " is inactive.");
+			}
+			return this.doGet();
+		}
+		
+		/**
+		 * <p>
+		 * Returns the supplied bean instance.
+		 * </p>
+		 * @return A bean instance
+		 */
+		public abstract T doGet();
+		
+		/**
+		 * <p>
+		 * Creates the underlying bean instance
+		 * </p>
 		 */
 		public abstract void create();
 
 		/**
-		 * Destroy the underlying instance.
+		 * <p>
+		 * Destroys the underlying instance.
+		 * </p>
 		 */
 		public abstract void destroy();
 	}
@@ -600,10 +648,24 @@ public abstract class Module {
 	 * @see Bean
 	 */
 	protected interface BeanBuilder<T> {
-
+		
 		/**
 		 * <p>
-		 * Return a Singleton Bean Builder.
+		 * Fallible consumer used to designates init and destroy methods which might throw checked exception.
+		 * </p>
+		 * 
+		 * @author jkuhn
+		 *
+		 * @param <T>
+		 */
+		@FunctionalInterface
+		static interface FallibleConsumer<T> {
+			void accept(T t) throws Exception;
+		}
+		
+		/**
+		 * <p>
+		 * Returns a Singleton Bean Builder.
 		 * </p>
 		 * 
 		 * <p>
@@ -623,7 +685,7 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Return a Prototype Bean Builder.
+		 * Returns a Prototype Bean Builder.
 		 * <p>
 		 * 
 		 * <p>
@@ -643,29 +705,29 @@ public abstract class Module {
 
 		/**
 		 * <p>
-		 * Add a bean initialization operation.
+		 * Adds a bean initialization operation.
 		 * </p>
 		 * 
 		 * @param init
 		 *            The bean initialization operation.
 		 * @return This builder
 		 */
-		BeanBuilder<T> init(Consumer<T> init);
+		BeanBuilder<T> init(FallibleConsumer<T> init);
 		
 		/**
 		 * <p>
-		 * Add a bean destruction operation.
+		 * Adds a bean destruction operation.
 		 * </p>
 		 * 
 		 * @param init
 		 *            The bean destruction operation.
 		 * @return This builder
 		 */
-		BeanBuilder<T> destroy(Consumer<T> destroy);
+		BeanBuilder<T> destroy(FallibleConsumer<T> destroy);
 		
 		/**
 		 * <p>
-		 * Build the bean.
+		 * Builds the bean.
 		 * </p>
 		 * 
 		 * @return A bean
