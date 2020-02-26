@@ -136,13 +136,13 @@ public class Application<T extends Module> {
 				return bannerStream.toString();	
 			});
 		}
-		T module = this.moduleBuilder.build();
+		this.module = this.moduleBuilder.build();
 		
-		module.start();
+		this.module.start();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			module.stop();
+			this.module.stop();
 		}));
 		
-		return module;
+		return this.module;
 	}
 }
