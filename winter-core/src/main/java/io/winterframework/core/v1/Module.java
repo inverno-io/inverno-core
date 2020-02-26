@@ -15,8 +15,6 @@
  */
 package io.winterframework.core.v1;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +44,6 @@ import java.util.stream.Collectors;
  * </p>
  * 
  * <ol>
- * <li>Write the banner to the log output if the module is a root module and a banner has been set.</li>
  * <li>Start the required Winter modules included in the module.</li>
  * <li>Create the module beans that weren't already created.</li>
  * </ol>
@@ -105,11 +102,6 @@ public abstract class Module {
 	private Deque<Bean<?>> beansStack;
 	
 	/**
-	 * The module banner.
-	 */
-	private Banner banner;
-	
-	/**
 	 * THe module's state
 	 */
 	private boolean active;
@@ -144,30 +136,6 @@ public abstract class Module {
 		else {
 			this.beansStack.push(bean);
 		}
-	}
-	
-	/**
-	 * <p>
-	 * Sets the module banner to be written to the log output if the module is a root
-	 * module.
-	 * </p>
-	 * 
-	 * @param banner The banner to set
-	 */
-	void setBanner(Banner banner) {
-		this.banner = banner;
-	}
-
-	/**
-	 * <p>
-	 * Determine whether the banner should be displayed, only root module can
-	 * display a banner.
-	 * </p>
-	 * 
-	 * @return true when the banner is displayed
-	 */
-	boolean isBannerVisible() {
-		return this.banner != null && this.parent == null;
 	}
 
 	/**
@@ -241,11 +209,6 @@ public abstract class Module {
 	 * </p>
 	 * 
 	 * <p>
-	 * This method displays banner to the log output when the module is a root
-	 * module (ie. a module with no parent) and a banner is set.
-	 * </p>
-	 * 
-	 * <p>
 	 * It creates and wires the beans defined within the module and the required
 	 * Winter modules it includes, the bean dependency graph determines the order
 	 * into which beans are created. When the module is stopped, beans are destroyed
@@ -259,13 +222,6 @@ public abstract class Module {
 			throw new IllegalStateException("Module " + this.name + " is already active");
 		}
 		this.active = true;
-		if(this.isBannerVisible()) {
-			this.logger.info(() -> {
-				ByteArrayOutputStream bannerStream = new ByteArrayOutputStream();
-				this.banner.print(new PrintStream(bannerStream));
-				return bannerStream.toString();	
-			});
-		}
 		long t0 = System.nanoTime();
 		this.logger.info("Starting Module " + this.name + "...");
 		this.modules.stream().forEach(module -> module.start());
@@ -457,11 +413,6 @@ public abstract class Module {
 	protected static abstract class ModuleBuilder<T extends Module> {
 		
 		/**
-		 * The module banner
-		 */
-		private Banner banner;
-		
-		/**
 		 * <p>
 		 * Creates a new Module Builder.
 		 * </p>
@@ -488,33 +439,18 @@ public abstract class Module {
 		
 		/**
 		 * <p>
-		 * Sets the banner to be displayed by the module to build.
-		 * </p>
-		 * 
-		 * @param banner
-		 *            The banner to set
-		 * @return This builder
-		 */
-		public ModuleBuilder<T> banner(Banner banner) {
-			this.banner = banner;
-			return this;
-		}
-		
-		/**
-		 * <p>
 		 * Builds the module.
 		 * </p>
 		 * 
 		 * </p>
 		 * This method actually delegates the actual module creation to the
-		 * {@link #doBuild()} method and sets its banner when specified.
+		 * {@link #doBuild()} method.
 		 * </p>
 		 * 
 		 * @return A new module instance
 		 */
 		public final T build() {
 			T thisModule = this.doBuild();
-			thisModule.setBanner(this.banner);
 			return thisModule;
 		}
 		
