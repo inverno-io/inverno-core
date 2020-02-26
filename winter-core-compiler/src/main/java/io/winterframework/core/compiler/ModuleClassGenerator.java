@@ -122,7 +122,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				moduleClass += module_field_beans + "\n\n";
 			}
 			
-			moduleClass += generation.indent(1) + "public " + className + "(" + module_constructor_parameters + ") {\n";
+			moduleClass += generation.indent(1) + "private " + className + "(" + module_constructor_parameters + ") {\n";
 			moduleClass += generation.indent(2) + "super(\"" + moduleInfo.getQualifiedName().getValue() + "\");\n";
 			
 			if(module_constructor_modules != null && !module_constructor_modules.equals("")) {
