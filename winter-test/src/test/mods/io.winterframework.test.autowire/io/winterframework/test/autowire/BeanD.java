@@ -16,11 +16,9 @@
 package io.winterframework.test.autowire;
 
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.annotation.Scope;
-import io.winterframework.core.annotation.Scope.Type;
+import io.winterframework.core.annotation.Bean.Strategy;
 
-@Bean
-@Scope(Type.SINGLETON)
+@Bean(strategy=Strategy.SINGLETON)
 public class BeanD {
 
 }

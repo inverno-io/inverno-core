@@ -73,7 +73,7 @@ import java.util.function.Supplier;
  * <p>
  * A wrapper bean is used to expose legacy code that can't be instrumented. A
  * wrapper bean must implement {@link Supplier} and be annotated with
- * {@link Wrapper}.
+ * {@link Factory}.
  * </p>
  * 
  * <pre>
@@ -136,11 +136,19 @@ import java.util.function.Supplier;
  * @author jkuhn
  * @Since 1.0
  * @see BeanSocket
- * @see Wrapper
+ * @see Factory
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.TYPE })
 public @interface Bean {
+
+	/**
+	 * <p>
+	 * Indicates a name identifying the bean in the module, defaults to the name of
+	 * the class.
+	 * </p>
+	 */
+	String name() default "";
 
 	/**
 	 * Indicates the visibility of a bean in a module.
@@ -158,15 +166,7 @@ public @interface Bean {
 		 */
 		PUBLIC;
 	}
-
-	/**
-	 * <p>
-	 * Indicates a name identifying the bean in the module, defaults to the name of
-	 * the class.
-	 * </p>
-	 */
-	String name() default "";
-
+	
 	/**
 	 * <p>
 	 * Indicates the visibility of the bean in the module.
@@ -179,4 +179,45 @@ public @interface Bean {
 	 * </p>
 	 */
 	Visibility visibility() default Visibility.PUBLIC;
+	
+	/**
+	 * <p>
+	 * Indicates the strategy to use to instantiate the bean.
+	 * </p>
+	 * 
+	 * <p>
+	 * A {@link Strategy#SINGLETON} bean is only instantiated once in a module and
+	 * this single instance is returned when requested. As a result any dependent
+	 * bean share the same instance. This is the default behavior when no scope is
+	 * specified.
+	 * </p>
+	 * 
+	 * <p>
+	 * A {@link Strategy#PROTOTYPE} bean is instantiated each time it is requested
+	 * which means every dependent beans receive distinct instances.
+	 * </p>
+	 * 
+	 * <p>
+	 * Note that this attribute is irrelevant and therefore ignored when specified
+	 * on a socket bean
+	 * </p>
+	 * 
+	 * @author jkuhn
+	 * @Since 1.0
+	 */
+	public static enum Strategy {
+		/**
+		 * Singleton strategy results in one single instance being created.
+		 */
+		SINGLETON,
+		/**
+		 * Prototype strategy results in multiple instance being created when requested.
+		 */
+		PROTOTYPE
+	}
+	
+	/**
+	 * The bean strategy which defaults to {@link Strategy#SINGLETON}.
+	 */
+	Strategy strategy() default Strategy.SINGLETON;
 }

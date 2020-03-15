@@ -19,7 +19,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.annotation.Scope;
 
 /**
  * <p>
@@ -43,12 +42,12 @@ public interface ModuleBeanInfo extends BeanInfo {
 	
 	/**
 	 * <p>
-	 * Returns the scope type of the bean.
+	 * Returns the strategy of the bean.
 	 * </p>
 	 * 
-	 * @return A scope type
+	 * @return A bean stragegy
 	 */
-	Scope.Type getScope();
+	Bean.Strategy getStrategy();
 	
 	/**
 	 * <p>

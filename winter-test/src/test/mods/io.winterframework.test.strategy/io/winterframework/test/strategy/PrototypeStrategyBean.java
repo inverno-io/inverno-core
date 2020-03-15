@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.test.scope;
+package io.winterframework.test.strategy;
 
+import io.winterframework.core.annotation.Bean.Strategy;
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.annotation.Scope;
-import io.winterframework.core.annotation.Scope.Type;
 
-@Bean
-@Scope(Type.SINGLETON)
-public class SingletonScopeBean {
+@Bean(strategy=Strategy.PROTOTYPE)
+public class PrototypeStrategyBean {
 
 }

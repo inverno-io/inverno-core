@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 @io.winterframework.core.annotation.Module
-module io.winterframework.test.scope {
+module io.winterframework.test.strategy {
 	requires io.winterframework.core;
 	requires io.winterframework.core.annotation;
 	
-	exports io.winterframework.test.scope;
+	exports io.winterframework.test.strategy;
 }

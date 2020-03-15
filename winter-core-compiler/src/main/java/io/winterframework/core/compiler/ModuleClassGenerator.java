@@ -26,7 +26,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.annotation.Scope;
 import io.winterframework.core.compiler.ModuleClassGeneration.GenerationMode;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
@@ -42,7 +41,7 @@ import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 import io.winterframework.core.compiler.spi.SocketInfo;
-import io.winterframework.core.compiler.spi.WrapperBeanInfo;
+import io.winterframework.core.compiler.spi.FactoryBeanInfo;
 
 /**
  * <p>A {@link ModuleInfoVisitor} implementation that generates a Winter module class.</p>
@@ -282,7 +281,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 
 	@Override
 	public String visit(ModuleBeanInfo moduleBeanInfo, ModuleClassGeneration generation) {
-		boolean isWrapperBean = WrapperBeanInfo.class.isAssignableFrom(moduleBeanInfo.getClass());
+		boolean isFactoryBean = FactoryBeanInfo.class.isAssignableFrom(moduleBeanInfo.getClass());
 		if(generation.getMode() == GenerationMode.BEAN_FIELD) {
 			TypeMirror moduleBeanType = generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement("io.winterframework.core.v1.Module.Bean"), moduleBeanInfo.getType());
 			return generation.indent(1) + "private " + generation.getTypeName(moduleBeanType) + " " + moduleBeanInfo.getQualifiedName().normalize() + ";";
@@ -296,7 +295,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			beanAccessor += moduleBeanInfo.getQualifiedName().normalize() + "() {\n";
 			
 			beanAccessor += generation.indent(2);
-			beanAccessor += "return this." + moduleBeanInfo.getQualifiedName().normalize() + ".get()" + (isWrapperBean ? ".get()" :"") + ";\n";
+			beanAccessor += "return this." + moduleBeanInfo.getQualifiedName().normalize() + ".get()" + (isFactoryBean ? ".get()" :"") + ";\n";
 			
 			beanAccessor += generation.indent(1) + "}\n";
 			
@@ -305,19 +304,19 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 		else if(generation.getMode() == GenerationMode.BEAN_NEW) {
 			String variable = moduleBeanInfo.getQualifiedName().normalize();
 			
-			TypeMirror beanType = isWrapperBean ? ((WrapperBeanInfo)moduleBeanInfo).getWrapperType() : moduleBeanInfo.getType();
+			TypeMirror beanType = isFactoryBean ? ((FactoryBeanInfo)moduleBeanInfo).getFactoryType() : moduleBeanInfo.getType();
 			TypeMirror beanBuilderType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement("io.winterframework.core.v1.Module.BeanBuilder").asType());
 			
 			String beanNew = generation.indent(2) + "this." + variable + " = this.with(" + generation.getTypeName(beanBuilderType) + "\n";
 			
-			if(moduleBeanInfo.getScope().equals(Scope.Type.SINGLETON)) {
+			if(moduleBeanInfo.getStrategy().equals(Bean.Strategy.SINGLETON)) {
 				beanNew += generation.indent(3) + ".singleton(\"" + moduleBeanInfo.getQualifiedName().getSimpleValue() + "\", () -> {\n";
 			}
-			else if(moduleBeanInfo.getScope().equals(Scope.Type.PROTOTYPE)) {
+			else if(moduleBeanInfo.getStrategy().equals(Bean.Strategy.PROTOTYPE)) {
 				beanNew += generation.indent(3) + ".prototype(\"" + moduleBeanInfo.getQualifiedName().getSimpleValue() + "\", () -> {\n";
 			}
 			else {
-				throw new IllegalArgumentException("Unkown bean scope: " + moduleBeanInfo.getScope());
+				throw new IllegalArgumentException("Unkown bean strategy: " + moduleBeanInfo.getStrategy());
 			}
 			
 			beanNew += generation.indent(4) + generation.getTypeName(beanType) + " " + variable + " = new " + generation.getTypeName(beanType) + "(";
@@ -368,7 +367,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 		else if(generation.getMode() == GenerationMode.BEAN_REFERENCE) {
 			if(moduleBeanInfo.getQualifiedName().getModuleQName().equals(generation.getModule())) {
 				// We can't use bean accessor for internal beans since provided types are ignored inside a module
-				return "this." + moduleBeanInfo.getQualifiedName().normalize() + ".get()" + (isWrapperBean ? ".get()" :"");
+				return "this." + moduleBeanInfo.getQualifiedName().normalize() + ".get()" + (isFactoryBean ? ".get()" :"");
 //				return "this." + moduleBeanInfo.getQualifiedName().normalize() + "()";
 			}
 			else {
@@ -379,8 +378,8 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 	}
 
 	@Override
-	public String visit(WrapperBeanInfo moduleWrapperBeanInfo, ModuleClassGeneration generation) {
-		return this.visit((ModuleBeanInfo)moduleWrapperBeanInfo, generation);
+	public String visit(FactoryBeanInfo moduleFactoryBeanInfo, ModuleClassGeneration generation) {
+		return this.visit((ModuleBeanInfo)moduleFactoryBeanInfo, generation);
 	}
 
 	@Override

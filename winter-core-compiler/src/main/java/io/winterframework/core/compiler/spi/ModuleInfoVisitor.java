@@ -33,7 +33,7 @@ public interface ModuleInfoVisitor<R, P> {
 	
 	R visit(ModuleBeanInfo moduleBeanInfo, P p);
 	
-	R visit(WrapperBeanInfo moduleWrapperBeanInfo, P p);
+	R visit(FactoryBeanInfo moduleFactoryBeanInfo, P p);
 	
 	R visit(SocketInfo socketInfo, P p);
 	

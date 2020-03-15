@@ -129,6 +129,11 @@ public class Application<T extends Module> {
 		if(this.module != null) {
 			throw new IllegalStateException("Module " + this.module.getName() + " already started");
 		}
+		this.module = this.moduleBuilder.build();
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			this.module.stop();
+		}));
+		
 		if(this.banner != null) {
 			LOGGER.info(() -> {
 				ByteArrayOutputStream bannerStream = new ByteArrayOutputStream();
@@ -136,12 +141,7 @@ public class Application<T extends Module> {
 				return bannerStream.toString();	
 			});
 		}
-		this.module = this.moduleBuilder.build();
-		
 		this.module.start();
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			this.module.stop();
-		}));
 		
 		return this.module;
 	}

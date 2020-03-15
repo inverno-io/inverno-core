@@ -13,11 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.test.scope;
+package io.winterframework.test.lifecycle.moduleA;
 
 import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.annotation.Bean.Strategy;
+import io.winterframework.core.annotation.Destroy;
+import io.winterframework.core.annotation.Init;
 
-@Bean
-public class DefaultScopeBean {
+@Bean(strategy=Strategy.SINGLETON)
+public class SingletonStrategyBean {
 
+	public int initCount;
+	
+	public int destroyCount;
+	
+	public boolean beanInjected;
+	
+	public InjectedBean bean;
+	
+	public SingletonStrategyBean(InjectedBean bean) {
+		this.bean = bean;
+	}
+	
+	@Init
+	public void init() {
+		this.initCount++;
+		this.beanInjected = this.bean != null;
+	}
+	
+	@Destroy
+	public void destroy() {
+		this.destroyCount++;
+	}
 }
