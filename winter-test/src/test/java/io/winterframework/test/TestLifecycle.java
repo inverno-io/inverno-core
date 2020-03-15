@@ -42,10 +42,10 @@ public class TestLifecycle extends AbstractWinterTest {
 		try {
 			moduleA.start();
 			
-			singletonBean = moduleA.getBean("singletonScopeBean");
-			prototypeBean1 = moduleA.getBean("prototypeScopeBean");
-			prototypeBean2 = moduleA.getBean("prototypeScopeBean");
-			prototypeBean3 = moduleA.getBean("prototypeScopeBean");
+			singletonBean = moduleA.getBean("singletonStrategyBean");
+			prototypeBean1 = moduleA.getBean("prototypeStrategyBean");
+			prototypeBean2 = moduleA.getBean("prototypeStrategyBean");
+			prototypeBean3 = moduleA.getBean("prototypeStrategyBean");
 			prototypeBean3 = null;
 			
 			System.gc();
@@ -72,9 +72,9 @@ public class TestLifecycle extends AbstractWinterTest {
 		try {
 			moduleA.start();
 			
-			singletonBean = moduleA.getBean("singletonScopeBean");
-			prototypeBean1 = moduleA.getBean("prototypeScopeBean");
-			prototypeBean2 = moduleA.getBean("prototypeScopeBean");
+			singletonBean = moduleA.getBean("singletonStrategyBean");
+			prototypeBean1 = moduleA.getBean("prototypeStrategyBean");
+			prototypeBean2 = moduleA.getBean("prototypeStrategyBean");
 
 			Assertions.assertTrue((boolean)singletonBean.getClass().getField("beanInjected").get(singletonBean));
 			Assertions.assertTrue((boolean)prototypeBean1.getClass().getField("beanInjected").get(prototypeBean1));

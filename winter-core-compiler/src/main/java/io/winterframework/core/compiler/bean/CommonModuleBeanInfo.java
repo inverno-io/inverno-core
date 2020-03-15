@@ -25,7 +25,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.annotation.Scope;
 import io.winterframework.core.compiler.common.AbstractBeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
@@ -43,7 +42,7 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 
 	private Bean.Visibility visibility;
 	
-	private Scope.Type scope;
+	private Bean.Strategy strategy;
 	
 	private List<ExecutableElement> initElements;
 	
@@ -60,7 +59,7 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 			TypeMirror type, 
 			TypeMirror providedType,
 			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
-		this(processingEnvironment, element, annotation, qname, type, providedType, Bean.Visibility.PUBLIC, Scope.Type.PROTOTYPE, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
+		this(processingEnvironment, element, annotation, qname, type, providedType, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
 	}
 	
 	public CommonModuleBeanInfo(ProcessingEnvironment processingEnvironment,
@@ -70,7 +69,7 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 			TypeMirror type, 
 			TypeMirror providedType,
 			Bean.Visibility visibility, 
-			Scope.Type scope, 
+			Bean.Strategy strategy, 
 			List<ExecutableElement> initElements, 
 			List<ExecutableElement> destroyElements, 
 			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
@@ -78,7 +77,7 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 		
 		this.providedType = providedType;
 		this.visibility = visibility != null ? visibility : Bean.Visibility.PUBLIC;
-		this.scope = scope != null ? scope : Scope.Type.SINGLETON;
+		this.strategy = strategy != null ? strategy : Bean.Strategy.SINGLETON;
 		this.initElements = initElements != null ? Collections.unmodifiableList(initElements) : Collections.emptyList();
 		this.destroyElements = destroyElements != null ? Collections.unmodifiableList(destroyElements) : Collections.emptyList();
 		this.socketInfos = beanSocketInfos != null ? Collections.unmodifiableList(beanSocketInfos) : Collections.emptyList();
@@ -90,8 +89,8 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 	}
 	
 	@Override
-	public Scope.Type getScope() {
-		return this.scope;
+	public Bean.Strategy getStrategy() {
+		return this.strategy;
 	}
 
 	@Override

@@ -36,7 +36,7 @@ import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 import io.winterframework.core.compiler.spi.SocketInfo;
-import io.winterframework.core.compiler.spi.WrapperBeanInfo;
+import io.winterframework.core.compiler.spi.FactoryBeanInfo;
 
 /**
  * <p>
@@ -84,8 +84,8 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 	}
 
 	@Override
-	public Void visit(WrapperBeanInfo moduleWrapperBeanInfo, Set<BeanQualifiedName> wiredBeans) {
-		return this.visit((ModuleBeanInfo)moduleWrapperBeanInfo, wiredBeans);
+	public Void visit(FactoryBeanInfo moduleFactoryBeanInfo, Set<BeanQualifiedName> wiredBeans) {
+		return this.visit((ModuleBeanInfo)moduleFactoryBeanInfo, wiredBeans);
 	}
 	
 	@Override

@@ -19,21 +19,21 @@ import javax.lang.model.type.TypeMirror;
 
 /**
  * <p>
- * A wrapper bean info holds the data required to process a wrapper bean in a module.
+ * A factory bean info holds the data required to process a factory bean in a module.
  * </p>
  * 
  * @author jkuhn
  *
  */
-public interface WrapperBeanInfo extends ModuleBeanInfo {
+public interface FactoryBeanInfo extends ModuleBeanInfo {
 
 	/**
 	 * <p>
-	 * Returns the wrapper type which is the type of the class supplying the actual
+	 * Returns the factory type which is the type of the class supplying the actual
 	 * bean whose type is given by {@link BeanInfo#getType()}.
 	 * </p>
 	 * 
 	 * @return A type.
 	 */
-	TypeMirror getWrapperType();
+	TypeMirror getFactoryType();
 }

@@ -23,23 +23,22 @@ import java.util.function.Supplier;
 
 /**
  * <p>
- * Used in conjunction with {@link Bean} to indicate a wrapper bean.
+ * Used in conjunction with {@link Bean} to indicate a factory bean.
  * </p>
  * 
  * <p>
- * A wrapper bean should be created when there's a need to expose legacy code
+ * A factory bean should be created when there's a need to expose legacy code
  * which can't be annotated with {@link Bean}, it allows to delegate the actual
  * instantiation to a {@link Supplier} instead of a bean constructor. As a
- * result a wrapper bean must implement {@link Supplier}.
+ * result a factory bean must implement {@link Supplier}.
  * </p>
  * 
  * <p>
- * A wrapper bean follows the same rules as a regular bean: dependencies are
- * injected into sockets defined on the wrapper bean, initialization methods are
+ * A factory bean follows the same rules as regular beans: dependencies are
+ * injected into sockets defined on the factory bean, initialization methods are
  * invoked after dependency injection and destroy methods before bean removal.
  * However the instance actually exposed to the container is the result of
- * {@link Supplier#get()}. As any wrapper, a wrapper bean wrap a single
- * instance, so this method should always return the same instance.
+ * {@link Supplier#get()} which should always return a new instance.
  * </p>
  * 
  * @author jkuhn
@@ -49,6 +48,6 @@ import java.util.function.Supplier;
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.TYPE })
 @Bean
-public @interface Wrapper {
+public @interface Factory {
 
 }

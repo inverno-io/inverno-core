@@ -32,7 +32,7 @@ import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 import io.winterframework.core.compiler.spi.SocketInfo;
-import io.winterframework.core.compiler.spi.WrapperBeanInfo;
+import io.winterframework.core.compiler.spi.FactoryBeanInfo;
 
 /**
  * <p>A {@link ModuleInfoVisitor} used to generate module descriptor in a readable YAML format.</p>
@@ -104,9 +104,9 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 		if(moduleBeanInfo.getProvidedType() != null) {
 			result.append(pad).append("  ").append("providedType: ").append(moduleBeanInfo.getProvidedType().toString()).append("\n");
 		}
-		result.append(pad).append("  ").append("scope: ").append(moduleBeanInfo.getScope().toString()).append("\n");
-		if(WrapperBeanInfo.class.isAssignableFrom(moduleBeanInfo.getClass())) {
-			result.append(pad).append("  ").append("wrapperType:").append(((WrapperBeanInfo)moduleBeanInfo).getWrapperType().toString()).append("\n");
+		result.append(pad).append("  ").append("strategy: ").append(moduleBeanInfo.getStrategy().toString()).append("\n");
+		if(FactoryBeanInfo.class.isAssignableFrom(moduleBeanInfo.getClass())) {
+			result.append(pad).append("  ").append("factoryType:").append(((FactoryBeanInfo)moduleBeanInfo).getFactoryType().toString()).append("\n");
 		}
 		result.append(pad).append("  ").append("init: ").append("\n");
 		if(moduleBeanInfo.getInitElements().length > 0) {
@@ -125,8 +125,8 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 	}
 
 	@Override
-	public String visit(WrapperBeanInfo moduleWrapperBeanInfo, String pad) {
-		return this.visit((ModuleBeanInfo)moduleWrapperBeanInfo, pad);
+	public String visit(FactoryBeanInfo moduleFactoryBeanInfo, String pad) {
+		return this.visit((ModuleBeanInfo)moduleFactoryBeanInfo, pad);
 	}
 	
 	@Override
