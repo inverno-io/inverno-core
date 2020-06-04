@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.test.strrategy;
+package io.winterframework.test.strategy;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.Bean.Strategy;
