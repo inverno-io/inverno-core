@@ -1,3 +1,6 @@
+import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.annotation.Module;
+
 /*
  * Copyright 2018 Jeremy KUHN
  *

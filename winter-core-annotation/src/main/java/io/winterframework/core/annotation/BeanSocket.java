@@ -41,7 +41,7 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * @author jkuhn
- * @Since 1.0
+ * @since 1.0
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.CONSTRUCTOR, ElementType.METHOD })

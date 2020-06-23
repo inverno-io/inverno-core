@@ -29,8 +29,7 @@ import io.winterframework.core.v1.Module.Bean;
  * dependent beans receive the same instance.
  * </p>
  * 
- * @param <T>
- *            The actual type of the bean.
+ * @param <T> the actual type of the bean.
  * 
  * @author jkuhn
  * @since 1.0
@@ -42,19 +41,18 @@ abstract class SingletonBean<T> extends AbstractBean<T> {
 	 * The bean logger.
 	 */
 	protected static final Logger LOGGER = Logger.getLogger(SingletonBean.class.getName());
-	
+
 	/**
 	 * The bean instance.
 	 */
 	protected T instance;
-	
+
 	/**
 	 * <p>
 	 * Creates a singleton bean with the specified name.
 	 * </p>
 	 * 
-	 * @param name
-	 *            The bean name
+	 * @param name the bean name
 	 */
 	public SingletonBean(String name) {
 		super(name);
@@ -70,26 +68,27 @@ abstract class SingletonBean<T> extends AbstractBean<T> {
 	 * method and implement the singleton pattern.
 	 * </p>
 	 */
-	public synchronized  final void create() {
-		if(this.instance == null) {
-			LOGGER.info("Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+	public synchronized final void create() {
+		if (this.instance == null) {
+			LOGGER.info(
+					"Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
 			this.instance = this.createInstance();
 			this.parent.recordBean(this);
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * Returns the bean singleton.
 	 * </p>
 	 * 
-	 * @return The bean singleton
+	 * @return the bean singleton
 	 */
 	public final T doGet() {
 		this.create();
 		return this.instance;
 	}
-	
+
 	/**
 	 * <p>
 	 * Destroys the singleton bean and as a result the enclosed instance.
@@ -101,8 +100,9 @@ abstract class SingletonBean<T> extends AbstractBean<T> {
 	 * </p>
 	 */
 	public synchronized final void destroy() {
-		if(this.instance != null) {
-			LOGGER.info("Destroying Singleton Bean " + (this.parent != null ? this.parent.getName() : "")  + ":" + this.name);
+		if (this.instance != null) {
+			LOGGER.info("Destroying Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":"
+					+ this.name);
 			this.destroyInstance(this.instance);
 			this.instance = null;
 		}

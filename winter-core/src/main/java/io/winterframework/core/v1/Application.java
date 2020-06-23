@@ -45,28 +45,28 @@ public class Application<T extends Module> {
 	 * Application logger.
 	 */
 	private static Logger LOGGER = Logger.getLogger(Application.class.getName());
-	
+
 	/**
 	 * The wrapped module builder.
 	 */
 	private Module.ModuleBuilder<T> moduleBuilder;
-	
+
 	/**
 	 * The application banner.
 	 */
 	private Banner banner;
-	
+
 	/**
 	 * The active module.
 	 */
 	private T module;
-	
+
 	/**
 	 * <p>
 	 * Creates a new Application for the module created with the specified builder.
 	 * </p>
 	 * 
-	 * @param moduleBuilder The module builder.
+	 * @param moduleBuilder the module builder.
 	 */
 	protected Application(Module.ModuleBuilder<T> moduleBuilder) {
 		this.moduleBuilder = moduleBuilder;
@@ -78,28 +78,30 @@ public class Application<T extends Module> {
 	 * Creates a new application for the module created with the specified builder.
 	 * </p>
 	 * 
-	 * @param <E>           The module type.
-	 * @param moduleBuilder The module builder.
-	 * @return An application.
+	 * @param <E>           the module type.
+	 * @param moduleBuilder the module builder.
+	 * 
+	 * @return an application.
 	 */
 	public static <E extends Module> Application<E> with(Module.ModuleBuilder<E> moduleBuilder) {
 		return new Application<>(moduleBuilder);
 	}
-	
+
 	/**
 	 * <p>
 	 * Creates and run a new application for the module created with the specified
 	 * builder.
 	 * </p>
 	 * 
-	 * @param <E>           The module type.
-	 * @param moduleBuilder The module builder.
-	 * @return
+	 * @param <E>           the module type.
+	 * @param moduleBuilder the module builder.
+	 * 
+	 * @return a running module instance.
 	 */
 	public static <E extends Module> E run(Module.ModuleBuilder<E> moduleBuilder) {
 		return with(moduleBuilder).run();
 	}
-	
+
 	/**
 	 * <p>
 	 * Sets the application banner.
@@ -109,40 +111,41 @@ public class Application<T extends Module> {
 	 * If null is specified no banner will be displayed
 	 * </p>
 	 * 
-	 * @param banner The banner to set or null to display no banner.
-	 * @return This application.
+	 * @param banner the banner to set or null to display no banner.
+	 * 
+	 * @return this application.
 	 */
 	public Application<T> banner(Banner banner) {
 		this.banner = banner;
 		return this;
 	}
-	
+
 	/**
 	 * <p>
 	 * Runs the application.
 	 * </p>
 	 * 
-	 * @return The resulting module.
-	 * @throws IllegalStateException If the application is already running.
+	 * @return the resulting module.
+	 * @throws IllegalStateException if the application is already running.
 	 */
 	public T run() throws IllegalStateException {
-		if(this.module != null) {
+		if (this.module != null) {
 			throw new IllegalStateException("Module " + this.module.getName() + " already started");
 		}
 		this.module = this.moduleBuilder.build();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			this.module.stop();
 		}));
-		
-		if(this.banner != null) {
+
+		if (this.banner != null) {
 			LOGGER.info(() -> {
 				ByteArrayOutputStream bannerStream = new ByteArrayOutputStream();
 				this.banner.print(new PrintStream(bannerStream));
-				return bannerStream.toString();	
+				return bannerStream.toString();
 			});
 		}
 		this.module.start();
-		
+
 		return this.module;
 	}
 }

@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * @author jkuhn
- * @Since 1.0
+ * @since 1.0
  * @see Selector
  */
 @Retention(RetentionPolicy.CLASS)
@@ -40,6 +40,8 @@ public @interface AnnotationSelector {
 	 * Designates the annotation that must be present on a bean to be wired to the
 	 * annotated socket.
 	 * </p>
+	 * 
+	 * @return An annotation type
 	 */
 	Class<?> value();
 }

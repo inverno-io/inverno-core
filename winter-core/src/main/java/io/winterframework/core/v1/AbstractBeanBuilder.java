@@ -38,33 +38,31 @@ abstract class AbstractBeanBuilder<T> implements BeanBuilder<T> {
 	 * The bean name.
 	 */
 	protected String beanName;
-	
+
 	/**
 	 * The bean constructor.
 	 */
 	protected Supplier<T> constructor;
 
 	/**
-	 * The list of bean initialization operations that must be executed after
-	 * bean instance creation and dependency injection.
+	 * The list of bean initialization operations that must be executed after bean
+	 * instance creation and dependency injection.
 	 */
 	protected List<FallibleConsumer<T>> inits;
 
 	/**
-	 * The list of bean destructions operations that must be executed after a
-	 * bean instance creation and dependency injection.
+	 * The list of bean destructions operations that must be executed after a bean
+	 * instance creation and dependency injection.
 	 */
 	protected List<FallibleConsumer<T>> destroys;
-	
+
 	/**
 	 * <p>
 	 * Create a bean builder with the specified bean name and constructor.
 	 * </p>
 	 * 
-	 * @param beanName
-	 *            The bean name
-	 * @param constructor
-	 *            The bean constructor
+	 * @param beanName    the bean name
+	 * @param constructor the bean constructor
 	 */
 	protected AbstractBeanBuilder(String beanName, Supplier<T> constructor) {
 		this.beanName = beanName;
@@ -73,30 +71,30 @@ abstract class AbstractBeanBuilder<T> implements BeanBuilder<T> {
 		this.inits = new ArrayList<>();
 		this.destroys = new ArrayList<>();
 	}
-	
+
 	/**
 	 * <p>
 	 * Add a bean initialization operation.
 	 * </p>
 	 * 
-	 * @param init
-	 *            The bean initialization operation.
-	 * @return This builder
+	 * @param init the bean initialization operation.
+	 * 
+	 * @return this builder
 	 */
 	@Override
 	public BeanBuilder<T> init(FallibleConsumer<T> init) {
 		this.inits.add(init);
 		return this;
 	}
-	
+
 	/**
 	 * <p>
 	 * Add a bean destruction operation.
 	 * </p>
 	 * 
-	 * @param init
-	 *            The bean destruction operation.
-	 * @return This builder
+	 * @param init the bean destruction operation.
+	 * 
+	 * @return this builder
 	 */
 	@Override
 	public BeanBuilder<T> destroy(FallibleConsumer<T> destroy) {

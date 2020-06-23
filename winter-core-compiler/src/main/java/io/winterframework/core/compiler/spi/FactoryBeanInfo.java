@@ -19,7 +19,8 @@ import javax.lang.model.type.TypeMirror;
 
 /**
  * <p>
- * A factory bean info holds the data required to process a factory bean in a module.
+ * A factory bean info holds the data required to process a factory bean in a
+ * module.
  * </p>
  * 
  * @author jkuhn
@@ -33,7 +34,7 @@ public interface FactoryBeanInfo extends ModuleBeanInfo {
 	 * bean whose type is given by {@link BeanInfo#getType()}.
 	 * </p>
 	 * 
-	 * @return A type.
+	 * @return a type
 	 */
 	TypeMirror getFactoryType();
 }

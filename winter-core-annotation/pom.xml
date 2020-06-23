@@ -27,6 +27,5 @@
 	<packaging>jar</packaging>
 
 	<name>winter-core-annotation</name>
-	<url>http://maven.apache.org</url>
 
 </project>

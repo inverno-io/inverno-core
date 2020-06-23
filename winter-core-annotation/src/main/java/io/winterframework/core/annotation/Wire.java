@@ -51,11 +51,13 @@ public @interface Wire {
 	 * Indicates the names of the beans to wire.
 	 * </p>
 	 * 
-	 * </p>
+	 * <p>
 	 * A bean's name can be fully qualified (eg. [MODULE_NAME]:[BEAN_NAME]) to refer
 	 * to a bean provided by an external module or simple to refer to a bean inside
 	 * the current module (eg. [BEAN_NAME]).
 	 * </p>
+	 * 
+	 * @return A list of beans
 	 */
 	String[] beans();
 
@@ -80,7 +82,8 @@ public @interface Wire {
 	 * name as a required module which prevents conflicts between the last two
 	 * identifiers.
 	 * </p>
+	 * 
+	 * @return A socket
 	 */
 	String into();
-
 }

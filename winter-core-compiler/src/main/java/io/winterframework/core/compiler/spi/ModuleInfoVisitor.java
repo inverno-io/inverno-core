@@ -22,34 +22,164 @@ package io.winterframework.core.compiler.spi;
  * 
  * @author jkuhn
  *
- * @param <R> The visitor result type.
- * @param <P> The visitor parameter type.
+ * @param <R> the visitor result type
+ * @param <P> the visitor parameter type
  */
 public interface ModuleInfoVisitor<R, P> {
 
+	/**
+	 * <p>
+	 * Visit module info.
+	 * </p>
+	 * 
+	 * @param moduleInfo the info to visit
+	 * @param p          a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(ModuleInfo moduleInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit bean info.
+	 * </p>
+	 * 
+	 * @param beanInfo the info to visit
+	 * @param p        a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(BeanInfo beanInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit module bean info.
+	 * </p>
+	 * 
+	 * @param moduleBeanInfo the info to visit
+	 * @param p              a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(ModuleBeanInfo moduleBeanInfo, P p);
-	
-	R visit(FactoryBeanInfo moduleFactoryBeanInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit factory bean info.
+	 * </p>
+	 * 
+	 * @param factoryBeanInfo the info to visit
+	 * @param p               a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
+	R visit(FactoryBeanInfo factoryBeanInfo, P p);
+
+	/**
+	 * <p>
+	 * Visit socket info.
+	 * </p>
+	 * 
+	 * @param socketInfo the info to visit
+	 * @param p          a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(SocketInfo socketInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit single socket info.
+	 * </p>
+	 * 
+	 * @param singleSocketInfo the info to visit
+	 * @param p                a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(SingleSocketInfo singleSocketInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit multiple socket info.
+	 * </p>
+	 * 
+	 * @param multiSocketInfo the info to visit
+	 * @param p               a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(MultiSocketInfo multiSocketInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit bean socket info.
+	 * </p>
+	 * 
+	 * @param beanSocketInfo the info to visit
+	 * @param p              a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(ModuleBeanSocketInfo beanSocketInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit bean single socket info.
+	 * </p>
+	 * 
+	 * @param beanSingleSocketInfo the info to visit
+	 * @param p                    a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(ModuleBeanSingleSocketInfo beanSingleSocketInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit bean multiple socket info.
+	 * </p>
+	 * 
+	 * @param beanMultiSocketInfo the info to visit
+	 * @param p                   a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(ModuleBeanMultiSocketInfo beanMultiSocketInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit socket bean info.
+	 * </p>
+	 * 
+	 * @param socketBeanInfo the info to visit
+	 * @param p              a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(SocketBeanInfo socketBeanInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit single socket bean info.
+	 * </p>
+	 * 
+	 * @param singleSocketBeanInfo the info to visit
+	 * @param p                    a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(SingleSocketBeanInfo singleSocketBeanInfo, P p);
-	
+
+	/**
+	 * <p>
+	 * Visit multiple socket bean info.
+	 * </p>
+	 * 
+	 * @param multiSocketBeanInfo the info to visit
+	 * @param p                   a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
 	R visit(MultiSocketBeanInfo multiSocketBeanInfo, P p);
 }

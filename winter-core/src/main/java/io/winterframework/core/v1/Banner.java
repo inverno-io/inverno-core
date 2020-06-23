@@ -23,7 +23,7 @@ import java.io.PrintStream;
  * </p>
  * 
  * @author jkuhn
- * @Since 1.0
+ * @since 1.0
  */
 public interface Banner {
 
@@ -32,8 +32,7 @@ public interface Banner {
 	 * Prints the banner to the specified output.
 	 * </p>
 	 * 
-	 * @param out
-	 *            The banner's output.
+	 * @param out the banner's output.
 	 */
 	void print(PrintStream out);
 }

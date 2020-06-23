@@ -25,9 +25,9 @@ import io.winterframework.core.v1.Module.BeanBuilder;
  * 
  * <p>
  * This class basically specifies {@link #createInstance()} and
- * {@link #destroyInstance(Object)} methods that respectively create and
- * destroy bean instances. These methods can then be used in {@link #create()}
- * and {@link #destroy()} methods which provide higher logic (singleton,
+ * {@link #destroyInstance(Object)} methods that respectively create and destroy
+ * bean instances. These methods can then be used in {@link #create()} and
+ * {@link #destroy()} methods which provide higher logic (singleton,
  * prototype...).
  * </p>
  * 
@@ -44,8 +44,7 @@ abstract class AbstractBean<T> extends Bean<T> {
 	 * Creates an abstract bean with the specified name.
 	 * </p>
 	 * 
-	 * @param name
-	 *            The bean name
+	 * @param name the bean name
 	 */
 	public AbstractBean(String name) {
 		super(name);
@@ -56,7 +55,7 @@ abstract class AbstractBean<T> extends Bean<T> {
 	 * Creates a bean instance.
 	 * </p>
 	 * 
-	 * @return A bean instance
+	 * @return a bean instance
 	 */
 	protected abstract T createInstance();
 
@@ -65,8 +64,7 @@ abstract class AbstractBean<T> extends Bean<T> {
 	 * Destroys the specified bean instance.
 	 * </p>
 	 * 
-	 * @param instance
-	 *            The instance to destroy
+	 * @param instance the instance to destroy
 	 */
 	protected abstract void destroyInstance(T instance);
 }

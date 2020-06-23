@@ -36,7 +36,7 @@ public interface Info {
 	 * Returns the qualified name identifying the info.
 	 * </p>
 	 * 
-	 * @return A qualified name.
+	 * @return a qualified name
 	 */
 	QualifiedName getQualifiedName();
 
@@ -45,7 +45,7 @@ public interface Info {
 	 * Indicates whether this info has errors.
 	 * </p>
 	 * 
-	 * @return true if there are errors, false otherwise.
+	 * @return true if there are errors, false otherwise
 	 */
 	boolean hasError();
 
@@ -54,7 +54,7 @@ public interface Info {
 	 * Indicates whether this info has warnings.
 	 * </p>
 	 * 
-	 * @return true if there are warnings, false otherwise.
+	 * @return true if there are warnings, false otherwise
 	 */
 	boolean hasWarning();
 
@@ -63,7 +63,7 @@ public interface Info {
 	 * Reports an error on this info.
 	 * </p>
 	 * 
-	 * @param message The message to report.
+	 * @param message the message to report
 	 */
 	void error(String message);
 
@@ -72,7 +72,7 @@ public interface Info {
 	 * Reports a warning on this info.
 	 * </p>
 	 * 
-	 * @param message The message to report.
+	 * @param message the message to report
 	 */
 	void warning(String message);
 }

@@ -31,46 +31,48 @@ public interface ModuleInfoBuilder {
 	 * Returns the qualified name of the module being build by the builder.
 	 * </p>
 	 * 
-	 * @return A module qualified name.
+	 * @return a module qualified name
 	 */
 	ModuleQualifiedName getQualifiedName();
-	
+
 	/**
 	 * <p>
 	 * Sets the beans that should be part of the module.
 	 * </p>
 	 * 
-	 * @param beans An array of bean info.
-	 * @return The module info builder.
+	 * @param beans an array of bean info
+	 * 
+	 * @return the module info builder
 	 */
 	ModuleInfoBuilder beans(ModuleBeanInfo[] beans);
-	
+
 	/**
 	 * <p>
 	 * Sets the sockets that should be part of the module.
 	 * </p>
 	 * 
-	 * @param sockets An array of socket info.
-	 * @return The module info builder.
+	 * @param sockets an array of socket info
+	 * @return the module info builder
 	 */
 	ModuleInfoBuilder sockets(SocketBeanInfo[] sockets);
-	
+
 	/**
 	 * <p>
 	 * Sets the modules that should be part of the module.
 	 * </p>
 	 * 
-	 * @param sockets An array of module info.
-	 * @return The module info builder.
+	 * @param modules an array of module info
+	 * 
+	 * @return the module info builder
 	 */
 	ModuleInfoBuilder modules(ModuleInfo[] modules);
-	
+
 	/**
 	 * <p>
 	 * Builds the module.
 	 * </p>
 	 * 
-	 * @return A module info.
+	 * @return a module info
 	 */
 	ModuleInfo build();
 }

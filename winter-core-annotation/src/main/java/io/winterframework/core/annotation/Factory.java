@@ -42,7 +42,7 @@ import java.util.function.Supplier;
  * </p>
  * 
  * @author jkuhn
- * @Since 1.0
+ * @since 1.0
  * @see Bean
  */
 @Retention(RetentionPolicy.CLASS)

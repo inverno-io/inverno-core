@@ -34,7 +34,7 @@ public interface ModuleBeanSocketInfo extends SocketInfo {
 	 * Returns a bean socket qualified name.
 	 * </p>
 	 * 
-	 * @return A bean socket qualified name.
+	 * @return a bean socket qualified name
 	 */
 	BeanSocketQualifiedName getQualifiedName();
 }

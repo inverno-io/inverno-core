@@ -31,7 +31,7 @@ public interface SingleSocketInfo extends SocketInfo {
 	 * Returns the bean plugged into the socket.
 	 * </p>
 	 * 
-	 * @return A bean.
+	 * @return a bean
 	 */
 	BeanInfo getBean();
 }

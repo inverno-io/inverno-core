@@ -44,6 +44,8 @@ public @interface WiredTo {
 
 	/**
 	 * Indicates the name of the module beans a socket bean is wired to.
+	 * 
+	 * @return A list of beans
 	 */
 	String[] value();
 }

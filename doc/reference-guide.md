@@ -336,7 +336,7 @@ The singleton strategy is the default strategy used when no explicit strategy is
 A singleton bean is specified explicitly by setting the `strategy` attribute to `Strategy.SINGLETON` in the `@Bean` annotation:
 
 ```java
-@Bean(strategy = Streategy.SINGLETON)
+@Bean(strategy = Strategy.SINGLETON)
 public class SomeSingletonBean {
 
 }

@@ -27,7 +27,6 @@
 	<packaging>jar</packaging>
 
 	<name>winter-core-compiler</name>
-	<url>http://maven.apache.org</url>
 
 	<dependencies>
 		<dependency>

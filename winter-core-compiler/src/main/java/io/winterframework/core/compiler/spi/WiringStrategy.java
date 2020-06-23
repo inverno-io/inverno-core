@@ -32,9 +32,10 @@ public interface WiringStrategy {
 	 * socket.
 	 * </p>
 	 * 
-	 * @param bean A bean.
-	 * @param socket A socket.
-	 * @return true if the bean is pluggable into the socket, false otherwise.
+	 * @param bean   a bean
+	 * @param socket a socket
+	 * 
+	 * @return true if the bean is pluggable into the socket, false otherwise
 	 */
 	boolean isWirable(BeanInfo bean, SocketInfo socket);
 }

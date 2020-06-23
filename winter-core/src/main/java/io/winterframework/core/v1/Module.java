@@ -75,44 +75,43 @@ public abstract class Module {
 	 * The module logger.
 	 */
 	private Logger logger = Logger.getLogger(this.getClass().getName());
-	
+
 	/**
 	 * The module name.
 	 */
 	private String name;
-	
+
 	/**
 	 * The parent module.
 	 */
 	private Module parent;
-	
+
 	/**
 	 * The list of required Winter modules include in the module.
 	 */
 	private List<Module> modules;
-	
+
 	/**
 	 * The list of beans in the module.
 	 */
 	private List<Bean<?>> beans;
-	
+
 	/**
 	 * The bean stack used to track bean creation order.
 	 */
 	private Deque<Bean<?>> beansStack;
-	
+
 	/**
 	 * THe module's state
 	 */
 	private boolean active;
-	
+
 	/**
 	 * <p>
 	 * Creates a new Module with the specified name.
 	 * </p>
 	 * 
-	 * @param moduleName
-	 *            The module name
+	 * @param moduleName the module name
 	 */
 	protected Module(String moduleName) {
 		this.name = moduleName;
@@ -126,14 +125,13 @@ public abstract class Module {
 	 * Records a bean creation into the module.
 	 * </p>
 	 * 
-	 * @param bean The bean to record
+	 * @param bean the bean to record
 	 */
 	void recordBean(Bean<?> bean) {
 		// Beans must be recorded as they are created
-		if(this.parent != null) {
+		if (this.parent != null) {
 			this.parent.recordBean(bean);
-		}
-		else {
+		} else {
 			this.beansStack.push(bean);
 		}
 	}
@@ -148,36 +146,40 @@ public abstract class Module {
 	 * A module can only be registered once to exactly one module.
 	 * </p>
 	 * 
-	 * @param moduleLinker The module linker to use to create the module.
+	 * @param <T>          the type of the module to create
+	 * @param moduleLinker the module linker to use to create the module.
 	 * 
-	 * @return The registered module.
+	 * @return the registered module.
 	 */
 	protected <T extends Module> T with(ModuleLinker<T> moduleLinker) {
 		T module = moduleLinker.link();
-		
-		((Module)module).parent = this;
+
+		((Module) module).parent = this;
 		this.modules.add(module);
-		
+
 		return module;
 	}
 
 	/**
 	 * <p>
-	 * Creates a bean with the specified bean builder and register it in this module.
+	 * Creates a bean with the specified bean builder and register it in this
+	 * module.
 	 * </p>
 	 * 
 	 * <p>
 	 * A bean can only be registered once to exactly one module.
 	 * </p>
 	 * 
-	 * @param beanBuilder The bean builder to use to create the bean
-	 * @return The registered bean
+	 * @param <T>         the type of the bean to create
+	 * @param beanBuilder the bean builder to use to create the bean
+	 * 
+	 * @return the registered bean
 	 */
 	protected <T> Bean<T> with(BeanBuilder<T> beanBuilder) {
 		Bean<T> bean = beanBuilder.build();
 		bean.parent = this;
 		this.beans.add(bean);
-		
+
 		return bean;
 	}
 
@@ -186,12 +188,12 @@ public abstract class Module {
 	 * Returns the name of the module.
 	 * </p>
 	 * 
-	 * @return The name of the module
+	 * @return the name of the module
 	 */
 	public String getName() {
 		return this.name;
 	}
-	
+
 	/**
 	 * <p>
 	 * Determines whether the module is active (ie. started).
@@ -202,7 +204,7 @@ public abstract class Module {
 	public boolean isActive() {
 		return active;
 	}
-		
+
 	/**
 	 * <p>
 	 * Starts the module.
@@ -218,7 +220,7 @@ public abstract class Module {
 	 * @throws IllegalStateException if the module is active.
 	 */
 	public void start() throws IllegalStateException {
-		if(this.isActive()) {
+		if (this.isActive()) {
 			throw new IllegalStateException("Module " + this.name + " is already active");
 		}
 		this.active = true;
@@ -235,7 +237,7 @@ public abstract class Module {
 	 * Stops the module.
 	 * </p>
 	 * 
-	 * </p>
+	 * <p>
 	 * This methods basically destroy the beans created during startup in the
 	 * reverse order.
 	 * </p>
@@ -246,9 +248,9 @@ public abstract class Module {
 		this.beansStack.forEach(bean -> {
 			try {
 				bean.destroy();
-			}
-			catch(Exception e) {
-				this.logger.warning("Error destroying Bean " + (bean.parent != null ? bean.parent.getName() : "")  + ":" + bean.name);
+			} catch (Exception e) {
+				this.logger.warning("Error destroying Bean " + (bean.parent != null ? bean.parent.getName() : "") + ":"
+						+ bean.name);
 			}
 		});
 		this.modules.stream().forEach(module -> module.stop());
@@ -256,102 +258,106 @@ public abstract class Module {
 		this.logger.info("Module " + this.name + " stopped in " + ((System.nanoTime() - t0) / 1000000) + "ms");
 		this.active = false;
 	}
-	
+
 	/**
 	 * <p>
 	 * Aggregates single beans, collections of beans and arrays of beans.
 	 * </p>
+	 * 
 	 * @author jkuhn
 	 *
-	 * @param <E> The bean type 
+	 * @param <E> the bean type
 	 */
 	protected static class BeanAggregator<E> {
-		
+
 		private List<E> aggregate;
-		
+
 		/**
 		 * Creates an aggregator.
 		 */
 		public BeanAggregator() {
 			this.aggregate = new ArrayList<>();
 		}
-		
+
 		/**
 		 * <p>
 		 * Appends the specified bean to the aggregate.
 		 * </p>
 		 * 
-		 * @param bean The bean to add.
+		 * @param bean the bean to add.
 		 * 
-		 * @return The aggregator instance.
+		 * @return the aggregator instance.
 		 */
 		public BeanAggregator<E> add(E bean) {
 			this.aggregate.add(bean);
 			return this;
 		}
-		
+
 		/**
 		 * <p>
 		 * Appends the specified collection of beans to the aggregate.
 		 * </p>
 		 * 
-		 * @param beans The beans to add.
+		 * @param beans the beans to add.
 		 * 
-		 * @return The aggregator instance.
+		 * @return the aggregator instance.
 		 */
 		public BeanAggregator<E> add(Collection<E> beans) {
 			this.aggregate.addAll(beans);
 			return this;
 		}
-		
+
 		/**
 		 * <p>
 		 * Appends the specified array of beans to the aggregate.
 		 * </p>
 		 * 
-		 * @param beans The beans to add.
+		 * @param beans the beans to add.
 		 * 
-		 * @return The aggregator instance.
+		 * @return the aggregator instance.
 		 */
 		public BeanAggregator<E> add(E[] beans) {
 			this.aggregate.addAll(Arrays.asList(beans));
 			return this;
 		}
-		
+
 		/**
 		 * <p>
 		 * Filters null bean and return a list representation of the aggregate.
 		 * </p>
 		 * 
-		 * @return A list of beans
+		 * @return a list of beans
 		 */
 		public List<E> toList() {
 			return this.aggregate.stream().filter(Objects::nonNull).collect(Collectors.toList());
 		}
-		
+
 		/**
 		 * <p>
 		 * Filters null bean and return a set representation of the aggregate.
 		 * </p>
 		 * 
-		 * @return A set of beans
+		 * @return a set of beans
 		 */
 		public Set<E> toSet() {
 			return this.aggregate.stream().filter(Objects::nonNull).collect(Collectors.toSet());
 		}
-		
+
 		/**
 		 * <p>
 		 * Filters null bean and return an array representation of the aggregate.
 		 * </p>
 		 * 
-		 * @return An array of beans
+		 * @param generator a function which produces a new array of the desired type
+		 *                  and the provided length
+		 * 
+		 * @return an array of beans
 		 */
 		public E[] toArray(IntFunction<E[]> generator) {
 			return this.aggregate.stream().filter(Objects::nonNull).toArray(generator);
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * The Module Linker base class.
@@ -363,35 +369,35 @@ public abstract class Module {
 	 * shall never be used directly.
 	 * </p>
 	 * 
-	 * @param <T> The module type to link.
+	 * @param <T> the module type to link.
 	 * 
 	 * @author jkuhn
 	 * @since 1.0
 	 */
 	protected static abstract class ModuleLinker<T extends Module> {
-		
+
 		/**
 		 * The socket map to be used during linking process.
 		 */
 		protected Map<String, Object> sockets;
-		
+
 		/**
 		 * <p>
 		 * Creates a new Module linker with the specified socket map.
 		 * </p>
 		 * 
-		 * @param sockets The socket map
+		 * @param sockets the socket map
 		 */
 		public ModuleLinker(Map<String, Object> sockets) {
 			this.sockets = sockets;
 		}
 
 		/**
-		 * </p>
+		 * <p>
 		 * Links the socket map in a new module instance and return that instance.
 		 * </p>
 		 * 
-		 * @return A new linked module instance
+		 * @return a new linked module instance
 		 */
 		protected abstract T link();
 	}
@@ -405,66 +411,67 @@ public abstract class Module {
 	 * All module have to be built by a builder.
 	 * </p>
 	 * 
-	 * @param <T> The module type to build.
+	 * @param <T> the module type to build.
 	 * 
 	 * @author jkuhn
 	 * @since 1.0
 	 */
 	protected static abstract class ModuleBuilder<T extends Module> {
-		
+
 		/**
 		 * <p>
 		 * Creates a new Module Builder.
 		 * </p>
 		 * 
-		 * @param nonOptionalSockets
-		 *            An even list of non-optional sockets pairs (name, value) required to build the module
+		 * @param nonOptionalSockets an even list of non-optional sockets pairs (name,
+		 *                           value) required to build the module
 		 * 
-		 * @throws IllegalArgumentException If one or more non-optional sockets are null
+		 * @throws IllegalArgumentException if one or more non-optional sockets are null
 		 */
 		public ModuleBuilder(Object... nonOptionalSockets) throws IllegalArgumentException {
-			if(nonOptionalSockets.length%2 != 0) {
+			if (nonOptionalSockets.length % 2 != 0) {
 				throw new IllegalArgumentException("Invalid list of required socket");
 			}
 			List<String> nullSockets = new ArrayList<>();
-			for(int i=0;i<nonOptionalSockets.length;i=i+2) {
-				if(nonOptionalSockets[i+1] == null) {
+			for (int i = 0; i < nonOptionalSockets.length; i = i + 2) {
+				if (nonOptionalSockets[i + 1] == null) {
 					nullSockets.add(nonOptionalSockets[i].toString());
 				}
 			}
-			if(nullSockets.size() > 0) {
-				throw new IllegalArgumentException("Following non-optional sockets are null: " + nullSockets.stream().collect(Collectors.joining(", ")));
+			if (nullSockets.size() > 0) {
+				throw new IllegalArgumentException("Following non-optional sockets are null: "
+						+ nullSockets.stream().collect(Collectors.joining(", ")));
 			}
 		}
-		
+
 		/**
 		 * <p>
 		 * Builds the module.
 		 * </p>
 		 * 
-		 * </p>
+		 * <p>
 		 * This method actually delegates the actual module creation to the
 		 * {@link #doBuild()} method.
 		 * </p>
 		 * 
-		 * @return A new module instance
+		 * @return a new module instance
 		 */
 		public final T build() {
 			T thisModule = this.doBuild();
 			return thisModule;
 		}
-		
+
 		/**
 		 * <p>
 		 * This method should be implemented by concrete implementation to return the
 		 * actual module instance.
 		 * </p>
 		 * 
-		 * @return A new module instance
+		 * @return a new module instance
 		 */
 		protected abstract T doBuild();
 	}
-	
+
 	/**
 	 * <p>
 	 * Interface representing the lifecycle of a bean in a module.
@@ -481,7 +488,7 @@ public abstract class Module {
 	 * A bean has to be registered in a module before it can be used.
 	 * </p>
 	 * 
-	 * @param <T> The actual type of the bean.
+	 * @param <T> the actual type of the bean.
 	 * 
 	 * @author jkuhn
 	 * @since 1.0
@@ -504,35 +511,37 @@ public abstract class Module {
 		 * Creates a bean with the specified name.
 		 * </p>
 		 * 
-		 * @param name
-		 *            The bean name
+		 * @param name the bean name
 		 */
 		protected Bean(String name) {
 			this.name = name;
 		}
-		
+
 		/**
 		 * <p>
-		 * Returns the requested bean instance while making sure the enclosing module is active.
+		 * Returns the requested bean instance while making sure the enclosing module is
+		 * active.
 		 * </p>
+		 * 
 		 * @throws IllegalStateException if the enclosing module is inactive.
 		 */
 		@Override
 		public final T get() throws IllegalStateException {
-			if(!this.parent.isActive()) {
+			if (!this.parent.isActive()) {
 				throw new IllegalArgumentException("Module " + this.parent.getName() + " is inactive.");
 			}
 			return this.doGet();
 		}
-		
+
 		/**
 		 * <p>
 		 * Returns the supplied bean instance.
 		 * </p>
-		 * @return A bean instance
+		 * 
+		 * @return a bean instance
 		 */
 		public abstract T doGet();
-		
+
 		/**
 		 * <p>
 		 * Creates the underlying bean instance
@@ -547,7 +556,7 @@ public abstract class Module {
 		 */
 		public abstract void destroy();
 	}
-	
+
 	/**
 	 * <p>
 	 * A BeanBuilder is used within a module class to create {@link Bean} instances.
@@ -565,40 +574,39 @@ public abstract class Module {
 	 * </p>
 	 * 
 	 * <pre>
-	 * {@code
 	 *     this.bean = BeanBuilder
-	 *         .singleton("bean", () -> {
+	 *         .singleton("bean", () -&gt; {
 	 *              BeanA beanA = new BeanA(serviceSocket.get());
 	 *              return beanA;
 	 *          })
 	 *          .init(BeanA::init)
 	 *          .destroy(BeanA::destroy)
 	 *          .build(this);
-	 * }
 	 * </pre>
 	 * 
-	 * @param <T> The actual type of the bean to build
+	 * @param <T> the actual type of the bean to build
 	 * 
 	 * @author jkuhn
 	 * @since 1.0
 	 * @see Bean
 	 */
 	protected interface BeanBuilder<T> {
-		
+
 		/**
 		 * <p>
-		 * Fallible consumer used to designates init and destroy methods which might throw checked exception.
+		 * Fallible consumer used to designates init and destroy methods which might
+		 * throw checked exception.
 		 * </p>
 		 * 
 		 * @author jkuhn
 		 *
-		 * @param <T>
+		 * @param <T> the type of the input to the operation
 		 */
 		@FunctionalInterface
 		static interface FallibleConsumer<T> {
 			void accept(T t) throws Exception;
 		}
-		
+
 		/**
 		 * <p>
 		 * Returns a Singleton Bean Builder.
@@ -609,31 +617,31 @@ public abstract class Module {
 		 * be injected through the application.
 		 * </p>
 		 * 
-		 * @param beanName
-		 *            The bean name
-		 * @param constructor
-		 *            the bean instance supplier
-		 * @return A singleton Bean Builder
+		 * @param <T>         the type of the bean to build
+		 * @param beanName    the bean name
+		 * @param constructor the bean instance supplier
+		 * 
+		 * @return a singleton Bean Builder
 		 */
 		static <T> BeanBuilder<T> singleton(String beanName, Supplier<T> constructor) {
 			return new SingletonBeanBuilder<T>(beanName, constructor);
 		}
-		
+
 		/**
 		 * <p>
 		 * Returns a Prototype Bean Builder.
-		 * <p>
+		 * </p>
 		 * 
 		 * <p>
 		 * Prototype {@link Bean}s are useful when distinct instances of a bean should
 		 * be injected though the application.
 		 * </p>
 		 * 
-		 * @param beanName
-		 *            the bean name
-		 * @param constructor
-		 *            the bean instance supplier
-		 * @return A prototype Bean Builder
+		 * @param <T>         the type of the bean to build
+		 * @param beanName    the bean name
+		 * @param constructor the bean instance supplier
+		 * 
+		 * @return a prototype Bean Builder
 		 */
 		static <T> BeanBuilder<T> prototype(String beanName, Supplier<T> constructor) {
 			return new PrototypeBeanBuilder<T>(beanName, constructor);
@@ -644,31 +652,30 @@ public abstract class Module {
 		 * Adds a bean initialization operation.
 		 * </p>
 		 * 
-		 * @param init
-		 *            The bean initialization operation.
-		 * @return This builder
+		 * @param init the bean initialization operation.
+		 * 
+		 * @return this builder
 		 */
 		BeanBuilder<T> init(FallibleConsumer<T> init);
-		
+
 		/**
 		 * <p>
 		 * Adds a bean destruction operation.
 		 * </p>
 		 * 
-		 * @param init
-		 *            The bean destruction operation.
-		 * @return This builder
+		 * @param destroy the bean destruction operation.
+		 * 
+		 * @return this builder
 		 */
 		BeanBuilder<T> destroy(FallibleConsumer<T> destroy);
-		
+
 		/**
 		 * <p>
 		 * Builds the bean.
 		 * </p>
 		 * 
-		 * @return A bean
+		 * @return a bean
 		 */
 		public Bean<T> build();
 	}
-	
 }

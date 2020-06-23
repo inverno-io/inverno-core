@@ -40,20 +40,17 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * <pre>
- * {
- * 	&#64;code
- * 	&#64;code
- * 	&#64;Bean
- * 	public class ModuleBean implements &#64;Provide SomeService, SomeOtherService {
+ *     &#64;Bean
+ *     public class ModuleBean implements &#64;Provide SomeService, SomeOtherService {
  * 
- * 	}
- * }
+ *     }
  * </pre>
  * 
  * <p>
  * Note that this also has an impact on bean wiring. From within the module the
- * bean provides its actual visible type which can then be wired to any assignable
- * socket. From outside the module, wiring is only based on the provided type.
+ * bean provides its actual visible type which can then be wired to any
+ * assignable socket. From outside the module, wiring is only based on the
+ * provided type.
  * </p>
  * 
  * @author jkuhn

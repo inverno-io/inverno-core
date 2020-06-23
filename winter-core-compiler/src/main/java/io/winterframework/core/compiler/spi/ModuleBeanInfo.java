@@ -36,19 +36,19 @@ public interface ModuleBeanInfo extends BeanInfo {
 	 * outside the module.
 	 * </p>
 	 * 
-	 * @return A type.
+	 * @return a type
 	 */
 	TypeMirror getProvidedType();
-	
+
 	/**
 	 * <p>
 	 * Returns the strategy of the bean.
 	 * </p>
 	 * 
-	 * @return A bean stragegy
+	 * @return a bean strategy
 	 */
 	Bean.Strategy getStrategy();
-	
+
 	/**
 	 * <p>
 	 * Returns the visibility of the bean.
@@ -59,28 +59,28 @@ public interface ModuleBeanInfo extends BeanInfo {
 	 * visible from inside the module.
 	 * </p>
 	 * 
-	 * @return A visibility
+	 * @return a visibility
 	 */
 	Bean.Visibility getVisibility();
-	
+
 	/**
 	 * <p>
 	 * Returns the methods that should be invoked to initialize a bean instance.
 	 * </p>
 	 * 
-	 * @return An array of executable elements.
+	 * @return an array of executable elements
 	 */
 	ExecutableElement[] getInitElements();
-	
+
 	/**
 	 * <p>
 	 * Returns the methods that should be invoked to destroy a bean instance.
 	 * </p>
 	 * 
-	 * @return An array of executable elements.
+	 * @return an array of executable elements
 	 */
 	ExecutableElement[] getDestroyElements();
-	
+
 	/**
 	 * <p>
 	 * Returns the list of sockets specified by the bean.
@@ -90,10 +90,10 @@ public interface ModuleBeanInfo extends BeanInfo {
 	 * A bean socket defines an entry point for dependency injection on the bean.
 	 * </p>
 	 * 
-	 * @return An array of bean socket info.
+	 * @return an array of bean socket info
 	 */
 	ModuleBeanSocketInfo[] getSockets();
-	
+
 	/**
 	 * <p>
 	 * Returns the list of required sockets specified by the bean.
@@ -104,7 +104,7 @@ public interface ModuleBeanInfo extends BeanInfo {
 	 * instantiate the bean.
 	 * </p>
 	 * 
-	 * @return An array of bean socket info.
+	 * @return an array of bean socket info
 	 */
 	ModuleBeanSocketInfo[] getRequiredSockets();
 
@@ -118,7 +118,7 @@ public interface ModuleBeanInfo extends BeanInfo {
 	 * the bean.
 	 * </p>
 	 * 
-	 * @return An array of bean socket info.
+	 * @return an array of bean socket info
 	 */
 	ModuleBeanSocketInfo[] getOptionalSockets();
 }

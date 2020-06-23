@@ -35,9 +35,11 @@ public interface MultiSocketInfo extends SocketInfo {
 	 * @return An array of beans.
 	 */
 	BeanInfo[] getBeans();
-	
+
 	/**
-	 * <p>Returns the multiple type of the socket.</p>
+	 * <p>
+	 * Returns the multiple type of the socket.
+	 * </p>
 	 * 
 	 * @return A multiple socket type
 	 */
