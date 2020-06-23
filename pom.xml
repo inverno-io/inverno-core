@@ -16,8 +16,31 @@
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>winter-root</name>
+	<name>The Winter framework</name>
+	<description>The Winter framework is an Inversion of Control and Dependency Injection framework for the Java 9+ platform.</description>
+	<inceptionYear>2020</inceptionYear>
 	<url>https://winterframework.io</url>
+
+	<developers>
+		<developer>
+			<id>jkuhn</id>
+			<name>Jeremy Kuhn</name>
+			<email>jeremy.kuhn@winterframework.io</email>
+		</developer>
+	</developers>
+	
+	<scm>
+		<url>https://github.com/winterframework-io/winter-root.git</url>
+		<connection>scm:git:git://github.com/winterframework-io/winter-root.git</connection>
+		<developerConnection>scm:git:git@github.com:winterframework-io/winter-root.git</developerConnection>
+	</scm>
+	
+	<licenses>
+		<license>
+			<name>Apache License 2.0</name>
+			<url>https://spdx.org/licenses/Apache-2.0</url>
+		</license>
+	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -130,7 +153,6 @@
 						<dependency>
 							<groupId>org.ow2.asm</groupId>
 							<artifactId>asm</artifactId>
-<!-- 							<version>7.3.1</version> -->
 							<version>8.0.1</version> <!-- Use newer version of ASM -->
 						</dependency>
 					</dependencies>
