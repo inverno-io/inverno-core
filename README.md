@@ -20,7 +20,7 @@ module io.winterframework.example.hello {
 }
 ```
 
-A **Winter Bean** can be a regular Java class annotated with `@Bean` annotation. A bean represents the basic building block of an application which is typically composed of multiple interconnected beans instances. For instance, the following `HelloService` bean can be used to create a basic application:
+A **Winter Bean** can be a regular Java class annotated with `@Bean` annotation. A bean represents the basic building block of an application which is typically composed of multiple interconnected beans instances. The following `HelloService` bean can be used to create a basic application:
 
 ```java
 package io.winterframework.example.hello;
@@ -82,13 +82,13 @@ The development of a Winter module is pretty easy using [Apache Maven](https://m
 </project> 
 ```
 
-Java source files for `io.winterframework.example.hello` module must be place in `src/main/java` directory, the module can then be built using Maven:
+Java source files for `io.winterframework.example.hello` module must be placed in `src/main/java` directory, the module can then be built using Maven:
 
 ```shell
 $ mvn install
 ```
 
-You can also run the hello application:
+You can then run the hello application:
 
 ```shell
 $ mvn exec:java -Dexec.mainClass=io.winterframework.example.hello.App -Dexec.arguments=John
@@ -108,7 +108,7 @@ Hello John!!!
 
 ### Building and running with pure Java
 
-You can also choose to build your Winter module using pure Java commands. Assuming Winter framework modules are located under `lib/` directory and Java source files for `io.winterframework.example.hello` module are placed in `src/io.winterframework.example.hello` directory, you can build the module with `javac` command:
+You can also choose to build your Winter module using pure Java commands. Assuming Winter framework modules are located under `lib/` directory and Java source files for `io.winterframework.example.hello` module are placed in `src/io.winterframework.example.hello` directory, you can build the module with the `javac` command:
 
 ```shell
 $ javac --processor-module-path lib/ --module-path lib/ --module-source-path src/ -d jmods/ --module io.winterframework.example.hello 
@@ -131,11 +131,11 @@ Hello John!!!
 
 ### Summary
 
-In this simple example, we created a Winter module which exposes one bean and use it to implement logic in an application. As you can imagine a real life application is far more complex than that, composed of many modules providing multiple beans in different ways and wired altogether. The Winter framework has been created to create such applications in a simple, elegant and efficient way, please consult the [complete documentation](doc/reference-guide.md) to get the full picture.
+In this simple example, we created a Winter module which exposes one bean and use it to implement logic in an application. As you can imagine a real life application is far more complex than that, composed of many modules providing multiple beans in different ways and wired altogether. The Winter framework has been designed to create such applications in a simple, elegant and efficient way, please consult the [complete documentation](doc/reference-guide.md) to get the full picture.
 
-## Building Winter framework
+## Building Winter framework
 
-The Winter framework can be built using maven and Java 9+ with the following command:
+The Winter framework can be built using Maven and Java 9+ with the following command:
 
 ```shell
 $ mvn install
