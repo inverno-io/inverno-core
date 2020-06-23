@@ -45,7 +45,6 @@ import java.util.function.Supplier;
  * </p>
  * 
  * <pre>
- * {@code
  *     &#64;Bean
  *     public class ModuleBean implements SomeService {
  *         
@@ -67,7 +66,6 @@ import java.util.function.Supplier;
  *             ...
  *         }
  *     }
- * }
  * </pre>
  * 
  * <p>
@@ -77,10 +75,9 @@ import java.util.function.Supplier;
  * </p>
  * 
  * <pre>
- * {@code
  *     &#64;Bean
  *     &#64;Wrapper
- *     public class WrapperBean implements Supplier<SomeService> {
+ *     public class WrapperBean implements Supplier&lt;SomeService&gt; {
  *         
  *         private SomeService instance;
  *         
@@ -110,7 +107,6 @@ import java.util.function.Supplier;
  *             ...
  *         }
  *     }
- * }
  * </pre>
  * 
  * <p>
@@ -126,15 +122,13 @@ import java.util.function.Supplier;
  * </p>
  * 
  * <pre>
- * {@code
  *     &#64;Bean
- *     public interface SocketBean implements Supplier<SomeService> {
+ *     public interface SocketBean implements Supplier&lt;SomeService&gt; {
  *     }
- * }
  * </pre>
  * 
  * @author jkuhn
- * @Since 1.0
+ * @since 1.0
  * @see BeanSocket
  * @see Factory
  */
@@ -147,6 +141,8 @@ public @interface Bean {
 	 * Indicates a name identifying the bean in the module, defaults to the name of
 	 * the class.
 	 * </p>
+	 * 
+	 * @return A name
 	 */
 	String name() default "";
 
@@ -154,7 +150,7 @@ public @interface Bean {
 	 * Indicates the visibility of a bean in a module.
 	 * 
 	 * @author jkuhn
-	 * @Since 1.0
+	 * @since 1.0
 	 */
 	public static enum Visibility {
 		/**
@@ -166,7 +162,7 @@ public @interface Bean {
 		 */
 		PUBLIC;
 	}
-	
+
 	/**
 	 * <p>
 	 * Indicates the visibility of the bean in the module.
@@ -177,9 +173,11 @@ public @interface Bean {
 	 * Private bean are provided as a convenience to let the framework instantiate
 	 * and wire internal beans instead of doing it explicitly.
 	 * </p>
+	 * 
+	 * @return The bean's visibility
 	 */
 	Visibility visibility() default Visibility.PUBLIC;
-	
+
 	/**
 	 * <p>
 	 * Indicates the strategy to use to instantiate the bean.
@@ -203,7 +201,7 @@ public @interface Bean {
 	 * </p>
 	 * 
 	 * @author jkuhn
-	 * @Since 1.0
+	 * @since 1.0
 	 */
 	public static enum Strategy {
 		/**
@@ -215,9 +213,11 @@ public @interface Bean {
 		 */
 		PROTOTYPE
 	}
-	
+
 	/**
 	 * The bean strategy which defaults to {@link Strategy#SINGLETON}.
+	 * 
+	 * @return The bean's strategy
 	 */
 	Strategy strategy() default Strategy.SINGLETON;
 }

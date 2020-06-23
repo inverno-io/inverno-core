@@ -59,14 +59,12 @@ import io.winterframework.core.v1.Module.Bean;
  * </p>
  * 
  * <pre>
- * {@code
  *     try (MyPrototype instance = myModuleInstance.myPrototype()) {
  *         ...
  *     }
- * }
  * </pre>
  * 
- * @param <T> The actual type of the bean.
+ * @param <T> the actual type of the bean.
  * 
  * @author jkuhn
  * @since 1.0
@@ -83,31 +81,30 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 	 * The list of instances issued by the bean.
 	 */
 	private Set<WeakReference<T>> instances;
-	
+
 	private ReferenceQueue<T> referenceQueue;
-		
+
 	/**
 	 * <p>
 	 * Creates a prototype bean with the specified name.
 	 * </p>
 	 * 
-	 * @param name
-	 *            The bean name
+	 * @param name the bean name
 	 */
 	public PrototypeBean(String name) {
 		super(name);
 	}
-	
+
 	/**
 	 * Expunges stake instances from the list.
 	 */
 	@SuppressWarnings("unchecked")
 	private void expungeStaleInstances() {
-		for (T ref; (ref = (T) this.referenceQueue.poll()) != null; ) {
+		for (T ref; (ref = (T) this.referenceQueue.poll()) != null;) {
 			this.instances.remove(ref);
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * Creates the prototype bean.
@@ -120,25 +117,26 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 	 * </p>
 	 */
 	public synchronized final void create() {
-		if(this.instances == null) {
-			LOGGER.info(() -> "Creating Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+		if (this.instances == null) {
+			LOGGER.info(() -> "Creating Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":"
+					+ this.name);
 			this.instances = new HashSet<>();
 			this.referenceQueue = new ReferenceQueue<T>();
 			this.parent.recordBean(this);
 		}
 	}
-	
+
 	/**
 	 * <p>
 	 * Returns a new bean instance.
 	 * </p>
 	 * 
 	 * <p>
-	 * This method delegates bean instance creation to the
-	 * {@link #createInstance()} method.
+	 * This method delegates bean instance creation to the {@link #createInstance()}
+	 * method.
 	 * </p>
 	 * 
-	 * @return A bean instance
+	 * @return a bean instance
 	 */
 	public final T doGet() {
 		this.create();
@@ -146,7 +144,7 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 		T instance = this.createInstance();
 		WeakReference<T> reference = new WeakReference<>(instance, this.referenceQueue);
 		this.instances.add(reference);
-		
+
 		return instance;
 	}
 
@@ -161,10 +159,12 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 	 * </p>
 	 */
 	public synchronized final void destroy() {
-		if(this.instances != null) {
-			LOGGER.info(() -> "Destroying Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+		if (this.instances != null) {
+			LOGGER.info(() -> "Destroying Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":"
+					+ this.name);
 			this.expungeStaleInstances();
-			this.instances.stream().map(WeakReference::get).filter(Objects::nonNull).forEach(instance -> this.destroyInstance(instance));
+			this.instances.stream().map(WeakReference::get).filter(Objects::nonNull)
+					.forEach(instance -> this.destroyInstance(instance));
 			this.instances.clear();
 			this.instances = null;
 		}

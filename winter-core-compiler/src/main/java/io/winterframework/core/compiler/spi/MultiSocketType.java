@@ -30,8 +30,28 @@ package io.winterframework.core.compiler.spi;
  */
 public enum MultiSocketType {
 
+	/**
+	 * <p>
+	 * Designates an array multiple socket.
+	 * </p>
+	 */
 	ARRAY,
+	/**
+	 * <p>
+	 * Designates a collection multiple socket.
+	 * </p>
+	 */
 	COLLECTION,
+	/**
+	 * <p>
+	 * Designates a set multiple socket.
+	 * </p>
+	 */
 	SET,
+	/**
+	 * <p>
+	 * Designates a list multiple socket.
+	 * </p>
+	 */
 	LIST;
 }

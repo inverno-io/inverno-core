@@ -43,60 +43,61 @@ public class BeanQualifiedName extends QualifiedName {
 	 * </p>
 	 */
 	private ModuleQualifiedName moduleQName;
-	
+
 	/**
 	 * <p>
 	 * The name of the bean.
 	 * </p>
 	 */
 	private String beanName;
-	
+
 	/**
 	 * <p>
 	 * Creates a bean qualified name from the specified module qualified name and
 	 * bean name.
 	 * </p>
 	 * 
-	 * @param moduleQName The qualified name of the module defining the bean.
-	 * @param beanName    The name of the bean.
-	 * @throws QualifiedNameFormatException If the specified bean name is invalid.
+	 * @param moduleQName the qualified name of the module defining the bean
+	 * @param beanName    the name of the bean
+	 * 
+	 * @throws QualifiedNameFormatException if the specified bean name is invalid.
 	 */
 	public BeanQualifiedName(ModuleQualifiedName moduleQName, String beanName) throws QualifiedNameFormatException {
 		super(moduleQName.getValue() + SEPARATOR + beanName);
-		
+
 		this.moduleQName = moduleQName;
-		
+
 		this.validateQualifiedNamePart(beanName);
 		this.beanName = beanName;
 	}
-	
+
 	@Override
 	public String getSimpleValue() {
 		return this.getBeanName();
 	}
-	
+
 	/**
 	 * <p>
 	 * Returns the qualified name of the module defining the bean.
 	 * </p>
 	 * 
-	 * @return A module qualified name.
+	 * @return a module qualified name
 	 */
 	public ModuleQualifiedName getModuleQName() {
 		return this.moduleQName;
 	}
-	
+
 	/**
 	 * <p>
 	 * Returns the name of the bean.
 	 * </p>
 	 * 
-	 * @return The bean name.
+	 * @return the bean name.
 	 */
 	public String getBeanName() {
 		return this.beanName;
 	}
-	
+
 	/**
 	 * <p>
 	 * Creates a bean qualified name from the specified raw value of the form
@@ -104,16 +105,19 @@ public class BeanQualifiedName extends QualifiedName {
 	 * <code>&lt;beanName&gt;</code> is a valid Java name.
 	 * </p>
 	 * 
-	 * @param qname A raw qualified name.
-	 * @return A bean qualified name.
-	 * @throws QualifiedNameFormatException If the specified value is not a bean
-	 *                                      qualified name.
+	 * @param qname a raw qualified name
+	 * 
+	 * @return a bean qualified name
+	 * @throws QualifiedNameFormatException if the specified value is not a bean
+	 *                                      qualified name
 	 */
 	public static BeanQualifiedName valueOf(String qname) throws QualifiedNameFormatException {
 		int lastSeparatorIndex = qname.lastIndexOf(SEPARATOR);
-		if(lastSeparatorIndex == -1) {
-			throw new QualifiedNameFormatException("Invalid qname " + qname + ", was expecting: ModuleQualifiedName():<beanName>");
+		if (lastSeparatorIndex == -1) {
+			throw new QualifiedNameFormatException(
+					"Invalid qname " + qname + ", was expecting: ModuleQualifiedName():<beanName>");
 		}
-		return new BeanQualifiedName(ModuleQualifiedName.valueOf(qname.substring(0, lastSeparatorIndex)), qname.substring(lastSeparatorIndex+1));
+		return new BeanQualifiedName(ModuleQualifiedName.valueOf(qname.substring(0, lastSeparatorIndex)),
+				qname.substring(lastSeparatorIndex + 1));
 	}
 }

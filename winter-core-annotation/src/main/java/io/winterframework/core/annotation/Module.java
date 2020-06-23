@@ -60,20 +60,28 @@ public @interface Module {
 	 * Indicates the name of the generated module class, defaults to the name of the
 	 * module.
 	 * </p>
+	 * 
+	 * @return The module's class name
 	 */
 	String className() default "";
-	
+
 	/**
 	 * <p>
-	 * List required Winter modules that must be included in the generated module class by the Winter compiler, if none are specified include all.
+	 * List required Winter modules that must be included in the generated module
+	 * class by the Winter compiler, if none are specified include all.
 	 * </p>
+	 * 
+	 * @return A list of modules to include
 	 */
 	String[] includes() default {};
-	
+
 	/**
 	 * <p>
-	 * List required Winter modules that must be excluded from the generated module class by the Winter compiler.
+	 * List required Winter modules that must be excluded from the generated module
+	 * class by the Winter compiler.
 	 * </p>
+	 * 
+	 * @return A list of modules to exclude
 	 */
 	String[] excludes() default {};
 }

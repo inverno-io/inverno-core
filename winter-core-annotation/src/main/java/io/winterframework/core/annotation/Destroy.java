@@ -29,8 +29,8 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * <p>
- * Unlike Beans with scope {@link Scope.Type#SINGLETON}, beans with scope
- * {@link Scope.Type#PROTOTYPE} might not be destroyed and therefore destroy
+ * Unlike Beans with scope {@link Bean.Strategy#SINGLETON}, beans with scope
+ * {@link Bean.Strategy#PROTOTYPE} might not be destroyed and therefore destroy
  * methods not invoked when they are created outside of a module and
  * dereferenced before the module is stopped. As a result you should generally
  * avoid defining destroy methods on beans with scope prototype. If you have
@@ -41,16 +41,13 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * <pre>
- * {@code
  *     try (MyPrototype instance = myModuleInstance.myPrototype()) {
  *         ...
  *     }
- * }
  * </pre>
- * </p>
  * 
  * @author jkuhn
- * @Since 1.0
+ * @since 1.0
  */
 @Retention(CLASS)
 @Target({ METHOD, MODULE })

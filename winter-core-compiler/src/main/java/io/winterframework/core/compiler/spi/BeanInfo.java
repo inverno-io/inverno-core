@@ -32,7 +32,7 @@ public interface BeanInfo extends Info {
 	 * Returns a bean qualified name.
 	 * </p>
 	 * 
-	 * @return A bean qualified name.
+	 * @return a bean qualified name
 	 */
 	BeanQualifiedName getQualifiedName();
 
@@ -41,7 +41,7 @@ public interface BeanInfo extends Info {
 	 * Returns the underlying type of the bean.
 	 * </p>
 	 * 
-	 * @return
+	 * @return a type
 	 */
 	TypeMirror getType();
 }

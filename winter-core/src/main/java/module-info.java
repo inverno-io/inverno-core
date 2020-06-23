@@ -33,6 +33,8 @@
 module io.winterframework.core {
 	requires java.logging;
 	requires transitive java.compiler;
+	
+	requires static io.winterframework.core.annotation;
 
 	exports io.winterframework.core.v1;
 }

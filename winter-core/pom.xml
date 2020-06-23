@@ -26,7 +26,6 @@
 	<packaging>jar</packaging>
 
 	<name>winter-core</name>
-	<url>http://maven.apache.org</url>
 	
 	<dependencies>
 		<dependency>

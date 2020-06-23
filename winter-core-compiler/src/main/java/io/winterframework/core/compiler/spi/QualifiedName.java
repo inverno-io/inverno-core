@@ -50,7 +50,7 @@ public abstract class QualifiedName {
 	 * Creates a qualified name with the specified raw value.
 	 * </p>
 	 * 
-	 * @param value The raw value.
+	 * @param value the raw value
 	 */
 	protected QualifiedName(String value) {
 		this.value = value;
@@ -65,8 +65,10 @@ public abstract class QualifiedName {
 	 * A Java name is a valid qualified name part.
 	 * </p>
 	 * 
-	 * @param qnamePart The qualified name part to validate.
-	 * @throws QualifiedNameFormatException If the specified qualified name part is invalid.
+	 * @param qnamePart the qualified name part to validate
+	 * 
+	 * @throws QualifiedNameFormatException if the specified qualified name part is
+	 *                                      invalid
 	 */
 	protected void validateQualifiedNamePart(String qnamePart) throws QualifiedNameFormatException {
 		boolean start = true;
@@ -93,9 +95,11 @@ public abstract class QualifiedName {
 	 * Returns a simple representation of this qualified name.
 	 * </p>
 	 * 
-	 * <p>Note that this representation is no longer "qualified".</p>
+	 * <p>
+	 * Note that this representation is no longer "qualified".
+	 * </p>
 	 * 
-	 * @return A simple representation.
+	 * @return a simple representation
 	 */
 	public abstract String getSimpleValue();
 
@@ -104,7 +108,7 @@ public abstract class QualifiedName {
 	 * Returns the qualified name raw value.
 	 * </p>
 	 * 
-	 * @return The raw value.
+	 * @return the raw value
 	 */
 	public String getValue() {
 		return this.value;
@@ -116,10 +120,12 @@ public abstract class QualifiedName {
 	 * </p>
 	 * 
 	 * <p>
-	 * This methods basically converts the simple value to a camel case Java identifier by removing possible dots. As for the simple value the normalized representation is not "qualified".
+	 * This methods basically converts the simple value to a camel case Java
+	 * identifier by removing possible dots. As for the simple value the normalized
+	 * representation is not "qualified".
 	 * </p>
 	 * 
-	 * @return A normalized representation.
+	 * @return a normalized representation
 	 */
 	public String normalize() {
 		String result = this.getSimpleValue();

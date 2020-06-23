@@ -53,9 +53,10 @@ public class BeanSocketQualifiedName extends QualifiedName {
 	 * and socket name.
 	 * </p>
 	 * 
-	 * @param beanQName The qualified name of the bean defining the socket.
-	 * @param name      The name of the socket.
-	 * @throws QualifiedNameFormatException If the specified socket name is invalid.
+	 * @param beanQName the qualified name of the bean defining the socket
+	 * @param name      the name of the socket
+	 * 
+	 * @throws QualifiedNameFormatException if the specified socket name is invalid
 	 */
 	public BeanSocketQualifiedName(BeanQualifiedName beanQName, String name) throws QualifiedNameFormatException {
 		super(beanQName.getValue() + SEPARATOR + name);
@@ -76,7 +77,7 @@ public class BeanSocketQualifiedName extends QualifiedName {
 	 * Returns the name of the bean defining the socket.
 	 * </p>
 	 * 
-	 * @return A bean qualified name.
+	 * @return a bean qualified name
 	 */
 	public BeanQualifiedName getBeanQName() {
 		return this.beanQName;
@@ -87,7 +88,7 @@ public class BeanSocketQualifiedName extends QualifiedName {
 	 * Returns the name of the socket.
 	 * </p>
 	 * 
-	 * @return The socket name.
+	 * @return the socket name
 	 */
 	public String getName() {
 		return this.name;
@@ -100,17 +101,20 @@ public class BeanSocketQualifiedName extends QualifiedName {
 	 * <code>&lt;socketName&gt;</code> is a valid Java name.
 	 * </p>
 	 * 
-	 * @param qname A raw qualified name.
-	 * @return A bean socket qualified name.
-	 * @throws QualifiedNameFormatException If the specified value is not a bean
-	 *                                      socket qualified name.
+	 * @param qname a raw qualified name
+	 * 
+	 * @return a bean socket qualified name
+	 * @throws QualifiedNameFormatException if the specified value is not a bean
+	 *                                      socket qualified name
 	 */
 	public static BeanSocketQualifiedName valueOf(String qname) throws QualifiedNameFormatException {
 		int lastSeparatorIndex = qname.lastIndexOf(SEPARATOR);
 		if (lastSeparatorIndex == -1) {
-			throw new QualifiedNameFormatException("Invalid qname " + qname + ", was expecting: BeanQualifiedName():<socketName>");
+			throw new QualifiedNameFormatException(
+					"Invalid qname " + qname + ", was expecting: BeanQualifiedName():<socketName>");
 		}
-		return new BeanSocketQualifiedName(BeanQualifiedName.valueOf(qname.substring(0, lastSeparatorIndex)), qname.substring(lastSeparatorIndex + 1));
+		return new BeanSocketQualifiedName(BeanQualifiedName.valueOf(qname.substring(0, lastSeparatorIndex)),
+				qname.substring(lastSeparatorIndex + 1));
 	}
 
 	/**
@@ -122,16 +126,19 @@ public class BeanSocketQualifiedName extends QualifiedName {
 	 * Java name.
 	 * </p>
 	 * 
-	 * @param moduleQName A module qualified name.
-	 * @param qname       A raw qualified name.
-	 * @return A bean socket qualified name.
-	 * @throws QualifiedNameFormatException If the specified value is not a bean
-	 *                                      socket qualified name.
+	 * @param moduleQName a module qualified name
+	 * @param qname       a raw qualified name
+	 * 
+	 * @return a bean socket qualified name
+	 * @throws QualifiedNameFormatException if the specified value is not a bean
+	 *                                      socket qualified name
 	 */
-	public static BeanSocketQualifiedName valueOf(ModuleQualifiedName moduleQName, String qname) throws QualifiedNameFormatException {
+	public static BeanSocketQualifiedName valueOf(ModuleQualifiedName moduleQName, String qname)
+			throws QualifiedNameFormatException {
 		String[] qnameParts = qname.split(SEPARATOR);
 		if (qnameParts.length != 2) {
-			throw new QualifiedNameFormatException("Invalid qname " + qname + ", was expecting: <beanName>:<socketName>");
+			throw new QualifiedNameFormatException(
+					"Invalid qname " + qname + ", was expecting: <beanName>:<socketName>");
 		}
 		return new BeanSocketQualifiedName(new BeanQualifiedName(moduleQName, qnameParts[0]), qnameParts[1]);
 	}

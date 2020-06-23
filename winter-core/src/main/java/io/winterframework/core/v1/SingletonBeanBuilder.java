@@ -35,24 +35,22 @@ import io.winterframework.core.v1.Module.BeanBuilder;
  * @author jkuhn
  * @since 1.0
  * 
- * @param <T>
- *            The actual type of the bean.
+ * @param <T> the actual type of the bean.
  * 
  * @see BeanBuilder
  * @see Bean
  * @see SingletonBean
  */
 class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
-	
+
 	/**
 	 * <p>
-	 * Creates a singleton bean builder with the specified bean name and constructor.
+	 * Creates a singleton bean builder with the specified bean name and
+	 * constructor.
 	 * </p>
 	 * 
-	 * @param beanName
-	 *            The bean name
-	 * @param constructor
-	 *            The bean constructor
+	 * @param beanName    the bean name
+	 * @param constructor the bean constructor
 	 */
 	public SingletonBeanBuilder(String beanName, Supplier<T> constructor) {
 		super(beanName, constructor);
@@ -63,7 +61,7 @@ class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
 	 * Builds the bean.
 	 * </p>
 	 * 
-	 * @return A singleton bean
+	 * @return a singleton bean
 	 */
 	public Bean<T> build() {
 		return new SingletonBean<T>(this.beanName) {
@@ -74,8 +72,7 @@ class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
 				inits.stream().forEach(init -> {
 					try {
 						init.accept(instance);
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						LOGGER.log(Level.SEVERE, e, () -> "Error initializing bean " + name);
 						throw new RuntimeException("Error initializing bean " + name, e);
 					}
@@ -88,8 +85,7 @@ class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
 				destroys.stream().forEach(destroy -> {
 					try {
 						destroy.accept(instance);
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						LOGGER.log(Level.WARNING, e, () -> "Error destroying bean " + name);
 					}
 				});

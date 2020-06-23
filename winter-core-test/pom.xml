@@ -28,7 +28,6 @@
 	<packaging>jar</packaging>
 
 	<name>winter-core-test</name>
-	<url>http://maven.apache.org</url>
 
 	<dependencies>
 		<dependency>

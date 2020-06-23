@@ -43,30 +43,33 @@ public interface SocketInfo extends Info {
 	 * Returns the type of bean that can be plugged into the socket.
 	 * </p>
 	 * 
-	 * @return A type.
+	 * @return a type
 	 */
 	TypeMirror getType();
-	
+
 	/**
 	 * <p>
 	 * Returns the executable element to use to plug beans into the socket.
 	 * </p>
 	 * 
-	 * <p>Note that this is not applicable to socket beans in a module being generated.</p>
+	 * <p>
+	 * Note that this is not applicable to socket beans in a module being generated.
+	 * </p>
 	 * 
-	 * @return An optional providing the executable element or an empty optional if not applicable.
+	 * @return an optional providing the executable element or an empty optional if
+	 *         not applicable
 	 */
 	Optional<ExecutableElement> getSocketElement();
-	
+
 	/**
 	 * <p>
 	 * Returns the {@link Selector} annotations defined on the socket.
 	 * </p>
 	 * 
-	 * @return An array of selector annotations.
+	 * @return an array of selector annotations
 	 */
 	AnnotationMirror[] getSelectors();
-	
+
 	/**
 	 * <p>
 	 * Determines whether the socket is optional.
@@ -77,10 +80,10 @@ public interface SocketInfo extends Info {
 	 * properly.
 	 * </p>
 	 * 
-	 * @return true if the socket is optional, false otherwise.
+	 * @return true if the socket is optional, false otherwise
 	 */
 	boolean isOptional();
-	
+
 	/**
 	 * <p>
 	 * Determines whether the socket is resolved.
@@ -91,7 +94,7 @@ public interface SocketInfo extends Info {
 	 * bean has been plugged into the socket).
 	 * </p>
 	 * 
-	 * @return true if the socket is resolved, false otherwise.
+	 * @return true if the socket is resolved, false otherwise
 	 */
 	boolean isResolved();
 }

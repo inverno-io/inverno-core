@@ -30,7 +30,7 @@ import javax.lang.model.type.TypeMirror;
  * @author jkuhn
  *
  */
-public interface SocketBeanInfo extends BeanInfo, SocketInfo  {
+public interface SocketBeanInfo extends BeanInfo, SocketInfo {
 
 	/**
 	 * <p>
@@ -44,17 +44,17 @@ public interface SocketBeanInfo extends BeanInfo, SocketInfo  {
 	 * plugged into the socket.
 	 * </p>
 	 * 
-	 * @return A type.
+	 * @return a type
 	 */
 	TypeMirror getSocketType();
-	
+
 	/**
 	 * <p>
 	 * Returns the qualified names of all the beans directly or indirectly wired to
 	 * the socket.
 	 * </p>
 	 * 
-	 * @return An array of bean qualified names.
+	 * @return an array of bean qualified names
 	 */
 	BeanQualifiedName[] getWiredBeans();
 }

@@ -21,15 +21,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>Annotation that aggregates several {@link Wire} annotations.</p> 
+ * <p>
+ * Annotation that aggregates several {@link Wire} annotations.
+ * </p>
  * 
  * @author jkuhn
  * @since 1.0
  * @see Wire
  */
 @Retention(RetentionPolicy.CLASS)
-@Target({ElementType.MODULE})
+@Target({ ElementType.MODULE })
 public @interface Wires {
 
+	/**
+	 * <p>
+	 * The list of {@link Wire} to consider when compiling a module.
+	 * </p>
+	 * 
+	 * @return A list of wire
+	 */
 	Wire[] value();
 }

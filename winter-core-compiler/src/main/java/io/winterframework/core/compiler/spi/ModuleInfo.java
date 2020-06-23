@@ -32,10 +32,10 @@ public interface ModuleInfo extends Info {
 	 * Returns a module qualified name.
 	 * </p>
 	 * 
-	 * @return A module qualified name.
+	 * @return a module qualified name
 	 */
 	ModuleQualifiedName getQualifiedName();
-	
+
 	/**
 	 * <p>
 	 * Returns the module's version.
@@ -51,19 +51,19 @@ public interface ModuleInfo extends Info {
 	 * current compiler.
 	 * </p>
 	 * 
-	 * @return
+	 * @return A version
 	 */
 	int getVersion();
-	
+
 	/**
 	 * <p>
 	 * Returns the modules required by the module.
 	 * </p>
 	 * 
-	 * @return An array of module info.
+	 * @return an array of module info
 	 */
 	ModuleInfo[] getModules();
-	
+
 	/**
 	 * <p>
 	 * Returns the socket beans specified in the module.
@@ -73,26 +73,28 @@ public interface ModuleInfo extends Info {
 	 * A socket bean defines an entry point for dependency injection on the module.
 	 * </p>
 	 * 
-	 * @return An array of bean sockets.
+	 * @return an array of bean sockets
 	 */
 	SocketBeanInfo[] getSockets();
-	
+
 	/**
 	 * <p>
-	 * Returns an optional containing the bean identified by the specified name if it exists in the module.
+	 * Returns an optional containing the bean identified by the specified name if
+	 * it exists in the module.
 	 * </p>
 	 * 
-	 * @param name The name of the bean in the module to return.
-	 * @return An optional.
+	 * @param name the name of the bean in the module to return
+	 * 
+	 * @return an optional
 	 */
 	Optional<ModuleBeanInfo> getBean(String name);
-	
+
 	/**
 	 * <p>
 	 * Returns the beans specified in the module.
 	 * </p>
 	 * 
-	 * @return An array of beans.
+	 * @return an array of beans
 	 */
 	ModuleBeanInfo[] getBeans();
 
@@ -101,32 +103,33 @@ public interface ModuleInfo extends Info {
 	 * Returns the private beans specified in the module.
 	 * </p>
 	 * 
-	 * @return An array of beans.
+	 * @return an array of beans
 	 */
 	ModuleBeanInfo[] getPrivateBeans();
-	
+
 	/**
 	 * <p>
 	 * Returns the public beans specified in the module.
 	 * </p>
 	 * 
-	 * @return An array of beans.
+	 * @return an array of beans
 	 */
 	ModuleBeanInfo[] getPublicBeans();
-	
+
 	/**
 	 * <p>
 	 * Accepts the specified module info visitor.
 	 * </p>
 	 * 
-	 * @param <R> The type of the visitor result.
-	 * @param <P> The type of the visitor parameter.
-	 * @param visitor The visitor to invoke.
-	 * @param p The parameter.
-	 * @return The visitor result.
+	 * @param <R>     the type of the visitor result
+	 * @param <P>     the type of the visitor parameter
+	 * @param visitor the visitor to invoke
+	 * @param p       the parameter
+	 * 
+	 * @return the visitor result
 	 */
-	<R,P> R accept(ModuleInfoVisitor<R, P> visitor, P p);
-	
+	<R, P> R accept(ModuleInfoVisitor<R, P> visitor, P p);
+
 	/**
 	 * <p>
 	 * Determines whether the module info is faulty.
@@ -137,7 +140,7 @@ public interface ModuleInfo extends Info {
 	 * in the dependency graph, unresolved dependencies...
 	 * </p>
 	 * 
-	 * @return
+	 * @return true if the module is faulty, false otherwise
 	 */
 	boolean isFaulty();
 }

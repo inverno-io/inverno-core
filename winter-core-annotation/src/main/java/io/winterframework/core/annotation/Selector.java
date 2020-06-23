@@ -26,7 +26,6 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * <pre>
- * {@code
  *     &#64;Retention(RetentionPolicy.CLASS)
  *     &#64;Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
  *     &#64;Selector
@@ -44,7 +43,7 @@ import java.lang.annotation.Target;
  * 
  * @author jkuhn
  * 
- * @Since 1.0
+ * @since 1.0
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.ANNOTATION_TYPE })
