@@ -13,15 +13,15 @@
 
 	<groupId>io.winterframework</groupId>
 	<artifactId>winter-root</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>The Winter framework</name>
 	<description>The Winter framework is an Inversion of Control and Dependency Injection framework for the Java 9+ platform.</description>
 	<inceptionYear>2020</inceptionYear>
 	<organization>
-    	<name>Winter Framework IO</name>
-    	<url>https://winterframework.io</url>
+		<name>Winter Framework IO</name>
+		<url>https://winterframework.io</url>
 	</organization>
 	<url>https://github.com/winterframework-io/winter-root</url>
 
@@ -76,8 +76,8 @@
 		<module>winter-core-annotation</module>
 		<module>winter-core-compiler</module>
 		<module>winter-core-test</module>
-		<module>winter-parent</module>
 		<module>winter-test</module>
+		<module>winter-parent</module>
 	</modules>
 
 	<dependencyManagement>
@@ -231,6 +231,12 @@
 								<goals>
 									<goal>sign</goal>
 								</goals>
+								<configuration>
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
+								</configuration>
 							</execution>
 						</executions>
 					</plugin>
