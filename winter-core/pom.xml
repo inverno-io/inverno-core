@@ -25,7 +25,8 @@
 	<artifactId>winter-core</artifactId>
 	<packaging>jar</packaging>
 
-	<name>winter-core</name>
+	<name>io.winterframework.core</name>
+	<description>Winter framework core runtime module</description>
 	
 	<dependencies>
 		<dependency>

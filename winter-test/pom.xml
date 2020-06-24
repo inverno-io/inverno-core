@@ -27,7 +27,8 @@
 	<artifactId>winter-test</artifactId>
 	<packaging>jar</packaging>
 
-	<name>winter-test</name>
+	<name>io.winterframework.test</name>
+	<description>Winter framework testing module</description>
 
 	<dependencies>
 		<dependency>

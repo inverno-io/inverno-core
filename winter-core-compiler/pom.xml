@@ -26,7 +26,8 @@
 	<artifactId>winter-core-compiler</artifactId>
 	<packaging>jar</packaging>
 
-	<name>winter-core-compiler</name>
+	<name>io.winterframework.core.compiler</name>
+	<description>Winter framework core compiler module providing the annotation processor</description>
 
 	<dependencies>
 		<dependency>
