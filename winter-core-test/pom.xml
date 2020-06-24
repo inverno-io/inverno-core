@@ -27,7 +27,8 @@
 	<artifactId>winter-core-test</artifactId>
 	<packaging>jar</packaging>
 
-	<name>winter-core-test</name>
+	<name>io.winterframework.core.test</name>
+	<description>Winter framework core testing library module</description>
 
 	<dependencies>
 		<dependency>

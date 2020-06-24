@@ -26,6 +26,7 @@
 	<artifactId>winter-core-annotation</artifactId>
 	<packaging>jar</packaging>
 
-	<name>winter-core-annotation</name>
+	<name>io.winterframework.core.annotation</name>
+	<description>Winter framework core annotations module</description>
 
 </project>
