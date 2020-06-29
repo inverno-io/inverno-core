@@ -1,4 +1,4 @@
-<img src="src/img/winter.svg" style="width: 100%;"/>
+<img src="src/img/winter_portable.svg" style="width: 100%;"/>
 
 The [Winter framework](https://www.winterframework.io) is an Inversion of Control and Dependency Injection framework for the Java 9+ platform. It has the particularity of not using Java reflection for object instantiation and dependency injection, everything being verified and done statically during compilation.
 
