@@ -116,6 +116,8 @@ You should now have a basic understanding of how a Winter application is built a
 
 ## Project Setup
 
+### Maven
+
 The easiest way to setup a Winter module project is to start by creating a regular Java Maven project which inherits from `io.winterframework:winter-parent` project and depends on `io.winterframework:winter-core`:
 
 ```xml
@@ -207,6 +209,36 @@ If you do not want your project to inherit from `io.winterframework:winter-paren
 ```
 
 A Winter module is built just as a regular Maven project using maven commands (compile, package, install...). The module class is generated and compiled during the `compile` phase and included in the resulting JAR file during the `package` phase. If anything related to IoC/DI goes wrong during compilation, the compilation fails with explicit compilation errors reported by the Winter compiler.
+
+### Gradle
+
+Since version 6.4, it is also possible to use [Gradle](https://gradle.org/) to build Winter module projects. Here is a sample `build.gradle` file:
+
+```groovy
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.winterframework:winter-core:1.0.0'
+    annotationProcessor 'io.winterframework:winter-core-compiler:1.0.0'
+}
+
+java {
+    modularity.inferModulePath = true
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
+}
+
+application {
+    mainModule = 'io.winterframework.example.hello'
+    mainClassName = 'io.winterframework.example.hello.App'
+}
+```
 
 ## Bean
 
