@@ -106,6 +106,60 @@ Hello John!!!
 
 ```
 
+### Building and running with Gradle
+
+Since version 6.4, it is also possible to use [gradle](https://gradle.org/) instead of Maven. The following `build.gradle` file can be used to build and run the hello application:
+
+```groovy
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'io.winterframework:winter-core:1.0.0'
+    annotationProcessor 'io.winterframework:winter-core-compiler:1.0.0'
+}
+
+java {
+    modularity.inferModulePath = true
+    sourceCompatibility = JavaVersion.VERSION_1_9
+    targetCompatibility = JavaVersion.VERSION_1_9
+}
+
+application {
+    mainModule = 'io.winterframework.example.hello'
+    mainClassName = 'io.winterframework.example.hello.App'
+}
+```
+
+As for Maven, Java source files for `io.winterframework.example.hello` module must be placed in `src/main/java` directory, the module is then built as follows:
+
+```shell
+$ gradle build
+```
+
+and run as follows:
+
+```shell
+$ gradle run --args="John"
+
+> Task :run
+juil. 07, 2020 3:47:08 PM io.winterframework.core.v1.Application run
+INFOS: Winter is starting...
+juil. 07, 2020 3:47:08 PM io.winterframework.core.v1.Module start
+INFOS: Starting Module io.winterframework.example.hello...
+juil. 07, 2020 3:47:08 PM io.winterframework.core.v1.SingletonBean create
+INFOS: Creating Singleton Bean io.winterframework.example.hello:helloService
+juil. 07, 2020 3:47:08 PM io.winterframework.core.v1.Module start
+INFOS: Module io.winterframework.example.hello started in 14ms
+Hello hello!!!
+
+```
+
 ### Building and running with pure Java
 
 You can also choose to build your Winter module using pure Java commands. Assuming Winter framework modules are located under `lib/` directory and Java source files for `io.winterframework.example.hello` module are placed in `src/io.winterframework.example.hello` directory, you can build the module with the `javac` command:
