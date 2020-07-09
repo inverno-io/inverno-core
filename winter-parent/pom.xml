@@ -21,7 +21,7 @@
 
 	<groupId>io.winterframework</groupId>
 	<artifactId>winter-parent</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>winter-parent</name>
@@ -151,7 +151,7 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>io.winterframework.release</id>
 			<build>
 				<plugins>
 					<plugin>

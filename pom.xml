@@ -13,7 +13,7 @@
 
 	<groupId>io.winterframework</groupId>
 	<artifactId>winter-root</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>The Winter framework</name>
@@ -194,7 +194,7 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>release</id>
+			<id>io.winterframework.release</id>
 			<build>
 				<plugins>
 					<plugin>
