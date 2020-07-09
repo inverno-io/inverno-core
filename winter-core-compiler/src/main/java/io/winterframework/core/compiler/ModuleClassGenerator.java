@@ -108,7 +108,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			generation.getTypeName(generatedType);
 			generation.getTypeName(moduleType);
 			
-			moduleClass += generation.getImports().stream().sorted().map(i -> "import " + i + ";").collect(Collectors.joining("\n")) + "\n\n";
+			moduleClass += generation.getImports().stream().sorted().filter(i -> i.lastIndexOf(".") > 0 && !i.substring(0, i.lastIndexOf(".")).equals(packageName)).map(i -> "import " + i + ";").collect(Collectors.joining("\n")) + "\n\n";
 			
 			// TODO add version
 			moduleClass += "@" + generation.getTypeName(generatedType) + "(value= {\"" + ModuleAnnotationProcessor.class.getCanonicalName() + "\", \"" + moduleInfo.getVersion() + "\"}, date = \"" + ZonedDateTime.now().toString() +"\")\n";
