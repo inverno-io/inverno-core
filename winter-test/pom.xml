@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.winterframework</groupId>
 		<artifactId>winter-root</artifactId>
-		<version>1.0.1</version>
+		<version>1.0.2-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>winter-test</artifactId>
