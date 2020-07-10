@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.test.provide.moduleC;
+package io.winterframework.test.lifecycle.moduleC;
 
-import java.util.concurrent.Callable;
+public class BeanB {
 
-import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.annotation.Provide;
-import io.winterframework.core.annotation.Wrapper;
-
-import java.util.function.Supplier;
-
-@Bean
-@Wrapper
-public class BeanB implements Supplier<Callable<String>>, @Provide Runnable {
-
-	public Callable<String> get() {
-		return null;
+	public int initCount;
+	
+	public int destroyCount;
+	
+	public static int globalDestroyCount;
+	
+	public boolean beanInjected;
+	
+	public InjectedBean bean;
+	
+	public BeanB(InjectedBean bean) {
+		this.bean = bean;
 	}
 	
-	@Override
-	public void run() {
-		
+	public void init() {
+		this.initCount++;
+		this.beanInjected = this.bean != null;
+	}
+	
+	public void destroy() {
+		this.destroyCount++;
+		globalDestroyCount++;
 	}
 }

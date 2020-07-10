@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Jeremy KUHN
+ * Copyright 2020 Jeremy KUHN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.test.provide.moduleC;
-
-import java.util.concurrent.Callable;
+package io.winterframework.test.wrapperbean;
 
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.annotation.Provide;
 import io.winterframework.core.annotation.Wrapper;
 
 import java.util.function.Supplier;
 
 @Bean
 @Wrapper
-public class BeanB implements Supplier<Callable<String>>, @Provide Runnable {
-
-	public Callable<String> get() {
-		return null;
+public class BeanA implements Supplier<Runnable> {
+	
+	private Runnable instance;
+	
+	public BeanA() {
+		this.instance = new Runnable() {
+			
+			@Override
+			public void run() {
+				
+			}
+		};
 	}
 	
-	@Override
-	public void run() {
-		
+	public Runnable get() {
+		return this.instance;
 	}
 }

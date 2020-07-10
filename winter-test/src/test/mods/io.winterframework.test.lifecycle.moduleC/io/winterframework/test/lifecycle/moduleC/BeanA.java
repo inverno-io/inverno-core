@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Jeremy KUHN
+ * Copyright 2019 Jeremy KUHN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.core.compiler.spi;
+package io.winterframework.test.lifecycle.moduleC;
 
-import javax.lang.model.type.TypeMirror;
+public class BeanA {
 
-/**
- * <p>
- * A factory bean info holds the data required to process a factory bean in a
- * module.
- * </p>
- * 
- * @author jkuhn
- *
- */
-public interface FactoryBeanInfo extends ModuleBeanInfo {
-
-	/**
-	 * <p>
-	 * Returns the factory type which is the type of the class supplying the actual
-	 * bean whose type is given by {@link BeanInfo#getType()}.
-	 * </p>
-	 * 
-	 * @return a type
-	 */
-	TypeMirror getFactoryType();
+	public int initCount;
+	
+	public int destroyCount;
+	
+	public static int globalInitCount;
+	
+	public static int globalDestroyCount;
+	
+	public boolean beanInjected;
+	
+	public InjectedBean bean;
+	
+	public BeanA(InjectedBean bean) {
+		this.bean = bean;
+	}
+	
+	public void init() {
+		this.initCount++;
+		this.beanInjected = this.bean != null;
+		this.globalInitCount++;
+	}
+	
+	public void destroy() {
+		this.destroyCount++;
+		globalDestroyCount++;
+	}
 }

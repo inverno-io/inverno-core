@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Jeremy KUHN
+ * Copyright 2020 Jeremy KUHN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestSimplebean extends AbstractWinterTest {
+public class TestWrapperBean extends AbstractWinterTest {
 
-	private static final String MODULE = "io.winterframework.test.simplebean";
+	private static final String MODULE = "io.winterframework.test.wrapperbean";
 	
 	@Test
 	public void testBeanCreation() throws IOException, WinterCompilationException {
@@ -40,9 +40,7 @@ public class TestSimplebean extends AbstractWinterTest {
 		simpleProxy.start();
 		Assertions.assertNotNull(simpleProxy.getBean("beanA"));
 		Assertions.assertEquals(simpleProxy.getBean("beanA"), simpleProxy.getBean("beanA"));
+		Assertions.assertTrue(simpleProxy.getBean("beanA") instanceof Runnable);
 		simpleProxy.stop();
 	}
-	
-	
-
 }

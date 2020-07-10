@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Jeremy KUHN
+ * Copyright 2020 Jeremy KUHN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,42 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.test.lifecycle.moduleA;
+package io.winterframework.test.lifecycle.moduleC;
 
 import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.annotation.Wrapper;
 import io.winterframework.core.annotation.Bean.Strategy;
 import io.winterframework.core.annotation.Destroy;
 import io.winterframework.core.annotation.Init;
+import io.winterframework.core.annotation.Wrapper;
+
+import java.lang.ref.WeakReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Bean(strategy=Strategy.PROTOTYPE)
-public class PrototypeStrategyBean {
+@Wrapper
+public class PrototypeStrategyWrapperBean implements Supplier<BeanA> {
 
-	public int initCount;
+	private InjectedBean injectedBean;
 	
-	public int destroyCount;
+	private WeakReference<BeanA> instance;
 	
-	public static int globalInitCount;
+	public PrototypeStrategyWrapperBean(InjectedBean injectedBean) {
+		this.injectedBean = injectedBean;
+		
+		this.instance = new WeakReference<>(new BeanA(this.injectedBean));
+	}
 	
-	public static int globalDestroyCount;
-	
-	public boolean beanInjected;
-	
-	public InjectedBean bean;
-	
-	public PrototypeStrategyBean(InjectedBean bean) {
-		this.bean = bean;
+	public BeanA get() {
+		return this.instance.get();
 	}
 	
 	@Init
 	public void init() {
-		this.initCount++;
-		this.beanInjected = this.bean != null;
-		this.globalInitCount++;
+		System.out.println("init prototype " + this.instance.get().hashCode());
+		this.instance.get().init();
 	}
 	
 	@Destroy
 	public void destroy() {
-		this.destroyCount++;
-		globalDestroyCount++;
+		System.out.println("destroy prototype " + this.instance.get().hashCode());
+		this.instance.get().destroy();
 	}
 }

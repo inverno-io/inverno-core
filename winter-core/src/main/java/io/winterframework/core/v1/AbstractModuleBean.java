@@ -16,37 +16,39 @@
 package io.winterframework.core.v1;
 
 import io.winterframework.core.v1.Module.Bean;
-import io.winterframework.core.v1.Module.BeanBuilder;
+import io.winterframework.core.v1.Module.ModuleBeanBuilder;
 
 /**
  * <p>
- * Base class for {@link Bean} implementations
+ * Base class for {@link Bean} implementations designating module beans.
  * </p>
  * 
  * <p>
  * This class basically specifies {@link #createInstance()} and
  * {@link #destroyInstance(Object)} methods that respectively create and destroy
- * bean instances. These methods can then be used in {@link #create()} and
- * {@link #destroy()} methods which provide higher logic (singleton,
- * prototype...).
+ * module bean instances. These methods can then be used in {@link #create()},
+ * {@link #doGet()}and {@link #destroy()} methods which provide higher logic
+ * (singleton, prototype...).
  * </p>
  * 
  * @author jkuhn
  * @since 1.0
  * 
  * @see Bean
- * @see BeanBuilder
+ * @see ModuleBeanBuilder
+ * 
+ * @param <T> the actual type of the bean built by this builder
  */
-abstract class AbstractBean<T> extends Bean<T> {
+abstract class AbstractModuleBean<T> extends Bean<T> {
 
 	/**
 	 * <p>
-	 * Creates an abstract bean with the specified name.
+	 * Creates an abstract module bean with the specified name.
 	 * </p>
 	 * 
 	 * @param name the bean name
 	 */
-	public AbstractBean(String name) {
+	public AbstractModuleBean(String name) {
 		super(name);
 	}
 

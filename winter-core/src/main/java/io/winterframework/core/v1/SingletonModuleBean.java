@@ -21,26 +21,26 @@ import io.winterframework.core.v1.Module.Bean;
 
 /**
  * <p>
- * A singleton {@link Bean} implementation.
+ * A singleton module {@link Bean} implementation.
  * </p>
  * 
  * <p>
- * A Singleton bean is instantiated once for the whole application, every
+ * A Singleton module bean is instantiated once for the whole application, every
  * dependent beans receive the same instance.
  * </p>
- * 
- * @param <T> the actual type of the bean.
  * 
  * @author jkuhn
  * @since 1.0
  * @see Bean
+ * 
+ * @param <T> the actual type of the bean
  */
-abstract class SingletonBean<T> extends AbstractBean<T> {
+abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 
 	/**
 	 * The bean logger.
 	 */
-	protected static final Logger LOGGER = Logger.getLogger(SingletonBean.class.getName());
+	protected static final Logger LOGGER = Logger.getLogger(SingletonModuleBean.class.getName());
 
 	/**
 	 * The bean instance.
@@ -49,12 +49,12 @@ abstract class SingletonBean<T> extends AbstractBean<T> {
 
 	/**
 	 * <p>
-	 * Creates a singleton bean with the specified name.
+	 * Creates a singleton module bean with the specified name.
 	 * </p>
 	 * 
 	 * @param name the bean name
 	 */
-	public SingletonBean(String name) {
+	public SingletonModuleBean(String name) {
 		super(name);
 	}
 

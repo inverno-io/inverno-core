@@ -19,11 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.winterframework.core.v1.Module.Bean;
 import io.winterframework.core.v1.Module.BeanBuilder;
 
 /**
  * <p>
- * Base class for {@link BeanBuilder} implementations
+ * Base class for {@link BeanBuilder} implementations.
  * </p>
  * 
  * @author jkuhn
@@ -31,8 +32,11 @@ import io.winterframework.core.v1.Module.BeanBuilder;
  * 
  * @see Bean
  * @see BeanBuilder
+ * 
+ * @param <T> the actual type of the bean built by this builder
+ * @param <B> the bean builder type to support method chaining
  */
-abstract class AbstractBeanBuilder<T> implements BeanBuilder<T> {
+abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T,B>> implements BeanBuilder<T, B> {
 
 	/**
 	 * The bean name.
@@ -81,10 +85,11 @@ abstract class AbstractBeanBuilder<T> implements BeanBuilder<T> {
 	 * 
 	 * @return this builder
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public BeanBuilder<T> init(FallibleConsumer<T> init) {
+	public B init(FallibleConsumer<T> init) {
 		this.inits.add(init);
-		return this;
+		return (B)this;
 	}
 
 	/**
@@ -96,9 +101,10 @@ abstract class AbstractBeanBuilder<T> implements BeanBuilder<T> {
 	 * 
 	 * @return this builder
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
-	public BeanBuilder<T> destroy(FallibleConsumer<T> destroy) {
+	public B destroy(FallibleConsumer<T> destroy) {
 		this.destroys.add(destroy);
-		return this;
+		return (B)this;
 	}
 }

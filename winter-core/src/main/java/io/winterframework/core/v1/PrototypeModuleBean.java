@@ -26,7 +26,7 @@ import io.winterframework.core.v1.Module.Bean;
 
 /**
  * <p>
- * A prototype {@link Bean} implementation.
+ * A prototype module {@link Bean} implementation.
  * </p>
  * 
  * <p>
@@ -47,7 +47,7 @@ import io.winterframework.core.v1.Module.Bean;
  * is still referenced or the garbage collector has yet enqueued its reference.
  * To sum up when a module is stopped, prototype beans instances referenced in
  * singleton beans instances or referenced outside the module are always
- * destroyed and they might be destroyed if have been, but are no longer,
+ * destroyed and they might be destroyed if they have been, but are no longer,
  * referenced outside the module.
  * </p>
  * 
@@ -64,18 +64,18 @@ import io.winterframework.core.v1.Module.Bean;
  *     }
  * </pre>
  * 
- * @param <T> the actual type of the bean.
- * 
  * @author jkuhn
  * @since 1.0
  * @see Bean
+ * 
+ * @param <T> the actual type of the bean
  */
-abstract class PrototypeBean<T> extends AbstractBean<T> {
+abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 
 	/**
 	 * The bean logger.
 	 */
-	protected static final Logger LOGGER = Logger.getLogger(PrototypeBean.class.getName());
+	protected static final Logger LOGGER = Logger.getLogger(PrototypeModuleBean.class.getName());
 
 	/**
 	 * The list of instances issued by the bean.
@@ -86,12 +86,12 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 
 	/**
 	 * <p>
-	 * Creates a prototype bean with the specified name.
+	 * Creates a prototype module bean with the specified name.
 	 * </p>
 	 * 
 	 * @param name the bean name
 	 */
-	public PrototypeBean(String name) {
+	public PrototypeModuleBean(String name) {
 		super(name);
 	}
 
@@ -116,6 +116,7 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 	 * {@link #get()} method.
 	 * </p>
 	 */
+	@Override
 	public synchronized final void create() {
 		if (this.instances == null) {
 			LOGGER.info(() -> "Creating Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":"
@@ -138,6 +139,7 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 	 * 
 	 * @return a bean instance
 	 */
+	@Override
 	public final T doGet() {
 		this.create();
 		this.expungeStaleInstances();
@@ -158,6 +160,7 @@ abstract class PrototypeBean<T> extends AbstractBean<T> {
 	 * {@link #destroyInstance(Object)} method.
 	 * </p>
 	 */
+	@Override
 	public synchronized final void destroy() {
 		if (this.instances != null) {
 			LOGGER.info(() -> "Destroying Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":"

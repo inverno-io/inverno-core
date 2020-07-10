@@ -38,6 +38,8 @@ import java.util.logging.Logger;
  * 
  * @author jkuhn
  * @since 1.0
+ * 
+ * @param <T> the module type
  */
 public class Application<T extends Module> {
 

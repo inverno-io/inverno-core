@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Jeremy KUHN
+ * Copyright 2020 Jeremy KUHN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,42 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.test.lifecycle.moduleA;
+package io.winterframework.test.lifecycle.moduleC;
 
 import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.annotation.Wrapper;
 import io.winterframework.core.annotation.Bean.Strategy;
 import io.winterframework.core.annotation.Destroy;
 import io.winterframework.core.annotation.Init;
 
-@Bean(strategy=Strategy.PROTOTYPE)
-public class PrototypeStrategyBean {
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-	public int initCount;
+@Bean(strategy=Strategy.SINGLETON)
+@Wrapper
+public class SingletonStrategyWrapperBean implements Supplier<BeanB> {
+
+	private InjectedBean injectedBean;
+
+	private BeanB instance;
 	
-	public int destroyCount;
+	public SingletonStrategyWrapperBean(InjectedBean injectedBean) {
+		this.injectedBean = injectedBean;
+		
+		this.instance = new BeanB(injectedBean);
+	}
 	
-	public static int globalInitCount;
-	
-	public static int globalDestroyCount;
-	
-	public boolean beanInjected;
-	
-	public InjectedBean bean;
-	
-	public PrototypeStrategyBean(InjectedBean bean) {
-		this.bean = bean;
+	public BeanB get() {
+		return this.instance;
 	}
 	
 	@Init
 	public void init() {
-		this.initCount++;
-		this.beanInjected = this.bean != null;
-		this.globalInitCount++;
+		System.out.println("init singleton " + this.instance.hashCode());
+		this.instance.init();
 	}
 	
 	@Destroy
 	public void destroy() {
-		this.destroyCount++;
-		globalDestroyCount++;
+		System.out.println("destroy singleton " + this.instance.hashCode());
+		this.instance.destroy();
 	}
 }

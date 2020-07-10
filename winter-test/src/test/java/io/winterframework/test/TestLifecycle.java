@@ -33,6 +33,7 @@ public class TestLifecycle extends AbstractWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.lifecycle.moduleA";
 	private static final String MODULEB = "io.winterframework.test.lifecycle.moduleB";
+	private static final String MODULEC = "io.winterframework.test.lifecycle.moduleC";
 	
 	@Test
 	public void testInitDestroy() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException, InterruptedException {
@@ -53,6 +54,7 @@ public class TestLifecycle extends AbstractWinterTest {
 			Assertions.assertEquals(1, singletonBean.getClass().getField("initCount").get(singletonBean));
 			Assertions.assertEquals(1, prototypeBean1.getClass().getField("initCount").get(prototypeBean1));
 			Assertions.assertEquals(1, prototypeBean2.getClass().getField("initCount").get(prototypeBean2));
+			Assertions.assertEquals(3, prototypeBean2.getClass().getField("globalInitCount").get(prototypeBean2));
 		} 
 		finally {
 			moduleA.stop();
@@ -60,6 +62,40 @@ public class TestLifecycle extends AbstractWinterTest {
 			Assertions.assertEquals(1, prototypeBean1.getClass().getField("destroyCount").get(prototypeBean1));
 			Assertions.assertEquals(1, prototypeBean2.getClass().getField("destroyCount").get(prototypeBean2));
 			// Only two are destroyed since the third one is no longer referenced and GC has been invoked
+			Assertions.assertEquals(2, prototypeBean2.getClass().getField("globalDestroyCount").get(null));
+		}
+	}
+	
+	@Test
+	public void testInitDestroyWrapper() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException, InterruptedException {
+		WinterModuleProxy moduleA = this.getWinterCompiler().compile(MODULEC).load(MODULEC).build();
+		
+		Object singletonBean = null, prototypeBean1 = null, prototypeBean2 = null, prototypeBean3 = null;
+		try {
+			moduleA.start();
+			
+			singletonBean = moduleA.getBean("singletonStrategyWrapperBean");
+			prototypeBean1 = moduleA.getBean("prototypeStrategyWrapperBean");
+			prototypeBean2 = moduleA.getBean("prototypeStrategyWrapperBean");
+			prototypeBean3 = moduleA.getBean("prototypeStrategyWrapperBean");
+			prototypeBean3 = null;
+			
+			System.gc();
+			
+			Assertions.assertEquals(1, singletonBean.getClass().getField("initCount").get(singletonBean));
+			Assertions.assertEquals(1, prototypeBean1.getClass().getField("initCount").get(prototypeBean1));
+			Assertions.assertEquals(1, prototypeBean2.getClass().getField("initCount").get(prototypeBean2));
+			Assertions.assertEquals(3, prototypeBean2.getClass().getField("globalInitCount").get(prototypeBean2));
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			moduleA.stop();
+			Assertions.assertEquals(1, singletonBean.getClass().getField("destroyCount").get(singletonBean));
+			Assertions.assertEquals(1, prototypeBean1.getClass().getField("destroyCount").get(prototypeBean1));
+			Assertions.assertEquals(1, prototypeBean2.getClass().getField("destroyCount").get(prototypeBean2));
+			// Only three are destroyed since the third one is no longer referenced and GC has been invoked
 			Assertions.assertEquals(2, prototypeBean2.getClass().getField("globalDestroyCount").get(null));
 		}
 	}

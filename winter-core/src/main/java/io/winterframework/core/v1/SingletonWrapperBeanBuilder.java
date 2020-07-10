@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Jeremy KUHN
+ * Copyright 2020 Jeremy KUHN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,39 +20,41 @@ import java.util.logging.Level;
 
 import io.winterframework.core.v1.Module.Bean;
 import io.winterframework.core.v1.Module.BeanBuilder;
+import io.winterframework.core.v1.Module.WrapperBeanBuilder;
 
 /**
  * <p>
- * Singleton {@link BeanBuilder} implementation.
+ * Singleton wrapper {@link BeanBuilder} implementation.
  * </p>
  * 
  * <p>
- * A {@link SingletonBeanBuilder} must be used to create singleton beans, when
- * the same bean instance must be injected into all dependent beans through the
- * application.
+ * A {@link SingletonWrapperBeanBuilder} must be used to create singleton beans
+ * using a wrapper, when the same bean instance must be injected into all
+ * dependent beans through the application.
  * </p>
  * 
  * @author jkuhn
  * @since 1.0
  * 
- * @param <T> the actual type of the bean.
- * 
  * @see BeanBuilder
  * @see Bean
- * @see SingletonBean
+ * @see SingletonWrapperBean
+ * 
+ * @param <W> the type of the wrapper bean
+ * @param <T> the actual type of the bean
  */
-class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
+class SingletonWrapperBeanBuilder<W extends Supplier<T>, T> extends AbstractBeanBuilder<W, WrapperBeanBuilder<W, T>> implements WrapperBeanBuilder<W, T> {
 
 	/**
 	 * <p>
-	 * Creates a singleton bean builder with the specified bean name and
+	 * Creates a singleton wrapper bean builder with the specified bean name and
 	 * constructor.
 	 * </p>
 	 * 
 	 * @param beanName    the bean name
 	 * @param constructor the bean constructor
 	 */
-	public SingletonBeanBuilder(String beanName, Supplier<T> constructor) {
+	public SingletonWrapperBeanBuilder(String beanName, Supplier<W> constructor) {
 		super(beanName, constructor);
 	}
 
@@ -63,28 +65,30 @@ class SingletonBeanBuilder<T> extends AbstractBeanBuilder<T> {
 	 * 
 	 * @return a singleton bean
 	 */
+	@Override
 	public Bean<T> build() {
-		return new SingletonBean<T>(this.beanName) {
+		return new SingletonWrapperBean<W, T>(this.beanName) {
 
 			@Override
-			protected T createInstance() {
-				T instance = constructor.get();
+			protected W createWrapper() {
+				W wrapper =	constructor.get();
 				inits.stream().forEach(init -> {
 					try {
-						init.accept(instance);
-					} catch (Exception e) {
+						init.accept(wrapper);
+					} 
+					catch (Exception e) {
 						LOGGER.log(Level.SEVERE, e, () -> "Error initializing bean " + name);
 						throw new RuntimeException("Error initializing bean " + name, e);
 					}
 				});
-				return instance;
+				return wrapper;
 			}
 
 			@Override
-			protected void destroyInstance(T instance) {
+			protected void destroyWrapper(W wrapper) {
 				destroys.stream().forEach(destroy -> {
 					try {
-						destroy.accept(instance);
+						destroy.accept(wrapper);
 					} catch (Exception e) {
 						LOGGER.log(Level.WARNING, e, () -> "Error destroying bean " + name);
 					}
