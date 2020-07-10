@@ -71,7 +71,7 @@ import java.util.function.Supplier;
  * <p>
  * A wrapper bean is used to expose legacy code that can't be instrumented. A
  * wrapper bean must implement {@link Supplier} and be annotated with
- * {@link Factory}.
+ * {@link Wrapper}.
  * </p>
  * 
  * <pre>
@@ -79,32 +79,32 @@ import java.util.function.Supplier;
  *     &#64;Wrapper
  *     public class WrapperBean implements Supplier&lt;SomeService&gt; {
  *         
- *         private SomeService instance;
+ *         private WeakReference<SomeService> instance;
  *         
  *         public WrapperBean(RequiredDependency requiredDependency) {
  *             // Instantiate the wrapped instance
- *             ...
+ *             this.instance = new WeakReference<>(...)
  *         }
  *         
  *         public void setOptionalDependency(OptionalDependency optionalDependency) {
  *             // Set optional dependency on the instance
- *             ...
+ *             this.instance.set...
  *         }
  *         
  *         public SomeService get() {
- *             return this.instance;
+ *             return this.instance.get();
  *         }
  *         
  *         &#64;Init
  *         public void init() {
  *             // Init the instance
- *             ...
+ *             this.instance.get().init();
  *         }
  *         
  *         &#64;Destroy
  *         public void destroy() {
  *             // Destroy the instance
- *             ...
+ *             this.instance.get().destroy();
  *         }
  *     }
  * </pre>
@@ -130,7 +130,7 @@ import java.util.function.Supplier;
  * @author jkuhn
  * @since 1.0
  * @see BeanSocket
- * @see Factory
+ * @see Wrapper
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.TYPE })

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Jeremy KUHN
+ * Copyright 2018 Jeremy KUHN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.winterframework.test.provide.moduleC;
+package io.winterframework.core.compiler.spi;
 
-import java.util.concurrent.Callable;
+import javax.lang.model.type.TypeMirror;
 
-import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.annotation.Provide;
-import io.winterframework.core.annotation.Wrapper;
+/**
+ * <p>
+ * A wrapper bean info holds the data required to process a wrapper bean in a
+ * module.
+ * </p>
+ * 
+ * @author jkuhn
+ *
+ */
+public interface WrapperBeanInfo extends ModuleBeanInfo {
 
-import java.util.function.Supplier;
-
-@Bean
-@Wrapper
-public class BeanB implements Supplier<Callable<String>>, @Provide Runnable {
-
-	public Callable<String> get() {
-		return null;
-	}
-	
-	@Override
-	public void run() {
-		
-	}
+	/**
+	 * <p>
+	 * Returns the wrapper type which is the type of the class supplying the actual
+	 * bean whose type is given by {@link BeanInfo#getType()}.
+	 * </p>
+	 * 
+	 * @return a type
+	 */
+	TypeMirror getWrapperType();
 }

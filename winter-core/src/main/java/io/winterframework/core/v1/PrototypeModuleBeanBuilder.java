@@ -20,14 +20,15 @@ import java.util.logging.Level;
 
 import io.winterframework.core.v1.Module.Bean;
 import io.winterframework.core.v1.Module.BeanBuilder;
+import io.winterframework.core.v1.Module.ModuleBeanBuilder;
 
 /**
  * <p>
- * Prototype {@link BeanBuilder} implementation.
+ * Prototype module {@link BeanBuilder} implementation.
  * </p>
  * 
  * <p>
- * A {@link PrototypeBeanBuilder} must be used to create prototype beans, when
+ * A {@link PrototypeModuleBeanBuilder} must be used to create prototype beans, when
  * distinct bean instances must be injected into all dependent beans through the
  * application.
  * </p>
@@ -39,20 +40,20 @@ import io.winterframework.core.v1.Module.BeanBuilder;
  * 
  * @see BeanBuilder
  * @see Bean
- * @see SingletonBean
+ * @see PrototypeModuleBean
  */
-class PrototypeBeanBuilder<T> extends AbstractBeanBuilder<T> {
+class PrototypeModuleBeanBuilder<T> extends AbstractBeanBuilder<T, ModuleBeanBuilder<T>> implements ModuleBeanBuilder<T> {
 
 	/**
 	 * <p>
-	 * Creates a prototype bean builder with the specified bean name and
+	 * Creates a prototype module bean builder with the specified bean name and
 	 * constructor.
 	 * </p>
 	 * 
 	 * @param beanName    the bean name
 	 * @param constructor the bean constructor
 	 */
-	public PrototypeBeanBuilder(String beanName, Supplier<T> constructor) {
+	public PrototypeModuleBeanBuilder(String beanName, Supplier<T> constructor) {
 		super(beanName, constructor);
 	}
 
@@ -63,8 +64,9 @@ class PrototypeBeanBuilder<T> extends AbstractBeanBuilder<T> {
 	 * 
 	 * @return a prototype bean
 	 */
+	@Override
 	public Bean<T> build() {
-		return new PrototypeBean<T>(this.beanName) {
+		return new PrototypeModuleBean<T>(this.beanName) {
 
 			@Override
 			protected T createInstance() {

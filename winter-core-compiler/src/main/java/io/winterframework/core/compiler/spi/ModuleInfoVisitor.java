@@ -65,15 +65,15 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit factory bean info.
+	 * Visit wrapper bean info.
 	 * </p>
 	 * 
-	 * @param factoryBeanInfo the info to visit
+	 * @param wrapperBeanInfo the info to visit
 	 * @param p               a visitor parameter
 	 * 
 	 * @return a visitor result
 	 */
-	R visit(FactoryBeanInfo factoryBeanInfo, P p);
+	R visit(WrapperBeanInfo wrapperBeanInfo, P p);
 
 	/**
 	 * <p>

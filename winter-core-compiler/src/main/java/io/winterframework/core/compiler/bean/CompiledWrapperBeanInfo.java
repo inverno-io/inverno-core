@@ -27,38 +27,38 @@ import javax.lang.model.type.TypeMirror;
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
-import io.winterframework.core.compiler.spi.FactoryBeanInfo;
+import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 
 /**
  * <p>
- * Represents factory bean info. A factory bean is necessarily compiled because
- * a binary module only exposes module beans, the factory bean being hidden in
+ * Represents wrapper bean info. A wrapper bean is necessarily compiled because
+ * a binary module only exposes module beans, the wrapper bean being hidden in
  * the module implementation.
  * </p>
  * 
  * @author jkuhn
  *
  */
-class CompiledFactoryBeanInfo extends CommonModuleBeanInfo implements FactoryBeanInfo {
+class CompiledWrapperBeanInfo extends CommonModuleBeanInfo implements WrapperBeanInfo {
 
-	private TypeMirror factoryType;
+	private TypeMirror wrapperType;
 	
-	public CompiledFactoryBeanInfo(ProcessingEnvironment processingEnvironment, 
+	public CompiledWrapperBeanInfo(ProcessingEnvironment processingEnvironment, 
 			Element element, 
 			AnnotationMirror annotation, 
 			BeanQualifiedName qname, 
-			TypeMirror factoryType, 
+			TypeMirror wrapperType, 
 			TypeMirror type,
 			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
-		this(processingEnvironment, element, annotation, qname, factoryType, type, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
+		this(processingEnvironment, element, annotation, qname, wrapperType, type, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
 	}
 	
-	public CompiledFactoryBeanInfo(
+	public CompiledWrapperBeanInfo(
 			ProcessingEnvironment processingEnvironment, 
 			Element element, 
 			AnnotationMirror annotation, 
 			BeanQualifiedName qname, 
-			TypeMirror factoryType, 
+			TypeMirror wrapperType, 
 			TypeMirror type,
 			Bean.Visibility visibility, 
 			Bean.Strategy strategy, 
@@ -67,11 +67,11 @@ class CompiledFactoryBeanInfo extends CommonModuleBeanInfo implements FactoryBea
 			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
 		super(processingEnvironment, element, annotation, qname, type, null, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		
-		this.factoryType = factoryType;
+		this.wrapperType = wrapperType;
 	}
 
 	@Override
-	public TypeMirror getFactoryType() {
-		return this.factoryType;
+	public TypeMirror getWrapperType() {
+		return this.wrapperType;
 	}
 }

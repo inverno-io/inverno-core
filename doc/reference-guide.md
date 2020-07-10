@@ -272,30 +272,39 @@ public class SomeBean {
 }
 ```
 
-### Factory Bean
+### Wrapper Bean
 
-A factory bean is a particular form of module bean used to define beans whose code cannot be instrumented with Winter's annotations or that require more complex logic to create an instance. This is especially the case for legacy code or third party libraries.
+A wrapper bean is a particular form of bean used to define beans whose code cannot be instrumented with Winter's annotations or that require more complex logic to create the instance. This is especially the case for legacy code or third party libraries.
 
-A factory bean is defined by a concrete class annotated with both `@Bean` and `@FactoryBean` annotations, it must implement the `Supplier<E>` interface. The actual type of the bean is given by the supplier's formal parameter.
+A wrapper bean is defined by a concrete class annotated with both `@Bean` and `@Wrapper` annotations which basically wraps the actual bean instance and include the instantiation, initialization and destruction logic. It must implement the `Supplier<E>` interface which specifies the actual type of the bean as formal parameter.
 
 ```java
 @Bean
-@FactoryBean
-public class SomeFactoryBean implements Supplier<SomeLegacyBean> {
+@Wrapper
+public class SomeWrapperBean implements Supplier<SomeLegacyBean> {
+    
+    private SomeLegacyBean instance;
+    
+    public SomeWrapperBean() {
+        // Creates the wrapped instance 
+        this.instance = ...
+    }
     
     SomeLegacyBean get() {
-        // Creates an instance of SomeLegacyBean and returns it
-        ...
+        // Returns the wrapped instance
+        return this.instance;
     }
     ...
 }
 ```
 
-In the previous code we created a bean of type `SomeLegacyBean`. As for module beans, you will be able to obtain `SomeLegacyBean` instances using the generated Module class.
+In the previous code we created a bean of type `SomeLegacyBean`. One instance of the wrapper class is used to create exactly one bean instance and it lives as long as the bean instance is referenced.
 
-Since a factory bean is annotated with `@Bean` annotation, it can be configured in the exact same way as a Module bean.
+Since a wrapper bean is annotated with `@Bean` annotation, it can be configured in the exact same way as a module bean except that it only applies to the wrapper instance which is responsible to configure the actual bean instance. The wrapper instance is never exposed, only the actual bean instance wrapped in it is exposed. As for module beans, `SomeLegacyBean` instances can be obtained using the generated Module class.
 
-> Note that although `Supplier` doesn’t impose that a new or distinct result be returned each time it is invoked, the bean contract requires a new instance be returned. The module is responsible for managing bean instances strategy and lifecycle while beans are used to actually create instances.
+> Note that since a new wrapper instance is created every time a new bean instance is requested, a wrapper class is not required to return a new or distinct result in the `get()` method. Nonetheless a wrapper instance is used to create, initialize and destroy exactly one instance of the supplied type and as a result it is good practice to have the wrapper instance always return the same bean instance. This is especially true and done naturally when initialization or destruction methods are specified.
+
+> When designing a prototype wrapper bean, particular care must be taken to make sure the wrapper does not hold a strong reference to the wrapped instance in order to prevent memory leak when a prototype bean instance is requested by the application. It is strongly advised to rely on `WeakReference<>` in that particular use case. 
 
 ### Lifecycle
 
@@ -341,6 +350,35 @@ public class SomeBean {
 ```
 
 As for initialization methods, you can specify multiple destruction methods but the order in which they are invoked is undetermined and inheritance is also not considered. Bean destruction is useful when you need to free resources that have been allocated by the bean instance during application operation (eg. shutdown a connection pool, close a server socket...).
+
+In case of wrapper beans, the initialization and destruction of a bean instance is delegated to the initialization and destruction methods specified on the wrapper bean which respectively initialize and destroy the actual bean instance wrapped in the wrapper bean.
+
+```java
+@Bean
+@Wrapper
+public class SomeWrapperBean implements Supplier<SomeLegacyBean> {
+    
+    private SomeLegacyBean instance;
+    
+    public SomeWrapperBean() {
+        // Creates the wrapped instance 
+        this.instance = ...
+    }
+    
+    @Init
+    public void init() {
+        // Initialize the wrapped instance
+        this.instance.start();
+    }
+    
+    @Destroy
+    public void destroy() {
+        // Destroy the wrapped instance
+        this.instance.stop();
+    }
+    ...
+}
+```
 
 > We stated here that all bean instances are eventually destroyed but this is actually not always the case. Depending on the bean strategy and the context in which it is used, it might not be destroyed at all, hopefully workarounds exist to make sure a bean instance is always properly destroyed. We'll cover this more in detail when we'll describe [bean strategies](strategy).
 
@@ -1048,7 +1086,7 @@ Module composition offers greater flexibility when using or designing modules. A
 
 ### Provided type
 
-By default, the type of a bean is given by the class defining the bean, for a module bean it is the annotated class and for a factory bean it is the formal parameter specified in the `Supplier<E>` interface.
+By default, the type of a bean is given by the class defining the bean, for a module bean it is the annotated class and for a wrapper bean it is the formal parameter specified in the `Supplier<E>` interface.
 
 This basically means that the type of a public bean must be accessible from outside the module, its package must then be exported in the module descriptor. However, you might, and probably will, need to hide bean implementations and only expose public API types.
 
@@ -1065,7 +1103,7 @@ public class CoffeMakerImpl implements @Provide CoffeMaker {
 
 The `CoffeeMakerImpl` class can implement several types but it will be exposed as a `CoffeeMaker` in the module class.
 
-> The `@Provide` annotation is only useful on module bean, for factory beans the implementation type is already hidden in the `Supplier#get()` method and the provided type is the formal parameter specified in the `Supplier<E>` interface.
+> The `@Provide` annotation is only useful on module bean, for w beans the implementation type is already hidden in the `Supplier#get()` method and the provided type is the formal parameter specified in the `Supplier<E>` interface.
 
 The provided type is only considered outside the module when used in a composite module or in an application. Inside the module, the actual bean type is always used for dependency injection.
 

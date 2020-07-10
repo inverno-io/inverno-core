@@ -44,7 +44,7 @@ import io.winterframework.core.annotation.BeanSocket;
 import io.winterframework.core.annotation.Destroy;
 import io.winterframework.core.annotation.Init;
 import io.winterframework.core.annotation.Provide;
-import io.winterframework.core.annotation.Factory;
+import io.winterframework.core.annotation.Wrapper;
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.ReporterInfo;
@@ -68,7 +68,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 
 	private TypeMirror beanAnnotationType;
 	private TypeMirror provideAnnotationType;
-	private TypeMirror factoryAnnotationType;
+	private TypeMirror wrapperAnnotationType;
 	private TypeMirror supplierType;
 	
 	/**
@@ -80,7 +80,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		this.beanAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
 		this.provideAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Provide.class.getCanonicalName()).asType();
-		this.factoryAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Factory.class.getCanonicalName()).asType();
+		this.wrapperAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wrapper.class.getCanonicalName()).asType();
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
 	}
 
@@ -284,13 +284,13 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			}
 		}
 		
-		Optional<? extends AnnotationMirror> factoryAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.factoryAnnotationType)).findFirst();
-		TypeMirror factoryType = null;
-		if(factoryAnnotation.isPresent()) {
-			factoryType = beanType;
+		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
+		TypeMirror wrapperType = null;
+		if(wrapperAnnotation.isPresent()) {
+			wrapperType = beanType;
 			Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
 			if(!supplierType.isPresent()) {
-				beanReporter.error("A factory bean element must extend " + Supplier.class.getCanonicalName());
+				beanReporter.error("A wrapper bean element must extend " + Supplier.class.getCanonicalName());
 				throw new BeanCompilationException();
 			}
 			if(((DeclaredType)supplierType.get()).getTypeArguments().size() == 0) {
@@ -301,10 +301,10 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			}
 			
 			if(providedType != null) {
-				beanReporter.error("A factory bean " + beanQName + " can't provide other types than its supplied type");
+				beanReporter.error("A wrapper bean " + beanQName + " can't provide other types than its supplied type");
 				throw new BeanCompilationException();
 			}
-			return new CompiledFactoryBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, factoryType, beanType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
+			return new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 		else {
 			return new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);

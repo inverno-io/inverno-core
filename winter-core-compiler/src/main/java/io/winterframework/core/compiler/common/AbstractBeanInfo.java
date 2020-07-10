@@ -25,7 +25,7 @@ import io.winterframework.core.compiler.spi.BeanQualifiedName;
 
 /**
  * <p>
- * Base class for Bean info: module bean, factory bean and socket bean.
+ * Base class for Bean info: module bean, wrapper bean and socket bean.
  * </p>
  * 
  * @author jkuhn
