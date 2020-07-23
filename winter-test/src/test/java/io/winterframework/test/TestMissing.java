@@ -42,12 +42,12 @@ public class TestMissing extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(2, e.getDiagnotics().size());
+			Assertions.assertEquals(2, e.getDiagnostics().size());
 			
 			String missingSingleMessage = "No bean was found matching required socket io.winterframework.test.missing:beanA:dataSource of type javax.sql.DataSource, consider defining a bean or a socket bean matching the socket in module io.winterframework.test.missing";
 			String missingMultiMessage = "No bean was found matching required socket io.winterframework.test.missing:beanB:dataSources of type javax.sql.DataSource, consider defining a bean or socket bean matching the socket in module io.winterframework.test.missing";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(missingSingleMessage, missingMultiMessage)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(missingSingleMessage, missingMultiMessage)));
 		}
 	}
 }

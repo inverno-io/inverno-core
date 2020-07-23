@@ -340,7 +340,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 							return orderedDependencyNames.indexOf(s1.getQualifiedName().getSimpleValue()) - orderedDependencyNames.indexOf(s2.getQualifiedName().getSimpleValue());
 						}
 					})
-					.map(socketInfo -> generation.indent(5) + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(5)))
+					.map(socketInfo -> generation.indent(5) + (socketInfo.isLazy() ? "() -> " : "") + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(5)))
 					.collect(Collectors.joining(", \n"));
 				beanNew += "\n" + generation.indent(4) + ");\n";
 			}
@@ -350,7 +350,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			// TODO: optionalSocket.ifPresent(bean::setXxx)
 			beanNew += Arrays.stream(moduleBeanInfo.getOptionalSockets())
 				.filter(socketInfo -> socketInfo.isResolved())
-				.map(socketInfo -> generation.indent(4) + variable + "." + socketInfo.getSocketElement().get().getSimpleName().toString() + "(" + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(4)) + ");")
+				.map(socketInfo -> generation.indent(4) + variable + "." + socketInfo.getSocketElement().get().getSimpleName().toString() + "(" + (socketInfo.isLazy() ? "() -> " : "") + this.visit(socketInfo, generation.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(4)) + ");")
 				.collect(Collectors.joining("\n")) + "\n";
 
 			beanNew += generation.indent(4) + "return " + variable + ";\n";

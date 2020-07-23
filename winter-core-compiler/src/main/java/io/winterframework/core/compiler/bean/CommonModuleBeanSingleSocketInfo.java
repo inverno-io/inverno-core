@@ -46,8 +46,9 @@ class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo
 			TypeMirror type, 
 			ExecutableElement socketElement,
 			AnnotationMirror[] selectors,
-			boolean optional) {
-		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
+			boolean optional,
+			boolean lazy) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional, lazy);
 	}
 
 	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, 
@@ -56,8 +57,9 @@ class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo
 			TypeMirror type, 
 			ExecutableElement socketElement, 
 			AnnotationMirror[] selectors,
-			boolean optional) {
-		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
+			boolean optional,
+			boolean lazy) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional, lazy);
 	}
 	
 	public CommonModuleBeanSingleSocketInfo(ProcessingEnvironment processingEnvironment, 
@@ -66,8 +68,9 @@ class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo
 			TypeMirror type, 
 			ExecutableElement socketElement, 
 			AnnotationMirror[] selectors,
-			boolean optional) {
-		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
+			boolean optional,
+			boolean lazy) {
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional, lazy);
 	}
 
 	@Override

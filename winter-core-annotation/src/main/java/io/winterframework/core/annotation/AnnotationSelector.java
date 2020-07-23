@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
  * 
  * @author jkuhn
  * @since 1.0
+ * 
  * @see Selector
  */
 @Retention(RetentionPolicy.CLASS)

@@ -49,8 +49,9 @@ class CommonModuleBeanMultiSocketInfo extends AbstractModuleBeanSocketInfo imple
 			ExecutableElement socketElement,
 			AnnotationMirror[] selectors,
 			boolean optional, 
+			boolean lazy, 
 			MultiSocketType multiType) {
-		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional, lazy);
 		this.multiType = multiType;
 	}
 	
@@ -62,8 +63,9 @@ class CommonModuleBeanMultiSocketInfo extends AbstractModuleBeanSocketInfo imple
 			ExecutableElement socketElement,
 			AnnotationMirror[] selectors,
 			boolean optional, 
+			boolean lazy, 
 			MultiSocketType multiType) {
-		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional, lazy);
 		this.multiType = multiType;
 	}
 	
@@ -75,8 +77,9 @@ class CommonModuleBeanMultiSocketInfo extends AbstractModuleBeanSocketInfo imple
 			ExecutableElement socketElement,
 			AnnotationMirror[] selectors,
 			boolean optional, 
+			boolean lazy, 
 			MultiSocketType multiType) {
-		super(processingEnvironment, element, qname, type, socketElement, selectors, optional);
+		super(processingEnvironment, element, qname, type, socketElement, selectors, optional, lazy);
 		this.multiType = multiType;
 	}
 

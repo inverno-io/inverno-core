@@ -31,16 +31,16 @@ public class WinterCompilationException extends Exception {
 	 */
 	private static final long serialVersionUID = -6458997093664225512L;
 	
-	private List<Diagnostic<? extends JavaFileObject>> diagnotics;
+	private List<Diagnostic<? extends JavaFileObject>> diagnostics;
 	
 	/**
 	 * 
 	 */
-	public WinterCompilationException(List<Diagnostic<? extends JavaFileObject>> diagnotics) {
-		this.diagnotics = diagnotics;
+	public WinterCompilationException(List<Diagnostic<? extends JavaFileObject>> diagnostics) {
+		this.diagnostics = diagnostics;
 	}
 	
-	public List<Diagnostic<? extends JavaFileObject>> getDiagnotics() {
-		return diagnotics;
+	public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
+		return diagnostics;
 	}
 }

@@ -90,12 +90,12 @@ public class TestProvide extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(2, e.getDiagnotics().size());
+			Assertions.assertEquals(2, e.getDiagnostics().size());
 			
 			String multipleProvideError = "A bean io.winterframework.test.provide.moduleC:beanA can't provide multiple types";
 			String factoryProvideError = "A wrapper bean io.winterframework.test.provide.moduleC:beanB can't provide other types than its supplied type";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleProvideError, factoryProvideError)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleProvideError, factoryProvideError)));
 		}
 	}
 }

@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * @author jkuhn
- *
+ * @since 1.0
  */
 @Retention(CLASS)
 @Target({ METHOD, MODULE })

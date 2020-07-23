@@ -889,7 +889,15 @@ public class CoffeMakerImpl implements CoffeMaker {
 
 > Note that Winter annotation are not inherited from ancestor class, the Winter compiler only considers the bean class annotated with `@Bean` so you must explicitly override setter methods to specify optional sockets defined in a class ancestor. This might not be obvious but it is actually the safer way that gives a perfect control on the sockets you want to expose in your beans.
 
+#### Single and multiple
+
 We can differentiate two kinds of bean socket: single socket and multiple socket. A single socket can be of any type except arrays, `java.util.List`, `java.util.Set` and `java.util.Collection` whereas the type of a multiple socket is necessarily an array, a `java.util.List`, a `java.util.Set` or a `java.util.Collection`. Multiple beans can be wired to a multiple socket whereas only one bean is wired to a single socket.
+
+#### Lazy
+
+A socket can be annotated with the `@Lazy` to indicate that a bean instance supplier should be provided instead of an actual bean instance. A lazy socket must then necessarily be of type `Supplier<E>` which specifies the actual type of the socket as formal parameter. 
+
+A lazy socket allows a dependent bean to lazily retrieve a bean instance. This presents several advantages when prototype beans are wired into a lazy socket, it is then possible to create fully wired bean instances on demand during the operation of a module and use them when processing a request for instance.  
 
 ### Socket Bean
 

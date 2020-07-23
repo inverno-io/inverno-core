@@ -223,15 +223,16 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		}
 		
 		for(VariableElement ve : constructorSocketElement.getParameters()) {
-			ModuleBeanSocketInfo requiredBeanSocket = beanSocketFactory.createBeanSocket(ve);
-			requiredSocketByName.put(requiredBeanSocket.getQualifiedName().getName(), requiredBeanSocket);
-			beanSocketInfos.add(requiredBeanSocket);
+			beanSocketFactory.createBeanSocket(ve).ifPresent(requiredBeanSocket ->  {
+				requiredSocketByName.put(requiredBeanSocket.getQualifiedName().getName(), requiredBeanSocket);
+				beanSocketInfos.add(requiredBeanSocket);
+			});
 		}
 		
 		// ... from setters
 		// Get optional dependencies from public setters
 		List<ExecutableElement> optionalSocketElements = (List<ExecutableElement>)element.getEnclosedElements().stream()
-			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getSimpleName().toString().startsWith("set") && ((ExecutableElement)e).getParameters().size() == 1)
+			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getSimpleName().toString().startsWith("set"))
 			.filter(e -> e.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PUBLIC)))
 			.map(e -> (ExecutableElement)e)
 			.collect(Collectors.toList());
@@ -239,14 +240,6 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		if(annotatedSocketElements.size() > 0) {
 			optionalSocketElements = annotatedSocketElements;
 		}
-		
-		optionalSocketElements = optionalSocketElements.stream().filter(socketElement -> {
-			if(socketElement.getParameters().size() > 1) {
-				this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid setter method which should be a single-argument method, socket will be ignored", socketElement);
-				return false;
-			}
-			return true;
-		}).collect(Collectors.toList());
 
 		Predicate<ModuleBeanSocketInfo> requiredSocketConflictPredicate = optionalBeanSocketInfo -> {
 			if(requiredSocketByName.containsKey(optionalBeanSocketInfo.getQualifiedName().getName())) {
@@ -260,7 +253,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			if(socketElementsBySocketName.size() > 1) {
 				List<ModuleBeanSocketInfo> optionalModuleSocketInfos = new ArrayList<>();
 				for(ExecutableElement socketElement : socketElementsBySocketName) {
-					optionalModuleSocketInfos.add(beanSocketFactory.createBeanSocket(socketElement.getParameters().get(0)));
+					beanSocketFactory.createBeanSocket(socketElement.getParameters().get(0)).ifPresent(optionalModuleSocketInfos::add);
 				}
 				Map<BeanSocketQualifiedName, List<ModuleBeanSocketInfo>> socketInfosByName = optionalModuleSocketInfos.stream().collect(Collectors.groupingBy(ModuleBeanSocketInfo::getQualifiedName));
 				socketInfosByName.values().stream()
@@ -277,11 +270,9 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 					.filter(requiredSocketConflictPredicate)
 					.forEach(beanSocketInfos::add);
 			}
-			
-			ModuleBeanSocketInfo optionalBeanSocketInfo = beanSocketFactory.createBeanSocket(socketElementsBySocketName.get(0).getParameters().get(0));
-			if(requiredSocketConflictPredicate.test(optionalBeanSocketInfo)) {
-				beanSocketInfos.add(optionalBeanSocketInfo);
-			}
+			beanSocketFactory.createBeanSocket(socketElementsBySocketName.get(0).getParameters().get(0))
+				.filter(requiredSocketConflictPredicate)
+				.ifPresent(beanSocketInfos::add);
 		}
 		
 		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();

@@ -131,13 +131,15 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 	
 	@Override
 	public String visit(ModuleBeanSocketInfo beanSocketInfo, String pad) {
+		StringBuilder result = new StringBuilder();
 		if(ModuleBeanSingleSocketInfo.class.isAssignableFrom(beanSocketInfo.getClass())) {
-			return this.visit((ModuleBeanSingleSocketInfo)beanSocketInfo, pad);
+			result.append(this.visit((ModuleBeanSingleSocketInfo)beanSocketInfo, pad));
 		}
 		else if(ModuleBeanMultiSocketInfo.class.isAssignableFrom(beanSocketInfo.getClass())) {
-			return this.visit((ModuleBeanMultiSocketInfo)beanSocketInfo, pad);
+			result.append(this.visit((ModuleBeanMultiSocketInfo)beanSocketInfo, pad));
 		}
-		return "";
+		result.append("\n").append(pad).append("  ").append("lazy: ").append(beanSocketInfo.isLazy());
+		return result.toString();
 	}
 
 	@Override

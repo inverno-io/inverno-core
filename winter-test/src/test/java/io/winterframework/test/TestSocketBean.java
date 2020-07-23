@@ -220,11 +220,11 @@ public class TestSocketBean extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String beanModuleNameConflict = "A socket bean must extend java.util.function.Supplier";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
 		}
 	}
 	
@@ -235,11 +235,11 @@ public class TestSocketBean extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String beanModuleNameConflict = "A socket bean must be public";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
 		}
 	}
 	
@@ -250,11 +250,11 @@ public class TestSocketBean extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String beanModuleNameConflict = "Invalid socket bean qualified name: QName part must be a valid Java identifier: # invalid 123";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
 		}
 	}
 }

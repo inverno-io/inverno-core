@@ -105,4 +105,7 @@ public class WinterCompiler {
 		return new WinterModuleLoader(paths, modulesWithLibs);
 	}
 	
+	public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {
+		return this.diagnosticListener.getDiagnotics();
+	}
 }

@@ -39,7 +39,7 @@ public class TestCycle extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(3, e.getDiagnotics().size());
+			Assertions.assertEquals(3, e.getDiagnostics().size());
 
 			String cycleMessage1 = "Bean io.winterframework.test.cycle:beanA forms a cycle in module io.winterframework.test.cycle\n" + 
 					"  ┌─────────────────────┐\n" + 
@@ -60,7 +60,7 @@ public class TestCycle extends AbstractWinterTest {
 					"  │                     │\n" + 
 					"  └─────────────────────┘ "; 
 			
-			Assertions.assertEquals(cycleMessage1, e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(cycleMessage1, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
 			
 			String cycleMessage2 = "Bean io.winterframework.test.cycle:beanB forms a cycle in module io.winterframework.test.cycle\n" + 
 					"  ┌─────────────────────┐\n" + 
@@ -81,7 +81,7 @@ public class TestCycle extends AbstractWinterTest {
 					"  │                     │\n" + 
 					"  └─────────────────────┘ ";
 			
-			Assertions.assertEquals(cycleMessage2, e.getDiagnotics().get(1).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(cycleMessage2, e.getDiagnostics().get(1).getMessage(Locale.getDefault()));
 			
 			String cycleMessage3 = "Bean io.winterframework.test.cycle:beanC forms a cycle in module io.winterframework.test.cycle\n" + 
 					"  ┌─────────────────────┐\n" + 
@@ -102,7 +102,7 @@ public class TestCycle extends AbstractWinterTest {
 					"  │                     │\n" + 
 					"  └─────────────────────┘ "; 
 			
-			Assertions.assertEquals(cycleMessage3, e.getDiagnotics().get(2).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(cycleMessage3, e.getDiagnostics().get(2).getMessage(Locale.getDefault()));
 		}
 	}
 }

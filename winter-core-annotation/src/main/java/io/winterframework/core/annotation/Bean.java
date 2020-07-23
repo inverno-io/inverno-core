@@ -129,6 +129,7 @@ import java.util.function.Supplier;
  * 
  * @author jkuhn
  * @since 1.0
+ * 
  * @see BeanSocket
  * @see Wrapper
  */

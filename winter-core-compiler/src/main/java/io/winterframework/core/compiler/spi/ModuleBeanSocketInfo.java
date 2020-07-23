@@ -37,4 +37,13 @@ public interface ModuleBeanSocketInfo extends SocketInfo {
 	 * @return a bean socket qualified name
 	 */
 	BeanSocketQualifiedName getQualifiedName();
+	
+	/**
+	 * <p>
+	 * Determines whether the socket is lazy.
+	 * </p>
+	 * 
+	 * @return true if the socket is a lazy socket, false otherwise
+	 */
+	boolean isLazy();
 }

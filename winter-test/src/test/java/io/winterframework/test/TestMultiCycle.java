@@ -50,7 +50,7 @@ public class TestMultiCycle extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String cycleMessage = "Bean io.winterframework.test.multicycle.moduleA:beanA forms a cycle in module io.winterframework.test.multicycle.moduleA\n" + 
 				"  ┌────────────────────────────┐\n" + 
@@ -70,7 +70,7 @@ public class TestMultiCycle extends AbstractWinterTest {
 				"  │                            ┊\n" + 
 				"  └────────────────────────────┘ "; 
 			
-			Assertions.assertEquals(cycleMessage, e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(cycleMessage, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
 		}
 	}
 	
@@ -82,7 +82,7 @@ public class TestMultiCycle extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(2, e.getDiagnotics().size());
+			Assertions.assertEquals(2, e.getDiagnostics().size());
 			
 			String cycleMessage = "Bean io.winterframework.test.multicycle.moduleC:serviceCImpl forms a cycle in module io.winterframework.test.multicycle.moduleC\n" + 
 				"  ┌───────────────────────────────┐\n" + 
@@ -125,7 +125,7 @@ public class TestMultiCycle extends AbstractWinterTest {
 				"  │                               ┊\n" + 
 				"  └───────────────────────────────┘ "; 
 			
-			Assertions.assertEquals(cycleMessage, e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(cycleMessage, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
 		}
 	}
 	
@@ -146,7 +146,7 @@ public class TestMultiCycle extends AbstractWinterTest {
 			extraCompiler.compile(MODULEA);
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String cycleMessage = "Bean io.winterframework.test.multicycle.moduleA:beanA forms a cycle in module io.winterframework.test.multicycle.moduleA\n" + 
 				"  ┌────────────────────────────┐\n" + 
@@ -162,7 +162,7 @@ public class TestMultiCycle extends AbstractWinterTest {
 				"  │                            ┊\n" + 
 				"  └────────────────────────────┘ "; 
 			
-			Assertions.assertEquals(cycleMessage, e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(cycleMessage, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
 		}		
 	}
 }

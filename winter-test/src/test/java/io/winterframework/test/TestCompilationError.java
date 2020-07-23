@@ -44,6 +44,7 @@ public class TestCompilationError extends AbstractWinterTest {
 	private static final String MODULEH = "io.winterframework.test.error.moduleH";
 	private static final String MODULEI = "io.winterframework.test.error.moduleI";
 	private static final String MODULEJ = "io.winterframework.test.error.moduleJ";
+	private static final String MODULEK = "io.winterframework.test.error.moduleK";
 	
 	@Test
 	public void testBeanConcreteClass() throws IOException {
@@ -52,12 +53,12 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(2, e.getDiagnotics().size());
+			Assertions.assertEquals(2, e.getDiagnostics().size());
 			
 			String abstractBeanError = "A bean must be a concrete class";
 			String socketBeanSupplierError = "A socket bean must extend java.util.function.Supplier";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(abstractBeanError, socketBeanSupplierError)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(abstractBeanError, socketBeanSupplierError)));
 		}
 	}
 	
@@ -68,11 +69,11 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String invalidBeanQualifiedNameError = "Invalid bean qualified name: QName part must be a valid Java identifier: #Invalid bean name";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(invalidBeanQualifiedNameError)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(invalidBeanQualifiedNameError)));
 		}
 	}
 	
@@ -83,11 +84,11 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String privateConstructorError = "No public constructor defined in bean io.winterframework.test.error.moduleC:beanA";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(privateConstructorError)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(privateConstructorError)));
 		}
 	}
 	
@@ -98,11 +99,11 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String multipleConstructorsError = "Multiple constructors are defined in module bean io.winterframework.test.error.moduleD:beanA, consider specifying a BeanSocket on the one to select";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleConstructorsError)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleConstructorsError)));
 		}
 	}
 	
@@ -113,11 +114,11 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String multipleSocketConstructorsError = "Multiple constructors annotated with BeanSocket are defined in module bean io.winterframework.test.error.moduleE:beanA which is not permitted";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleSocketConstructorsError)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleSocketConstructorsError)));
 		}
 	}
 	
@@ -128,7 +129,7 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Set<String> messages = e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toSet());
+			Set<String> messages = e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toSet());
 			
 			Assertions.assertEquals(2, messages.size());
 			
@@ -146,7 +147,7 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Set<String> messages = e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toSet());
+			Set<String> messages = e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toSet());
 			
 			Assertions.assertEquals(3, messages.size());
 			
@@ -165,15 +166,14 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String beanModuleNameConflict = "Bean is conflicting with module: io.winterframework.test.error.moduleH";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
 		}
 	}
 	
-	// TODO Test two optional socket with same name different type
 	@Test
 	public void testOptionalOptionalSocketNameConflict() throws IOException {
 		try {
@@ -181,14 +181,27 @@ public class TestCompilationError extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(2, e.getDiagnotics().size());
+			Assertions.assertEquals(2, e.getDiagnostics().size());
 			
 			String optionaSocketNameConflict1 = "Optional socket name is conflicting with another optional socket: foo";
 			String optionaSocketNameConflict2 = "Optional socket name is conflicting with another optional socket: foo";
 			
-			Assertions.assertTrue(e.getDiagnotics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(optionaSocketNameConflict1, optionaSocketNameConflict2)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(optionaSocketNameConflict1, optionaSocketNameConflict2)));
 		}
 	}
 	
-	// TODO Test two optional socket with same method name different type and different parameter names
+	@Test
+	public void testInvalidLazySocket() throws IOException {
+		try {
+			this.getWinterCompiler().compile(MODULEK);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnostics().size());
+			
+			String invalidLazySocket = "Invalid lazy socket which should be of type java.util.function.Supplier";
+			
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(invalidLazySocket)));
+		}
+	}
 }

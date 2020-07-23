@@ -140,9 +140,9 @@ public class TestSelector extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
-			System.out.println(e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
-			Assertions.assertEquals("Bean io.winterframework.test.selector.moduleD:runnableB of type io.winterframework.test.selector.moduleD.RunnableB is not wirable into socket io.winterframework.test.selector.moduleB:runnableSocket of type java.lang.Runnable", e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(1, e.getDiagnostics().size());
+			System.out.println(e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
+			Assertions.assertEquals("Bean io.winterframework.test.selector.moduleD:runnableB of type io.winterframework.test.selector.moduleD.RunnableB is not wirable into socket io.winterframework.test.selector.moduleB:runnableSocket of type java.lang.Runnable", e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
 		}
 	}
 }

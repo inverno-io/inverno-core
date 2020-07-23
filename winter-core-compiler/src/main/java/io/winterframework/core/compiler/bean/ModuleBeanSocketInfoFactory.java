@@ -15,6 +15,9 @@
  */
 package io.winterframework.core.compiler.bean;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ElementKind;
@@ -22,10 +25,12 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
+import io.winterframework.core.annotation.Lazy;
 import io.winterframework.core.annotation.Selector;
 import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.AbstractSocketInfoFactory;
@@ -48,6 +53,8 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 
 	private BeanQualifiedName beanQName;
 	
+	private TypeMirror supplierType;
+	
 	/**
 	 * 
 	 */
@@ -55,6 +62,7 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 		super(processingEnvironment, moduleElement);
 		
 		this.beanQName = beanQName;
+		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
 	}
 
 	public static ModuleBeanSocketInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, BeanQualifiedName beanQName) {
@@ -62,7 +70,7 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 	}
 	
 	// Compiled
-	public ModuleBeanSocketInfo createBeanSocket(VariableElement variableElement) throws TypeErrorException {
+	public Optional<ModuleBeanSocketInfo> createBeanSocket(VariableElement variableElement) throws TypeErrorException {
 		if(!variableElement.getKind().equals(ElementKind.PARAMETER)) {
 			throw new IllegalArgumentException("Element must be a parameter");
 		}
@@ -76,7 +84,8 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 		}
 		else {
 			if(!socketElement.getModifiers().contains(Modifier.PUBLIC) || !socketElement.getSimpleName().toString().startsWith("set") || socketElement.getParameters().size() != 1) {
-				throw new IllegalArgumentException("Invalid setter method which should be a single-argument method");
+				this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid socket method which should be a single-argument setter method, socket will be ignored", socketElement);
+				return Optional.empty();
 			}
 			
 			selectors = socketElement.getAnnotationMirrors().stream().filter(a -> a.getAnnotationType().asElement().getAnnotation(Selector.class) != null).toArray(AnnotationMirror[]::new);
@@ -86,30 +95,49 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 			optional = true;
 		}
 		
-		// This should never throw a QualifiedNameFormatException as a Java variable is a valid qualified name part
-		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(this.beanQName, socketName);
+		boolean lazy = variableElement.getAnnotation(Lazy.class) != null;
 		
-		TypeMirror socketType = variableElement.asType();
+		final TypeMirror socketType;
+		if(lazy) {
+			TypeMirror lazyType = variableElement.asType();
+			if(!this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(lazyType), this.supplierType)) {
+				this.processingEnvironment.getMessager().printMessage(Kind.ERROR, "Invalid lazy socket which should be of type " + Supplier.class.getCanonicalName(), variableElement);
+				return Optional.empty();
+			}
+			
+			if(((DeclaredType)lazyType).getTypeArguments().size() == 0) {
+				socketType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
+			}
+			else {
+				socketType = ((DeclaredType)lazyType).getTypeArguments().get(0);
+			}
+		}
+		else {
+			socketType = variableElement.asType();
+		}
+		
 		if(socketType.getKind().equals(TypeKind.ERROR)) {
 			this.processingEnvironment.getMessager().printMessage(Kind.WARNING, "Type " + socketType + " could not be resolved.", variableElement );
 			throw new TypeErrorException(socketType);
 		}
 		
+		// This should never throw a QualifiedNameFormatException as a Java variable is a valid qualified name part
+		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(this.beanQName, socketName);
 		MultiSocketType multiType = this.getMultiType(socketType);
 		if(multiType != null) {
 			if(optional) {
-				return new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, socketElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, multiType);
+				return Optional.of(new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, socketElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, lazy, multiType));
 			}
 			else {
-				return new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, variableElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, multiType);
+				return Optional.of(new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, variableElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, lazy, multiType));
 			}
 		}
 		else {
 			if(optional) {
-				return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, socketElement, socketQName, socketType, socketElement, selectors, optional);
+				return Optional.of(new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, socketElement, socketQName, socketType, socketElement, selectors, optional, lazy));
 			}
 			else {
-				return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, variableElement, socketQName, socketType, socketElement, selectors, optional);
+				return Optional.of(new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, variableElement, socketQName, socketType, socketElement, selectors, optional, lazy));
 			}
 		}
 	}
@@ -117,6 +145,6 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 	// Binary
 	public ModuleBeanSocketInfo createBeanSocket(SocketBeanInfo moduleSocketInfo) {
 		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(moduleSocketInfo.getQualifiedName(), moduleSocketInfo.getQualifiedName().getSimpleValue());
-		return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, this.moduleElement, socketQName, moduleSocketInfo.getType(), null, null, moduleSocketInfo.isOptional());
+		return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, this.moduleElement, socketQName, moduleSocketInfo.getType(), null, null, moduleSocketInfo.isOptional(), false);
 	}
 }

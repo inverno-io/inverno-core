@@ -40,7 +40,7 @@ public class TestConflict extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnotics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String conflictMessage = "Multiple beans matching socket io.winterframework.test.conflict:beanA:svc were found\n" + 
 					"  - io.winterframework.test.conflict:serviceB of type io.winterframework.test.conflict.ServiceB\n" + 
@@ -49,7 +49,7 @@ public class TestConflict extends AbstractWinterTest {
 					"  Consider specifying an explicit wiring in module io.winterframework.test.conflict (eg. @io.winterframework.core.annotation.Wire(beans=\"io.winterframework.test.conflict:serviceB\", into=\"io.winterframework.test.conflict:beanA:svc\") )\n" + 
 					"   ";
 
-			Assertions.assertEquals(conflictMessage, e.getDiagnotics().get(0).getMessage(Locale.getDefault()));
+			Assertions.assertEquals(conflictMessage, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
 		}
 	}
 }

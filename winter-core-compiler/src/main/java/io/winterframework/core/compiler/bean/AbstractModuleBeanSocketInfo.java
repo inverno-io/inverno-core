@@ -43,24 +43,22 @@ abstract class AbstractModuleBeanSocketInfo extends AbstractInfo<BeanSocketQuali
 	
 	protected boolean optional;
 	
-	/**
-	 * @param processingEnvironment
-	 * @param element
-	 * @param annotation
-	 */
+	protected boolean lazy;
+
 	public AbstractModuleBeanSocketInfo(ProcessingEnvironment processingEnvironment, 
 			Element element, 
 			BeanSocketQualifiedName qname, 
 			TypeMirror type, 
 			ExecutableElement socketElement, 
 			AnnotationMirror[] selectors, 
-			boolean optional) {
+			boolean optional,
+			boolean lazy) {
 		super(processingEnvironment, element, qname);
-		
 		this.type = type;
 		this.socketElement = socketElement;
 		this.selectors = selectors != null ? selectors : new AnnotationMirror[0];
 		this.optional = optional;
+		this.lazy = lazy;
 	}
 
 	@Override
@@ -82,5 +80,10 @@ abstract class AbstractModuleBeanSocketInfo extends AbstractInfo<BeanSocketQuali
 	@Override
 	public boolean isOptional() {
 		return this.optional;
+	}
+	
+	@Override
+	public boolean isLazy() {
+		return this.lazy;
 	}
 }
