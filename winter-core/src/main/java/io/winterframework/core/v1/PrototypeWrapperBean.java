@@ -99,8 +99,7 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	@Override
 	public synchronized final void create() {
 		if (this.instances == null) {
-			LOGGER.info(() -> "Creating Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":"
-					+ this.name);
+			LOGGER.fine(() -> "Creating Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
 			this.instances = new WeakHashMap<>();
 			this.parent.recordBean(this);
 		}
@@ -140,10 +139,9 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	@Override
 	public synchronized final void destroy() {
 		if (this.instances != null) {
-			LOGGER.info(() -> "Destroying Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":"
-					+ this.name);
+			LOGGER.fine(() -> "Destroying Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
 			this.instances.values().stream()
-					.forEach(wrapper -> this.destroyWrapper(wrapper));
+				.forEach(wrapper -> this.destroyWrapper(wrapper));
 			this.instances.clear();
 			this.instances = null;
 		}

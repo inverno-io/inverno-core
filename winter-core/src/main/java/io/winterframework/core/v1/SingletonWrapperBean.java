@@ -77,8 +77,7 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 */
 	public synchronized final void create() {
 		if (this.wrapper == null) {
-			LOGGER.info(
-					"Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+			LOGGER.fine("Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
 			this.wrapper = this.createWrapper();
 			this.instance = this.wrapper.get();
 			this.parent.recordBean(this);
@@ -110,8 +109,7 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 */
 	public synchronized final void destroy() {
 		if (this.wrapper != null) {
-			LOGGER.info("Destroying Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":"
-					+ this.name);
+			LOGGER.fine("Destroying Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":"	+ this.name);
 			this.destroyWrapper(this.wrapper);
 			this.wrapper = null;
 		}

@@ -90,36 +90,31 @@ public class StandardBanner implements Banner {
 
 		bannerBuilder.append(String.format(BANNER_HEADER, version));
 
-		bannerBuilder.append(
-				String.format(BANNER_BODY, " Java runtime        : " + System.getProperty("java.runtime.name")));
-		bannerBuilder.append(
-				String.format(BANNER_BODY, " Java version        : " + System.getProperty("java.runtime.version")));
+		bannerBuilder.append(String.format(BANNER_BODY, " Java runtime        : " + System.getProperty("java.runtime.name")));
+		bannerBuilder.append(String.format(BANNER_BODY, " Java version        : " + System.getProperty("java.runtime.version")));
 		bannerBuilder.append(String.format(BANNER_BODY, " Java home           : " + System.getProperty("java.home")));
 
 		if (thisModule.getLayer() != null && System.getProperty("jdk.module.main") != null) {
 			bannerBuilder.append(String.format(BANNER_BODY, ""));
 
-			Optional<java.lang.Module> mainModule = thisModule.getLayer()
-					.findModule(System.getProperty("jdk.module.main"));
+			Optional<java.lang.Module> mainModule = thisModule.getLayer().findModule(System.getProperty("jdk.module.main"));
 			if (mainModule.isPresent() && mainModule.get().getDescriptor() != null) {
-				bannerBuilder.append(String.format(BANNER_BODY,
-						" Application module  : " + mainModule.get().getDescriptor().name()));
+				bannerBuilder.append(String.format(BANNER_BODY, " Application module  : " + mainModule.get().getDescriptor().name()));
 				if (mainModule.get().getDescriptor().rawVersion().isPresent()) {
-					bannerBuilder.append(String.format(BANNER_BODY,
-							" Application version : " + mainModule.get().getDescriptor().rawVersion().get()));
+					bannerBuilder.append(String.format(BANNER_BODY, " Application version : " + mainModule.get().getDescriptor().rawVersion().get()));
 				}
 				// Ideally Jar should be well generated module Jars with a module main class
 				// added but Maven don't use the Jar utility...
 //				this.banner += String.format(BANNER_BODY, " Application class   : " + mainModule.get().getDescriptor().mainClass().get());
-				bannerBuilder.append(String.format(BANNER_BODY,
-						" Application class   : " + System.getProperty("jdk.module.main.class")));
+				bannerBuilder.append(String.format(BANNER_BODY, " Application class   : " + System.getProperty("jdk.module.main.class")));
 				bannerBuilder.append(String.format(BANNER_BODY, ""));
 			}
 
 			bannerBuilder.append(String.format(BANNER_BODY, " Modules             : "));
 
-			this.getClass().getModule().getLayer().modules().stream().map(m -> m.getDescriptor().toNameAndVersion())
-					.sorted().forEach(s -> bannerBuilder.append(String.format(BANNER_BODY, "  * " + s)));
+			this.getClass().getModule().getLayer().modules().stream()
+				.map(m -> m.getDescriptor().toNameAndVersion())
+				.sorted().forEach(s -> bannerBuilder.append(String.format(BANNER_BODY, "  * " + s)));
 		}
 
 		bannerBuilder.append(BANNER_FOOTER);

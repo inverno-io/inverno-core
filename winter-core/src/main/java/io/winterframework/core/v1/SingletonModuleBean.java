@@ -70,8 +70,7 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 */
 	public synchronized final void create() {
 		if (this.instance == null) {
-			LOGGER.info(
-					"Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+			LOGGER.fine("Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
 			this.instance = this.createInstance();
 			this.parent.recordBean(this);
 		}
@@ -101,8 +100,7 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 */
 	public synchronized final void destroy() {
 		if (this.instance != null) {
-			LOGGER.info("Destroying Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":"
-					+ this.name);
+			LOGGER.fine("Destroying Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":"	+ this.name);
 			this.destroyInstance(this.instance);
 			this.instance = null;
 		}
