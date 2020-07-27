@@ -39,6 +39,7 @@ public class TestLifecycle extends AbstractWinterTest {
 	public void testInitDestroy() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException, InterruptedException {
 		WinterModuleProxy moduleA = this.getWinterCompiler().compile(MODULEA).load(MODULEA).build();
 		
+		@SuppressWarnings("unused")
 		Object singletonBean = null, prototypeBean1 = null, prototypeBean2 = null, prototypeBean3 = null;
 		try {
 			moduleA.start();
@@ -70,6 +71,7 @@ public class TestLifecycle extends AbstractWinterTest {
 	public void testInitDestroyWrapper() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, IOException, WinterCompilationException, InterruptedException {
 		WinterModuleProxy moduleA = this.getWinterCompiler().compile(MODULEC).load(MODULEC).build();
 		
+		@SuppressWarnings("unused")
 		Object singletonBean = null, prototypeBean1 = null, prototypeBean2 = null, prototypeBean3 = null;
 		try {
 			moduleA.start();
