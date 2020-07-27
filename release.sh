@@ -19,11 +19,11 @@ fi
 if (( $# > 0 ))
 	then
 		echo "===== Releasing: $1 ====="
-		#mvn versions:set -DgenerateBackupPoms=false -DprocessAllModules=true -DnewVersion=$1
-		#mvn versions:update-property -DgenerateBackupPoms=false -Dproperty=version.winter
-		#git -commit -a -m "Release $1"
-		#git tag -a $1 -m "Release $1"
-		#mvn clean deploy -Pio.winterframework.release
+		mvn versions:set -DgenerateBackupPoms=false -DprocessAllModules=true -DnewVersion=$1
+		mvn versions:update-property -DgenerateBackupPoms=false -Dproperty=version.winter
+		git -commit -a -m "Release $1"
+		git tag -a $1 -m "Release $1"
+		mvn clean deploy -Pio.winterframework.release
 fi
 
 if (( $# == 2 ))
@@ -33,9 +33,9 @@ if (( $# == 2 ))
 				echo "bad version"
 		fi
 		echo "===== New Snapshot: $2 ====="
-		#mvn versions:set -DgenerateBackupPoms=false -DprocessAllModules=true -DnewVersion=$2
-		#mvn versions:update-property -DgenerateBackupPoms=false -Dproperty=version.winter
-		#git -commit -a -m "$2"
+		mvn versions:set -DgenerateBackupPoms=false -DprocessAllModules=true -DnewVersion=$2
+		mvn versions:update-property -DgenerateBackupPoms=false -Dproperty=version.winter
+		git -commit -a -m "$2"
 fi
 
 exit 0
