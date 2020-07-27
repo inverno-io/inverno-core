@@ -28,10 +28,17 @@
 	<description>Winter framework parent pom</description>
 	<inceptionYear>2020</inceptionYear>
 	<organization>
-    	<name>Winter Framework IO</name>
-    	<url>https://winterframework.io</url>
+		<name>Winter Framework IO</name>
+		<url>https://winterframework.io</url>
 	</organization>
 	<url>https://github.com/winterframework-io/winter-root</url>
+
+	<licenses>
+		<license>
+			<name>Apache License 2.0</name>
+			<url>https://spdx.org/licenses/Apache-2.0</url>
+		</license>
+	</licenses>
 
 	<developers>
 		<developer>
@@ -63,26 +70,20 @@
 		</repository>
 	</distributionManagement>
 
-	<licenses>
-		<license>
-			<name>Apache License 2.0</name>
-			<url>https://spdx.org/licenses/Apache-2.0</url>
-		</license>
-	</licenses>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>9</maven.compiler.source>
 		<maven.compiler.target>9</maven.compiler.target>
+		<version.winter>1.0.2-SNAPSHOT</version.winter>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-        		<groupId>io.winterframework</groupId>
-        		<artifactId>winter-core</artifactId>
-        		<version>${project.version}</version>
-    		</dependency>
+				<groupId>io.winterframework</groupId>
+				<artifactId>winter-core</artifactId>
+				<version>${version.winter}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -101,13 +102,13 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.8.1</version>
 					<configuration>
-	                    <annotationProcessorPaths>
-	                        <path>
-	                            <groupId>io.winterframework</groupId>
-	                            <artifactId>winter-core-compiler</artifactId>
-	                            <version>${project.version}</version>
-	                        </path>
-	                    </annotationProcessorPaths>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>io.winterframework</groupId>
+								<artifactId>winter-core-compiler</artifactId>
+								<version>${version.winter}</version>
+							</path>
+						</annotationProcessorPaths>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -156,6 +157,7 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-gpg-plugin</artifactId>
+						<inherited>false</inherited>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
@@ -176,11 +178,66 @@
 						<groupId>org.sonatype.plugins</groupId>
 						<artifactId>nexus-staging-maven-plugin</artifactId>
 						<extensions>true</extensions>
+						<inherited>false</inherited>
 						<configuration>
 							<serverId>ossrh</serverId>
 							<nexusUrl>https://oss.sonatype.org/</nexusUrl>
 							<autoReleaseAfterClose>false</autoReleaseAfterClose>
 						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>3.0.0</version>
+						<executions>
+							<execution>
+								<id>pom-cleanup</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<inherited>false</inherited>
+								<configuration>
+									<target>
+										<property name="sourceFile" value="pom.xml" />
+										<xslt in="${sourceFile}" out="${sourceFile}.new" force="true">
+											<style>
+												<string><![CDATA[
+<xsl:stylesheet version="2.0"
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:m="http://maven.apache.org/POM/4.0.0"
+	exclude-result-prefixes="m">
+	<xsl:template match="node()|@*">
+		<xsl:copy>
+			<xsl:apply-templates select="node()|@*" />
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="m:profiles|m:distributionManagement">
+	</xsl:template>
+</xsl:stylesheet>
+				]]>
+												</string>
+											</style>
+										</xslt>
+										<move file="${sourceFile}" tofile="${sourceFile}.old" />
+										<move file="${sourceFile}.new" tofile="${sourceFile}" />
+									</target>
+								</configuration>
+							</execution>
+							<execution>
+								<id>pom-restore</id>
+								<phase>deploy</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<inherited>false</inherited>
+								<configuration>
+									<target>
+										<property name="sourceFile" value="pom.xml" />
+										<move file="${sourceFile}.old" tofile="${sourceFile}" />
+									</target>
+								</configuration>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>

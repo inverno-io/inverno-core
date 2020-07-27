@@ -25,6 +25,13 @@
 	</organization>
 	<url>https://github.com/winterframework-io/winter-root</url>
 
+	<licenses>
+		<license>
+			<name>Apache License 2.0</name>
+			<url>https://spdx.org/licenses/Apache-2.0</url>
+		</license>
+	</licenses>
+
 	<developers>
 		<developer>
 			<id>jkuhn</id>
@@ -54,13 +61,6 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
 	</distributionManagement>
-
-	<licenses>
-		<license>
-			<name>Apache License 2.0</name>
-			<url>https://spdx.org/licenses/Apache-2.0</url>
-		</license>
-	</licenses>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
