@@ -19,6 +19,9 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import io.winterframework.core.compiler.spi.BeanInfo;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
+import io.winterframework.core.compiler.spi.ConfigurationPropertyInfo;
+import io.winterframework.core.compiler.spi.ConfigurationSocketBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanMultiSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSingleSocketInfo;
@@ -28,6 +31,7 @@ import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
 import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
 import io.winterframework.core.compiler.spi.MultiSocketType;
+import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
 import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
@@ -62,37 +66,51 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 		result.append(pad).append(this.indent).append("name: ").append(moduleInfo.getQualifiedName().toString()).append("\n");
 		result.append(pad).append(this.indent).append("class: ").append(moduleInfo.getQualifiedName().getClassName()).append("\n");
 		result.append(pad).append(this.indent).append("modules:").append("\n");
-		for(ModuleInfo module : moduleInfo.getModules()) {
-			result.append(this.visit(module, pad + this.indent + this.indent)).append("\n");
+		String componentModules = Arrays.stream(moduleInfo.getModules()).map(module -> this.visit(module, pad + this.indent + this.indent)).collect(Collectors.joining("\n"));
+		if(componentModules != null && !componentModules.equals("")) {
+			result.append(componentModules).append("\n");
 		}
 		result.append(pad).append(this.indent).append("sockets:").append("\n");
-		for(SocketBeanInfo socket : moduleInfo.getSockets()) {
-			result.append(this.visit(socket, pad + this.indent + this.indent)).append("\n");
+		String sockets = Arrays.stream(moduleInfo.getSockets()).map(socket -> this.visit(socket, pad + this.indent + this.indent)).collect(Collectors.joining("\n"));
+		if(sockets != null && !sockets.equals("")) {
+			result.append(sockets).append("\n");
+		}
+		result.append(pad).append(this.indent).append("configurations:").append("\n");
+		String configurations = Arrays.stream(moduleInfo.getConfigurations()).map(configuration -> this.visit(configuration, pad + this.indent + this.indent)).collect(Collectors.joining("\n"));
+		if(configurations != null && !configurations.equals("")) {
+			result.append(configurations).append("\n");
 		}
 		
 		result.append(pad).append(this.indent).append("beans:").append("\n");
 
 		result.append(pad).append(this.indent).append(this.indent).append("private:").append("\n");
-		for(ModuleBeanInfo bean : moduleInfo.getPrivateBeans()) {
-			result.append(this.visit(bean, pad + this.indent + this.indent + this.indent)).append("\n");
+		String privateBeans = Arrays.stream(moduleInfo.getPrivateBeans()).map(bean -> this.visit(bean, pad + this.indent + this.indent + this.indent)).collect(Collectors.joining("\n"));
+		if(privateBeans != null && !privateBeans.equals("")) {
+			result.append(privateBeans).append("\n");
 		}
 		
 		result.append(pad).append(this.indent).append(this.indent).append("public:").append("\n");
-		for(ModuleBeanInfo bean : moduleInfo.getPublicBeans()) {
-			result.append(this.visit(bean, pad + this.indent + this.indent + this.indent)).append("\n");
+		String publicBeans = Arrays.stream(moduleInfo.getPublicBeans()).map(bean -> this.visit(bean, pad + this.indent + this.indent + this.indent)).collect(Collectors.joining("\n"));
+		if(publicBeans != null && !publicBeans.equals("")) {
+			result.append(publicBeans);
 		}
 		return result.toString();
 	}
 
 	@Override
 	public String visit(BeanInfo beanInfo, String pad) {
-		if(ModuleBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
+		if(beanInfo instanceof ModuleBeanInfo) {
 			return this.visit((ModuleBeanInfo)beanInfo, pad);
 		}
-		else if(SocketBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
+		else if(beanInfo instanceof SocketBeanInfo) {
 			return this.visit((SocketBeanInfo)beanInfo, pad);
 		}
-		return "";
+		else {
+			StringBuilder result = new StringBuilder();
+			result.append(pad).append("- ").append("name: ").append(beanInfo.getQualifiedName().getSimpleValue()).append("\n");
+			result.append(pad).append("  ").append("type: ").append(beanInfo.getType().toString()).append("\n");
+			return result.toString();
+		}
 	}
 
 	@Override
@@ -105,7 +123,7 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 			result.append(pad).append("  ").append("providedType: ").append(moduleBeanInfo.getProvidedType().toString()).append("\n");
 		}
 		result.append(pad).append("  ").append("strategy: ").append(moduleBeanInfo.getStrategy().toString()).append("\n");
-		if(WrapperBeanInfo.class.isAssignableFrom(moduleBeanInfo.getClass())) {
+		if(moduleBeanInfo instanceof WrapperBeanInfo) {
 			result.append(pad).append("  ").append("wrapperType:").append(((WrapperBeanInfo)moduleBeanInfo).getWrapperType().toString()).append("\n");
 		}
 		result.append(pad).append("  ").append("init: ").append("\n");
@@ -132,10 +150,10 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 	@Override
 	public String visit(ModuleBeanSocketInfo beanSocketInfo, String pad) {
 		StringBuilder result = new StringBuilder();
-		if(ModuleBeanSingleSocketInfo.class.isAssignableFrom(beanSocketInfo.getClass())) {
+		if(beanSocketInfo instanceof ModuleBeanSingleSocketInfo) {
 			result.append(this.visit((ModuleBeanSingleSocketInfo)beanSocketInfo, pad));
 		}
-		else if(ModuleBeanMultiSocketInfo.class.isAssignableFrom(beanSocketInfo.getClass())) {
+		else if(beanSocketInfo instanceof ModuleBeanMultiSocketInfo) {
 			result.append(this.visit((ModuleBeanMultiSocketInfo)beanSocketInfo, pad));
 		}
 		result.append("\n").append(pad).append("  ").append("lazy: ").append(beanSocketInfo.isLazy());
@@ -154,53 +172,46 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 
 	@Override
 	public String visit(SocketBeanInfo moduleSocketInfo, String pad) {
-		if(SingleSocketBeanInfo.class.isAssignableFrom(moduleSocketInfo.getClass())) {
-			return this.visit((SingleSocketBeanInfo)moduleSocketInfo, pad);
-		}
-		else if(MultiSocketBeanInfo.class.isAssignableFrom(moduleSocketInfo.getClass())) {
-			return this.visit((MultiSocketBeanInfo)moduleSocketInfo, pad);
-		}
-		return "";
-	}
-
-	@Override
-	public String visit(SingleSocketBeanInfo moduleSingleSocketInfo, String pad) {
 		StringBuilder result = new StringBuilder();
 		
-		result.append(this.visit((SingleSocketInfo)moduleSingleSocketInfo, pad)).append("\n");
+		if(moduleSocketInfo instanceof SingleSocketBeanInfo) {
+			result.append(this.visit((SingleSocketInfo)moduleSocketInfo, pad));
+		}
+		else if(moduleSocketInfo instanceof MultiSocketBeanInfo) {
+			result.append(this.visit((MultiSocketInfo)moduleSocketInfo, pad));
+		}
+		result.append("\n");
+		result.append(pad).append("  ").append("socketType: ").append(moduleSocketInfo.getSocketType().toString()).append("\n");
 		result.append(pad).append("  ").append("wiredTo:");
-		if(moduleSingleSocketInfo.getWiredBeans().length > 0) {
+		if(moduleSocketInfo.getWiredBeans().length > 0) {
 			result.append("\n");
-			result.append(Arrays.stream(moduleSingleSocketInfo.getWiredBeans()).map(beanQName -> pad + "  " + this.indent + "- " + beanQName.toString()).collect(Collectors.joining("\n")));
+			result.append(Arrays.stream(moduleSocketInfo.getWiredBeans()).map(beanQName -> pad + "  " + this.indent + "- " + beanQName.toString()).collect(Collectors.joining("\n")));
 		}
 		return result.toString();
 	}
 
 	@Override
-	public String visit(MultiSocketBeanInfo moduleMultiSocketInfo, String pad) {
-		StringBuilder result = new StringBuilder();
-		
-		result.append(this.visit((MultiSocketInfo)moduleMultiSocketInfo, pad)).append("\n");
-		result.append(pad).append("  ").append("wiredTo:");
-		if(moduleMultiSocketInfo.getWiredBeans().length > 0) {
-			result.append("\n");
-			result.append(Arrays.stream(moduleMultiSocketInfo.getWiredBeans()).map(beanQName -> pad + "  " + this.indent + "- " + beanQName.toString()).collect(Collectors.joining("\n")));
-		}
-		return result.toString();
+	public String visit(SingleSocketBeanInfo singleSocketBeanInfo, String pad) {
+		return this.visit((SocketBeanInfo)singleSocketBeanInfo, pad);
+	}
+
+	@Override
+	public String visit(MultiSocketBeanInfo multiSocketBeanInfo, String pad) {
+		return this.visit((SocketBeanInfo)multiSocketBeanInfo, pad);
 	}
 	
 	@Override
 	public String visit(SocketInfo socketInfo, String pad) {
-		if(ModuleBeanSocketInfo.class.isAssignableFrom(socketInfo.getClass())) {
+		if(socketInfo instanceof ModuleBeanSocketInfo) {
 			return this.visit((ModuleBeanSocketInfo)socketInfo, pad);
 		}
-		else if(SocketBeanInfo.class.isAssignableFrom(socketInfo.getClass())) {
+		else if(socketInfo instanceof SocketBeanInfo) {
 			return this.visit((SocketBeanInfo)socketInfo, pad);
 		}
-		else if(SingleSocketInfo.class.isAssignableFrom(socketInfo.getClass())) {
+		else if(socketInfo instanceof SingleSocketInfo) {
 			return this.visit((SingleSocketInfo)socketInfo, pad);
 		}
-		else if(MultiSocketInfo.class.isAssignableFrom(socketInfo.getClass())) {
+		else if(socketInfo instanceof MultiSocketInfo) {
 			return this.visit((MultiSocketInfo)socketInfo, pad);
 		}
 		return "";
@@ -268,5 +279,51 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 			result.append(Arrays.stream(multiSocketInfo.getSelectors()).map(selector -> pad + "  " + this.indent + "- " + selector.toString()).collect(Collectors.joining("\n")));
 		}
 		return result.toString();
+	}
+	
+	@Override
+	public String visit(ConfigurationInfo configurationInfo, String pad) {
+		StringBuilder result = new StringBuilder();
+		
+		result.append(pad).append("- ").append("name: ").append(configurationInfo.getQualifiedName().getSimpleValue()).append("\n");
+		result.append(pad).append("  ").append("type: ").append(configurationInfo.getType()).append("\n");
+		result.append(pad).append("  ").append("properties: ").append("\n");
+		result.append(Arrays.stream(configurationInfo.getProperties()).map(configurationPropertyInfo -> {
+			if(configurationPropertyInfo instanceof NestedConfigurationPropertyInfo) {
+				return this.visit((NestedConfigurationPropertyInfo)configurationPropertyInfo, pad + "  " + this.indent);
+			}
+			else {
+				return this.visit(configurationPropertyInfo, pad + "  " + this.indent);
+			}
+		}).collect(Collectors.joining("\n"))).append("\n");
+		result.append(pad).append("  ").append("socket: ").append("\n");
+		result.append(this.visit(configurationInfo.getSocket(), pad + "  " + this.indent));
+		
+		return result.toString();
+	}
+	
+	@Override
+	public String visit(ConfigurationPropertyInfo configurationPropertyInfo, String pad) {
+		StringBuilder result = new StringBuilder();
+		result.append(pad).append("- ").append("name: ").append(configurationPropertyInfo.getName()).append("\n");
+		result.append(pad).append("  ").append("type: ").append(configurationPropertyInfo.getType().toString()).append("\n");
+		result.append(pad).append("  ").append("hasDefault: ").append(configurationPropertyInfo.isDefault());
+		return result.toString();
+	}
+	
+	@Override
+	public String visit(NestedConfigurationPropertyInfo nestedConfigurationPropertyInfo, String pad) {
+		StringBuilder result = new StringBuilder();
+		result.append(this.visit((ConfigurationPropertyInfo)nestedConfigurationPropertyInfo, pad)).append("\n");
+		result.append(pad).append("  ").append("builderType: ").append(nestedConfigurationPropertyInfo.getBuilderClassName().toString()).append("\n");
+		result.append(pad).append("  ").append("bean:").append("\n");
+		result.append(this.visit((BeanInfo)nestedConfigurationPropertyInfo, pad + this.indent));
+		
+		return result.toString(); 
+	}
+	
+	@Override
+	public String visit(ConfigurationSocketBeanInfo configurationSocketBeanInfo, String pad) {
+		return this.visit((SingleSocketBeanInfo)configurationSocketBeanInfo, pad);
 	}
 }

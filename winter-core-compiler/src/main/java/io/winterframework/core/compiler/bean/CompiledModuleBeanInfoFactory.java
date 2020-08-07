@@ -85,7 +85,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	}
 
 	@Override
-	public ModuleBeanInfo createBean(Element element) throws BeanCompilationException, TypeErrorException {
+	public ModuleBeanInfo createBean(Element element) throws BeanCompilationException {
 		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
 			throw new IllegalArgumentException("Element must be a TypeElement");
 		}
@@ -94,14 +94,13 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		}
 		
 		TypeElement typeElement = (TypeElement)element;
-		TypeMirror beanType = typeElement.asType();
+		if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
+			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
+		}
 		
 		Optional<? extends AnnotationMirror> beanAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.beanAnnotationType)).findFirst();
 		if(!beanAnnotation.isPresent()) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Bean.class.getSimpleName());
-		}
-		if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
-			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 		}
 		
 		ReporterInfo beanReporter = this.getReporter(element, beanAnnotation.get());
@@ -140,6 +139,8 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			throw new BeanCompilationException();
 		}
 
+		TypeMirror beanType = typeElement.asType();
+		
 		// Get provided type
 		TypeMirror providedType = null;
 		List<? extends TypeMirror> providedTypes = this.processingEnvironment.getTypeUtils().directSupertypes(beanType).stream()
@@ -156,7 +157,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			providedType = providedTypes.get(0);
 		}
 		else if(providedTypes.size() > 1) {
-			beanReporter.error("A bean " + beanQName + " can't provide multiple types");
+			beanReporter.error("Bean " + beanQName + " can't provide multiple types");
 		}
 		
 		// Get Init
@@ -199,7 +200,6 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		if(constructorSocketElements.size() == 0) {
 			// This should never happen
 			beanReporter.error("No public constructor defined in bean " + beanQName);
-			throw new BeanCompilationException();
 		}
 		else if(constructorSocketElements.size() == 1) {
 			// OK
@@ -211,22 +211,27 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			
 			if(constructorSocketElements.size() == 0) {
 				beanReporter.error("Multiple constructors are defined in module bean " + beanQName + ", consider specifying a " + BeanSocket.class.getSimpleName() + " on the one to select");
-				throw new BeanCompilationException();
 			}
 			else if(constructorSocketElements.size() == 1) {
 				constructorSocketElement = constructorSocketElements.get(0);
 			}
 			else {
 				beanReporter.error("Multiple constructors annotated with " + BeanSocket.class.getSimpleName() + " are defined in module bean " + beanQName + " which is not permitted");
-				throw new BeanCompilationException();
 			}
 		}
 		
-		for(VariableElement ve : constructorSocketElement.getParameters()) {
-			beanSocketFactory.createBeanSocket(ve).ifPresent(requiredBeanSocket ->  {
-				requiredSocketByName.put(requiredBeanSocket.getQualifiedName().getName(), requiredBeanSocket);
-				beanSocketInfos.add(requiredBeanSocket);
-			});
+		if(constructorSocketElement != null) {
+			for(VariableElement ve : constructorSocketElement.getParameters()) {
+				try {
+					beanSocketFactory.createBeanSocket(ve).ifPresent(requiredBeanSocket ->  {
+						requiredSocketByName.put(requiredBeanSocket.getQualifiedName().getName(), requiredBeanSocket);
+						beanSocketInfos.add(requiredBeanSocket);
+					});
+				} 
+				catch (TypeErrorException e1) {
+					beanReporter.error("Invalid required socket " + ve.getSimpleName().toString() + " : Type " + e1.getType() + " could not be resolved");
+				}
+			}
 		}
 		
 		// ... from setters
@@ -253,7 +258,12 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			if(socketElementsBySocketName.size() > 1) {
 				List<ModuleBeanSocketInfo> optionalModuleSocketInfos = new ArrayList<>();
 				for(ExecutableElement socketElement : socketElementsBySocketName) {
-					beanSocketFactory.createBeanSocket(socketElement.getParameters().get(0)).ifPresent(optionalModuleSocketInfos::add);
+					try {
+						beanSocketFactory.createBeanSocket(socketElement.getParameters().get(0)).ifPresent(optionalModuleSocketInfos::add);
+					} 
+					catch (TypeErrorException e1) {
+						this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Ignoring invalid optional socket: Type " + e1.getType() + " could not be resolved", socketElement);
+					}
 				}
 				Map<BeanSocketQualifiedName, List<ModuleBeanSocketInfo>> socketInfosByName = optionalModuleSocketInfos.stream().collect(Collectors.groupingBy(ModuleBeanSocketInfo::getQualifiedName));
 				socketInfosByName.values().stream()
@@ -270,9 +280,16 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 					.filter(requiredSocketConflictPredicate)
 					.forEach(beanSocketInfos::add);
 			}
-			beanSocketFactory.createBeanSocket(socketElementsBySocketName.get(0).getParameters().get(0))
-				.filter(requiredSocketConflictPredicate)
-				.ifPresent(beanSocketInfos::add);
+			else {
+				try {
+					beanSocketFactory.createBeanSocket(socketElementsBySocketName.get(0).getParameters().get(0))
+						.filter(requiredSocketConflictPredicate)
+						.ifPresent(beanSocketInfos::add);
+				}
+				catch (TypeErrorException e1) {
+					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Ignoring invalid optional socket: Type " + e1.getType() + " could not be resolved", socketElementsBySocketName.get(0));
+				}
+			}
 		}
 		
 		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
@@ -280,24 +297,30 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		if(wrapperAnnotation.isPresent()) {
 			wrapperType = beanType;
 			Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
-			if(!supplierType.isPresent()) {
-				beanReporter.error("A wrapper bean element must extend " + Supplier.class.getCanonicalName());
-				throw new BeanCompilationException();
-			}
-			if(((DeclaredType)supplierType.get()).getTypeArguments().size() == 0) {
-				beanType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
+			if(supplierType.isPresent()) {
+				if(((DeclaredType)supplierType.get()).getTypeArguments().size() == 0) {
+					beanType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
+				}
+				else {
+					beanType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
+				}
 			}
 			else {
-				beanType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
+				beanReporter.error("A wrapper bean element must extend " + Supplier.class.getCanonicalName());
+			}
+			if(providedType != null) {
+				beanReporter.error("Wrapper bean " + beanQName + " can't provide other types than its supplied type");
 			}
 			
-			if(providedType != null) {
-				beanReporter.error("A wrapper bean " + beanQName + " can't provide other types than its supplied type");
+			if(beanReporter.hasError()) {
 				throw new BeanCompilationException();
 			}
 			return new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 		else {
+			if(beanReporter.hasError()) {
+				throw new BeanCompilationException();
+			}
 			return new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 	}

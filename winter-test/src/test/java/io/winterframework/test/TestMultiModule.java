@@ -40,6 +40,8 @@ public class TestMultiModule extends AbstractWinterTest {
 	private static final String MODULED = "io.winterframework.test.multi.moduleD";
 	private static final String MODULEE = "io.winterframework.test.multi.moduleE";
 	private static final String MODULEF = "io.winterframework.test.multi.moduleF";
+	private static final String MODULEG = "io.winterframework.test.multi.moduleG";
+	private static final String MODULEH = "io.winterframework.test.multi.moduleH";
 
 	@Test
 	public void testMultiModuleSimple() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
@@ -128,5 +130,11 @@ public class TestMultiModule extends AbstractWinterTest {
 		finally {
 			moduleD.stop();
 		}
+	}
+	
+	@Test
+	public void testComponentModuleBeanExclusionWiring() throws IOException, WinterCompilationException {
+		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEG, MODULEH);
+		moduleLoader.load(MODULEH).build();
 	}
 }

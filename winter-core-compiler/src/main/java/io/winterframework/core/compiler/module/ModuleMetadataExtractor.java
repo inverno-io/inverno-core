@@ -19,6 +19,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
@@ -27,21 +28,21 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * Extracts the version of a module which corresponds to the current
- * {@link ModuleAnnotationProcessor#VERSION} of the version of a binary module
- * determined by the version its the Module class.
+ * Extracts qualified name and version of a module element. The version
+ * corresponds to the current {@link ModuleAnnotationProcessor#VERSION} of the
+ * version of a binary module determined by the version of its Module class.
  * </p>
  * 
  * @author jkuhn
  *
  */
-public class ModuleVersionExtractor {
+public class ModuleMetadataExtractor {
 
-	private VersionModuleInfoBuilder versionModuleInfoBuilder;
+	private MetadataModuleInfoBuilder versionModuleInfoBuilder;
 	
-	private class VersionModuleInfoBuilder extends AbstractModuleInfoBuilder {
+	private class MetadataModuleInfoBuilder extends AbstractModuleInfoBuilder {
 
-		public VersionModuleInfoBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
+		public MetadataModuleInfoBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 			super(processingEnvironment, moduleElement);
 		}
 		
@@ -59,6 +60,11 @@ public class ModuleVersionExtractor {
 		public ModuleInfoBuilder sockets(SocketBeanInfo[] sockets) {
 			throw new UnsupportedOperationException();
 		}
+		
+		@Override
+		public ModuleInfoBuilder configurations(ConfigurationInfo[] configurations) {
+			throw new UnsupportedOperationException();
+		}
 
 		@Override
 		public ModuleInfoBuilder modules(ModuleInfo[] modules) {
@@ -71,8 +77,8 @@ public class ModuleVersionExtractor {
 		}
 	}
 	
-	public ModuleVersionExtractor(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
-		this.versionModuleInfoBuilder = new VersionModuleInfoBuilder(processingEnvironment, moduleElement);
+	public ModuleMetadataExtractor(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
+		this.versionModuleInfoBuilder = new MetadataModuleInfoBuilder(processingEnvironment, moduleElement);
 	}
 
 	public Integer getModuleVersion() {

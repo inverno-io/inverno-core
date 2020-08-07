@@ -25,7 +25,9 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
 
+import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.spi.MultiSocketType;
 
 /**
@@ -79,5 +81,23 @@ public abstract class AbstractSocketInfoFactory extends AbstractInfoFactory {
 			return ((DeclaredType)multiTypeType).getTypeArguments().get(0);
 		}
 		return null;
+	}
+	
+	protected void validateType(TypeMirror type) throws TypeErrorException {
+		if(type == null) {
+			return;
+		}
+		if(type.getKind().equals(TypeKind.ERROR)) {
+			throw new TypeErrorException(type);
+		}
+		if(type.getKind().equals(TypeKind.DECLARED)) {
+			for(TypeMirror typeArgument : ((DeclaredType)type).getTypeArguments()) {
+				this.validateType(typeArgument);
+			}
+		}
+		if(type.getKind().equals(TypeKind.WILDCARD)) {
+			this.validateType(((WildcardType)type).getExtendsBound());
+			this.validateType(((WildcardType)type).getSuperBound());
+		}
 	}
 }

@@ -28,6 +28,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
 import javax.tools.Diagnostic.Kind;
 
 import io.winterframework.core.annotation.Lazy;
@@ -116,10 +117,8 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 			socketType = variableElement.asType();
 		}
 		
-		if(socketType.getKind().equals(TypeKind.ERROR)) {
-			this.processingEnvironment.getMessager().printMessage(Kind.WARNING, "Type " + socketType + " could not be resolved.", variableElement );
-			throw new TypeErrorException(socketType);
-		}
+		// Check if socket type can be resolved otherwise dependency injection might fail
+		this.validateType(socketType);
 		
 		// This should never throw a QualifiedNameFormatException as a Java variable is a valid qualified name part
 		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(this.beanQName, socketName);

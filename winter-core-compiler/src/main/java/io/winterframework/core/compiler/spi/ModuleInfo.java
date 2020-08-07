@@ -73,9 +73,18 @@ public interface ModuleInfo extends Info {
 	 * A socket bean defines an entry point for dependency injection on the module.
 	 * </p>
 	 * 
-	 * @return an array of bean sockets
+	 * @return an array of socket beans
 	 */
 	SocketBeanInfo[] getSockets();
+	
+	/**
+	 * <p>
+	 * Returns the configurations specified in the module.
+	 * </p>
+	 * 
+	 * @return an array of configuration
+	 */
+	ConfigurationInfo[] getConfigurations();
 
 	/**
 	 * <p>

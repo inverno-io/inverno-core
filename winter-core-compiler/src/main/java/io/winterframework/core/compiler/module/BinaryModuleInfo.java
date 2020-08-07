@@ -24,6 +24,7 @@ import javax.lang.model.element.Element;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.compiler.common.AbstractInfo;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
@@ -113,5 +114,10 @@ class BinaryModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Modu
 	@Override
 	public <R, P> R accept(ModuleInfoVisitor<R, P> visitor, P p) {
 		return visitor.visit(this,  p);
+	}
+
+	@Override
+	public ConfigurationInfo[] getConfigurations() {
+		return new ConfigurationInfo[0];
 	}
 }

@@ -31,8 +31,8 @@ import java.util.function.Supplier;
  * <p>
  * A bean is fully identified by its name (which defaults to the name of the
  * class) and the name of the module exposing the bean (eg.
- * [MODULE_NAME]:[BEAN_NAME]). We can differentiate three kinds of beans: module
- * bean, wrapper bean and socket bean.
+ * [MODULE_NAME]:[BEAN_NAME]). We can differentiate four kinds of beans: module
+ * bean, wrapper bean, socket bean and configuration bean.
  * </p>
  * 
  * <p>
@@ -127,11 +127,35 @@ import java.util.function.Supplier;
  *     }
  * </pre>
  * 
+ * <p>
+ * A configuration bean is a particular type of bean used to create specific
+ * socket beans providing configuration data. It supports specific features that
+ * makes it very convenient to use when one need to provide configuration data
+ * to a module. A configuration bean must be an interface annotated with
+ * {@link Bean} and {@link Configuration} with a {@link Visibility#PUBLIC}
+ * visibility. Configuration properties are specified in non-void no-argument
+ * methods and default values can be specified in default methods.
+ * </p>
+ * 
+ * <pre>
+ *     &#64;Bean
+ *     &#64;Configuration
+ *     public interface ConfigurationBean {
+ *         
+ *         String paramerter1();
+ *         
+ *         default int parameter2() {
+ *             return 42;
+ *         }
+ *     }
+ * </pre>
+ * 
  * @author jkuhn
  * @since 1.0
  * 
  * @see BeanSocket
  * @see Wrapper
+ * @see Configuration
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.TYPE })

@@ -28,7 +28,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
@@ -65,19 +64,19 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 	}
 
 	@Override
-	public WirableSocketBeanInfo createModuleSocket(Element element) throws SocketCompilationException, TypeErrorException {
+	public WirableSocketBeanInfo createSocketBean(Element element) throws SocketCompilationException {
 		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
 			throw new IllegalArgumentException("Element must be a TypeElement");
 		}
 		
 		TypeElement typeElement = (TypeElement)element;
+		if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
+			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
+		}
 		
 		Optional<? extends AnnotationMirror> annotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.beanAnnotationType)).findFirst();
 		if(!annotation.isPresent()) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Bean.class.getSimpleName());
-		}
-		if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
-			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 		}
 		
 		ReporterInfo beanReporter = this.getReporter(element, annotation.get());
@@ -118,8 +117,11 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			socketType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
 		}
 		
-		if(socketType.getKind().equals(TypeKind.ERROR)) {
-			this.processingEnvironment.getMessager().printMessage(Kind.WARNING, "Type " + socketType + " could not be resolved.", element);
+		try {
+			this.validateType(socketType);
+		} 
+		catch (TypeErrorException e1) {
+			this.processingEnvironment.getMessager().printMessage(Kind.WARNING, "Type " + e1.getType() + " could not be resolved.", element);
 		}
 		
 		// Socket name

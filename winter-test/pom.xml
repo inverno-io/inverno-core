@@ -41,11 +41,6 @@
 			<artifactId>winter-core-compiler</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>io.winterframework</groupId>
-			<artifactId>winter-core-annotation</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>io.winterframework</groupId>
@@ -89,8 +84,9 @@
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+<!-- 					<argLine>add-opens java.base/java.lang.invoke=io.winterframework.test</argLine> -->
 					<includes>
-<!--						<include>**/TestExplicitWire.java</include>-->
+<!-- 						<include>**/TestConfiguration.java</include> -->
 					</includes>
 				</configuration>
 			</plugin>

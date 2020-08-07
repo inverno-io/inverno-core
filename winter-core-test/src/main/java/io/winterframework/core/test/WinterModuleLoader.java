@@ -40,6 +40,10 @@ public class WinterModuleLoader {
 		this.layer = parent.defineModulesWithOneLoader(cf, ClassLoader.getPlatformClassLoader());
 	}
 	
+	public Class<?> loadClass(String moduleName, String className) throws ClassNotFoundException {
+		return this.layer.findLoader(moduleName).loadClass(className);
+	}
+	
 	public WinterModuleProxyBuilder load(String moduleName) {
 		Optional<Module> module = this.layer.findModule(moduleName);
 		if(module.isPresent()) {

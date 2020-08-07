@@ -55,17 +55,27 @@ public class TypeWiringStrategy implements WiringStrategy {
 	@Override
 	public boolean isWirable(BeanInfo bean, SocketInfo socket) {
 		if(ModuleBeanInfo.class.isAssignableFrom(bean.getClass()) && !bean.getQualifiedName().getModuleQName().equals(this.moduleQName) && ((ModuleBeanInfo)bean).getProvidedType() != null) {
-			if(this.isAssignable(((ModuleBeanInfo)bean).getProvidedType(), socket)) {
-				return true;
-			}
-			return false;
+			return this.isAssignable(((ModuleBeanInfo)bean).getProvidedType(), socket);
 		}
 		else {
 			return this.isAssignable(bean.getType(), socket);
 		}
 	}
 
-	private boolean isAssignable(TypeMirror type, SocketInfo socket) {
+	public boolean isAssignable(TypeMirror type, SocketInfo socket) {
+		if(type.getKind().equals(TypeKind.WILDCARD)) {
+			WildcardType wildcardType = (WildcardType)type;
+			if(wildcardType.getExtendsBound() != null) {
+				type = wildcardType.getExtendsBound();
+			}
+			// TODO maybe this shall be useful for now just keep things safe
+			/*else if(wildcardType.getSuperBound() != null) {
+				type = wildcardType.getSuperBound();
+			}*/
+			else {
+				return false;
+			}
+		}
 		if(MultiSocketInfo.class.isAssignableFrom(socket.getClass())) {
 			DeclaredType socketCollectionType = this.processingEnvironment.getTypeUtils().getDeclaredType(this.processingEnvironment.getElementUtils().getTypeElement(Collection.class.getCanonicalName()), socket.getType());
 			ArrayType socketArrayType;
@@ -73,13 +83,19 @@ public class TypeWiringStrategy implements WiringStrategy {
 				socketArrayType = this.processingEnvironment.getTypeUtils().getArrayType(socket.getType());
 			}
 			else {
-				socketArrayType = this.processingEnvironment.getTypeUtils().getArrayType(((WildcardType)socket.getType()).getExtendsBound());
+				WildcardType socketWildcardType = (WildcardType)socket.getType();
+				socketArrayType = this.processingEnvironment.getTypeUtils().getArrayType(socketWildcardType.getExtendsBound() != null ? socketWildcardType.getExtendsBound() : socketWildcardType.getSuperBound());
 			}
-			return this.processingEnvironment.getTypeUtils().isAssignable(type, socket.getType()) || this.processingEnvironment.getTypeUtils().isAssignable(type, socketArrayType) || this.processingEnvironment.getTypeUtils().isAssignable(type, socketCollectionType);
+			return this.processingEnvironment.getTypeUtils().isAssignable(type, socket.getType()) || (socketArrayType != null && this.processingEnvironment.getTypeUtils().isAssignable(type, socketArrayType)) || this.processingEnvironment.getTypeUtils().isAssignable(type, socketCollectionType);
 		}
 		else {
-			// Single socket
-			return this.processingEnvironment.getTypeUtils().isAssignable(type, socket.getType());
+			if(!socket.getType().getKind().equals(TypeKind.WILDCARD)) {
+				return this.processingEnvironment.getTypeUtils().isAssignable(type, socket.getType());
+			}
+			else {
+				// This should never happen for "regular" single sockets
+				return false;
+			}
 		}
 	}
 }

@@ -72,7 +72,6 @@ public class WinterModuleProxyBuilder {
 	}
 	
 	public WinterModuleProxyBuilder optionalDependency(String name, Object value) {
-		
 		Optional<Method> depSetterOptional = Arrays.stream(this.moduleBuilderClass.getMethods()).filter(m -> m.getName().equals("set" + Character.toUpperCase(name.charAt(0)) + name.substring(1))).findFirst();
 		if(!depSetterOptional.isPresent()) {
 			throw new IllegalArgumentException("No dependency " + name + " exists on module " + this.moduleName);
@@ -91,7 +90,30 @@ public class WinterModuleProxyBuilder {
 		return this;
 	}
 	
-	public WinterModuleProxy build() {
+	public WinterModuleProxyBuilder optionalDependency(String name, Class<?> dependencyType, Object value) throws WinterModuleException {
+		Method depSetter;
+		try {
+			depSetter = this.moduleBuilderClass.getMethod("set" + Character.toUpperCase(name.charAt(0)) + name.substring(1), dependencyType);
+		} catch (NoSuchMethodException | SecurityException e1) {
+			throw new IllegalArgumentException("No dependency " + name + " of type " + dependencyType + " exists on module " + this.moduleName );
+		}
+		
+		this.moduleOptionalSetters.add(moduleBuilder -> {
+			try {
+				depSetter.invoke(moduleBuilder, value);
+			} 
+			catch(InvocationTargetException e) {
+				throw new WinterModuleException(e.getCause());
+			}
+			catch (IllegalAccessException | IllegalArgumentException e) {
+				throw new RuntimeException("Error setting optional dependency " + name + " on module " + this.moduleName, e);
+			}
+		});
+		
+		return this;
+	}
+	
+	public WinterModuleProxy build() throws WinterModuleException {
 		if(this.moduleBuilderSupplier == null) {
 			final Constructor<?> moduleBuilderConstructor;
 			try {
@@ -104,7 +126,11 @@ public class WinterModuleProxyBuilder {
 			this.moduleBuilderSupplier = () -> {
 				try {
 					return moduleBuilderConstructor.newInstance();
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException	| InvocationTargetException e) {
+				} 
+				catch(InvocationTargetException e) {
+					throw new WinterModuleException(e.getCause());
+				}
+				catch (InstantiationException | IllegalAccessException | IllegalArgumentException e) {
 					throw new RuntimeException("Error instantiating builder for module " + this.moduleName, e);
 				}
 			};
@@ -117,9 +143,13 @@ public class WinterModuleProxyBuilder {
 		
 		try {
 			return new WinterModuleProxy(this.moduleBuilderClass.getMethod("build").invoke(moduleBuilder));
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+		} 
+		catch (InvocationTargetException e) {
+			throw new WinterModuleException(e.getCause());
+		}
+		catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException
 				| SecurityException e) {
 			throw new RuntimeException("Error building proxy for module " + this.moduleName, e);
-		}
+		} 
 	}
 }

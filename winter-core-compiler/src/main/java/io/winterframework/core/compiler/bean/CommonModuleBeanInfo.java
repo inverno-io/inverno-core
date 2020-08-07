@@ -59,7 +59,7 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 			TypeMirror type, 
 			TypeMirror providedType,
 			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
-		this(processingEnvironment, element, annotation, qname, type, providedType, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
+		this(processingEnvironment, element, annotation, qname, type, providedType, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, null, null, beanSocketInfos);
 	}
 	
 	public CommonModuleBeanInfo(ProcessingEnvironment processingEnvironment,

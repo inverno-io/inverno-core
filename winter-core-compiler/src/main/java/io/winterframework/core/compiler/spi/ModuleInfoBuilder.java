@@ -55,6 +55,16 @@ public interface ModuleInfoBuilder {
 	 * @return the module info builder
 	 */
 	ModuleInfoBuilder sockets(SocketBeanInfo[] sockets);
+	
+	/**
+	 * <p>
+	 * Sets the configurations that should be part of the module.
+	 * </p>
+	 * 
+	 * @param configurations an array of configuration bean info
+	 * @return the module info builder
+	 */
+	ModuleInfoBuilder configurations(ConfigurationInfo[] configurations);
 
 	/**
 	 * <p>

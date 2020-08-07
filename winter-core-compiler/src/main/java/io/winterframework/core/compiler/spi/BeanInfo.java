@@ -29,7 +29,7 @@ public interface BeanInfo extends Info {
 
 	/**
 	 * <p>
-	 * Returns a bean qualified name.
+	 * Returns the bean qualified name.
 	 * </p>
 	 * 
 	 * @return a bean qualified name

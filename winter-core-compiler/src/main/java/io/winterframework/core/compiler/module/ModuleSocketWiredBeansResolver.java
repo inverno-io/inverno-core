@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 import io.winterframework.core.compiler.socket.WirableSocketBeanInfo;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
+import io.winterframework.core.compiler.spi.ConfigurationPropertyInfo;
+import io.winterframework.core.compiler.spi.ConfigurationSocketBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanMultiSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSingleSocketInfo;
@@ -32,6 +35,7 @@ import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
+import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
 import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
@@ -168,6 +172,30 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 
 	@Override
 	public Void visit(MultiSocketInfo multiSocketInfo, Set<BeanQualifiedName> wiredBeans) {
+		return null;
+	}
+	
+	@Override
+	public Void visit(ConfigurationPropertyInfo configurationPropertyInfo, Set<BeanQualifiedName> p) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Void visit(ConfigurationInfo configurationInfo, Set<BeanQualifiedName> p) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Void visit(ConfigurationSocketBeanInfo configurationSocketBeanInfo, Set<BeanQualifiedName> p) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Void visit(NestedConfigurationPropertyInfo nestedConfigurationPropertyInfo, Set<BeanQualifiedName> p) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

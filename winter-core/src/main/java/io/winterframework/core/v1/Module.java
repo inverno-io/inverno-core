@@ -813,4 +813,17 @@ public abstract class Module {
 		public Bean<T> build();
 	}
 	
+	/**
+	 * <p>
+	 * Represents the socket type used to declare a configuration bean socket in a module.
+	 * </p>
+	 * 
+	 * @author jkuhn
+	 *
+	 * @param <E> The configuration bean type targeted by the socket
+	 * 
+	 * @author jkuhn
+	 * @since 1.1
+	 */
+	protected static interface ConfigurationSocket<E> extends Supplier<E> {}
 }

@@ -32,7 +32,7 @@ public interface ModuleBeanInfo extends BeanInfo {
 
 	/**
 	 * <p>
-	 * Returns the type provide by the bean which is the type that will be exposed
+	 * Returns the type provided by the bean which is the type that will be exposed
 	 * outside the module.
 	 * </p>
 	 * 

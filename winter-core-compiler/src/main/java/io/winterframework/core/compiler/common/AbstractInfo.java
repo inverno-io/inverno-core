@@ -32,8 +32,6 @@ import io.winterframework.core.compiler.spi.QualifiedName;
  */
 public abstract class AbstractInfo<T extends QualifiedName> extends ReporterInfo implements Info {
 
-	protected ProcessingEnvironment processingEnvironment;
-
 	protected T qname;
 	
 	public AbstractInfo(ProcessingEnvironment processingEnvironment, Element element, T qname) {

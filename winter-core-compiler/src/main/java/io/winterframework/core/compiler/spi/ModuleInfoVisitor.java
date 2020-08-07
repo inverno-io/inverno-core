@@ -182,4 +182,52 @@ public interface ModuleInfoVisitor<R, P> {
 	 * @return a visitor result
 	 */
 	R visit(MultiSocketBeanInfo multiSocketBeanInfo, P p);
+	
+	/**
+	 * <p>
+	 * Visit configuration info.
+	 * </p>
+	 * 
+	 * @param configurationInfo the info to visit
+	 * @param p          a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
+	R visit(ConfigurationInfo configurationInfo, P p);
+	
+	/**
+	 * <p>
+	 * Visit configuration property info.
+	 * </p>
+	 * 
+	 * @param configurationPropertyInfo the info to visit
+	 * @param p          a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
+	R visit(ConfigurationPropertyInfo configurationPropertyInfo, P p);
+	
+	/**
+	 * <p>
+	 * Visit nested configuration property info.
+	 * </p>
+	 * 
+	 * @param nestedConfigurationPropertyInfo the info to visit
+	 * @param p          a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
+	R visit(NestedConfigurationPropertyInfo nestedConfigurationPropertyInfo, P p);
+	
+	/**
+	 * <p>
+	 * Visit configuration socket bean info.
+	 * </p>
+	 * 
+	 * @param configurationSocketBeanInfo the info to visit
+	 * @param p          a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
+	R visit(ConfigurationSocketBeanInfo configurationSocketBeanInfo, P p);
 }

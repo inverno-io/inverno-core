@@ -92,8 +92,9 @@ public class SocketResolver {
 				}
 			}
 			else {
-				// Unknown source bean
-				wire.error("There's no bean named " + wiredBeanQName);
+				// Unknown source bean:
+				// - when trying to explicitly wire a nested configuration bean into a compiled module socket
+				wire.error("There's no bean named " + wiredBeanQName + " that can be wired to " + socket.getQualifiedName());
 			}
 		}
 		return result.stream().toArray(BeanInfo[]::new);

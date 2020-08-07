@@ -33,6 +33,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
 import io.winterframework.core.compiler.ModuleClassGeneration.GenerationMode;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
@@ -57,7 +58,7 @@ class ModuleGenerator {
 	
 	private Map<String, ModuleInfo> generatedModules;
 	
-	private Map<String, ModuleInfo> requiredModules;
+	private Map<String, ModuleInfo> componentModules;
 	
 	private Set<String> faultyModules;
 	
@@ -69,7 +70,8 @@ class ModuleGenerator {
 	private Map<String, List<Element>> moduleOriginatingElements;
 	private Map<String, List<ModuleBeanInfo>> moduleBeans;
 	private Map<String, List<SocketBeanInfo>> moduleSockets;
-	private Map<String, List<ModuleInfoBuilder>> requiredModuleBuilders;
+	private Map<String, List<ConfigurationInfo>> moduleConfigurations;
+	private Map<String, List<ModuleInfoBuilder>> componentModuleBuilders;
 	
 	public ModuleGenerator(ProcessingEnvironment processingEnv, ModuleAnnotationProcessor.Options options) {
 		this.processingEnv = processingEnv;
@@ -78,7 +80,7 @@ class ModuleGenerator {
 		this.moduleDescriptorGenerator = new ModuleDescriptorGenerator();
 
 		this.generatedModules = new HashMap<>();
-		this.requiredModules = new HashMap<>();
+		this.componentModules = new HashMap<>();
 		this.faultyModules = new HashSet<>();
 	}
 	
@@ -102,8 +104,13 @@ class ModuleGenerator {
 		return this;
 	}
 	
-	public ModuleGenerator withRequiredModules(Map<String, List<ModuleInfoBuilder>> requiredModuleBuilders) {
-		this.requiredModuleBuilders = requiredModuleBuilders;
+	public ModuleGenerator withModuleConfigurations(Map<String, List<ConfigurationInfo>> moduleConfigurations) {
+		this.moduleConfigurations = moduleConfigurations;
+		return this;
+	}
+	
+	public ModuleGenerator withComponentModules(Map<String, List<ModuleInfoBuilder>> componentModuleBuilders) {
+		this.componentModuleBuilders = componentModuleBuilders;
 		return this;
 	}
 	
@@ -138,41 +145,44 @@ class ModuleGenerator {
 		if(this.moduleSockets.containsKey(moduleName)) {
 			moduleBuilder.sockets(this.moduleSockets.get(moduleName).stream().toArray(SocketBeanInfo[]::new));					
 		}
-		if(this.requiredModuleBuilders.containsKey(moduleName)) {
-			List<ModuleInfo> requiredModules = new ArrayList<>();
-			for(ModuleInfoBuilder requiredModuleBuilder : this.requiredModuleBuilders.get(moduleName)) {
-				String requiredModuleName = requiredModuleBuilder.getQualifiedName().toString();
-				if(this.generatedModules.containsKey(requiredModuleName)) {
+		if(this.moduleConfigurations.containsKey(moduleName)) {
+			moduleBuilder.configurations(this.moduleConfigurations.get(moduleName).stream().toArray(ConfigurationInfo[]::new));					
+		}
+		if(this.componentModuleBuilders.containsKey(moduleName)) {
+			List<ModuleInfo> componentModules = new ArrayList<>();
+			for(ModuleInfoBuilder componentModuleBuilder : this.componentModuleBuilders.get(moduleName)) {
+				String componentModuleName = componentModuleBuilder.getQualifiedName().toString();
+				if(this.generatedModules.containsKey(componentModuleName)) {
 					// Previous rounds
-					requiredModules.add(this.generatedModules.get(requiredModuleName));
+					componentModules.add(this.generatedModules.get(componentModuleName));
 				}
-				else if(this.requiredModules.containsKey(requiredModuleName)) {
+				else if(this.componentModules.containsKey(componentModuleName)) {
 					// compiled module
-					requiredModules.add(this.requiredModules.get(requiredModuleName));
+					componentModules.add(this.componentModules.get(componentModuleName));
 				} 
-				else if(this.faultyModules.contains(requiredModuleName)) {
+				else if(this.faultyModules.contains(componentModuleName)) {
 					// Faulty module
 					roundFaultyModules.add(moduleName);
 				}
-				else if(this.moduleBuilders.containsValue(requiredModuleBuilder)) {
+				else if(this.moduleBuilders.containsValue(componentModuleBuilder)) {
 					// Compiling Module
 					generate = false;
-					if(roundModules.containsKey(requiredModuleName)) {
-						requiredModules.add(roundModules.get(requiredModuleName));
+					if(roundModules.containsKey(componentModuleName)) {
+						componentModules.add(roundModules.get(componentModuleName));
 					}
 					else {
-						ModuleInfo requiredModule = this.generateModule(requiredModuleBuilder, roundModules, roundGeneratedModules, roundFaultyModules);
-						requiredModules.add(requiredModule);
+						ModuleInfo componentModule = this.generateModule(componentModuleBuilder, roundModules, roundGeneratedModules, roundFaultyModules);
+						componentModules.add(componentModule);
 					}
 				}
 				else {
-					// Required Module
-					ModuleInfo requiredModule = requiredModuleBuilder.build();
-					this.requiredModules.put(requiredModuleName, requiredModule);
-					requiredModules.add(requiredModule);
+					// Component Module
+					ModuleInfo componentModule = componentModuleBuilder.build();
+					this.componentModules.put(componentModuleName, componentModule);
+					componentModules.add(componentModule);
 				}
 			}
-			moduleBuilder.modules(requiredModules.toArray(new ModuleInfo[requiredModules.size()]));
+			moduleBuilder.modules(componentModules.toArray(new ModuleInfo[componentModules.size()]));
 		}
 		
 		ModuleInfo moduleInfo = moduleBuilder.build();

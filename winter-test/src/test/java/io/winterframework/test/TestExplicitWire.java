@@ -122,7 +122,7 @@ public class TestExplicitWire extends AbstractWinterTest {
 			
 			String noService1Message = "There's no bean named io.winterframework.test.explicitwire.moduleB:service1";
 			String noSocketMessage = "There's no socket named: beanA:service";
-			String noUnkownMessage = "There's no bean named io.winterframework.test.explicitwire.moduleB:unkown";
+			String noUnkownMessage = "There's no bean named io.winterframework.test.explicitwire.moduleB:unkown that can be wired to io.winterframework.test.explicitwire.moduleB:beanB:service";
 			/*String conflictMessage = "Multiple beans matching socket io.winterframework.test.explicitwire.moduleB:beanB:service were found\n" +
 				"  - io.winterframework.test.explicitwire.moduleB:service3 of type io.winterframework.test.explicitwire.moduleB.Service3\n" +
 				"  - io.winterframework.test.explicitwire.moduleB:service2 of type io.winterframework.test.explicitwire.moduleB.Service2\n" +
@@ -145,8 +145,8 @@ public class TestExplicitWire extends AbstractWinterTest {
 			
 			String noService1Message = "There's no bean named io.winterframework.test.explicitwire.moduleE:service1";
 			String noSocketMessage = "There's no socket named: beanA:service";
-			String noService4Message = "There's no bean named io.winterframework.test.explicitwire.moduleE:service4";
-			String noUnkownMessage = "There's no bean named io.winterframework.test.explicitwire.moduleE:unkown";
+			String noService4Message = "There's no bean named io.winterframework.test.explicitwire.moduleE:service4 that can be wired to io.winterframework.test.explicitwire.moduleE:beanE:services";
+			String noUnkownMessage = "There's no bean named io.winterframework.test.explicitwire.moduleE:unkown that can be wired to io.winterframework.test.explicitwire.moduleE:beanE:services";
 			
 			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(noService1Message, noSocketMessage, noService4Message, noUnkownMessage)));
 		}

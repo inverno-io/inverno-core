@@ -26,6 +26,7 @@ import javax.lang.model.element.Element;
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.common.AbstractInfo;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
@@ -52,14 +53,17 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	
 	private List<SocketBeanInfo> socketInfos;
 	
+	private List<ConfigurationInfo> configurationInfos;
+	
 	private List<ModuleInfo> moduleInfos;
 	
-	public CompiledModuleInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos, List<ModuleInfo> moduleInfos) {
+	public CompiledModuleInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos, List<ConfigurationInfo> configurationInfos, List<ModuleInfo> moduleInfos) {
 		super(processingEnvironment, element, annotation, qname);
 		
 		this.version = version;
 		this.beanInfos = beanInfos != null ? Collections.unmodifiableList(beanInfos) : Collections.emptyList();
 		this.socketInfos = socketInfos != null ? Collections.unmodifiableList(socketInfos) : Collections.emptyList();
+		this.configurationInfos = configurationInfos != null ? Collections.unmodifiableList(configurationInfos) : Collections.emptyList();
 		this.moduleInfos = moduleInfos != null ? Collections.unmodifiableList(moduleInfos) : Collections.emptyList();
 	}
 	
@@ -90,6 +94,11 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	@Override
 	public SocketBeanInfo[] getSockets() {
 		return this.socketInfos.stream().toArray(SocketBeanInfo[]::new);
+	}
+	
+	@Override
+	public ConfigurationInfo[] getConfigurations() {
+		return this.configurationInfos.stream().toArray(ConfigurationInfo[]::new);
 	}
 
 	@Override

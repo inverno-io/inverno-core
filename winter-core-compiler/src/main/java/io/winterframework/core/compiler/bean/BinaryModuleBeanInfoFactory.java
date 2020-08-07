@@ -39,7 +39,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  * <p>
  * A {@link ModuleBeanInfoFactory} implementation used by the
  * {@link ModuleAnnotationProcessor} to create {@link ModuleBeanInfo} for binary
- * modules (ie. already compiled) required and included in other modules
+ * modules (ie. already compiled) required as component modules in other modules
  * (possibly compiled modules).
  * </p>
  * 

@@ -21,6 +21,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
@@ -62,7 +63,7 @@ class BinaryModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		}
 		else {
 			if(Arrays.stream(beans).anyMatch(beanInfo -> !beanInfo.getVisibility().equals(Bean.Visibility.PUBLIC))) {
-				throw new IllegalArgumentException("Only public beans can be injected to a required module");
+				throw new IllegalArgumentException("Only public beans can be injected into a component module");
 			}
 			this.beans = beans;
 		}
@@ -76,8 +77,13 @@ class BinaryModuleInfoBuilder extends AbstractModuleInfoBuilder {
 	}
 
 	@Override
+	public ModuleInfoBuilder configurations(ConfigurationInfo[] configurations) {
+		throw new UnsupportedOperationException("You can't inject configuration beans into a component module");
+	}
+	
+	@Override
 	public ModuleInfoBuilder modules(ModuleInfo[] modules) {
-		throw new UnsupportedOperationException("You can't inject modules to a required module");
+		throw new UnsupportedOperationException("You can't inject modules into a component module");
 	}
 
 	@Override

@@ -22,7 +22,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
-import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.AbstractInfoFactory;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
@@ -61,5 +60,5 @@ public abstract class ModuleBeanInfoFactory extends AbstractInfoFactory {
 		}
 	}
 	
-	public abstract ModuleBeanInfo createBean(Element element) throws BeanCompilationException, TypeErrorException;
+	public abstract ModuleBeanInfo createBean(Element element) throws BeanCompilationException;
 }

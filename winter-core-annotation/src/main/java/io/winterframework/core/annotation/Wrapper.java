@@ -55,7 +55,6 @@ import java.util.function.Supplier;
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.TYPE })
-@Bean
 public @interface Wrapper {
 
 }
