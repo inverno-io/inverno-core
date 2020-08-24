@@ -181,13 +181,6 @@
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${version.maven-compiler-plugin}</version>
-					<dependencies>
-						<dependency>
-							<groupId>org.ow2.asm</groupId>
-							<artifactId>asm</artifactId>
-							<version>${version.asm}</version> <!-- Use newer version of ASM -->
-						</dependency>
-					</dependencies>
 				</plugin>
 				<plugin>
 					<artifactId>maven-source-plugin</artifactId>
