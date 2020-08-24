@@ -26,9 +26,10 @@ import java.nio.file.Files;
 public abstract class AbstractWinterTest {
 
 	static {
-		System.setProperty("java.util.logging.SimpleFormatter.format", "%1$tF %1$tT %4$-7s %3$-50s %5$s %6$s%n");
+		System.setProperty("org.apache.logging.log4j.simplelog.level", "DEBUG");
+		System.setProperty("org.apache.logging.log4j.simplelog.logFile", "system.out");
 	}
-
+	
 	private WinterCompiler winterCompiler;
 	
 	protected static final String WINTER_CORE = "../winter-core/target/classes";
@@ -36,6 +37,8 @@ public abstract class AbstractWinterTest {
 	protected static final String WINTER_CORE_ANNOTATION = "../winter-core-annotation/target/classes";
 	
 	protected static final String WINTER_CORE_COMPILER = "../winter-core-compiler/target/classes";
+	
+	protected static final String WINTER_EXTERNAL_DEPENDENCIES = "../winter-core-test/target/dependency";
 	
 	protected static final String MODULE_SOURCE = "src/test/mods";
 
@@ -47,7 +50,8 @@ public abstract class AbstractWinterTest {
 		try {
 			this.winterCompiler = new WinterCompiler(new File(WINTER_CORE), 
 				new File(WINTER_CORE_ANNOTATION), 
-				new File(WINTER_CORE_COMPILER), 
+				new File(WINTER_CORE_COMPILER),
+				new File(WINTER_EXTERNAL_DEPENDENCIES),
 				new File(MODULE_SOURCE), 
 				new File(MODULE_SOURCE_TARGET),
 				new File(MODULE_TARGET));

@@ -34,14 +34,11 @@
 		<dependency>
 			<groupId>io.winterframework</groupId>
 			<artifactId>winter-core</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.winterframework</groupId>
 			<artifactId>winter-core-compiler</artifactId>
-			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.winterframework</groupId>
 			<artifactId>winter-core-test</artifactId>
@@ -86,7 +83,7 @@
 				<configuration>
 <!-- 					<argLine>add-opens java.base/java.lang.invoke=io.winterframework.test</argLine> -->
 					<includes>
-<!-- 						<include>**/TestConfiguration.java</include> -->
+<!-- 						<include>**/TestAutowire.java</include> -->
 					</includes>
 				</configuration>
 			</plugin>

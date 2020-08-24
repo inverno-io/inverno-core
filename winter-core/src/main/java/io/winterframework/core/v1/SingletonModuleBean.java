@@ -15,7 +15,8 @@
  */
 package io.winterframework.core.v1;
 
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.winterframework.core.v1.Module.Bean;
 
@@ -40,7 +41,7 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	/**
 	 * The bean logger.
 	 */
-	protected static final Logger LOGGER = Logger.getLogger(SingletonModuleBean.class.getName());
+	protected static final Logger LOGGER = LogManager.getLogger(SingletonModuleBean.class);
 
 	/**
 	 * The bean instance.
@@ -70,7 +71,7 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 */
 	public synchronized final void create() {
 		if (this.instance == null) {
-			LOGGER.fine("Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+			LOGGER.debug("Creating singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
 			this.instance = this.createInstance();
 			this.parent.recordBean(this);
 		}
@@ -100,7 +101,7 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 */
 	public synchronized final void destroy() {
 		if (this.instance != null) {
-			LOGGER.fine("Destroying Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":"	+ this.name);
+			LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
 			this.destroyInstance(this.instance);
 			this.instance = null;
 		}

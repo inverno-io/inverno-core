@@ -20,7 +20,9 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.winterframework.core.v1.Module.Bean;
 
@@ -75,7 +77,7 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	/**
 	 * The bean logger.
 	 */
-	protected static final Logger LOGGER = Logger.getLogger(PrototypeModuleBean.class.getName());
+	protected static final Logger LOGGER = LogManager.getLogger(PrototypeModuleBean.class);
 
 	/**
 	 * The list of instances issued by the bean.
@@ -119,7 +121,7 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	@Override
 	public synchronized final void create() {
 		if (this.instances == null) {
-			LOGGER.fine(() -> "Creating Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+			LOGGER.debug("Creating prototype bean {}", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
 			this.instances = new HashSet<>();
 			this.referenceQueue = new ReferenceQueue<T>();
 			this.parent.recordBean(this);
@@ -162,7 +164,7 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	@Override
 	public synchronized final void destroy() {
 		if (this.instances != null) {
-			LOGGER.fine(() -> "Destroying Prototype Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+			LOGGER.debug("Destroying prototype bean {}", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
 			this.expungeStaleInstances();
 			this.instances.stream()
 				.map(WeakReference::get)

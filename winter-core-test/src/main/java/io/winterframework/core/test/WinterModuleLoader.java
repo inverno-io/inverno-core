@@ -19,6 +19,7 @@ import java.lang.annotation.Annotation;
 import java.lang.module.Configuration;
 import java.lang.module.ModuleFinder;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,11 +33,11 @@ public class WinterModuleLoader {
 	
 	private ModuleLayer layer;
 	
-	public WinterModuleLoader(Collection<Path> paths, Collection<String> modules) {
-		ModuleFinder finder = ModuleFinder.of(paths.toArray(new Path[paths.size()]));
-		
+	public WinterModuleLoader(Collection<Path> modulePaths, Collection<String> modules) throws MalformedURLException {
+		ModuleFinder finder = ModuleFinder.of(modulePaths.toArray(new Path[modulePaths.size()]));
 		ModuleLayer parent = ModuleLayer.boot();
 		Configuration cf = parent.configuration().resolve(finder, ModuleFinder.of(), modules);
+		
 		this.layer = parent.defineModulesWithOneLoader(cf, ClassLoader.getPlatformClassLoader());
 	}
 	

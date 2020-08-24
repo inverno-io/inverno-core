@@ -78,6 +78,7 @@ public class TestMultiModule extends AbstractWinterTest {
 		WinterCompiler extraCompiler = new WinterCompiler(new File(WINTER_CORE), 
 				new File(WINTER_CORE_ANNOTATION), 
 				new File(WINTER_CORE_COMPILER), 
+				new File(WINTER_EXTERNAL_DEPENDENCIES),
 				new File(MODULE_SOURCE), 
 				new File(MODULE_SOURCE_TARGET),
 				new File(MODULE_TARGET),

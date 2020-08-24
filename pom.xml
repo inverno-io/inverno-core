@@ -67,11 +67,23 @@
 		<maven.compiler.source>9</maven.compiler.source>
 		<maven.compiler.target>9</maven.compiler.target>
 
-		<version.junit.jupiter>5.5.1</version.junit.jupiter>
-		<version.junit.platform>1.5.1</version.junit.platform>
+		<version.asm>8.0.1</version.asm>
+		<version.maven-clean-plugin>3.1.0</version.maven-clean-plugin>
+		<version.maven-resources-plugin>3.1.0</version.maven-resources-plugin>
+		<version.maven-compiler-plugin>3.8.1</version.maven-compiler-plugin>
+		<version.maven-source-plugin>3.2.1</version.maven-source-plugin>
+		<version.maven-surefire-plugin>2.22.2</version.maven-surefire-plugin>
+		<version.maven-jar-plugin>3.2.0</version.maven-jar-plugin>
+		<version.maven-install-plugin>2.5.2</version.maven-install-plugin>
+		<version.maven-deploy-plugin>2.8.2</version.maven-deploy-plugin>
+		<version.maven-gpg-plugin>1.6</version.maven-gpg-plugin>
+		<version.maven-antrun-plugin>3.0.0</version.maven-antrun-plugin>
+		<version.maven-dependency-plugin>3.1.2</version.maven-dependency-plugin>
+		<version.nexus-staging-maven-plugin>1.6.8</version.nexus-staging-maven-plugin>
 	</properties>
 
 	<modules>
+		<module>winter-dependencies</module>
 		<module>winter-core</module>
 		<module>winter-core-annotation</module>
 		<module>winter-core-compiler</module>
@@ -83,40 +95,11 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-api</artifactId>
-				<version>${version.junit.jupiter}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-params</artifactId>
-				<version>${version.junit.jupiter}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.jupiter</groupId>
-				<artifactId>junit-jupiter-engine</artifactId>
-				<version>${version.junit.jupiter}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.platform</groupId>
-				<artifactId>junit-platform-launcher</artifactId>
-				<version>${version.junit.platform}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.platform</groupId>
-				<artifactId>junit-platform-commons</artifactId>
-				<version>${version.junit.platform}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>2.23.4</version>
-				<scope>test</scope>
+				<groupId>io.winterframework</groupId>
+				<artifactId>winter-dependencies</artifactId>
+				<version>${project.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -125,16 +108,25 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-antrun-plugin</artifactId>
+					<version>${version.maven-antrun-plugin}</version>
+				</plugin>
+				<plugin>
 					<artifactId>maven-clean-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>${version.maven-clean-plugin}</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>${version.maven-dependency-plugin}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-resources-plugin</artifactId>
-					<version>3.1.0</version>
+					<version>${version.maven-resources-plugin}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.8.1</version>
+					<version>${version.maven-compiler-plugin}</version>
 					<configuration>
 						<release>9</release>
 						<compilerArgs>
@@ -145,25 +137,21 @@
 						<dependency>
 							<groupId>org.ow2.asm</groupId>
 							<artifactId>asm</artifactId>
-							<version>8.0.1</version> <!-- Use newer version of ASM -->
+							<version>${version.asm}</version> <!-- Use newer version of ASM -->
 						</dependency>
 					</dependencies>
 				</plugin>
 				<plugin>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.2.0</version>
-				</plugin>
-				<plugin>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>3.2.1</version>
+					<version>${version.maven-source-plugin}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.22.2</version>
+					<version>${version.maven-surefire-plugin}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>3.2.0</version>
+					<version>${version.maven-jar-plugin}</version>
 					<configuration>
 						<archive>
 							<manifest>
@@ -174,20 +162,20 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-install-plugin</artifactId>
-					<version>2.5.2</version>
+					<version>${version.maven-install-plugin}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.2</version>
+					<version>${version.maven-deploy-plugin}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-gpg-plugin</artifactId>
-					<version>1.6</version>
+					<version>${version.maven-gpg-plugin}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.sonatype.plugins</groupId>
 					<artifactId>nexus-staging-maven-plugin</artifactId>
-					<version>1.6.8</version>
+					<version>${version.nexus-staging-maven-plugin}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

@@ -26,22 +26,35 @@
 		<dependency>
 			<groupId>io.winterframework</groupId>
 			<artifactId>winter-core</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.winterframework</groupId>
 			<artifactId>winter-core-compiler</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.winterframework</groupId>
 			<artifactId>winter-core-annotation</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>generate-test-resources</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<inherited>false</inherited>
+						<configuration>
+							<excludeGroupIds>io.winterframework</excludeGroupIds>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
 				<configuration>

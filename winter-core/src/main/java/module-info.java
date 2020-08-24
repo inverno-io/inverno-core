@@ -31,7 +31,7 @@
  * @since 1.0
  */
 module io.winterframework.core {
-	requires java.logging;
+	requires org.apache.logging.log4j;
 	requires transitive java.compiler;
 	
 	requires static transitive io.winterframework.core.annotation;

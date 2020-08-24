@@ -16,7 +16,6 @@
 package io.winterframework.core.v1;
 
 import java.util.function.Supplier;
-import java.util.logging.Level;
 
 import io.winterframework.core.v1.Module.Bean;
 import io.winterframework.core.v1.Module.BeanBuilder;
@@ -77,7 +76,7 @@ class PrototypeWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractBean
 						init.accept(wrapper);
 					} 
 					catch (Exception e) {
-						LOGGER.log(Level.SEVERE, e, () -> "Error initializing bean " + name);
+						LOGGER.fatal(() -> "Error initializing bean " + name, e);
 						throw new RuntimeException("Error initializing bean " + name, e);
 					}
 				});
@@ -90,7 +89,7 @@ class PrototypeWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractBean
 					try {
 						destroy.accept(wrapper);
 					} catch (Exception e) {
-						LOGGER.log(Level.WARNING, e, () -> "Error destroying bean " + name);
+						LOGGER.warn(() -> "Error destroying bean " + name, e);
 					}
 				});
 			}

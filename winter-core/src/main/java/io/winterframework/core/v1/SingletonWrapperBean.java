@@ -16,7 +16,9 @@
 package io.winterframework.core.v1;
 
 import java.util.function.Supplier;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.winterframework.core.v1.Module.Bean;
 
@@ -42,7 +44,7 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	/**
 	 * The bean logger.
 	 */
-	protected static final Logger LOGGER = Logger.getLogger(SingletonWrapperBean.class.getName());
+	protected static final Logger LOGGER = LogManager.getLogger(SingletonWrapperBean.class);
 
 	/**
 	 * The wrapper instance.
@@ -77,7 +79,7 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 */
 	public synchronized final void create() {
 		if (this.wrapper == null) {
-			LOGGER.fine("Creating Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":" + this.name);
+			LOGGER.debug("Creating singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
 			this.wrapper = this.createWrapper();
 			this.instance = this.wrapper.get();
 			this.parent.recordBean(this);
@@ -109,7 +111,7 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 */
 	public synchronized final void destroy() {
 		if (this.wrapper != null) {
-			LOGGER.fine("Destroying Singleton Bean " + (this.parent != null ? this.parent.getName() : "") + ":"	+ this.name);
+			LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
 			this.destroyWrapper(this.wrapper);
 			this.wrapper = null;
 		}

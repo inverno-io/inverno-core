@@ -17,7 +17,9 @@ package io.winterframework.core.v1;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * <p>
@@ -46,7 +48,7 @@ public class Application<T extends Module> {
 	/**
 	 * Application logger.
 	 */
-	private static Logger LOGGER = Logger.getLogger(Application.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(Application.class);
 
 	/**
 	 * The wrapped module builder.

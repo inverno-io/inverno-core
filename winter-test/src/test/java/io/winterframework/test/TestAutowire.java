@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 
 import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
+import io.winterframework.core.test.WinterModuleException;
 import io.winterframework.core.test.WinterModuleProxy;
 
 /**
@@ -42,8 +43,19 @@ public class TestAutowire extends AbstractWinterTest {
 	
 	@BeforeEach
 	public void init() throws IOException, WinterCompilationException {
-		if(this.moduleProxy == null) {
-			this.moduleProxy = this.getWinterCompiler().compile(MODULE).load(MODULE).build();
+		try {
+			if(this.moduleProxy == null) {
+				this.moduleProxy = this.getWinterCompiler().compile(MODULE).load(MODULE).build();
+			}
+		} catch (WinterModuleException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (WinterCompilationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
