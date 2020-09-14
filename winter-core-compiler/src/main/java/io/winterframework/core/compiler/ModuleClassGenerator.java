@@ -615,7 +615,27 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				return this.visit((ConfigurationSocketBeanInfo)socketBeanInfo, generation);
 			}
 			
-			String result = "";
+			
+			if(!socketBeanInfo.isOptional() || socketBeanInfo.isResolved()) {
+				String result = "";
+				if(socketBeanInfo instanceof SingleSocketInfo) {
+					result += this.visit((SingleSocketBeanInfo)socketBeanInfo, generation);
+				}
+				else if(socketBeanInfo instanceof MultiSocketInfo) {
+					result += this.visit((MultiSocketBeanInfo)socketBeanInfo, generation);
+				}
+				
+				if(socketBeanInfo.isOptional()) {
+					return generation.getTypeName(optionalType) + ".of(" + result + ")";
+				}
+				return result;
+			}
+			else {
+				return generation.getTypeName(optionalType) + ".empty()";
+			}
+			
+			
+			/*String result = "";
 			if(socketBeanInfo instanceof SingleSocketInfo) {
 				result += this.visit((SingleSocketBeanInfo)socketBeanInfo, generation);
 			}
@@ -631,7 +651,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			}
 			else {
 				return generation.getTypeName(optionalType) + ".empty()";
-			}
+			}*/
 		}
 		return "";
 	}
@@ -745,7 +765,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				result += " = " + generation.getTypeName(configurationPropertyInfo.getConfiguration().getType()) + ".super." + configurationPropertyInfo.getName() + "()";
 			}
 			else if(configurationPropertyInfo instanceof NestedConfigurationPropertyInfo) {
-				result += " = " + generation.getTypeName(((NestedConfigurationPropertyInfo)configurationPropertyInfo).getBuilderClassName()) + ".build(builder -> {});";
+				result += " = " + generation.getTypeName(((NestedConfigurationPropertyInfo)configurationPropertyInfo).getBuilderClassName()) + ".build(builder -> {})";
 			}
 			result += ";";
 			return result;
