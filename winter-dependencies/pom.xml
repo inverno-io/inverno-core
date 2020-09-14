@@ -72,10 +72,15 @@
 
 	<properties>
 		<version.winter>1.0.2-SNAPSHOT</version.winter>
+		
 		<version.log4j>2.13.3</version.log4j>
+		<version.projectreactor>3.3.9.RELEASE</version.projectreactor>
+		<version.javacc>7.0.9</version.javacc>
+		
 		<version.junit.jupiter>5.5.1</version.junit.jupiter>
 		<version.junit.platform>1.5.1</version.junit.platform>
 		<version.mockito-core>2.23.4</version.mockito-core>
+		
 		<version.asm>8.0.1</version.asm>
 		<version.maven-clean-plugin>3.1.0</version.maven-clean-plugin>
 		<version.maven-resources-plugin>3.1.0</version.maven-resources-plugin>
@@ -89,6 +94,7 @@
 		<version.maven-antrun-plugin>3.0.0</version.maven-antrun-plugin>
 		<version.maven-dependency-plugin>3.1.2</version.maven-dependency-plugin>
 		<version.nexus-staging-maven-plugin>1.6.8</version.nexus-staging-maven-plugin>
+		<version.javacc-maven-plugin>3.0.2</version.javacc-maven-plugin>
 	</properties>
 
 	<dependencyManagement>
@@ -108,6 +114,7 @@
 				<artifactId>winter-core-compiler</artifactId>
 				<version>${version.winter}</version>
 			</dependency>
+			
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-api</artifactId>
@@ -119,6 +126,17 @@
 				<version>${version.log4j}</version>
 				<scope>runtime</scope>
 			</dependency>
+			<dependency>
+				<groupId>io.projectreactor</groupId>
+				<artifactId>reactor-core</artifactId>
+				<version>${version.projectreactor}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.java.dev.javacc</groupId>
+				<artifactId>javacc</artifactId>
+				<version>${version.javacc}</version>
+			</dependency>
+			
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
@@ -210,6 +228,18 @@
 					<groupId>org.sonatype.plugins</groupId>
 					<artifactId>nexus-staging-maven-plugin</artifactId>
 					<version>${version.nexus-staging-maven-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.javacc.plugin</groupId>
+					<artifactId>javacc-maven-plugin</artifactId>
+					<version>${version.javacc-maven-plugin}</version>
+					<dependencies>
+						<dependency>
+							<groupId>net.java.dev.javacc</groupId>
+							<artifactId>javacc</artifactId>
+							<version>${version.javacc}</version>
+						</dependency>
+					</dependencies>
 				</plugin>
 			</plugins>
 		</pluginManagement>
