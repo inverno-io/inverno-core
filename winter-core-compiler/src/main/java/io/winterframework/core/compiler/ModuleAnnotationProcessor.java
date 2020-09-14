@@ -157,7 +157,14 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 				.withModuleBeans(roundEnv.getElementsAnnotatedWith(Bean.class).stream()
 					.filter(element -> element.getKind().equals(ElementKind.CLASS))
 					.map(element -> {
-						ModuleBeanInfoFactory beanFactory = beanFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
+						ModuleBeanInfoFactory beanFactory = null;
+						for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
+							if(moduleElement instanceof ModuleElement) {
+								beanFactory = beanFactories.get(((ModuleElement) moduleElement).getQualifiedName().toString());
+								break;
+							}
+						}
+//						ModuleBeanInfoFactory beanFactory = beanFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
 						AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 						if(beanFactory == null) {
 							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Bean might be out of sync with the module please consider recompiling the module" , element, beanAnnotation );
@@ -185,7 +192,14 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 					.filter(element -> element.getKind().equals(ElementKind.INTERFACE))
 					.filter(element -> element.getAnnotationMirrors().stream().noneMatch(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), configurationAnnotationType)))
 					.map(element -> {
-						SocketBeanInfoFactory socketFactory = socketFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
+						SocketBeanInfoFactory socketFactory = null;
+						for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
+							if(moduleElement instanceof ModuleElement) {
+								socketFactory = socketFactories.get(((ModuleElement) moduleElement).getQualifiedName().toString());
+								break;
+							}
+						}
+//						SocketBeanInfoFactory socketFactory = socketFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
 						AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 						if(socketFactory == null) {
 							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Module socket bean might be out of sync with the module please consider recompiling the module" , element, beanAnnotation );
@@ -211,7 +225,14 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 					.filter(element -> element.getKind().equals(ElementKind.INTERFACE))
 					.filter(element -> element.getAnnotationMirrors().stream().anyMatch(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), configurationAnnotationType)))
 					.map(element -> {
-						ConfigurationInfoFactory configurationFactory = configurationFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
+						ConfigurationInfoFactory configurationFactory = null;
+						for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
+							if(moduleElement instanceof ModuleElement) {
+								configurationFactory = configurationFactories.get(((ModuleElement) moduleElement).getQualifiedName().toString());
+								break;
+							}
+						}
+//						ConfigurationInfoFactory configurationFactory = configurationFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
 						AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 						if(configurationFactory == null) {
 							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Configuration bean might be out of sync with the module please consider recompiling the module" , element, beanAnnotation );
@@ -320,7 +341,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 
 		ModuleBeanInfoFactory componentModuleBeanFactory = ModuleBeanInfoFactory.create(this.processingEnv, moduleElement, componentModuleElement, componentModuleSockets, 1);
 		List<? extends ModuleBeanInfo> componentModuleBeans = moduleType.getEnclosedElements().stream()
-			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getModifiers().contains(Modifier.PUBLIC) && ((ExecutableElement)e).getParameters().size() == 0)
+			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getModifiers().contains(Modifier.PUBLIC) && !e.getModifiers().contains(Modifier.STATIC) && ((ExecutableElement)e).getParameters().size() == 0)
 			.map(e -> {
 				try {
 					return componentModuleBeanFactory.createBean(e);

@@ -71,9 +71,16 @@ class CompiledConfigurationInfoFactory extends ConfigurationInfoFactory {
 		}
 		
 		TypeElement typeElement = (TypeElement)element;
-		if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
-			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
+		
+		for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
+			if(moduleElement instanceof ModuleElement && !moduleElement.equals(this.moduleElement)) {
+				throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
+			}
 		}
+		
+		/*if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
+			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
+		}*/
 		
 		AnnotationMirror beanAnnotation = null;
 		AnnotationMirror configurationAnnotation = null;

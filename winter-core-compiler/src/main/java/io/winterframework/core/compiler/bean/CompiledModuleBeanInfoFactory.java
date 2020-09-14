@@ -94,9 +94,16 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		}
 		
 		TypeElement typeElement = (TypeElement)element;
-		if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
-			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
+		
+		for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
+			if(moduleElement instanceof ModuleElement && !moduleElement.equals(this.moduleElement)) {
+				throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
+			}
 		}
+		
+		/*if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
+			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
+		}*/
 		
 		Optional<? extends AnnotationMirror> beanAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.beanAnnotationType)).findFirst();
 		if(!beanAnnotation.isPresent()) {

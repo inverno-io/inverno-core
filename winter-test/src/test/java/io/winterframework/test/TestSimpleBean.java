@@ -29,17 +29,27 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestSimplebean extends AbstractWinterTest {
+public class TestSimpleBean extends AbstractWinterTest {
 
 	private static final String MODULE = "io.winterframework.test.simplebean";
 	
 	@Test
-	public void testBeanCreation() throws IOException, WinterCompilationException {
-		WinterModuleProxy simpleProxy = this.getWinterCompiler().compile(MODULE).load(MODULE).build();
+	public void testBeanCreation() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		Runnable someRunnable = () -> {};
+		
+		WinterModuleProxy simpleProxy = this.getWinterCompiler().compile(MODULE).load(MODULE).dependencies(someRunnable).build();
 		
 		simpleProxy.start();
 		Assertions.assertNotNull(simpleProxy.getBean("beanA"));
 		Assertions.assertEquals(simpleProxy.getBean("beanA"), simpleProxy.getBean("beanA"));
+		Assertions.assertNotNull(simpleProxy.getBean("beanB"));
+		
+		Object beanB = simpleProxy.getBean("beanB");
+		Class<?> beanBClass = beanB.getClass();
+		Object beanB_someRunnable = beanB.getClass().getField("someRunnable").get(beanB);
+		Assertions.assertEquals(someRunnable, beanB_someRunnable);
+		
+		Assertions.assertNotNull(simpleProxy.getBean("beanA"));
 		simpleProxy.stop();
 	}
 	
