@@ -333,7 +333,7 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 	public String visit(NestedConfigurationPropertyInfo nestedConfigurationPropertyInfo, String pad) {
 		StringBuilder result = new StringBuilder();
 		result.append(this.visit((ConfigurationPropertyInfo)nestedConfigurationPropertyInfo, pad)).append("\n");
-		result.append(pad).append("  ").append("builderType: ").append(nestedConfigurationPropertyInfo.getBuilderClassName().toString());
+		result.append(pad).append("  ").append("configuratorType: ").append(nestedConfigurationPropertyInfo.getConfiguratorClassName().toString());
 		
 		return result.toString(); 
 	}

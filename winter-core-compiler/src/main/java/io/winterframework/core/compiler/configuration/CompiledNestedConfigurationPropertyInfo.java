@@ -41,7 +41,7 @@ public class CompiledNestedConfigurationPropertyInfo extends CompiledConfigurati
 
 	private BeanQualifiedName qname;
 	
-	private String builderClassName;
+	private String configuratorClassName;
 	
 	public CompiledNestedConfigurationPropertyInfo(
 			ProcessingEnvironment processingEnvironment, 
@@ -51,7 +51,7 @@ public class CompiledNestedConfigurationPropertyInfo extends CompiledConfigurati
 		this.qname = new BeanQualifiedName(configurationQName.getModuleQName(), configurationQName.getBeanName() + "." + this.getName());
 		
 		ModuleMetadataExtractor moduleMetadataExtractor = new ModuleMetadataExtractor(this.processingEnvironment, this.getEnclosingModuleElement(this.processingEnvironment.getTypeUtils().asElement(this.type)));
-		this.builderClassName = moduleMetadataExtractor.getModuleQualifiedName().getClassName() + "." + this.processingEnvironment.getTypeUtils().asElement(this.type).getSimpleName().toString() + "Builder";
+		this.configuratorClassName = moduleMetadataExtractor.getModuleQualifiedName().getClassName() + "." + this.processingEnvironment.getTypeUtils().asElement(this.type).getSimpleName().toString() + "Configurator";
 	}
 	
 	private ModuleElement getEnclosingModuleElement(Element element) {
@@ -65,8 +65,8 @@ public class CompiledNestedConfigurationPropertyInfo extends CompiledConfigurati
 	}
 
 	@Override
-	public String getBuilderClassName() {
-		return this.builderClassName;
+	public String getConfiguratorClassName() {
+		return this.configuratorClassName;
 	}
 
 	@Override

@@ -33,8 +33,12 @@ import java.lang.annotation.Target;
  * <p>
  * 
  * <p>
- * A module provides a builder to easily create configuration instances.  
+ * For a given configuration, a module provides a configurator to easily create configuration instances.  
  * </p>
+ * 
+ * <pre>
+ * Config config = SomeModule.ConfigConfigurator.create(configConfigurator -> configConfigurator.property1("someValue").property2(42));
+ * </pre>
  * 
  * <p>
  * When used in conjunction with {@link Bean}, an optional socket bean is
@@ -55,7 +59,8 @@ import java.lang.annotation.Target;
  * 
  * <pre>
  * SomeModule someModule = new SomeModule.Builder()
- * 		.setConfig(configConfigurator -> configConfigurator.property1("someValue").property2(42)).build();
+ *     .setConfig(configConfigurator -> configConfigurator.property1("someValue").property2(42))
+ *     .build();
  * </pre>
  * 
  * 

@@ -123,7 +123,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				.map(configurationInfo -> this.visit(configurationInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.CONFIGURATION_CLASS)))
 				.collect(Collectors.joining("\n"));
 			String module_configuration_configurators = Arrays.stream(moduleInfo.getConfigurations())
-				.map(configurationInfo -> this.visit(configurationInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.CONFIGURATION_BUILDER_CLASS)))
+				.map(configurationInfo -> this.visit(configurationInfo, generation.forModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.CONFIGURATION_CONFIGURATOR_CLASS)))
 				.collect(Collectors.joining("\n"));
 
 			String moduleClass = "";
@@ -704,7 +704,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 	@Override
 	public String visit(ConfigurationInfo configurationInfo, ModuleClassGeneration generation) {
 		String configurationClassName = "Generated" + generation.getTypeUtils().asElement(configurationInfo.getType()).getSimpleName().toString();
-		String configurationBuilderClassName = generation.getTypeUtils().asElement(configurationInfo.getType()).getSimpleName().toString() + "Builder";
+		String configurationConfiguratorClassName = generation.getTypeUtils().asElement(configurationInfo.getType()).getSimpleName().toString() + "Configurator";
 		if(generation.getMode() == GenerationMode.CONFIGURATION_CLASS) {
 			String configuration_field_default = generation.indent(2) + "private static final " + generation.getTypeName(configurationInfo.getType()) + " DEFAULT = new " + configurationClassName + "();";
 			
@@ -743,44 +743,39 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			
 			return configurationClass;
 		}
-		else if(generation.getMode() == GenerationMode.CONFIGURATION_BUILDER_CLASS) {
+		else if(generation.getMode() == GenerationMode.CONFIGURATION_CONFIGURATOR_CLASS) {
 			TypeMirror consumerType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement(Consumer.class.getCanonicalName()).asType());
 			
-			String configuration_builder_field_properties = Arrays.stream(configurationInfo.getProperties())
-				.map(configurationPropertyInfo -> this.visit(configurationPropertyInfo, generation.withMode(GenerationMode.CONFIGURATION_BUILDER_PROPERTY_FIELD)))
+			String configuration_configurator_field_properties = Arrays.stream(configurationInfo.getProperties())
+				.map(configurationPropertyInfo -> this.visit(configurationPropertyInfo, generation.withMode(GenerationMode.CONFIGURATION_CONFIGURATOR_PROPERTY_FIELD)))
 				.collect(Collectors.joining("\n"));
 			
-			String configuration_builder_default_constructor = generation.indent(2) + "private " + configurationBuilderClassName + "() {}";
+			String configuration_configurator_default_constructor = generation.indent(2) + "private " + configurationConfiguratorClassName + "() {}";
 			
-			String configuration_builder_build_method = generation.indent(2) + "private " + generation.getTypeName(configurationInfo.getType()) + " build() {\n";
-			configuration_builder_build_method += generation.indent(3) + "return new " + configurationClassName + "(";
-			configuration_builder_build_method += Arrays.stream(configurationInfo.getProperties())
-				.map(configurationPropertyInfo -> "this." + configurationPropertyInfo.getName())
+			String configuration_configurator_static_build_method = generation.indent(2) + "public static " + generation.getTypeName(configurationInfo.getType()) + " create(" + generation.getTypeName(consumerType) + "<" + configurationConfiguratorClassName + "> configurer) {\n";
+			configuration_configurator_static_build_method += generation.indent(3) + configurationConfiguratorClassName + " configurator = new " + configurationConfiguratorClassName + "();\n";
+			configuration_configurator_static_build_method += generation.indent(3) + "configurer.accept(configurator);\n";
+			configuration_configurator_static_build_method += generation.indent(3) + "return new " + configurationClassName + "(";
+			configuration_configurator_static_build_method += Arrays.stream(configurationInfo.getProperties())
+				.map(configurationPropertyInfo -> "configurator." + configurationPropertyInfo.getName())
 				.collect(Collectors.joining(", "));
-			configuration_builder_build_method += ");\n";
-			configuration_builder_build_method += generation.indent(2) + "}";
-			
-			String configuration_builder_static_build_method = generation.indent(2) + "public static " + generation.getTypeName(configurationInfo.getType()) + " build(" + generation.getTypeName(consumerType) + "<" + configurationBuilderClassName + "> configurator) {\n";
-			configuration_builder_static_build_method += generation.indent(3) + configurationBuilderClassName + " builder = new " + configurationBuilderClassName + "();\n";
-			configuration_builder_static_build_method += generation.indent(3) + "configurator.accept(builder);\n";
-			configuration_builder_static_build_method += generation.indent(3) + "return builder.build();\n";
-			configuration_builder_static_build_method += generation.indent(2) + "}";
+			configuration_configurator_static_build_method += ");\n";
+			configuration_configurator_static_build_method += generation.indent(2) + "}";
 			
 			String configuration_property_injectors = Arrays.stream(configurationInfo.getProperties())
-				.map(configurationPropertyInfo -> this.visit(configurationPropertyInfo, generation.withMode(GenerationMode.CONFIGURATION_BUILDER_PROPERTY_INJECTOR)))
+				.map(configurationPropertyInfo -> this.visit(configurationPropertyInfo, generation.withMode(GenerationMode.CONFIGURATION_CONFIGURATOR_PROPERTY_INJECTOR)))
 				.collect(Collectors.joining("\n"));
 			
-			String configurationBuilderClass = generation.indent(1) + "public static final class " + configurationBuilderClassName + " {\n\n";
+			String configurationConfiguratorClass = generation.indent(1) + "public static final class " + configurationConfiguratorClassName + " {\n\n";
 			
-			configurationBuilderClass += configuration_builder_field_properties + "\n\n";
-			configurationBuilderClass += configuration_builder_default_constructor + "\n\n";
-			configurationBuilderClass += configuration_builder_build_method + "\n\n";
-			configurationBuilderClass += configuration_builder_static_build_method + "\n\n";
-			configurationBuilderClass += configuration_property_injectors;
+			configurationConfiguratorClass += configuration_configurator_field_properties + "\n\n";
+			configurationConfiguratorClass += configuration_configurator_default_constructor + "\n\n";
+			configurationConfiguratorClass += configuration_configurator_static_build_method + "\n\n";
+			configurationConfiguratorClass += configuration_property_injectors;
 			
-			configurationBuilderClass += generation.indent(1) + "}";
+			configurationConfiguratorClass += generation.indent(1) + "}";
 			
-			return configurationBuilderClass;
+			return configurationConfiguratorClass;
 		}
 		return "";
 	}
@@ -793,7 +788,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 				result += " = " + generation.getTypeName(configurationPropertyInfo.getConfiguration().getType()) + ".super." + configurationPropertyInfo.getName() + "()";
 			}
 			else if(configurationPropertyInfo instanceof NestedConfigurationPropertyInfo) {
-				result += " = " + generation.getTypeName(((NestedConfigurationPropertyInfo)configurationPropertyInfo).getBuilderClassName()) + ".build(builder -> {})";
+				result += " = " + generation.getTypeName(((NestedConfigurationPropertyInfo)configurationPropertyInfo).getConfiguratorClassName()) + ".create(configurator -> {})";
 			}
 			result += ";";
 			return result;
@@ -812,14 +807,14 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			result += generation.indent(2) + "}\n";
 			return result;
 		}
-		else if(generation.getMode() == GenerationMode.CONFIGURATION_BUILDER_PROPERTY_FIELD) {
+		else if(generation.getMode() == GenerationMode.CONFIGURATION_CONFIGURATOR_PROPERTY_FIELD) {
 			TypeMirror boxedType = configurationPropertyInfo.getType() instanceof PrimitiveType ? generation.getTypeUtils().boxedClass((PrimitiveType)configurationPropertyInfo.getType()).asType() : configurationPropertyInfo.getType();
 			return generation.indent(2) + "private " + generation.getTypeName(generation.getTypeUtils().getDeclaredType(generation.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()), boxedType)) + " " + configurationPropertyInfo.getName() + ";";
 		}
-		else if(generation.getMode() == GenerationMode.CONFIGURATION_BUILDER_PROPERTY_INJECTOR) {
-			String configurationBuilderClassName = generation.getTypeUtils().asElement(configurationPropertyInfo.getConfiguration().getType()).getSimpleName().toString() + "Builder";
+		else if(generation.getMode() == GenerationMode.CONFIGURATION_CONFIGURATOR_PROPERTY_INJECTOR) {
+			String configurationConfiguratorClassName = generation.getTypeUtils().asElement(configurationPropertyInfo.getConfiguration().getType()).getSimpleName().toString() + "Configurator";
 			
-			String result = generation.indent(2) + "public " + configurationBuilderClassName + " " + configurationPropertyInfo.getName() +"(" + generation.getTypeName(configurationPropertyInfo.getType()) + " " + configurationPropertyInfo.getName() + ") {\n";
+			String result = generation.indent(2) + "public " + configurationConfiguratorClassName + " " + configurationPropertyInfo.getName() +"(" + generation.getTypeName(configurationPropertyInfo.getType()) + " " + configurationPropertyInfo.getName() + ") {\n";
 			result += generation.indent(3) + "this." + configurationPropertyInfo.getName() + " = () -> " + configurationPropertyInfo.getName() + ";\n";
 			result += generation.indent(3) + "return this;\n";
 			result += generation.indent(2) + "}\n";
@@ -849,7 +844,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			return socketParameter;
 		}
 		else if(generation.getMode() == GenerationMode.SOCKET_INJECTOR) {
-			String configurationBuilderClassName = generation.getTypeUtils().asElement(configurationSocketBeanInfo.getType()).getSimpleName().toString() + "Builder";
+			String configurationConfiguratorClassName = generation.getTypeUtils().asElement(configurationSocketBeanInfo.getType()).getSimpleName().toString() + "Configurator";
 			TypeMirror consumerType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement(Consumer.class.getCanonicalName()).asType());
 			TypeMirror optionalType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement(Optional.class.getCanonicalName()).asType());
 			TypeMirror npeType = generation.getElementUtils().getTypeElement(NullPointerException.class.getCanonicalName()).asType();
@@ -863,11 +858,11 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 			result += generation.indent(4) + ".orElseThrow(" + generation.getTypeName(npeType) + "::new);\n";
 			result += generation.indent(3) + "return this;\n";
 			result += generation.indent(2) + "}\n\n";
-			result += generation.indent(2) + "public Builder set" + Character.toUpperCase(plugName.charAt(0)) + plugName.substring(1) + "(" + generation.getTypeName(consumerType) + "<" + configurationBuilderClassName +"> " + plugName + "_configurator) {\n";
+			result += generation.indent(2) + "public Builder set" + Character.toUpperCase(plugName.charAt(0)) + plugName.substring(1) + "(" + generation.getTypeName(consumerType) + "<" + configurationConfiguratorClassName +"> " + plugName + "_configurer) {\n";
 			
-			result += generation.indent(3) + "this." + plugName + " = " + generation.getTypeName(optionalType) + ".ofNullable(" + plugName + "_configurator)\n";
-			result += generation.indent(4) + ".map(configurator -> " + configurationBuilderClassName + ".build(configurator))\n";
-			result += generation.indent(4) + ".map(config -> (" + generation.getTypeName(configurationSocketBeanInfo.getSocketType()) + ")() -> config)\n";
+			result += generation.indent(3) + "this." + plugName + " = " + generation.getTypeName(optionalType) + ".ofNullable(" + plugName + "_configurer)\n";
+			result += generation.indent(4) + ".map(configurer -> " + configurationConfiguratorClassName + ".create(configurer))\n";
+			result += generation.indent(4) + ".map(configuration -> (" + generation.getTypeName(configurationSocketBeanInfo.getSocketType()) + ")() -> configuration)\n";
 			result += generation.indent(4) + ".orElseThrow(" + generation.getTypeName(npeType) + "::new);\n";
 			result += generation.indent(3) + "return this;\n";
 			result += generation.indent(2) + "}\n";
@@ -885,13 +880,13 @@ class ModuleClassGenerator implements ModuleInfoVisitor<String, ModuleClassGener
 	
 	@Override
 	public String visit(NestedConfigurationPropertyInfo nestedConfigurationPropertyInfo, ModuleClassGeneration generation) {
-		if(generation.getMode() == GenerationMode.CONFIGURATION_BUILDER_PROPERTY_INJECTOR) {
-			String configurationBuilderClassName = generation.getTypeUtils().asElement(nestedConfigurationPropertyInfo.getConfiguration().getType()).getSimpleName().toString() + "Builder";
+		if(generation.getMode() == GenerationMode.CONFIGURATION_CONFIGURATOR_PROPERTY_INJECTOR) {
+			String configurationConfiguratorClassName = generation.getTypeUtils().asElement(nestedConfigurationPropertyInfo.getConfiguration().getType()).getSimpleName().toString() + "Configurator";
 			
 			TypeMirror consumerType = generation.getTypeUtils().erasure(generation.getElementUtils().getTypeElement(Consumer.class.getCanonicalName()).asType());
 			
-			String result = generation.indent(2) + "public " + configurationBuilderClassName + " " + nestedConfigurationPropertyInfo.getName() +"(" + generation.getTypeName(consumerType) + "<" + nestedConfigurationPropertyInfo.getBuilderClassName() + "> " + nestedConfigurationPropertyInfo.getName() + "_configurator) {\n";
-			result += generation.indent(3) + "this." + nestedConfigurationPropertyInfo.getName() + " = () -> " + generation.getTypeName(nestedConfigurationPropertyInfo.getBuilderClassName()) + ".build(" + nestedConfigurationPropertyInfo.getName() + "_configurator);\n";
+			String result = generation.indent(2) + "public " + configurationConfiguratorClassName + " " + nestedConfigurationPropertyInfo.getName() +"(" + generation.getTypeName(consumerType) + "<" + nestedConfigurationPropertyInfo.getConfiguratorClassName() + "> " + nestedConfigurationPropertyInfo.getName() + "_configurer) {\n";
+			result += generation.indent(3) + "this." + nestedConfigurationPropertyInfo.getName() + " = () -> " + generation.getTypeName(nestedConfigurationPropertyInfo.getConfiguratorClassName()) + ".create(" + nestedConfigurationPropertyInfo.getName() + "_configurer);\n";
 			result += generation.indent(3) + "return this;\n";
 			result += generation.indent(2) + "}\n";
 			

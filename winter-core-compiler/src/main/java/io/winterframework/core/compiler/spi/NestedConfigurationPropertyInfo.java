@@ -29,12 +29,12 @@ public interface NestedConfigurationPropertyInfo extends ConfigurationPropertyIn
 
 	/**
 	 * <p>
-	 * Returns the nested configuration builder class name.
+	 * Returns the nested configuration configurator class name.
 	 * </p>
 	 * 
 	 * @return a canonical class name
 	 */
-	String getBuilderClassName();
+	String getConfiguratorClassName();
 	
 	/**
 	 * <p>
