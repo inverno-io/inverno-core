@@ -33,39 +33,55 @@ public class WinterModuleProxy extends Module {
 	}
 
 	@Override
-	public String getName() {
+	public String getName() throws WinterModuleException {
 		try {
 			return (String)this.module.getClass().getMethod("getName").invoke(this.module);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+		} 
+		catch(InvocationTargetException e) {
+			throw new WinterModuleException(e.getCause());
+		}
+		catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException
 				| SecurityException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public void start() {
+	public void start() throws WinterModuleException {
 		try {
 			this.module.getClass().getMethod("start").invoke(this.module);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+		} 
+		catch (InvocationTargetException e) {
+			throw new WinterModuleException(e.getCause());
+		}
+		catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException
 				| SecurityException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public void stop() {
+	public void stop() throws WinterModuleException {
 		try {
 			this.module.getClass().getMethod("stop").invoke(this.module);
-		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+		}
+		catch (InvocationTargetException e) {
+			throw new WinterModuleException(e.getCause());
+		}
+		catch (IllegalAccessException | IllegalArgumentException | NoSuchMethodException
 				| SecurityException e) {
 			throw new RuntimeException(e);
 		}
 	}
 	
-	public Object getBean(String name) {
+	public Object getBean(String name) throws WinterModuleException {
 		try {
 			return this.module.getClass().getMethod(name).invoke(this.module);
-		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+		}
+		catch (InvocationTargetException e) {
+			throw new WinterModuleException(e.getCause());
+		}
+		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
 			throw new RuntimeException(e);
 		}
 	}

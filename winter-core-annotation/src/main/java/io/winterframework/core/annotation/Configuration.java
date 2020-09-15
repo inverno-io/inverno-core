@@ -20,34 +20,34 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.winterframework.core.annotation.Bean.Strategy;
-import io.winterframework.core.annotation.Bean.Visibility;
-
 /**
  * <p>
- * Used in conjunction with {@link Bean} on an interface to indicate a
- * configuration bean.
+ * Used on an interface to indicate a configuration.
  * </p>
  * 
  * <p>
- * A configuration bean should be created when there's a need to provide
+ * A configuration should be created when there's a need to provide
  * configuration data in a module. Configuration properties are declared as
  * non-void no-argument methods in an interface. Default values can be specified
- * in default methods. A configuration bean must be defined as a
- * {@link Visibility#PUBLIC} {@link Strategy#SINGLETON} bean.
+ * in default methods.
  * <p>
  * 
  * <p>
- * It behaves like an optional socket bean with two peculiarities: although it
- * is an optional socket bean, an instance is always provided inside the module
- * using a default implementation and then an instance can (this is not
- * mandatory) be provided from a property of a configuration bean defined in an
- * enclosing module. This makes it very convenient to "chain" components modules
- * configurations in a single enclosing configuration.
+ * A module provides a builder to easily create configuration instances.  
  * </p>
  * 
  * <p>
- * Convenient methods are exposed on the module's builder class to easily
+ * When used in conjunction with {@link Bean}, an optional socket bean is
+ * provided with two peculiarities: although it is an optional socket bean, an
+ * instance is always provided inside the module using the configuration default
+ * implementation and then an instance can (this is not mandatory) be provided
+ * from a property of a configuration bean defined in an enclosing module. This
+ * makes it very convenient to "chain" components modules configurations in a
+ * single enclosing configuration.
+ * </p>
+ * 
+ * <p>
+ * Convenient methods are also exposed on the module's builder class to easily
  * provide configuration properties to a module. Assuming we define a
  * configuration bean named "config" in a module with two properties "property1"
  * and "property2", we can configure a module instance as follows:
@@ -55,10 +55,7 @@ import io.winterframework.core.annotation.Bean.Visibility;
  * 
  * <pre>
  * SomeModule someModule = new SomeModule.Builder()
- *     .setConfig(configConfigurator -> configConfigurator
- *         .property1("someValue")
- *         .property2(42)
- *     ).build();
+ * 		.setConfig(configConfigurator -> configConfigurator.property1("someValue").property2(42)).build();
  * </pre>
  * 
  * 

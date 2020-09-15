@@ -15,6 +15,8 @@
  */
 package io.winterframework.core.compiler.spi;
 
+import java.util.Optional;
+
 import javax.lang.model.type.TypeMirror;
 
 /**
@@ -75,10 +77,11 @@ public interface ConfigurationInfo extends Info {
 	
 	/**
 	 * <p>
-	 * Returns the configuration socket bean representing a configuration bean in a module.
+	 * Returns a configuration socket bean representing a configuration bean in a
+	 * module when the configuration is also declared as a bean.
 	 * </p>
 	 * 
-	 * @return A configuration socket
+	 * @return An optional containing a configuration socket or an empty optional
 	 */
-	ConfigurationSocketBeanInfo getSocket();
+	Optional<ConfigurationSocketBeanInfo> getSocket();
 }

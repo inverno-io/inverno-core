@@ -22,8 +22,10 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.compiler.module.ModuleMetadataExtractor;
+import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ConfigurationPropertyInfo;
+import io.winterframework.core.compiler.spi.ConfigurationSocketBeanInfo;
 import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
 
 /**
@@ -46,7 +48,6 @@ public class CompiledNestedConfigurationPropertyInfo extends CompiledConfigurati
 			ExecutableElement propertyMethod,
 			BeanQualifiedName configurationQName) {
 		super(processingEnvironment, propertyMethod);
-		
 		this.qname = new BeanQualifiedName(configurationQName.getModuleQName(), configurationQName.getBeanName() + "." + this.getName());
 		
 		ModuleMetadataExtractor moduleMetadataExtractor = new ModuleMetadataExtractor(this.processingEnvironment, this.getEnclosingModuleElement(this.processingEnvironment.getTypeUtils().asElement(this.type)));
@@ -71,5 +72,15 @@ public class CompiledNestedConfigurationPropertyInfo extends CompiledConfigurati
 	@Override
 	public BeanQualifiedName getQualifiedName() {
 		return qname;
+	}
+	
+	@Override
+	public ConfigurationSocketBeanInfo getProvidingBean() {
+		return this.configurationInfo.getSocket().orElse(null);
+	}
+	
+	@Override
+	public BeanInfo[] getNestedBeans() {
+		return new BeanInfo[0];
 	}
 }

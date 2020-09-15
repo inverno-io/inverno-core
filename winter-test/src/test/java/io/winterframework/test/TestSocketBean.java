@@ -212,7 +212,6 @@ public class TestSocketBean extends AbstractWinterTest {
 		}
 	}
 	
-	// TODO
 	@Test
 	public void testExtendsSupplierError() throws IOException {
 		try {

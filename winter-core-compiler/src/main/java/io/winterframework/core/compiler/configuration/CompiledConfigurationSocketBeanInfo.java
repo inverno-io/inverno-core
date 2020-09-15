@@ -33,6 +33,7 @@ import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ConfigurationSocketBeanInfo;
+import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
 
 /**
  * <p>
@@ -51,13 +52,19 @@ public class CompiledConfigurationSocketBeanInfo extends AbstractBeanInfo implem
 	
 	private Set<BeanQualifiedName> wiredBeans;
 	
+	private boolean wired;
+	
+	private NestedConfigurationPropertyInfo[] nestedConfigurationProperties;
+	
 	public CompiledConfigurationSocketBeanInfo(ProcessingEnvironment processingEnvironment, 
 			Element element,
 			AnnotationMirror annotation, 
 			BeanQualifiedName configurationQName, 
-			TypeMirror type) {
+			TypeMirror type,
+			NestedConfigurationPropertyInfo[] nestedConfigurationProperties) {
 		super(processingEnvironment, element, annotation, new BeanQualifiedName(configurationQName.getModuleQName(), configurationQName.getBeanName()), type);
 		
+		this.nestedConfigurationProperties = nestedConfigurationProperties;
 		this.socketType = this.processingEnvironment.getTypeUtils().getDeclaredType(this.processingEnvironment.getElementUtils().getTypeElement("io.winterframework.core.v1.Module.ConfigurationSocket"), this.type);
 		this.wiredBeans = Collections.emptySet();
 	}
@@ -110,5 +117,20 @@ public class CompiledConfigurationSocketBeanInfo extends AbstractBeanInfo implem
 	@Override
 	public void setWiredBeans(Set<BeanQualifiedName> wiredBeans) {
 		this.wiredBeans = wiredBeans != null ? Collections.unmodifiableSet(wiredBeans) : Collections.emptySet();
+	}
+	
+	@Override
+	public BeanInfo[] getNestedBeans() {
+		return this.nestedConfigurationProperties;
+	}
+	
+	@Override
+	public boolean isWired() {
+		return this.wired;
+	}
+	
+	@Override
+	public void setWired(boolean wired) {
+		this.wired = wired;
 	}
 }

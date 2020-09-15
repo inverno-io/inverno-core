@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -56,20 +58,23 @@ class BinaryModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	 * @param processingEnvironment
 	 * @param moduleElement
 	 */
-	public BinaryModuleBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement compiledModuleElement, List<? extends SocketBeanInfo> moduleSocketInfos) {
+	public BinaryModuleBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement compiledModuleElement, Supplier<List<? extends SocketBeanInfo>> moduleSocketInfosSupplier) {
 		super(processingEnvironment, moduleElement);
 		
 		this.compiledModuleElement = compiledModuleElement;
 		
 		this.moduleSocketInfosByWiredBeanQName = new HashMap<>();
-		for(SocketBeanInfo moduleSocketInfo : moduleSocketInfos) {
-			for(BeanQualifiedName wiredBeanQName : moduleSocketInfo.getWiredBeans()) {
-				if(this.moduleSocketInfosByWiredBeanQName.get(wiredBeanQName) == null) {
-					this.moduleSocketInfosByWiredBeanQName.put(wiredBeanQName, new ArrayList<>());
+		
+		Optional.ofNullable(moduleSocketInfosSupplier.get()).ifPresent(moduleSocketInfos -> {
+			for(SocketBeanInfo moduleSocketInfo : moduleSocketInfos) {
+				for(BeanQualifiedName wiredBeanQName : moduleSocketInfo.getWiredBeans()) {
+					if(this.moduleSocketInfosByWiredBeanQName.get(wiredBeanQName) == null) {
+						this.moduleSocketInfosByWiredBeanQName.put(wiredBeanQName, new ArrayList<>());
+					}
+					this.moduleSocketInfosByWiredBeanQName.get(wiredBeanQName).add(moduleSocketInfo);
 				}
-				this.moduleSocketInfosByWiredBeanQName.get(wiredBeanQName).add(moduleSocketInfo);
 			}
-		}
+		});
 	}
 
 	@Override

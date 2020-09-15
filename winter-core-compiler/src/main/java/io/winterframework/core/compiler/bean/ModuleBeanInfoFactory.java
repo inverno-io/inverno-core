@@ -16,6 +16,7 @@
 package io.winterframework.core.compiler.bean;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
@@ -23,6 +24,7 @@ import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.common.AbstractInfoFactory;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
@@ -42,11 +44,11 @@ public abstract class ModuleBeanInfoFactory extends AbstractInfoFactory {
 		super(processingEnvironment, moduleElement);
 	}
 
-	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
-		return new CompiledModuleBeanInfoFactory(processingEnvironment, moduleElement);
+	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, Supplier<List<? extends ConfigurationInfo>> configurationInfosSupplier) {
+		return new CompiledModuleBeanInfoFactory(processingEnvironment, moduleElement, configurationInfosSupplier);
 	}
 	
-	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement requiredModuleElement, List<? extends SocketBeanInfo> moduleSocketInfos, Integer version) {
+	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement requiredModuleElement, Supplier<List<? extends SocketBeanInfo>> moduleSocketInfosSupplier, Integer version) {
 		if(moduleElement.getDirectives().stream().noneMatch(directive -> directive.getKind().equals(ModuleElement.DirectiveKind.REQUIRES) && ((ModuleElement.RequiresDirective)directive).getDependency().equals(requiredModuleElement))) {
 			throw new IllegalArgumentException("The specified element is not required in module " + moduleElement.getQualifiedName().toString());
 		}
@@ -55,7 +57,7 @@ public abstract class ModuleBeanInfoFactory extends AbstractInfoFactory {
 			throw new IllegalStateException("Version of binary module can't be null");			
 		}
 		switch(version) {
-			case 1: return new BinaryModuleBeanInfoFactory(processingEnvironment, requiredModuleElement, moduleElement, moduleSocketInfos);
+			case 1: return new BinaryModuleBeanInfoFactory(processingEnvironment, requiredModuleElement, moduleElement, moduleSocketInfosSupplier);
 			default: throw new IllegalStateException("Unsupported version: " + version);
 		}
 	}

@@ -26,9 +26,11 @@ import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.compiler.common.AbstractBeanInfo;
+import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 
 /**
  * <p>
@@ -47,6 +49,8 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 	private List<ExecutableElement> initElements;
 	
 	private List<ExecutableElement> destroyElements;
+
+	private List<NestedBeanInfo> nestedBeanInfos;
 	
 	private List<? extends ModuleBeanSocketInfo> socketInfos;
 	
@@ -80,6 +84,7 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 		this.strategy = strategy != null ? strategy : Bean.Strategy.SINGLETON;
 		this.initElements = initElements != null ? Collections.unmodifiableList(initElements) : Collections.emptyList();
 		this.destroyElements = destroyElements != null ? Collections.unmodifiableList(destroyElements) : Collections.emptyList();
+		this.nestedBeanInfos = Collections.emptyList();
 		this.socketInfos = beanSocketInfos != null ? Collections.unmodifiableList(beanSocketInfos) : Collections.emptyList();
 	}
 
@@ -121,5 +126,14 @@ class CommonModuleBeanInfo extends AbstractBeanInfo implements ModuleBeanInfo {
 	@Override
 	public ModuleBeanSocketInfo[] getOptionalSockets() {
 		return this.socketInfos.stream().filter(socketInfo -> socketInfo.isOptional()).toArray(ModuleBeanSocketInfo[]::new);
+	}
+	
+	void setNestedBeanInfos(List<NestedBeanInfo> nestedBeanInfos) {
+		this.nestedBeanInfos = nestedBeanInfos != null ? Collections.unmodifiableList(nestedBeanInfos) : Collections.emptyList();
+	}
+	
+	@Override
+	public BeanInfo[] getNestedBeans() {
+		return this.nestedBeanInfos.stream().toArray(BeanInfo[]::new);
 	}
 }

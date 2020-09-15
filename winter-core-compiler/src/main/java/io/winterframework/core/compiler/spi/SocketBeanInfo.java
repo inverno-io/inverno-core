@@ -50,11 +50,25 @@ public interface SocketBeanInfo extends BeanInfo, SocketInfo {
 
 	/**
 	 * <p>
-	 * Returns the qualified names of all the beans directly or indirectly wired to
-	 * the socket.
+	 * Returns the qualified names of all the beans defined in the enclosing
+	 * directly or indirectly wired to the socket.
 	 * </p>
 	 * 
 	 * @return an array of bean qualified names
 	 */
 	BeanQualifiedName[] getWiredBeans();
+	
+	/**
+	 * <p>
+	 * Determines whether the socket bean is wired within the module.
+	 * </p>
+	 * 
+	 * <p>
+	 * A socket can be wired to a bean defined in the enclosing module or to a
+	 * socket bean defined in a component module.
+	 * </p>
+	 * 
+	 * @return true if the socket is a lazy socket, false otherwise
+	 */
+	boolean isWired();
 }

@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,6 +39,7 @@ import io.winterframework.core.compiler.common.MutableSingleSocketInfo;
 import io.winterframework.core.compiler.common.MutableSocketBeanInfo;
 import io.winterframework.core.compiler.cycle.BeanCycleDetector;
 import io.winterframework.core.compiler.cycle.BeanCycleDetector.CycleInfo;
+import io.winterframework.core.compiler.socket.WirableSocketBeanInfo;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
@@ -46,9 +48,11 @@ import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.QualifiedName;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
+import io.winterframework.core.compiler.spi.SocketInfo;
 import io.winterframework.core.compiler.wire.SocketResolver;
 import io.winterframework.core.compiler.wire.WireInfo;
 import io.winterframework.core.compiler.wire.WireInfoFactory;
@@ -72,12 +76,12 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 	
 	private ModuleInfo[] modules;
 	
-	private ModuleSocketWiredBeansResolver moduleSocketWiredBeansResolver;
+	private ModuleBeanSocketWireResolver moduleSocketWiredBeansResolver;
 	
 	public CompiledModuleInfoBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 		super(processingEnvironment, moduleElement);
 		
-		this.moduleSocketWiredBeansResolver = new ModuleSocketWiredBeansResolver();
+		this.moduleSocketWiredBeansResolver = new ModuleBeanSocketWireResolver();
 		this.beans = new ModuleBeanInfo[0];
 		this.sockets = new SocketBeanInfo[0];
 		this.configurations = new ConfigurationInfo[0];
@@ -119,19 +123,35 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		boolean hasNameConflicts = this.checkNameConflicts();
 		boolean socketsResolved = this.resolveSockets();
 		boolean hasBeanCycles = this.checkBeanCycles();
-		
+
 		CompiledModuleInfo moduleInfo = new CompiledModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleAnnotation, this.moduleQName, this.version, Arrays.asList(this.beans), Arrays.asList(this.sockets), Arrays.asList(this.configurations), Arrays.asList(this.modules));
 		moduleInfo.setFaulty(hasNameConflicts || hasBeanCycles || !socketsResolved);
 		if(!hasBeanCycles) {
 			moduleInfo.accept(this.moduleSocketWiredBeansResolver, null);
 		}
+		this.checkUnwiredSockets();
 		
 		return moduleInfo;
 	}
 	
 	private boolean checkNameConflicts() {
 		// Verify beans with identical name => report a compilation error on both beans at @Bean annotation level
-		Map<String, List<BeanInfo>> beansByName = Stream.concat(Arrays.stream(this.beans), Arrays.stream(this.sockets)).collect(Collectors.groupingBy(bean -> bean.getQualifiedName().getBeanName()));
+		List<BeanInfo> moduleBeanInfos = new ArrayList<>();
+		moduleBeanInfos.addAll(Arrays.asList(this.beans));
+		moduleBeanInfos.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
+		moduleBeanInfos.addAll(Arrays.asList(this.sockets));
+		moduleBeanInfos.addAll(Arrays.stream(this.configurations)
+			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
+			.map(configurationInfo -> configurationInfo.getSocket().get())
+			.collect(Collectors.toList())
+		);
+		moduleBeanInfos.addAll(Arrays.stream(this.configurations)
+			.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
+			.collect(Collectors.toList())
+		);
+		
+		Map<String, List<BeanInfo>> beansByName = moduleBeanInfos.stream().collect(Collectors.groupingBy(beanInfo -> beanInfo.getQualifiedName().getBeanName()));
+		
 		List<String> moduleNames = Arrays.stream(this.modules).map(moduleInfo -> moduleInfo.getQualifiedName().getValue()).collect(Collectors.toList());
 		
 		boolean hasConflicts = false;
@@ -156,11 +176,19 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		
 		List<BeanInfo> wirableBeans = new ArrayList<>();
 		// compiled module beans + sockets + public beans in component modules
-		wirableBeans.addAll(Arrays.stream(this.beans).collect(Collectors.toList()));
+		wirableBeans.addAll(Arrays.asList(this.beans));
+		wirableBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
 		wirableBeans.addAll(Arrays.stream(this.sockets).collect(Collectors.toList()));
-		wirableBeans.addAll(Arrays.stream(this.configurations).map(ConfigurationInfo::getSocket).collect(Collectors.toList()));
+		wirableBeans.addAll(Arrays.stream(this.configurations)
+			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
+			.map(configurationInfo -> configurationInfo.getSocket().get())
+			.collect(Collectors.toList())
+		);
 		// TODO These can actually only be inserted in component module
-		wirableBeans.addAll(Arrays.stream(this.configurations).flatMap(configurationInfo -> Arrays.stream(configurationInfo.getNestedConfigurationProperties())).collect(Collectors.toList())); 
+		wirableBeans.addAll(Arrays.stream(this.configurations)
+			.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
+			.collect(Collectors.toList())
+		);
 		wirableBeans.addAll(Arrays.stream(this.modules).flatMap(moduleInfo -> Arrays.stream(moduleInfo.getPublicBeans())).collect(Collectors.toList()));
 		
 		// Ignore beans with conflicting name
@@ -201,40 +229,57 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 	private boolean resolveSockets() {
 		boolean resolved = true;
 		
-		List<WireInfo<?>> wireInfos = this.extractWireInfos();
+		Map<QualifiedName, List<WireInfo<?>>> wiresByBeanQName = this.extractWireInfos().stream().collect(Collectors.groupingBy(wire -> wire.getInto()));
 		
 		List<BeanInfo> resolverBeans = new ArrayList<>();
 		resolverBeans.addAll(Arrays.asList(this.beans));
+		resolverBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
 		resolverBeans.addAll(Arrays.asList(this.sockets));
-		resolverBeans.addAll(Arrays.stream(this.configurations).map(ConfigurationInfo::getSocket).collect(Collectors.toList()));
+		resolverBeans.addAll(Arrays.stream(this.configurations)
+			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
+			.map(configurationInfo -> configurationInfo.getSocket().get())
+			.collect(Collectors.toList())
+		);
+		resolverBeans.addAll(Arrays.stream(this.configurations)
+			.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
+			.collect(Collectors.toList())
+		);
 		resolverBeans.addAll(Arrays.stream(this.modules)
 			.flatMap(moduleInfo -> Arrays.stream(moduleInfo.getBeans()))
 			.collect(Collectors.toList())
 		);
 		
 		SocketResolver socketResolver = new SocketResolver(this.processingEnvironment, this.moduleQName, resolverBeans);
-
-		Map<QualifiedName, List<WireInfo<?>>> wiresByBeanQName = wireInfos.stream().collect(Collectors.groupingBy(wire -> wire.getInto()));
 		
+		BiConsumer<BeanInfo, SocketInfo> resolvedBeanPostProcessor = (beanInfo, socketInfo) -> {
+			if(beanInfo != null) {
+				BeanInfo actualBeanInfo = beanInfo;
+				while(actualBeanInfo instanceof NestedBeanInfo) {
+					actualBeanInfo = ((NestedBeanInfo)actualBeanInfo).getProvidingBean();
+				}
+				
+				if(actualBeanInfo instanceof SocketBeanInfo) {
+					((MutableSocketBeanInfo)actualBeanInfo).setOptional(socketInfo.isOptional());
+					((WirableSocketBeanInfo)actualBeanInfo).setWired(true);
+				}
+			}
+		};
+
 		for(ModuleBeanInfo beanInfo : this.beans) {
 			for(ModuleBeanSocketInfo socket : beanInfo.getSockets()) {
 				if(MultiSocketInfo.class.isAssignableFrom(socket.getClass())) {
 					BeanInfo[] resolvedBeans = socketResolver.resolve((MultiSocketInfo)socket, wiresByBeanQName.get(socket.getQualifiedName()));
 					((MutableMultiSocketInfo)socket).setBeans(resolvedBeans);
 					
-					if(resolvedBeans != null && !socket.isOptional()) {
-						Arrays.stream(resolvedBeans)
-							.filter(resolvedBeanInfo -> SocketBeanInfo.class.isAssignableFrom(resolvedBeanInfo.getClass()))
-							.forEach(resolvedSocket -> ((MutableSocketBeanInfo)resolvedSocket).setOptional(false));
+					if(resolvedBeans != null) {
+						Arrays.stream(resolvedBeans).forEach(resolvedBeanInfo -> resolvedBeanPostProcessor.accept(resolvedBeanInfo, socket));
 					}
 				}
 				else if(SingleSocketInfo.class.isAssignableFrom(socket.getClass())) {
 					BeanInfo resolvedBean = socketResolver.resolve((SingleSocketInfo)socket, wiresByBeanQName.get(socket.getQualifiedName()));
 					((MutableSingleSocketInfo)socket).setBean(resolvedBean);
 					
-					if(resolvedBean != null && !socket.isOptional() && SocketBeanInfo.class.isAssignableFrom(resolvedBean.getClass())) {
-						((MutableSocketBeanInfo)resolvedBean).setOptional(false);
-					}
+					resolvedBeanPostProcessor.accept(resolvedBean, socket);
 				}
 				else {
 					// This should never happen
@@ -247,8 +292,12 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		for(ModuleInfo moduleInfo : this.modules) {
 			resolverBeans.clear();
 			resolverBeans.addAll(Arrays.asList(this.beans));
+			resolverBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
 			resolverBeans.addAll(Arrays.asList(this.sockets));
-			resolverBeans.addAll(Arrays.stream(this.configurations).flatMap(configurationInfo -> Arrays.stream(configurationInfo.getNestedConfigurationProperties())).collect(Collectors.toList()));
+			resolverBeans.addAll(Arrays.stream(this.configurations)
+				.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
+				.collect(Collectors.toList())
+			);
 			resolverBeans.addAll(Arrays.stream(this.modules)
 				.filter(moduleInfo2  -> !moduleInfo2.equals(moduleInfo))
 				.flatMap(moduleInfo2 -> Arrays.stream(moduleInfo2.getBeans()))
@@ -257,29 +306,33 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 			
 			socketResolver = new SocketResolver(this.processingEnvironment, this.moduleQName, resolverBeans);
 			
-			for(SocketBeanInfo socket : Stream.concat(Arrays.stream(moduleInfo.getSockets()), Arrays.stream(moduleInfo.getConfigurations()).map(ConfigurationInfo::getSocket)).collect(Collectors.toList())) {	
+			for(SocketBeanInfo socket : Stream.concat(Arrays.stream(moduleInfo.getSockets()), Arrays.stream(moduleInfo.getConfigurations()).filter(configurationInfo -> configurationInfo.getSocket().isPresent()).map(configurationInfo -> configurationInfo.getSocket().get()).filter(socketInfo -> socketInfo.isWired())).collect(Collectors.toList())) {	
 				if(MultiSocketInfo.class.isAssignableFrom(socket.getClass())) {
 					BeanInfo[] resolvedBeans = socketResolver.resolve((MultiSocketInfo)socket, wiresByBeanQName.get(socket.getQualifiedName()));
 					((MutableMultiSocketInfo)socket).setBeans(resolvedBeans);
 					
-					if(resolvedBeans != null && !socket.isOptional()) {
-						Arrays.stream(resolvedBeans)
-							.filter(resolvedBeanInfo -> SocketBeanInfo.class.isAssignableFrom(resolvedBeanInfo.getClass()))
-							.forEach(resolvedSocket -> ((MutableSocketBeanInfo)resolvedSocket).setOptional(false));
+					if(resolvedBeans != null) {
+						Arrays.stream(resolvedBeans).forEach(resolvedBeanInfo -> resolvedBeanPostProcessor.accept(resolvedBeanInfo, socket));
 					}
 				}
 				else if(SingleSocketInfo.class.isAssignableFrom(socket.getClass())) {
 					BeanInfo resolvedBean = socketResolver.resolve((SingleSocketInfo)socket, wiresByBeanQName.get(socket.getQualifiedName()));
 					((MutableSingleSocketInfo)socket).setBean(resolvedBean);
 					
-					if(resolvedBean != null && !socket.isOptional() && SocketBeanInfo.class.isAssignableFrom(resolvedBean.getClass())) {
-						((MutableSocketBeanInfo)resolvedBean).setOptional(false);
-					}
+					resolvedBeanPostProcessor.accept(resolvedBean, socket);
 				}
 				resolved = resolved ? socket.isOptional() || socket.isResolved() : false;	
 			}
 		}
 		return resolved;
+	}
+	
+	private void checkUnwiredSockets() {
+		Stream.concat(Arrays.stream(this.sockets), Arrays.stream(this.configurations).filter(configurationInfo -> configurationInfo.getSocket().isPresent()).map(configurationInfo -> configurationInfo.getSocket().get()))
+			.filter(socketBean -> !socketBean.isWired())
+			.forEach(socketBean -> {
+				socketBean.warning("Ignoring socket bean which is not wired");
+			});
 	}
 	
 	private boolean checkBeanCycles() {

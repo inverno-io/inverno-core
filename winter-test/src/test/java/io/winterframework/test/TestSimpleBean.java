@@ -45,14 +45,10 @@ public class TestSimpleBean extends AbstractWinterTest {
 		Assertions.assertNotNull(simpleProxy.getBean("beanB"));
 		
 		Object beanB = simpleProxy.getBean("beanB");
-		Class<?> beanBClass = beanB.getClass();
 		Object beanB_someRunnable = beanB.getClass().getField("someRunnable").get(beanB);
 		Assertions.assertEquals(someRunnable, beanB_someRunnable);
 		
 		Assertions.assertNotNull(simpleProxy.getBean("beanA"));
 		simpleProxy.stop();
 	}
-	
-	
-
 }

@@ -48,4 +48,10 @@ public class BinaryConfigurationSocketBeanInfo extends CommonSingleSocketBeanInf
 			TypeMirror socketType) {
 		super(processingEnvironment, element, annotation, qname, type, socketType, null, true);
 	}
+	
+	@Override
+	public boolean isWired() {
+		// A binary socket is always wired
+		return true;
+	}
 }

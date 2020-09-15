@@ -15,7 +15,6 @@
  */
 package io.winterframework.core.compiler.bean;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -50,7 +49,7 @@ class CompiledWrapperBeanInfo extends CommonModuleBeanInfo implements WrapperBea
 			TypeMirror wrapperType, 
 			TypeMirror type,
 			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
-		this(processingEnvironment, element, annotation, qname, wrapperType, type, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, Collections.emptyList(), Collections.emptyList(), beanSocketInfos);
+		this(processingEnvironment, element, annotation, qname, wrapperType, type, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, null, null, beanSocketInfos);
 	}
 	
 	public CompiledWrapperBeanInfo(

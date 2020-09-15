@@ -44,4 +44,17 @@ public interface BeanInfo extends Info {
 	 * @return a type
 	 */
 	TypeMirror getType();
+	
+	/**
+	 * <p>
+	 * Returns a list of beans nested in this bean, ie. provided by this bean.
+	 * </p>
+	 * 
+	 * <p>
+	 * A nested bean follows the lifecyle of its providing bean.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	BeanInfo[] getNestedBeans();
 }

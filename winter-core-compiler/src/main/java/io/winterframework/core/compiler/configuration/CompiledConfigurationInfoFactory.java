@@ -92,41 +92,43 @@ class CompiledConfigurationInfoFactory extends ConfigurationInfoFactory {
 				configurationAnnotation = annotation;
 			}
 		}
-		if(beanAnnotation == null) {
+		/*if(beanAnnotation == null) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Bean.class.getSimpleName());
-		}
+		}*/
 		if(configurationAnnotation == null) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Configuration.class.getSimpleName());
 		}
 		
-		ReporterInfo beanReporter = this.getReporter(element, beanAnnotation);
+		ReporterInfo beanReporter = this.getReporter(element, configurationAnnotation);
 		
 		if(!element.getKind().equals(ElementKind.INTERFACE)) {
 			// This should never happen, we shouldn't get there if it wasn't an interface
-			beanReporter.error("A configuration bean must be an interface");
+			beanReporter.error("A configuration must be an interface");
 			throw new BeanCompilationException();
 		}
 
-		// Get Bean metadata
+		// Extract bean metadata from the bean annotation when the configuration is bean
 		String name = null;
 		Bean.Visibility visibility = null;
 		Bean.Strategy strategy = null;
-		for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(beanAnnotation).entrySet()) {
-			switch(value.getKey().getSimpleName().toString()) {
-				case "name" : name = (String)value.getValue().getValue();
-					break;
-				case "visibility" : visibility = Bean.Visibility.valueOf(value.getValue().getValue().toString());
-					break;
-				case "strategy" : strategy = Bean.Strategy.valueOf(value.getValue().getValue().toString());
-					break;
+		if(beanAnnotation != null) {
+			for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(beanAnnotation).entrySet()) {
+				switch(value.getKey().getSimpleName().toString()) {
+					case "name" : name = (String)value.getValue().getValue();
+						break;
+					case "visibility" : visibility = Bean.Visibility.valueOf(value.getValue().getValue().toString());
+						break;
+					case "strategy" : strategy = Bean.Strategy.valueOf(value.getValue().getValue().toString());
+						break;
+				}
 			}
-		}
-		
-		if(!visibility.equals(Bean.Visibility.PUBLIC)) {
-			beanReporter.error("A configuration bean must be public");
-		}
-		if(!strategy.equals(Bean.Strategy.SINGLETON)) {
-			beanReporter.error("A configuration bean must be a singleton bean");
+			
+			if(!visibility.equals(Bean.Visibility.PUBLIC)) {
+				beanReporter.error("A configuration bean must be public");
+			}
+			if(!strategy.equals(Bean.Strategy.SINGLETON)) {
+				beanReporter.error("A configuration bean must be a singleton bean");
+			}
 		}
 		
 		// Bean qualified name
@@ -173,7 +175,7 @@ class CompiledConfigurationInfoFactory extends ConfigurationInfoFactory {
 			})
 			.collect(Collectors.toList());
 		
-		return new CompiledConfigurationInfo(this.processingEnvironment, typeElement, beanAnnotation, configurationQName, configurationType, configurationProperties);
+		return new CompiledConfigurationInfo(this.processingEnvironment, typeElement, configurationAnnotation, configurationQName, configurationType, configurationProperties, beanAnnotation != null);
 	}
 	
 	private boolean isNestedConfiguration(ExecutableElement propertyMethod) {

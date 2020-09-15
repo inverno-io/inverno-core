@@ -17,33 +17,36 @@ package io.winterframework.core.compiler.spi;
 
 /**
  * <p>
- * A nested configuration property is a particular type of configuration
- * property that refers to a component module's configuration and which can then
- * be wired to a component module's configuration socket.
+ * A nested bean info holds the data required to process a nested bean in a
+ * module.
+ * </p>
+ * 
+ * <p>
+ * Nested beans are exposed and provided by a bean (module or socket bean) in a
+ * module. They follow the same lifecycle as their providing bean as such they
+ * are not directly exposed on a module.
  * </p>
  * 
  * @author jkuhn
  *
  */
-public interface NestedConfigurationPropertyInfo extends ConfigurationPropertyInfo, NestedBeanInfo {
+public interface NestedBeanInfo extends BeanInfo {
 
 	/**
 	 * <p>
-	 * Returns the nested configuration builder class name.
+	 * Returns the name of the nested bean in the providing bean.
 	 * </p>
 	 * 
-	 * @return a canonical class name
+	 * @return A name
 	 */
-	String getBuilderClassName();
-	
+	String getName();
+
 	/**
 	 * <p>
-	 * Returns the configuration socket bean providing the nested configuration bean
-	 * or null if the configuration is declared as a bean.
+	 * Returns the bean providing the nested bean.
 	 * </p>
 	 * 
-	 * @return A configuration socket bean or null
+	 * @return A bean
 	 */
-	@Override
-	ConfigurationSocketBeanInfo getProvidingBean();
+	BeanInfo getProvidingBean();
 }

@@ -50,6 +50,18 @@ public interface ModuleInfoVisitor<R, P> {
 	 * @return a visitor result
 	 */
 	R visit(BeanInfo beanInfo, P p);
+	
+	/**
+	 * <p>
+	 * Visit nested bean info.
+	 * </p>
+	 * 
+	 * @param beanInfo the info to visit
+	 * @param p        a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
+	R visit(NestedBeanInfo nestedBeanInfo, P p);
 
 	/**
 	 * <p>

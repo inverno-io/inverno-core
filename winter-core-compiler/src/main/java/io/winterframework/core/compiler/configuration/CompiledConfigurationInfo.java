@@ -16,6 +16,7 @@
 package io.winterframework.core.compiler.configuration;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -46,21 +47,21 @@ public class CompiledConfigurationInfo extends AbstractInfo<BeanQualifiedName> i
 	
 	private List<? extends ConfigurationPropertyInfo> configurationProperties;
 	
-	private ConfigurationSocketBeanInfo socketBean;
+	private Optional<ConfigurationSocketBeanInfo> socketBean;
 	
 	public CompiledConfigurationInfo(ProcessingEnvironment processingEnvironment, 
 			Element element,
 			AnnotationMirror annotation, 
 			BeanQualifiedName qname,
 			TypeMirror configurationType,
-			List<? extends CompiledConfigurationPropertyInfo> configurationProperties) {
+			List<? extends CompiledConfigurationPropertyInfo> configurationProperties,
+			boolean bean) {
 		super(processingEnvironment, element, annotation, qname);
 		
 		this.type = configurationType;
-		this.socketBean = new CompiledConfigurationSocketBeanInfo(this.processingEnvironment, element, annotation, qname, type);
-		
 		configurationProperties.stream().forEach(configurationProperty -> configurationProperty.setConfiguration(this));
 		this.configurationProperties = configurationProperties;
+		this.socketBean = bean ? Optional.of(new CompiledConfigurationSocketBeanInfo(this.processingEnvironment, element, annotation, qname, type, this.getNestedConfigurationProperties())) : Optional.empty();
 	}
 
 	@Override
@@ -84,7 +85,7 @@ public class CompiledConfigurationInfo extends AbstractInfo<BeanQualifiedName> i
 	}
 
 	@Override
-	public ConfigurationSocketBeanInfo getSocket() {
+	public Optional<ConfigurationSocketBeanInfo> getSocket() {
 		return this.socketBean;
 	}
 }

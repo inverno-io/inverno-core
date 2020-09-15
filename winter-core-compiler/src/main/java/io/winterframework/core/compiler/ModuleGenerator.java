@@ -18,6 +18,7 @@ package io.winterframework.core.compiler;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -84,34 +85,58 @@ class ModuleGenerator {
 		this.faultyModules = new HashSet<>();
 	}
 	
-	public ModuleGenerator forModules(Map<String, ModuleInfoBuilder> moduleBuilders) {
-		this.moduleBuilders = moduleBuilders;
+	public ModuleGenerator modules(Map<String, ModuleInfoBuilder> moduleBuilders) {
+		this.moduleBuilders = Collections.unmodifiableMap(moduleBuilders);
 		return this;
 	}
 	
-	public ModuleGenerator withOriginatingElements(Map<String, List<Element>> moduleOriginatingElements) {
-		this.moduleOriginatingElements = moduleOriginatingElements;
+	public Map<String, ModuleInfoBuilder> modules() {
+		return this.moduleBuilders;
+	}
+	
+	public ModuleGenerator originatingElements(Map<String, List<Element>> moduleOriginatingElements) {
+		this.moduleOriginatingElements = Collections.unmodifiableMap(moduleOriginatingElements);
 		return this;
 	}
 	
-	public ModuleGenerator withModuleBeans(Map<String, List<ModuleBeanInfo>> moduleBeans) {
-		this.moduleBeans = moduleBeans;
+	public Map<String, List<Element>> originatingElements() {
+		return this.moduleOriginatingElements;
+	}
+	
+	public ModuleGenerator moduleBeans(Map<String, List<ModuleBeanInfo>> moduleBeans) {
+		this.moduleBeans = Collections.unmodifiableMap(moduleBeans);
 		return this;
 	}
 	
-	public ModuleGenerator withModuleSockets(Map<String, List<SocketBeanInfo>> moduleSockets) {
-		this.moduleSockets = moduleSockets;
+	public Map<String, List<ModuleBeanInfo>> moduleBeans() {
+		return this.moduleBeans;
+	}
+	
+	public ModuleGenerator moduleSockets(Map<String, List<SocketBeanInfo>> moduleSockets) {
+		this.moduleSockets = Collections.unmodifiableMap(moduleSockets);
 		return this;
 	}
 	
-	public ModuleGenerator withModuleConfigurations(Map<String, List<ConfigurationInfo>> moduleConfigurations) {
-		this.moduleConfigurations = moduleConfigurations;
+	public Map<String, List<SocketBeanInfo>> moduleSockets() {
+		return this.moduleSockets;
+	}
+	
+	public ModuleGenerator moduleConfigurations(Map<String, List<ConfigurationInfo>> moduleConfigurations) {
+		this.moduleConfigurations = Collections.unmodifiableMap(moduleConfigurations);
 		return this;
 	}
 	
-	public ModuleGenerator withComponentModules(Map<String, List<ModuleInfoBuilder>> componentModuleBuilders) {
-		this.componentModuleBuilders = componentModuleBuilders;
+	public Map<String, List<ConfigurationInfo>> moduleConfigurations() {
+		return this.moduleConfigurations;
+	}
+	
+	public ModuleGenerator componentModules(Map<String, List<ModuleInfoBuilder>> componentModuleBuilders) {
+		this.componentModuleBuilders = Collections.unmodifiableMap(componentModuleBuilders);
 		return this;
+	}
+	
+	public Map<String, List<ModuleInfoBuilder>> componentModules() {
+		return this.componentModuleBuilders;
 	}
 	
 	public boolean generateNextRound() {

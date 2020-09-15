@@ -33,4 +33,6 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
 public interface WirableSocketBeanInfo extends SocketBeanInfo {
 
 	void setWiredBeans(Set<BeanQualifiedName> wiredBeans);
+	
+	void setWired(boolean wired);
 }

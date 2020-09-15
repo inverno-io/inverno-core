@@ -16,6 +16,7 @@
 package io.winterframework.core.compiler.bean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.BeanSocketQualifiedName;
+import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
@@ -71,13 +73,16 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	private TypeMirror wrapperAnnotationType;
 	private TypeMirror supplierType;
 	
+	private Supplier<List<? extends ConfigurationInfo>> configurationInfosSupplier;
+	
 	/**
 	 * @param processingEnvironment
 	 * @param moduleElement
 	 */
-	CompiledModuleBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
+	CompiledModuleBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, Supplier<List<? extends ConfigurationInfo>> configurationInfosSupplier) {
 		super(processingEnvironment, moduleElement);
 		
+		this.configurationInfosSupplier = configurationInfosSupplier;
 		this.beanAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
 		this.provideAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Provide.class.getCanonicalName()).asType();
 		this.wrapperAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wrapper.class.getCanonicalName()).asType();
@@ -301,6 +306,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
 		TypeMirror wrapperType = null;
+		CommonModuleBeanInfo moduleBeanInfo;
 		if(wrapperAnnotation.isPresent()) {
 			wrapperType = beanType;
 			Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
@@ -322,13 +328,23 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			if(beanReporter.hasError()) {
 				throw new BeanCompilationException();
 			}
-			return new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
+			moduleBeanInfo = new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 		else {
 			if(beanReporter.hasError()) {
 				throw new BeanCompilationException();
 			}
-			return new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
+			moduleBeanInfo = new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
+		
+		// Determine whether the bean implements a configuration and create nested beans if applicable
+		Optional.ofNullable(this.configurationInfosSupplier.get()).ifPresent(configurationInfos -> {
+			moduleBeanInfo.setNestedBeanInfos(configurationInfos.stream()
+				.filter(configurationInfo -> this.processingEnvironment.getTypeUtils().isAssignable(moduleBeanInfo.getType(), configurationInfo.getType()))
+				.flatMap(configurationInfo -> Arrays.stream(configurationInfo.getNestedConfigurationProperties()).map(nestedConfigurationPropertyInfo -> new NestedConfigurationBeanInfo(moduleBeanInfo, nestedConfigurationPropertyInfo)))
+				.collect(Collectors.toList()));
+		});
+		
+		return moduleBeanInfo;
 	}
 }

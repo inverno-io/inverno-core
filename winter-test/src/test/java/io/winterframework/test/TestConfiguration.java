@@ -239,7 +239,7 @@ public class TestConfiguration extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnostics().size());
+			Assertions.assertEquals(2, e.getDiagnostics().size());
 			
 			String configurationBeanConflict = "Multiple beans matching socket io.winterframework.test.config.moduleB:beanB:configB were found\n" + 
 					"  - io.winterframework.test.config.moduleB:configB_Bean of type io.winterframework.test.config.moduleB.ConfigB_Bean\n" + 
@@ -247,8 +247,9 @@ public class TestConfiguration extends AbstractWinterTest {
 					"  \n" + 
 					"  Consider specifying an explicit wiring in module io.winterframework.test.config.moduleB (eg. @io.winterframework.core.annotation.Wire(beans=\"io.winterframework.test.config.moduleB:configB_Bean\", into=\"io.winterframework.test.config.moduleB:beanB:configB\") )\n" + 
 					"   ";
-			
-			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(configurationBeanConflict)));
+			String unwiredConfigurationBean = "Ignoring socket bean which is not wired";
+					
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(configurationBeanConflict, unwiredConfigurationBean)));
 		}
 	}
 	
@@ -434,7 +435,7 @@ public class TestConfiguration extends AbstractWinterTest {
 		};
 		
 		try {
-			moduleLoader.load(MODULEC).optionalDependency("configC", Consumer.class, configCConfigurator).build();
+			moduleLoader.load(MODULEC).optionalDependency("configC", Consumer.class, configCConfigurator).build().start();
 			Assertions.fail("Should throw a WinterModuleException with a NullpointerException");
 		} 
 		catch (WinterModuleException e) {
@@ -454,7 +455,7 @@ public class TestConfiguration extends AbstractWinterTest {
                 configCHandler);
 		
 		try {
-			moduleLoader.load(MODULEC).optionalDependency("configC", configCClass, configC).build();
+			moduleLoader.load(MODULEC).optionalDependency("configC", configCClass, configC).build().start();
 			Assertions.fail("Should throw a WinterModuleException with a NullpointerException");
 		} 
 		catch (WinterModuleException e) {
@@ -515,10 +516,10 @@ public class TestConfiguration extends AbstractWinterTest {
 	@Test
 	public void testNestedConfiguration_none_default() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA, MODULED);
-		WinterModuleProxy moduleC = moduleLoader.load(MODULED).build();
-		moduleC.start();
+		WinterModuleProxy moduleD = moduleLoader.load(MODULED).build();
+		moduleD.start();
 		try {
-			Object beanD = moduleC.getBean("beanD");
+			Object beanD = moduleD.getBean("beanD");
 			Assertions.assertNotNull(beanD);
 			
 			Object beanD_configD = beanD.getClass().getField("configD").get(beanD);
@@ -544,7 +545,7 @@ public class TestConfiguration extends AbstractWinterTest {
 			Assertions.assertEquals(Integer.valueOf(1234), beanD_configA_param2);
 		}
 		finally {
-			moduleC.stop();
+			moduleD.stop();
 		}
 	}
 	

@@ -27,6 +27,7 @@ import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.compiler.common.AbstractBeanInfo;
 import io.winterframework.core.compiler.common.MutableSocketBeanInfo;
+import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 
 /**
@@ -39,15 +40,17 @@ import io.winterframework.core.compiler.spi.BeanQualifiedName;
  */
 abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements MutableSocketBeanInfo, WirableSocketBeanInfo {
 
-	private TypeMirror socketType;
+	protected TypeMirror socketType;
 
-	private ExecutableElement socketElement;
+	protected ExecutableElement socketElement;
 	
 	protected AnnotationMirror[] selectors;
 	
-	private boolean optional;
+	protected boolean optional;
 	
-	private Set<BeanQualifiedName> wiredBeans;
+	protected Set<BeanQualifiedName> wiredBeans;
+	
+	protected boolean wired;
 	
 	public AbstractSocketBeanInfo(ProcessingEnvironment processingEnvironment, 
 			Element element,
@@ -107,6 +110,7 @@ abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements Mutabl
 		this.optional = optional;
 	}
 
+	@Override
 	public void setWiredBeans(Set<BeanQualifiedName> wiredBeans) {
 		this.wiredBeans = wiredBeans != null ? Collections.unmodifiableSet(wiredBeans) : Collections.emptySet();
 	}
@@ -114,5 +118,21 @@ abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements Mutabl
 	@Override
 	public BeanQualifiedName[] getWiredBeans() {
 		return this.wiredBeans.stream().toArray(BeanQualifiedName[]::new);
+	}
+
+	@Override
+	public void setWired(boolean wired) {
+		this.wired = wired;
+	}
+	
+	@Override
+	public boolean isWired() {
+		return this.wired;
+	}
+	
+	@Override
+	public BeanInfo[] getNestedBeans() {
+		// Regular socket bean do not provide nested beans
+		return new BeanInfo[0];
 	}
 }

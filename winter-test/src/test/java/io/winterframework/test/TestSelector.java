@@ -95,7 +95,7 @@ public class TestSelector extends AbstractWinterTest {
 	}
 	
 	@Test
-	public void testSelectorSocketBeanImported() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+	public void testSelectorSocketBeanComponent() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		this.clearModuleTarget();
 		this.getWinterCompiler().compile(MODULEB);
 		

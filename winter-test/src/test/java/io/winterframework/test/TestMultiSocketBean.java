@@ -70,7 +70,7 @@ public class TestMultiSocketBean extends AbstractWinterTest {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testMultiSocketBeanImported() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+	public void testMultiSocketBeanComponent() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		this.clearModuleTarget();
 		this.getWinterCompiler().compile(MODULEB);
 		

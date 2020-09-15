@@ -69,7 +69,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  *
  */
 //@SupportedAnnotationTypes({"io.winterframework.core.annotation/io.winterframework.core.annotation.Module","io.winterframework.core.annotation/io.winterframework.core.annotation.Bean"})
-@SupportedAnnotationTypes({"io.winterframework.core.annotation.Module","io.winterframework.core.annotation.Bean"})
+@SupportedAnnotationTypes({"io.winterframework.core.annotation.Module","io.winterframework.core.annotation.Bean","io.winterframework.core.annotation.Configuration"})
 @SupportedOptions({ModuleAnnotationProcessor.Options.DEBUG, ModuleAnnotationProcessor.Options.VERBOSE, ModuleAnnotationProcessor.Options.GENERATE_DESCRIPTOR})
 public class ModuleAnnotationProcessor extends AbstractProcessor {
 
@@ -130,31 +130,64 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 			TypeMirror beanAnnotationType = this.processingEnv.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
 			TypeMirror configurationAnnotationType = this.processingEnv.getElementUtils().getTypeElement(Configuration.class.getCanonicalName()).asType();
 		
+			this.moduleGenerator = new ModuleGenerator(this.processingEnv, options);
+			
 			Map<String, List<Element>> moduleOriginatingElements = new HashMap<>();
 		
 			Map<String, ModuleInfoBuilder> moduleBuilders = new TreeMap<>(Collections.reverseOrder());
 			Map<String, SocketBeanInfoFactory> socketFactories = new TreeMap<>(Collections.reverseOrder());
 			Map<String, ConfigurationInfoFactory> configurationFactories = new TreeMap<>(Collections.reverseOrder());
 			Map<String, ModuleBeanInfoFactory> beanFactories = new TreeMap<>(Collections.reverseOrder());
-		
+			
 			roundEnv.getElementsAnnotatedWith(Module.class).stream()
 				.forEach(element -> {
 					String moduleName = ((ModuleElement)element).getQualifiedName().toString();
-					beanFactories.put(moduleName, ModuleBeanInfoFactory.create(this.processingEnv, (ModuleElement)element));
-					socketFactories.put(moduleName, SocketBeanInfoFactory.create(this.processingEnv, (ModuleElement)element));
-					configurationFactories.put(moduleName, ConfigurationInfoFactory.create(this.processingEnv, (ModuleElement)element));
-					
-					moduleBuilders.put(moduleName, ModuleInfoBuilderFactory.createModuleBuilder(this.processingEnv, (ModuleElement)element));
+					ModuleInfoBuilder moduleInfoBuilder = ModuleInfoBuilderFactory.createModuleBuilder(this.processingEnv, (ModuleElement)element);
+					moduleBuilders.put(moduleName, moduleInfoBuilder);
 					if(!moduleOriginatingElements.containsKey(moduleName)) {
 						moduleOriginatingElements.put(moduleName, new ArrayList<>());
 					}
 					moduleOriginatingElements.get(moduleName).add(element);
+					
+					beanFactories.put(moduleName, ModuleBeanInfoFactory.create(this.processingEnv, (ModuleElement)element, () -> this.moduleGenerator.moduleConfigurations().get(moduleName)));
+					socketFactories.put(moduleName, SocketBeanInfoFactory.create(this.processingEnv, (ModuleElement)element));
+					configurationFactories.put(moduleName, ConfigurationInfoFactory.create(this.processingEnv, (ModuleElement)element));
 				});
 			
-			this.moduleGenerator = new ModuleGenerator(this.processingEnv, options)
-				.forModules(moduleBuilders)
-				.withOriginatingElements(moduleOriginatingElements)
-				.withModuleBeans(roundEnv.getElementsAnnotatedWith(Bean.class).stream()
+			this.moduleGenerator.modules(moduleBuilders)
+				.moduleConfigurations(roundEnv.getElementsAnnotatedWith(Configuration.class).stream() // Configurations should come first since they are required to create module beans
+					.filter(element -> element.getKind().equals(ElementKind.INTERFACE))
+					.filter(element -> element.getAnnotationMirrors().stream().anyMatch(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), configurationAnnotationType)))
+					.map(element -> {
+						ConfigurationInfoFactory configurationFactory = null;
+						for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
+							if(moduleElement instanceof ModuleElement) {
+								configurationFactory = configurationFactories.get(((ModuleElement) moduleElement).getQualifiedName().toString());
+								break;
+							}
+						}
+						AnnotationMirror configurationAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), configurationAnnotationType)).findFirst().get();
+						if(configurationFactory == null) {
+							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Configuration bean might be out of sync with the module please consider recompiling the module" , element, configurationAnnotation );
+							return null;
+						}
+						ConfigurationInfo configuration;
+						try {
+							configuration = configurationFactory.createConfiguration(element);
+						} 
+						catch (BeanCompilationException | TypeErrorException e) {
+							return null;
+						}
+						catch (Exception e) {
+							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Unable to create configuration bean: " + e.getMessage() , element, configurationAnnotation);
+							return null;
+						}
+						moduleOriginatingElements.get(configuration.getQualifiedName().getModuleQName().getValue()).add(element);
+						return configuration;
+					})
+					.filter(Objects::nonNull)
+					.collect(Collectors.groupingBy(configuration -> configuration.getQualifiedName().getModuleQName().getValue())))
+				.moduleBeans(roundEnv.getElementsAnnotatedWith(Bean.class).stream()
 					.filter(element -> element.getKind().equals(ElementKind.CLASS))
 					.map(element -> {
 						ModuleBeanInfoFactory beanFactory = null;
@@ -164,7 +197,6 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 								break;
 							}
 						}
-//						ModuleBeanInfoFactory beanFactory = beanFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
 						AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 						if(beanFactory == null) {
 							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Bean might be out of sync with the module please consider recompiling the module" , element, beanAnnotation );
@@ -188,7 +220,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 					})
 					.filter(Objects::nonNull)
 					.collect(Collectors.groupingBy(moduleBean -> moduleBean.getQualifiedName().getModuleQName().getValue())))
-				.withModuleSockets(roundEnv.getElementsAnnotatedWith(Bean.class).stream()
+				.moduleSockets(roundEnv.getElementsAnnotatedWith(Bean.class).stream()
 					.filter(element -> element.getKind().equals(ElementKind.INTERFACE))
 					.filter(element -> element.getAnnotationMirrors().stream().noneMatch(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), configurationAnnotationType)))
 					.map(element -> {
@@ -199,7 +231,6 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 								break;
 							}
 						}
-//						SocketBeanInfoFactory socketFactory = socketFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
 						AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
 						if(socketFactory == null) {
 							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Module socket bean might be out of sync with the module please consider recompiling the module" , element, beanAnnotation );
@@ -221,41 +252,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 					})
 					.filter(Objects::nonNull)
 					.collect(Collectors.groupingBy(socket -> socket.getQualifiedName().getModuleQName().getValue())))
-				.withModuleConfigurations(roundEnv.getElementsAnnotatedWith(Bean.class).stream()
-					.filter(element -> element.getKind().equals(ElementKind.INTERFACE))
-					.filter(element -> element.getAnnotationMirrors().stream().anyMatch(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), configurationAnnotationType)))
-					.map(element -> {
-						ConfigurationInfoFactory configurationFactory = null;
-						for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
-							if(moduleElement instanceof ModuleElement) {
-								configurationFactory = configurationFactories.get(((ModuleElement) moduleElement).getQualifiedName().toString());
-								break;
-							}
-						}
-//						ConfigurationInfoFactory configurationFactory = configurationFactories.get(((ModuleElement)element.getEnclosingElement().getEnclosingElement()).getQualifiedName().toString());
-						AnnotationMirror beanAnnotation = element.getAnnotationMirrors().stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), beanAnnotationType)).findFirst().get();
-						if(configurationFactory == null) {
-							this.processingEnv.getMessager().printMessage(Kind.MANDATORY_WARNING, "Configuration bean might be out of sync with the module please consider recompiling the module" , element, beanAnnotation );
-							return null;
-						}
-						ConfigurationInfo configuration;
-						try {
-							configuration = configurationFactory.createConfiguration(element);
-						} 
-						catch (BeanCompilationException | TypeErrorException e) {
-							return null;
-						}
-						catch (Exception e) {
-							e.printStackTrace();
-							this.processingEnv.getMessager().printMessage(Kind.WARNING, "Unable to create configuration bean: " + e.getMessage() , element, beanAnnotation );
-							return null;
-						}
-						moduleOriginatingElements.get(configuration.getQualifiedName().getModuleQName().getValue()).add(element);
-						return configuration;
-					})
-					.filter(Objects::nonNull)
-					.collect(Collectors.groupingBy(configuration -> configuration.getQualifiedName().getModuleQName().getValue())))
-				.withComponentModules(roundEnv.getElementsAnnotatedWith(Module.class).stream()
+				.componentModules(roundEnv.getElementsAnnotatedWith(Module.class).stream()
 					.collect(Collectors.toMap(
 						element -> ((ModuleElement)element).getQualifiedName().toString(), 
 						element -> {
@@ -300,7 +297,8 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 								})
 								.collect(Collectors.toList());
 						}))
-				);
+				)
+				.originatingElements(moduleOriginatingElements);
 		}
 		this.moduleGenerator.generateNextRound();
 		return true;
@@ -339,7 +337,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 
 		componentModuleBuilder.sockets(componentModuleSockets.stream().toArray(SocketBeanInfo[]::new));
 
-		ModuleBeanInfoFactory componentModuleBeanFactory = ModuleBeanInfoFactory.create(this.processingEnv, moduleElement, componentModuleElement, componentModuleSockets, 1);
+		ModuleBeanInfoFactory componentModuleBeanFactory = ModuleBeanInfoFactory.create(this.processingEnv, moduleElement, componentModuleElement, () -> componentModuleSockets, 1);
 		List<? extends ModuleBeanInfo> componentModuleBeans = moduleType.getEnclosedElements().stream()
 			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getModifiers().contains(Modifier.PUBLIC) && !e.getModifiers().contains(Modifier.STATIC) && ((ExecutableElement)e).getParameters().size() == 0)
 			.map(e -> {

@@ -213,11 +213,12 @@ public class TestExplicitWire extends AbstractWinterTest {
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(1, e.getDiagnostics().size());
+			Assertions.assertEquals(2, e.getDiagnostics().size());
 			
 			String wireBeanToSocketSameModuleMessage = "You can't wire beans to a socket bean defined in the same module";
+			String unwiredSocketMessage = "Ignoring socket bean which is not wired";
 			
-			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(wireBeanToSocketSameModuleMessage)));
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(wireBeanToSocketSameModuleMessage, unwiredSocketMessage)));
 		}
 	}
 	

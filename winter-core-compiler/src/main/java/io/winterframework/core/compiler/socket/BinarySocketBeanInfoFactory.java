@@ -194,6 +194,9 @@ class BinarySocketBeanInfoFactory extends SocketBeanInfoFactory {
 			moduleSocketInfo = new CommonSingleSocketBeanInfo(this.processingEnvironment, this.compiledModuleElement, socketQName, beanType, socketType, socketElement, selectors, optional);
 		}
 		
+		// A binary socket is always wired
+		moduleSocketInfo.setWired(true);
+		
 		return moduleSocketInfo;
 	}
 	

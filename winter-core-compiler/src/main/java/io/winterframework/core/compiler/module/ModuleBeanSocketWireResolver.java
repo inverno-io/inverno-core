@@ -35,6 +35,7 @@ import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
 import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
@@ -45,13 +46,14 @@ import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 /**
  * <p>
  * Traverses the bean graph of a module and populates module's socket bean info
- * with the direct and indirect beans they are wired to.
+ * with the direct and indirect beans they are wired to in order to detect
+ * dependency cycles when a module is used as a component module
  * </p>
  * 
  * @author jkuhn
  *
  */
-class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<BeanQualifiedName>> {
+class ModuleBeanSocketWireResolver implements ModuleInfoVisitor<Void, Set<BeanQualifiedName>> {
 
 	private ModuleQualifiedName moduleQName;
 	
@@ -70,6 +72,9 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 		if(beanInfo == null) {
 			return null;
 		}
+		else if(NestedBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
+			return this.visit((NestedBeanInfo)beanInfo, wiredBeans);
+		}
 		if(ModuleBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
 			return this.visit((ModuleBeanInfo)beanInfo, wiredBeans);
 		}
@@ -77,6 +82,11 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 			return this.visit((SocketBeanInfo)beanInfo, wiredBeans);
 		}
 		return null;
+	}
+	
+	@Override
+	public Void visit(NestedBeanInfo nestedBeanInfo, Set<BeanQualifiedName> wiredBeans) {
+		return this.visit(nestedBeanInfo.getProvidingBean(), wiredBeans);
 	}
 
 	@Override
@@ -127,7 +137,7 @@ class ModuleSocketWiredBeansResolver implements ModuleInfoVisitor<Void, Set<Bean
 			((WirableSocketBeanInfo)moduleSocketInfo).setWiredBeans(wiredBeans.stream().filter(beanQName -> beanQName.getModuleQName().equals(this.moduleQName)).collect(Collectors.toSet()));
 		}
 		else {
-			// required module
+			// component module
 			if(SingleSocketBeanInfo.class.isAssignableFrom(moduleSocketInfo.getClass())) {
 				return this.visit((SingleSocketBeanInfo)moduleSocketInfo, wiredBeans);
 			}

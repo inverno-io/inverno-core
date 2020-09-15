@@ -31,6 +31,7 @@ import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
 import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
 import io.winterframework.core.compiler.spi.MultiSocketType;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
 import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
@@ -99,20 +100,26 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 
 	@Override
 	public String visit(BeanInfo beanInfo, String pad) {
-		if(beanInfo instanceof ModuleBeanInfo) {
+		if(beanInfo instanceof NestedBeanInfo) {
+			return this.visit((NestedBeanInfo)beanInfo, pad);
+		}
+		else if(beanInfo instanceof ModuleBeanInfo) {
 			return this.visit((ModuleBeanInfo)beanInfo, pad);
 		}
 		else if(beanInfo instanceof SocketBeanInfo) {
 			return this.visit((SocketBeanInfo)beanInfo, pad);
 		}
-		else {
-			StringBuilder result = new StringBuilder();
-			result.append(pad).append("- ").append("name: ").append(beanInfo.getQualifiedName().getSimpleValue()).append("\n");
-			result.append(pad).append("  ").append("type: ").append(beanInfo.getType().toString()).append("\n");
-			return result.toString();
-		}
+		return "";
 	}
 
+	@Override
+	public String visit(NestedBeanInfo nestedBeanInfo, String pad) {
+		StringBuilder result = new StringBuilder();
+		result.append(pad).append("- ").append("name: ").append(nestedBeanInfo.getQualifiedName().getSimpleValue()).append("\n");
+		result.append(pad).append("  ").append("type: ").append(nestedBeanInfo.getType().toString());
+		return result.toString();
+	}
+	
 	@Override
 	public String visit(ModuleBeanInfo moduleBeanInfo, String pad) {
 		StringBuilder result = new StringBuilder();
@@ -134,10 +141,14 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 		if(moduleBeanInfo.getDestroyElements().length > 0) {
 			result.append(Arrays.stream(moduleBeanInfo.getDestroyElements()).map(destroy -> pad +  "  " +  this.indent +  "- " + destroy.toString()).collect(Collectors.joining("\n"))).append("\n");
 		}
-		result.append(pad).append("  ").append("sockets:");
+		result.append(pad).append("  ").append("sockets:").append("\n");
 		if(moduleBeanInfo.getSockets().length > 0) {
+			result.append(Arrays.stream(moduleBeanInfo.getSockets()).map(socket -> this.visit(socket, pad + "  " + this.indent)).collect(Collectors.joining("\n"))).append("\n");
+		}
+		result.append(pad).append("  ").append("nestedBeans:");
+		if(moduleBeanInfo.getNestedBeans().length > 0) {
 			result.append("\n");
-			result.append(Arrays.stream(moduleBeanInfo.getSockets()).map(socket -> this.visit(socket, pad + "  " + this.indent)).collect(Collectors.joining("\n")));
+			result.append(Arrays.stream(moduleBeanInfo.getNestedBeans()).map(beanInfo -> this.visit(beanInfo, pad + "  " + this.indent)).collect(Collectors.joining("\n")));
 		}
 		return result.toString();
 	}
@@ -182,10 +193,15 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 		}
 		result.append("\n");
 		result.append(pad).append("  ").append("socketType: ").append(moduleSocketInfo.getSocketType().toString()).append("\n");
-		result.append(pad).append("  ").append("wiredTo:");
+		result.append(pad).append("  ").append("wired: ").append(moduleSocketInfo.isWired()).append("\n");
+		result.append(pad).append("  ").append("wiredTo:").append("\n");
 		if(moduleSocketInfo.getWiredBeans().length > 0) {
+			result.append(Arrays.stream(moduleSocketInfo.getWiredBeans()).map(beanQName -> pad + "  " + this.indent + "- " + beanQName.toString()).collect(Collectors.joining("\n"))).append("\n");
+		}
+		result.append(pad).append("  ").append("nestedBeans:");
+		if(moduleSocketInfo.getNestedBeans().length > 0) {
 			result.append("\n");
-			result.append(Arrays.stream(moduleSocketInfo.getWiredBeans()).map(beanQName -> pad + "  " + this.indent + "- " + beanQName.toString()).collect(Collectors.joining("\n")));
+			result.append(Arrays.stream(moduleSocketInfo.getNestedBeans()).map(beanInfo -> this.visit(beanInfo, pad + "  " + this.indent)).collect(Collectors.joining("\n")));
 		}
 		return result.toString();
 	}
@@ -295,10 +311,12 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 			else {
 				return this.visit(configurationPropertyInfo, pad + "  " + this.indent);
 			}
-		}).collect(Collectors.joining("\n"))).append("\n");
-		result.append(pad).append("  ").append("socket: ").append("\n");
-		result.append(this.visit(configurationInfo.getSocket(), pad + "  " + this.indent));
-		
+		}).collect(Collectors.joining("\n")));
+		if(configurationInfo.getSocket().isPresent()) {
+			result.append("\n");
+			result.append(pad).append("  ").append("socket: ").append("\n");
+			result.append(this.visit(configurationInfo.getSocket().get(), pad + "  " + this.indent));
+		}
 		return result.toString();
 	}
 	
@@ -315,9 +333,7 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 	public String visit(NestedConfigurationPropertyInfo nestedConfigurationPropertyInfo, String pad) {
 		StringBuilder result = new StringBuilder();
 		result.append(this.visit((ConfigurationPropertyInfo)nestedConfigurationPropertyInfo, pad)).append("\n");
-		result.append(pad).append("  ").append("builderType: ").append(nestedConfigurationPropertyInfo.getBuilderClassName().toString()).append("\n");
-		result.append(pad).append("  ").append("bean:").append("\n");
-		result.append(this.visit((BeanInfo)nestedConfigurationPropertyInfo, pad + this.indent));
+		result.append(pad).append("  ").append("builderType: ").append(nestedConfigurationPropertyInfo.getBuilderClassName().toString());
 		
 		return result.toString(); 
 	}
