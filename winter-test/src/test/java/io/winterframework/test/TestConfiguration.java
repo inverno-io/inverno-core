@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,7 @@ public class TestConfiguration extends AbstractWinterTest {
 	private static final String MODULEB = "io.winterframework.test.config.moduleB";
 	private static final String MODULEC = "io.winterframework.test.config.moduleC";
 	private static final String MODULED = "io.winterframework.test.config.moduleD";
+	private static final String MODULEE = "io.winterframework.test.config.moduleE";
 
 	private static class ConfigurationInvocationHandler implements InvocationHandler {
 		
@@ -121,6 +123,24 @@ public class TestConfiguration extends AbstractWinterTest {
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
 			throw new RuntimeException(e);
+		}
+	}
+	
+	@Test
+	public void testConfigurationTypeNameConflict() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, ClassNotFoundException {
+		try {
+			this.getWinterCompiler().compile(MODULEE);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			List<String> messages = e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList());
+			
+			Assertions.assertEquals(2, messages.size());
+			
+			String configurationTypeNameConflict = "Multiple configurations with type name ConfigE exist in module io.winterframework.test.config.moduleE";
+
+			Assertions.assertEquals(configurationTypeNameConflict, messages.get(0));
+			Assertions.assertEquals(configurationTypeNameConflict, messages.get(1));
 		}
 	}
 	

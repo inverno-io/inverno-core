@@ -92,9 +92,6 @@ class CompiledConfigurationInfoFactory extends ConfigurationInfoFactory {
 				configurationAnnotation = annotation;
 			}
 		}
-		/*if(beanAnnotation == null) {
-			throw new IllegalArgumentException("The specified element is not annotated with " + Bean.class.getSimpleName());
-		}*/
 		if(configurationAnnotation == null) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Configuration.class.getSimpleName());
 		}

@@ -167,6 +167,18 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 				hasConflicts = true;
 			}
 		}
+		
+		// Check configuration conflict
+		Map<String, List<ConfigurationInfo>> configurationsByType = Arrays.stream(this.configurations)
+			.collect(Collectors.groupingBy(configurationInfo -> this.processingEnvironment.getTypeUtils().asElement(configurationInfo.getType()).getSimpleName().toString()));
+		
+		for(Entry<String, List<ConfigurationInfo>> e : configurationsByType.entrySet()) {
+			if(e.getValue().size() > 1) {
+				e.getValue().stream().forEach(configurationInfo -> configurationInfo.error("Multiple configurations with type name " + e.getKey() + " exist in module " + this.moduleQName));
+				hasConflicts = true;
+			}
+		}
+		
 		return hasConflicts;
 	}
 	
