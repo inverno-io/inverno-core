@@ -33,6 +33,7 @@ import com.sun.net.httpserver.HttpHandler;
 
 import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
+import io.winterframework.core.test.WinterModuleLoader;
 import io.winterframework.core.test.WinterModuleProxy;
 import io.winterframework.core.test.WinterModuleProxyBuilder;
 
@@ -47,6 +48,7 @@ public class TestSocketBean extends AbstractWinterTest {
 	private static final String MODULED = "io.winterframework.test.socketbean.moduleD";
 	private static final String MODULEE = "io.winterframework.test.socketbean.moduleE";
 	private static final String MODULEF = "io.winterframework.test.socketbean.moduleF";
+	private static final String MODULEH = "io.winterframework.test.socketbean.moduleH";
 
 	private WinterModuleProxyBuilder moduleProxyBuilder;
 	
@@ -254,6 +256,19 @@ public class TestSocketBean extends AbstractWinterTest {
 			String beanModuleNameConflict = "Invalid socket bean qualified name: QName part must be a valid Java identifier: # invalid 123";
 			
 			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(beanModuleNameConflict)));
+		}
+	}
+	
+	@Test
+	public void testIgnoreUnwired() throws IOException, WinterCompilationException {
+		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEH);
+		
+		try {
+			moduleLoader.load(MODULEH).optionalDependency("unwiredSocket", "").build();
+			Assertions.fail("Should throw an IllegalArgumentException: unwired socket is ignored");
+		} 
+		catch (IllegalArgumentException e) {
+			Assertions.assertEquals("No dependency unwiredSocket exists on module io.winterframework.test.socketbean.moduleH", e.getMessage());
 		}
 	}
 }
