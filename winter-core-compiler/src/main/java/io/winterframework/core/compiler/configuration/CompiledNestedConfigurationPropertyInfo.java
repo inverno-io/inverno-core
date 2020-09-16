@@ -22,10 +22,10 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.compiler.module.ModuleMetadataExtractor;
-import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ConfigurationPropertyInfo;
 import io.winterframework.core.compiler.spi.ConfigurationSocketBeanInfo;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
 
 /**
@@ -39,6 +39,8 @@ import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
  */
 public class CompiledNestedConfigurationPropertyInfo extends CompiledConfigurationPropertyInfo implements NestedConfigurationPropertyInfo {
 
+	private ExecutableElement accessorElement;
+	
 	private BeanQualifiedName qname;
 	
 	private String configuratorClassName;
@@ -63,7 +65,7 @@ public class CompiledNestedConfigurationPropertyInfo extends CompiledConfigurati
 		}
 		return null;
 	}
-
+	
 	@Override
 	public String getConfiguratorClassName() {
 		return this.configuratorClassName;
@@ -80,7 +82,12 @@ public class CompiledNestedConfigurationPropertyInfo extends CompiledConfigurati
 	}
 	
 	@Override
-	public BeanInfo[] getNestedBeans() {
-		return new BeanInfo[0];
+	public NestedBeanInfo[] getNestedBeans() {
+		return new NestedBeanInfo[0];
+	}
+
+	@Override
+	public ExecutableElement getAccessorElement() {
+		return this.accessorElement;
 	}
 }

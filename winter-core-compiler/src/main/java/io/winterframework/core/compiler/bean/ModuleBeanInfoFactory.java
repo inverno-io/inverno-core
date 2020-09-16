@@ -24,7 +24,6 @@ import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.common.AbstractInfoFactory;
-import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
@@ -44,8 +43,8 @@ public abstract class ModuleBeanInfoFactory extends AbstractInfoFactory {
 		super(processingEnvironment, moduleElement);
 	}
 
-	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, Supplier<List<? extends ConfigurationInfo>> configurationInfosSupplier) {
-		return new CompiledModuleBeanInfoFactory(processingEnvironment, moduleElement, configurationInfosSupplier);
+	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
+		return new CompiledModuleBeanInfoFactory(processingEnvironment, moduleElement);
 	}
 	
 	public static ModuleBeanInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleElement requiredModuleElement, Supplier<List<? extends SocketBeanInfo>> moduleSocketInfosSupplier, Integer version) {

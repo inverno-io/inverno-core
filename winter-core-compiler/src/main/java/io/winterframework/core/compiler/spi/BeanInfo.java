@@ -56,5 +56,5 @@ public interface BeanInfo extends Info {
 	 * 
 	 * @return
 	 */
-	BeanInfo[] getNestedBeans();
+	NestedBeanInfo[] getNestedBeans();
 }

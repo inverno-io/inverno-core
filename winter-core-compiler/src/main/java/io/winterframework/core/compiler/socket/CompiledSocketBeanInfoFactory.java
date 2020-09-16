@@ -16,8 +16,10 @@
 package io.winterframework.core.compiler.socket;
 
 import java.util.Map.Entry;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -28,16 +30,21 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
 import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.annotation.NestedBean;
 import io.winterframework.core.annotation.Selector;
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.TypeErrorException;
+import io.winterframework.core.compiler.common.CompiledNestedBeanInfo;
 import io.winterframework.core.compiler.common.ReporterInfo;
+import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketType;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
@@ -153,7 +160,27 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			return new CommonMultiSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, this.getComponentType(socketType), typeElement.asType(), selectors, true, multiType);
 		}
 		else {
-			return new CommonSingleSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, socketType, typeElement.asType(), selectors, true);
+			CommonSingleSocketBeanInfo socketBeanInfo = new CommonSingleSocketBeanInfo(this.processingEnvironment, typeElement, annotation.get(), socketQName, socketType, typeElement.asType(), selectors, true);
+			socketBeanInfo.setNestedBeans(this.extractNestedBeans(typeElement, socketBeanInfo));
+			return socketBeanInfo;
 		}
+	}
+	
+	// TODO this doesn't seem to support generics properly
+	// TODO we could also report some error on the socket when a nested bean is not declared properly
+	private List<NestedBeanInfo> extractNestedBeans(Element element, BeanInfo providingBean) {
+		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
+			return List.of();
+		}
+		return element.getEnclosedElements().stream()
+			.filter(e -> e.getAnnotation(NestedBean.class) != null)
+			.map(e -> (ExecutableElement)e)
+			.filter(e -> e.getParameters().size() > 0 && e.getReturnType().getKind().equals(TypeKind.VOID))
+			.map(e -> {
+				CompiledNestedBeanInfo nestedBeanInfo = new CompiledNestedBeanInfo(this.processingEnvironment, e, providingBean);
+				nestedBeanInfo.setNestedBeans(this.extractNestedBeans(this.processingEnvironment.getTypeUtils().asElement(e.getReturnType()), nestedBeanInfo));
+				return nestedBeanInfo;
+			})
+			.collect(Collectors.toList());
 	}
 }

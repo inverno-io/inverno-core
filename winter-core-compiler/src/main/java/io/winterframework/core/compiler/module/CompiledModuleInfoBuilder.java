@@ -140,6 +140,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		moduleBeanInfos.addAll(Arrays.asList(this.beans));
 		moduleBeanInfos.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
 		moduleBeanInfos.addAll(Arrays.asList(this.sockets));
+		moduleBeanInfos.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).collect(Collectors.toList()));
 		moduleBeanInfos.addAll(Arrays.stream(this.configurations)
 			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
 			.map(configurationInfo -> configurationInfo.getSocket().get())
@@ -191,6 +192,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		wirableBeans.addAll(Arrays.asList(this.beans));
 		wirableBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
 		wirableBeans.addAll(Arrays.stream(this.sockets).collect(Collectors.toList()));
+		wirableBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).collect(Collectors.toList()));
 		wirableBeans.addAll(Arrays.stream(this.configurations)
 			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
 			.map(configurationInfo -> configurationInfo.getSocket().get())
@@ -247,6 +249,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		resolverBeans.addAll(Arrays.asList(this.beans));
 		resolverBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
 		resolverBeans.addAll(Arrays.asList(this.sockets));
+		resolverBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).collect(Collectors.toList()));
 		resolverBeans.addAll(Arrays.stream(this.configurations)
 			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
 			.map(configurationInfo -> configurationInfo.getSocket().get())
@@ -306,6 +309,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 			resolverBeans.addAll(Arrays.asList(this.beans));
 			resolverBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
 			resolverBeans.addAll(Arrays.asList(this.sockets));
+			resolverBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).collect(Collectors.toList()));
 			resolverBeans.addAll(Arrays.stream(this.configurations)
 				.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
 				.collect(Collectors.toList())

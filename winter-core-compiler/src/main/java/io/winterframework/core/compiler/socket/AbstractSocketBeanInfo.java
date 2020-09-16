@@ -27,7 +27,6 @@ import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.compiler.common.AbstractBeanInfo;
 import io.winterframework.core.compiler.common.MutableSocketBeanInfo;
-import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 
 /**
@@ -128,11 +127,5 @@ abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements Mutabl
 	@Override
 	public boolean isWired() {
 		return this.wired;
-	}
-	
-	@Override
-	public BeanInfo[] getNestedBeans() {
-		// Regular socket bean do not provide nested beans
-		return new BeanInfo[0];
 	}
 }

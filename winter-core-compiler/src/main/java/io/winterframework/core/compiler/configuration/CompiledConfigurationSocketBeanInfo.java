@@ -33,6 +33,7 @@ import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ConfigurationSocketBeanInfo;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
 
 /**
@@ -120,7 +121,7 @@ public class CompiledConfigurationSocketBeanInfo extends AbstractBeanInfo implem
 	}
 	
 	@Override
-	public BeanInfo[] getNestedBeans() {
+	public NestedBeanInfo[] getNestedBeans() {
 		return this.nestedConfigurationProperties;
 	}
 	

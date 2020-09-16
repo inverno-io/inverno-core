@@ -27,6 +27,7 @@ import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketType;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 
 /**
  * <p>
@@ -88,5 +89,10 @@ class CommonMultiSocketBeanInfo extends AbstractSocketBeanInfo implements MultiS
 	@Override
 	public MultiSocketType getMultiType() {
 		return this.multiType;
+	}
+	
+	@Override
+	public NestedBeanInfo[] getNestedBeans() {
+		return new NestedBeanInfo[0];
 	}
 }

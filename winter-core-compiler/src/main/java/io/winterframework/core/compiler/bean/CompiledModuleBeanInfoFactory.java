@@ -16,7 +16,6 @@
 package io.winterframework.core.compiler.bean;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,7 @@ import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
@@ -44,16 +44,19 @@ import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.BeanSocket;
 import io.winterframework.core.annotation.Destroy;
 import io.winterframework.core.annotation.Init;
+import io.winterframework.core.annotation.NestedBean;
 import io.winterframework.core.annotation.Provide;
 import io.winterframework.core.annotation.Wrapper;
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.TypeErrorException;
+import io.winterframework.core.compiler.common.CompiledNestedBeanInfo;
 import io.winterframework.core.compiler.common.ReporterInfo;
+import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.BeanSocketQualifiedName;
-import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
 
 /**
@@ -73,16 +76,13 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	private TypeMirror wrapperAnnotationType;
 	private TypeMirror supplierType;
 	
-	private Supplier<List<? extends ConfigurationInfo>> configurationInfosSupplier;
-	
 	/**
 	 * @param processingEnvironment
 	 * @param moduleElement
 	 */
-	CompiledModuleBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, Supplier<List<? extends ConfigurationInfo>> configurationInfosSupplier) {
+	CompiledModuleBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 		super(processingEnvironment, moduleElement);
 		
-		this.configurationInfosSupplier = configurationInfosSupplier;
 		this.beanAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
 		this.provideAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Provide.class.getCanonicalName()).asType();
 		this.wrapperAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wrapper.class.getCanonicalName()).asType();
@@ -100,7 +100,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		TypeElement typeElement = (TypeElement)element;
 		
-		for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
+		for(Element moduleElement = typeElement; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
 			if(moduleElement instanceof ModuleElement && !moduleElement.equals(this.moduleElement)) {
 				throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 			}
@@ -110,13 +110,13 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 		}*/
 		
-		Optional<? extends AnnotationMirror> beanAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.beanAnnotationType)).findFirst();
+		Optional<? extends AnnotationMirror> beanAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.beanAnnotationType)).findFirst();
 		if(!beanAnnotation.isPresent()) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Bean.class.getSimpleName());
 		}
 		
-		ReporterInfo beanReporter = this.getReporter(element, beanAnnotation.get());
-		if(!element.getKind().equals(ElementKind.CLASS) || element.getModifiers().contains(Modifier.ABSTRACT)) {
+		ReporterInfo beanReporter = this.getReporter(typeElement, beanAnnotation.get());
+		if(typeElement.getModifiers().contains(Modifier.ABSTRACT)) {
 			beanReporter.error("A bean must be a concrete class");
 			throw new BeanCompilationException();
 		}
@@ -138,7 +138,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		// Bean qualified name
 		if(name == null || name.equals("")) {
-			name = element.getSimpleName().toString();
+			name = typeElement.getSimpleName().toString();
 			name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
 		}
 		
@@ -173,7 +173,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		}
 		
 		// Get Init
-		List<ExecutableElement> initElements = element.getEnclosedElements().stream()
+		List<ExecutableElement> initElements = typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getAnnotation(Init.class) != null)
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {
@@ -185,7 +185,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			}).collect(Collectors.toList());
 		
 		// Get Destroy
-		List<ExecutableElement> destroyElements = element.getEnclosedElements().stream()
+		List<ExecutableElement> destroyElements = typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getAnnotation(Destroy.class) != null)
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {
@@ -204,7 +204,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		// ... from Constructor
 		ExecutableElement constructorSocketElement = null;
 		
-		List<ExecutableElement> constructorSocketElements = element.getEnclosedElements().stream()
+		List<ExecutableElement> constructorSocketElements = typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getKind().equals(ElementKind.CONSTRUCTOR))
 			.filter(e -> e.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PUBLIC)))
 			.map(e -> (ExecutableElement)e)
@@ -248,7 +248,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		// ... from setters
 		// Get optional dependencies from public setters
-		List<ExecutableElement> optionalSocketElements = (List<ExecutableElement>)element.getEnclosedElements().stream()
+		List<ExecutableElement> optionalSocketElements = (List<ExecutableElement>)typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getSimpleName().toString().startsWith("set"))
 			.filter(e -> e.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PUBLIC)))
 			.map(e -> (ExecutableElement)e)
@@ -304,7 +304,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			}
 		}
 		
-		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
+		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
 		TypeMirror wrapperType = null;
 		CommonModuleBeanInfo moduleBeanInfo;
 		if(wrapperAnnotation.isPresent()) {
@@ -337,14 +337,37 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			moduleBeanInfo = new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 		
-		// Determine whether the bean implements a configuration and create nested beans if applicable
-		Optional.ofNullable(this.configurationInfosSupplier.get()).ifPresent(configurationInfos -> {
-			moduleBeanInfo.setNestedBeanInfos(configurationInfos.stream()
-				.filter(configurationInfo -> this.processingEnvironment.getTypeUtils().isAssignable(moduleBeanInfo.getType(), configurationInfo.getType()))
-				.flatMap(configurationInfo -> Arrays.stream(configurationInfo.getNestedConfigurationProperties()).map(nestedConfigurationPropertyInfo -> new NestedConfigurationBeanInfo(moduleBeanInfo, nestedConfigurationPropertyInfo)))
-				.collect(Collectors.toList()));
-		});
+		// Get Nested Beans
+		moduleBeanInfo.setNestedBeanInfos(this.extractNestedBeans(typeElement, moduleBeanInfo));
 		
 		return moduleBeanInfo;
+	}
+	
+	// TODO this doesn't seem to support generics properly
+	private List<NestedBeanInfo> extractNestedBeans(Element element, BeanInfo providingBean) {
+		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
+			return List.of();
+		}
+		return element.getEnclosedElements().stream()
+			.filter(e -> e.getAnnotation(NestedBean.class) != null)
+			.map(e -> (ExecutableElement)e)
+			.filter(e -> {
+				boolean valid = true;
+				if(e.getParameters().size() > 0) {
+					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid " + NestedBean.class.getSimpleName() + " method which should be a no-argument method, it will be ignored", e);
+					valid = false;
+				}
+				if(e.getReturnType().getKind().equals(TypeKind.VOID)) {
+					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid " + NestedBean.class.getSimpleName() + " method which should have a non-void return type", e);
+					valid = false;
+				}
+				return valid;
+			})
+			.map(e -> {
+				CompiledNestedBeanInfo nestedBeanInfo = new CompiledNestedBeanInfo(this.processingEnvironment, e, providingBean);
+				nestedBeanInfo.setNestedBeans(this.extractNestedBeans(this.processingEnvironment.getTypeUtils().asElement(e.getReturnType()), nestedBeanInfo));
+				return nestedBeanInfo;
+			})
+			.collect(Collectors.toList());
 	}
 }

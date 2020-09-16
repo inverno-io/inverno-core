@@ -15,6 +15,8 @@
  */
 package io.winterframework.core.compiler.spi;
 
+import javax.lang.model.element.ExecutableElement;
+
 /**
  * <p>
  * A nested bean info holds the data required to process a nested bean in a
@@ -32,6 +34,8 @@ package io.winterframework.core.compiler.spi;
  */
 public interface NestedBeanInfo extends BeanInfo {
 
+	ExecutableElement getAccessorElement();
+	
 	/**
 	 * <p>
 	 * Returns the name of the nested bean in the providing bean.

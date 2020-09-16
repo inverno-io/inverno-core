@@ -149,7 +149,7 @@ public class ModuleAnnotationProcessor extends AbstractProcessor {
 					}
 					moduleOriginatingElements.get(moduleName).add(element);
 					
-					beanFactories.put(moduleName, ModuleBeanInfoFactory.create(this.processingEnv, (ModuleElement)element, () -> this.moduleGenerator.moduleConfigurations().get(moduleName)));
+					beanFactories.put(moduleName, ModuleBeanInfoFactory.create(this.processingEnv, (ModuleElement)element));
 					socketFactories.put(moduleName, SocketBeanInfoFactory.create(this.processingEnv, (ModuleElement)element));
 					configurationFactories.put(moduleName, ConfigurationInfoFactory.create(this.processingEnv, (ModuleElement)element));
 				});
