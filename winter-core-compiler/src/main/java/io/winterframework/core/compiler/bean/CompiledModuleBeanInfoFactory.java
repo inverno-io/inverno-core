@@ -36,7 +36,6 @@ import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
@@ -44,19 +43,15 @@ import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.BeanSocket;
 import io.winterframework.core.annotation.Destroy;
 import io.winterframework.core.annotation.Init;
-import io.winterframework.core.annotation.NestedBean;
 import io.winterframework.core.annotation.Provide;
 import io.winterframework.core.annotation.Wrapper;
 import io.winterframework.core.compiler.ModuleAnnotationProcessor;
 import io.winterframework.core.compiler.TypeErrorException;
-import io.winterframework.core.compiler.common.CompiledNestedBeanInfo;
 import io.winterframework.core.compiler.common.ReporterInfo;
-import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.BeanSocketQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
-import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
 
 /**
@@ -76,6 +71,8 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	private TypeMirror wrapperAnnotationType;
 	private TypeMirror supplierType;
 	
+	private NestedBeanInfoFactory nestedBeanFactory;
+	
 	/**
 	 * @param processingEnvironment
 	 * @param moduleElement
@@ -87,6 +84,8 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		this.provideAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Provide.class.getCanonicalName()).asType();
 		this.wrapperAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wrapper.class.getCanonicalName()).asType();
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
+		
+		this.nestedBeanFactory = new NestedBeanInfoFactory(this.processingEnvironment);
 	}
 
 	@Override
@@ -338,36 +337,8 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		}
 		
 		// Get Nested Beans
-		moduleBeanInfo.setNestedBeanInfos(this.extractNestedBeans(typeElement, moduleBeanInfo));
+		moduleBeanInfo.setNestedBeanInfos(this.nestedBeanFactory.create(moduleBeanInfo));
 		
 		return moduleBeanInfo;
-	}
-	
-	// TODO this doesn't seem to support generics properly
-	private List<NestedBeanInfo> extractNestedBeans(Element element, BeanInfo providingBean) {
-		if(!TypeElement.class.isAssignableFrom(element.getClass())) {
-			return List.of();
-		}
-		return element.getEnclosedElements().stream()
-			.filter(e -> e.getAnnotation(NestedBean.class) != null)
-			.map(e -> (ExecutableElement)e)
-			.filter(e -> {
-				boolean valid = true;
-				if(e.getParameters().size() > 0) {
-					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid " + NestedBean.class.getSimpleName() + " method which should be a no-argument method, it will be ignored", e);
-					valid = false;
-				}
-				if(e.getReturnType().getKind().equals(TypeKind.VOID)) {
-					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid " + NestedBean.class.getSimpleName() + " method which should have a non-void return type", e);
-					valid = false;
-				}
-				return valid;
-			})
-			.map(e -> {
-				CompiledNestedBeanInfo nestedBeanInfo = new CompiledNestedBeanInfo(this.processingEnvironment, e, providingBean);
-				nestedBeanInfo.setNestedBeans(this.extractNestedBeans(this.processingEnvironment.getTypeUtils().asElement(e.getReturnType()), nestedBeanInfo));
-				return nestedBeanInfo;
-			})
-			.collect(Collectors.toList());
 	}
 }

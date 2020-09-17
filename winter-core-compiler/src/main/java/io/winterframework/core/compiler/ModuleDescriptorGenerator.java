@@ -116,7 +116,12 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 	public String visit(NestedBeanInfo nestedBeanInfo, String pad) {
 		StringBuilder result = new StringBuilder();
 		result.append(pad).append("- ").append("name: ").append(nestedBeanInfo.getQualifiedName().getSimpleValue()).append("\n");
-		result.append(pad).append("  ").append("type: ").append(nestedBeanInfo.getType().toString());
+		result.append(pad).append("  ").append("type: ").append(nestedBeanInfo.getType().toString()).append("\n");
+		result.append(pad).append("  ").append("nestedBeans:");
+		if(nestedBeanInfo.getNestedBeans().length > 0) {
+			result.append("\n");
+			result.append(Arrays.stream(nestedBeanInfo.getNestedBeans()).map(beanInfo -> this.visit(beanInfo, pad + "  " + this.indent)).collect(Collectors.joining("\n")));
+		}
 		return result.toString();
 	}
 	
