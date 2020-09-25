@@ -124,7 +124,7 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	@Override
 	public synchronized final void create() {
 		if (this.instances == null) {
-			LOGGER.debug("Creating prototype bean {} ({})", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "overridden").orElse(""));
+			LOGGER.debug("Creating prototype bean {} {}", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
 			this.instances = new HashSet<>();
 			this.referenceQueue = new ReferenceQueue<T>();
 			this.parent.recordBean(this);

@@ -103,7 +103,7 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	@Override
 	public synchronized final void create() {
 		if (this.instances == null) {
-			LOGGER.debug("Creating prototype bean {} ({})", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "overridden").orElse(""));
+			LOGGER.debug("Creating prototype bean {} {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
 			this.instances = new WeakHashMap<>();
 			this.parent.recordBean(this);
 		}

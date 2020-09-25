@@ -75,7 +75,7 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 */
 	public synchronized final void create() {
 		if (this.instance == null) {
-			LOGGER.debug("Creating singleton bean {} ({})", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "overridden").orElse(""));
+			LOGGER.debug("Creating singleton bean {} {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
 			this.instance = this.override.map(Supplier::get).orElseGet(this::createInstance);
 			this.parent.recordBean(this);
 		}
