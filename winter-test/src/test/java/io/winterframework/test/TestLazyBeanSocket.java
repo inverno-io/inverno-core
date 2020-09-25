@@ -7,11 +7,10 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 import io.winterframework.core.test.WinterModuleProxy;
 
-public class TestLazyBeanSocket extends AbstractWinterTest {
+public class TestLazyBeanSocket extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.lazy.moduleA";
 	private static final String MODULEB = "io.winterframework.test.lazy.moduleB";

@@ -21,9 +21,12 @@ import java.lang.module.ModuleFinder;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author jkuhn
@@ -36,6 +39,17 @@ public class WinterModuleLoader {
 	public WinterModuleLoader(Collection<Path> modulePaths, Collection<String> modules) throws MalformedURLException {
 		ModuleFinder finder = ModuleFinder.of(modulePaths.toArray(new Path[modulePaths.size()]));
 		ModuleLayer parent = ModuleLayer.boot();
+		
+		// This is necessary to be able to run junit in Eclipse
+		// The issue is related to the fact that the boot module layer contains project dependencies leading to modules conflicts
+		// Maven doesn't have this issue as it create a child layer to run junit
+		Set<String> parentNames = parent.modules().stream().map(Module::getName).collect(Collectors.toSet());
+		finder = ModuleFinder.of(finder.findAll().stream()
+			.filter(ref -> !parentNames.contains(ref.descriptor().name()))
+			.filter(ref -> ref.location().isPresent())
+			.map(ref -> Paths.get(ref.location().get()))
+			.toArray(Path[]::new));
+		
 		Configuration cf = parent.configuration().resolve(finder, ModuleFinder.of(), modules);
 		
 		this.layer = parent.defineModulesWithOneLoader(cf, ClassLoader.getPlatformClassLoader());

@@ -15,6 +15,9 @@
  */
 package io.winterframework.core.v1;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
 import io.winterframework.core.v1.Module.Bean;
 import io.winterframework.core.v1.Module.ModuleBeanBuilder;
 
@@ -41,6 +44,8 @@ import io.winterframework.core.v1.Module.ModuleBeanBuilder;
  */
 abstract class AbstractModuleBean<T> extends Bean<T> {
 
+	protected Optional<Supplier<T>> override;
+	
 	/**
 	 * <p>
 	 * Creates an abstract module bean with the specified name.
@@ -48,8 +53,9 @@ abstract class AbstractModuleBean<T> extends Bean<T> {
 	 * 
 	 * @param name the bean name
 	 */
-	public AbstractModuleBean(String name) {
+	public AbstractModuleBean(String name, Optional<Supplier<T>> override) {
 		super(name);
+		this.override = override;
 	}
 
 	/**

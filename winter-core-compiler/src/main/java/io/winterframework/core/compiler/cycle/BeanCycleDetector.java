@@ -27,6 +27,9 @@ import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
+import io.winterframework.core.compiler.spi.NestedBeanInfo;
+import io.winterframework.core.compiler.spi.OverridableBeanInfo;
+import io.winterframework.core.compiler.spi.OverridingSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketInfo;
 
@@ -60,12 +63,16 @@ public class BeanCycleDetector {
 	private void visitBean(BeanInfo bean, CycleDetectionContext context) {
 		if(bean != null && !context.isVisited(bean)) {
 			if(context.isOnStack(bean)) {
-				// cycle detected
 				context.addCycle(bean);
 			}
 			else {
 				context.pushBean(bean);
-				if(ModuleBeanInfo.class.isAssignableFrom(bean.getClass())) {
+				if(NestedBeanInfo.class.isAssignableFrom(bean.getClass())) {
+					context.pushSocket(null);
+					this.visitBean(((NestedBeanInfo)bean).getProvidingBean(), context);
+					context.popSocket();
+				}
+				else if(ModuleBeanInfo.class.isAssignableFrom(bean.getClass())) {
 					for(SocketInfo socket : ((ModuleBeanInfo)bean).getSockets()) {
 						context.pushSocket(socket);
 						if(SingleSocketInfo.class.isAssignableFrom(socket.getClass())) {
@@ -76,6 +83,12 @@ public class BeanCycleDetector {
 								Arrays.stream(((MultiSocketInfo)socket).getBeans()).forEach(b -> this.visitBean(b, context));
 							}
 						}
+						context.popSocket();
+					}
+					if(OverridableBeanInfo.class.isAssignableFrom(bean.getClass())) {
+						OverridingSocketBeanInfo socket = ((OverridableBeanInfo)bean).getOverridingSocket();
+						context.pushSocket(socket);
+						this.visitBean(socket.getBean(), context);
 						context.popSocket();
 					}
 				}

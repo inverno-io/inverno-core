@@ -21,7 +21,6 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
@@ -74,11 +73,6 @@ class BinaryModuleInfoBuilder extends AbstractModuleInfoBuilder {
 	public ModuleInfoBuilder sockets(SocketBeanInfo[] sockets) {
 		this.sockets = sockets != null ? sockets : new SocketBeanInfo[0];
 		return this;
-	}
-
-	@Override
-	public ModuleInfoBuilder configurations(ConfigurationInfo[] configurations) {
-		throw new UnsupportedOperationException("You can't inject configuration beans into a component module");
 	}
 	
 	@Override

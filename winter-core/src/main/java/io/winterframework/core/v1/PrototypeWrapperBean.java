@@ -15,6 +15,7 @@
  */
 package io.winterframework.core.v1;
 
+import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.function.Supplier;
 
@@ -82,9 +83,10 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * </p>
 	 * 
 	 * @param name the bean name
+	 * @param override An optional override
 	 */
-	public PrototypeWrapperBean(String name) {
-		super(name);
+	public PrototypeWrapperBean(String name, Optional<Supplier<T>> override) {
+		super(name, override);
 	}
 	
 	/**
@@ -101,7 +103,7 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	@Override
 	public synchronized final void create() {
 		if (this.instances == null) {
-			LOGGER.debug("Creating prototype bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
+			LOGGER.debug("Creating prototype bean {} ({})", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "overridden").orElse(""));
 			this.instances = new WeakHashMap<>();
 			this.parent.recordBean(this);
 		}
@@ -121,10 +123,28 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 */
 	@Override
 	public final T doGet() {
-		W wrapper = this.createWrapper();
-		T instance = wrapper.get();
-		this.instances.put(instance, wrapper);
-		return instance;
+		this.create();
+		
+		return this.override
+			.map(Supplier::get)
+			.orElseGet(() -> {
+				W wrapper = this.createWrapper();
+				T instance = wrapper.get();
+				this.instances.put(instance, wrapper);
+				
+				return instance;
+			});
+		
+		/*if(this.override.isPresent()) {
+			return this.override.get().get();
+		}
+		else {
+			W wrapper = this.createWrapper();
+			T instance = wrapper.get();
+			this.instances.put(instance, wrapper);
+			
+			return instance;
+		}*/
 	}
 
 	/**
@@ -142,9 +162,10 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	public synchronized final void destroy() {
 		if (this.instances != null) {
 			LOGGER.debug("Destroying prototype bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-			this.instances.values().stream()
-				.forEach(wrapper -> this.destroyWrapper(wrapper));
-			this.instances.clear();
+			if(!this.override.isPresent()) {
+				this.instances.values().stream().forEach(wrapper -> this.destroyWrapper(wrapper));
+				this.instances.clear();
+			}
 			this.instances = null;
 		}
 	}

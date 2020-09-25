@@ -140,7 +140,9 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 	}
 	
 	// Binary
-	public ModuleBeanSocketInfo createBeanSocket(SocketBeanInfo moduleSocketInfo) {
+	public ModuleBeanSocketInfo createBeanSocket(BeanQualifiedName beanQName, SocketBeanInfo moduleSocketInfo) {
+		// TODO it would be better to use the actual beanQName but this broke cycle reporting 
+//		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(beanQName, moduleSocketInfo.getQualifiedName().getSimpleValue());
 		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(moduleSocketInfo.getQualifiedName(), moduleSocketInfo.getQualifiedName().getSimpleValue());
 		return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, this.moduleElement, socketQName, moduleSocketInfo.getType(), null, null, moduleSocketInfo.isOptional(), false);
 	}

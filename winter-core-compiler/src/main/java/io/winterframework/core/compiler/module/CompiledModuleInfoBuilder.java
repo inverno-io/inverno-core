@@ -41,7 +41,6 @@ import io.winterframework.core.compiler.cycle.BeanCycleDetector;
 import io.winterframework.core.compiler.cycle.BeanCycleDetector.CycleInfo;
 import io.winterframework.core.compiler.socket.WirableSocketBeanInfo;
 import io.winterframework.core.compiler.spi.BeanInfo;
-import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
@@ -72,8 +71,6 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 	
 	private SocketBeanInfo[] sockets;
 	
-	private ConfigurationInfo[] configurations;
-	
 	private ModuleInfo[] modules;
 	
 	private ModuleBeanSocketWireResolver moduleSocketWiredBeansResolver;
@@ -84,7 +81,6 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		this.moduleSocketWiredBeansResolver = new ModuleBeanSocketWireResolver();
 		this.beans = new ModuleBeanInfo[0];
 		this.sockets = new SocketBeanInfo[0];
-		this.configurations = new ConfigurationInfo[0];
 		this.modules = new ModuleInfo[0];
 	}
 	
@@ -107,12 +103,6 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 	}
 	
 	@Override
-	public ModuleInfoBuilder configurations(ConfigurationInfo[] configurations) {
-		this.configurations = configurations != null ? configurations : new ConfigurationInfo[0];
-		return this;
-	}
-
-	@Override
 	public ModuleInfoBuilder modules(ModuleInfo[] modules) {
 		this.modules = modules != null ? modules : new ModuleInfo[0];
 		return this;
@@ -124,7 +114,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		boolean socketsResolved = this.resolveSockets();
 		boolean hasBeanCycles = this.checkBeanCycles();
 
-		CompiledModuleInfo moduleInfo = new CompiledModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleAnnotation, this.moduleQName, this.version, Arrays.asList(this.beans), Arrays.asList(this.sockets), Arrays.asList(this.configurations), Arrays.asList(this.modules));
+		CompiledModuleInfo moduleInfo = new CompiledModuleInfo(this.processingEnvironment, this.moduleElement, this.moduleAnnotation, this.moduleQName, this.version, Arrays.asList(this.beans), Arrays.asList(this.sockets), Arrays.asList(this.modules));
 		moduleInfo.setFaulty(hasNameConflicts || hasBeanCycles || !socketsResolved);
 		if(!hasBeanCycles) {
 			moduleInfo.accept(this.moduleSocketWiredBeansResolver, null);
@@ -138,18 +128,9 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		// Verify beans with identical name => report a compilation error on both beans at @Bean annotation level
 		List<BeanInfo> moduleBeanInfos = new ArrayList<>();
 		moduleBeanInfos.addAll(Arrays.asList(this.beans));
-		moduleBeanInfos.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
+		moduleBeanInfos.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> this.extractNestedBeans(beanInfo)).collect(Collectors.toList()));
 		moduleBeanInfos.addAll(Arrays.asList(this.sockets));
-		moduleBeanInfos.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).collect(Collectors.toList()));
-		moduleBeanInfos.addAll(Arrays.stream(this.configurations)
-			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
-			.map(configurationInfo -> configurationInfo.getSocket().get())
-			.collect(Collectors.toList())
-		);
-		moduleBeanInfos.addAll(Arrays.stream(this.configurations)
-			.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
-			.collect(Collectors.toList())
-		);
+		moduleBeanInfos.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> this.extractNestedBeans(socketInfo)).collect(Collectors.toList()));
 		
 		Map<String, List<BeanInfo>> beansByName = moduleBeanInfos.stream().collect(Collectors.groupingBy(beanInfo -> beanInfo.getQualifiedName().getBeanName()));
 		
@@ -168,18 +149,6 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 				hasConflicts = true;
 			}
 		}
-		
-		// Check configuration conflict
-		Map<String, List<ConfigurationInfo>> configurationsByType = Arrays.stream(this.configurations)
-			.collect(Collectors.groupingBy(configurationInfo -> this.processingEnvironment.getTypeUtils().asElement(configurationInfo.getType()).getSimpleName().toString()));
-		
-		for(Entry<String, List<ConfigurationInfo>> e : configurationsByType.entrySet()) {
-			if(e.getValue().size() > 1) {
-				e.getValue().stream().forEach(configurationInfo -> configurationInfo.error("Multiple configurations with type name " + e.getKey() + " exist in module " + this.moduleQName));
-				hasConflicts = true;
-			}
-		}
-		
 		return hasConflicts;
 	}
 	
@@ -190,19 +159,9 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		List<BeanInfo> wirableBeans = new ArrayList<>();
 		// compiled module beans + sockets + public beans in component modules
 		wirableBeans.addAll(Arrays.asList(this.beans));
-		wirableBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
+		wirableBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> this.extractNestedBeans(beanInfo)).collect(Collectors.toList()));
 		wirableBeans.addAll(Arrays.stream(this.sockets).collect(Collectors.toList()));
-		wirableBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).collect(Collectors.toList()));
-		wirableBeans.addAll(Arrays.stream(this.configurations)
-			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
-			.map(configurationInfo -> configurationInfo.getSocket().get())
-			.collect(Collectors.toList())
-		);
-		// TODO These can actually only be inserted in component module
-		wirableBeans.addAll(Arrays.stream(this.configurations)
-			.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
-			.collect(Collectors.toList())
-		);
+		wirableBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> this.extractNestedBeans(socketInfo)).collect(Collectors.toList()));
 		wirableBeans.addAll(Arrays.stream(this.modules).flatMap(moduleInfo -> Arrays.stream(moduleInfo.getPublicBeans())).collect(Collectors.toList()));
 		
 		// Ignore beans with conflicting name
@@ -247,18 +206,9 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		
 		List<BeanInfo> resolverBeans = new ArrayList<>();
 		resolverBeans.addAll(Arrays.asList(this.beans));
-		resolverBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
+		resolverBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> this.extractNestedBeans(beanInfo)).collect(Collectors.toList()));
 		resolverBeans.addAll(Arrays.asList(this.sockets));
-		resolverBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).collect(Collectors.toList()));
-		resolverBeans.addAll(Arrays.stream(this.configurations)
-			.filter(configurationInfo -> configurationInfo.getSocket().isPresent())
-			.map(configurationInfo -> configurationInfo.getSocket().get())
-			.collect(Collectors.toList())
-		);
-		resolverBeans.addAll(Arrays.stream(this.configurations)
-			.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
-			.collect(Collectors.toList())
-		);
+		resolverBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> this.extractNestedBeans(socketInfo)).collect(Collectors.toList()));
 		resolverBeans.addAll(Arrays.stream(this.modules)
 			.flatMap(moduleInfo -> Arrays.stream(moduleInfo.getBeans()))
 			.collect(Collectors.toList())
@@ -307,13 +257,9 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		for(ModuleInfo moduleInfo : this.modules) {
 			resolverBeans.clear();
 			resolverBeans.addAll(Arrays.asList(this.beans));
-			resolverBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> Arrays.stream(beanInfo.getNestedBeans())).collect(Collectors.toList()));
+			resolverBeans.addAll(Arrays.stream(this.beans).flatMap(beanInfo -> this.extractNestedBeans(beanInfo)).collect(Collectors.toList()));
 			resolverBeans.addAll(Arrays.asList(this.sockets));
-			resolverBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).collect(Collectors.toList()));
-			resolverBeans.addAll(Arrays.stream(this.configurations)
-				.flatMap(configurationInfo -> configurationInfo.getSocket().map(socketInfo -> Arrays.stream(socketInfo.getNestedBeans())).orElse(Stream.empty()))
-				.collect(Collectors.toList())
-			);
+			resolverBeans.addAll(Arrays.stream(this.sockets).flatMap(socketInfo -> this.extractNestedBeans(socketInfo)).collect(Collectors.toList()));
 			resolverBeans.addAll(Arrays.stream(this.modules)
 				.filter(moduleInfo2  -> !moduleInfo2.equals(moduleInfo))
 				.flatMap(moduleInfo2 -> Arrays.stream(moduleInfo2.getBeans()))
@@ -322,7 +268,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 			
 			socketResolver = new SocketResolver(this.processingEnvironment, this.moduleQName, resolverBeans);
 			
-			for(SocketBeanInfo socket : Stream.concat(Arrays.stream(moduleInfo.getSockets()), Arrays.stream(moduleInfo.getConfigurations()).filter(configurationInfo -> configurationInfo.getSocket().isPresent()).map(configurationInfo -> configurationInfo.getSocket().get()).filter(socketInfo -> socketInfo.isWired())).collect(Collectors.toList())) {	
+			for(SocketBeanInfo socket : moduleInfo.getSockets()) {	
 				if(MultiSocketInfo.class.isAssignableFrom(socket.getClass())) {
 					BeanInfo[] resolvedBeans = socketResolver.resolve((MultiSocketInfo)socket, wiresByBeanQName.get(socket.getQualifiedName()));
 					((MutableMultiSocketInfo)socket).setBeans(resolvedBeans);
@@ -344,7 +290,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 	}
 	
 	private void checkUnwiredSockets() {
-		Stream.concat(Arrays.stream(this.sockets), Arrays.stream(this.configurations).filter(configurationInfo -> configurationInfo.getSocket().isPresent()).map(configurationInfo -> configurationInfo.getSocket().get()))
+		Arrays.stream(this.sockets)
 			.filter(socketBean -> !socketBean.isWired())
 			.forEach(socketBean -> {
 				socketBean.warning("Ignoring socket bean which is not wired");
@@ -359,7 +305,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 			StringBuilder messageBuilder = new StringBuilder();
 			//message.append("The following beans form a cycle in module " + this.moduleQName + "\n");
 
-			int maxBeanQNameLength = cycle.stream().filter(cycleInfo -> !SocketBeanInfo.class.isAssignableFrom(cycleInfo.getSocketInfo().getClass())).mapToInt(cycleInfo -> cycleInfo.getBeanInfo().getQualifiedName().getValue().length()).max().getAsInt();
+			int maxBeanQNameLength = cycle.stream().filter(cycleInfo -> cycleInfo.getSocketInfo() == null || !SocketBeanInfo.class.isAssignableFrom(cycleInfo.getSocketInfo().getClass())).mapToInt(cycleInfo -> cycleInfo.getBeanInfo().getQualifiedName().getValue().length()).max().getAsInt();
 			char[] maxPad = new char[Math.floorDiv(maxBeanQNameLength, 2) + 4];
 			Arrays.fill(maxPad, '\u2500');
 			messageBuilder.append('\u250C').append(maxPad).append("\u2510\n");
@@ -370,34 +316,56 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 			boolean isWiredTo = false;
 			for(int i = 0;i<cycle.size();i++) {
 				CycleInfo cycleInfo = cycle.get(i);
-				boolean isSocketBean = SocketBeanInfo.class.isAssignableFrom(cycleInfo.getSocketInfo().getClass());
-				boolean isOpaqueSocket = isSocketBean && isWiredTo;
-				isWiredTo = ModuleBeanSocketInfo.class.isAssignableFrom(cycleInfo.getSocketInfo().getClass()) ? !((ModuleBeanSocketInfo)cycleInfo.getSocketInfo()).getQualifiedName().getBeanQName().equals(cycleInfo.getBeanInfo().getQualifiedName()) : false;
-				
-				String beanName = cycleInfo.getBeanInfo().getQualifiedName().getValue();
-				
-				Arrays.fill(maxPad, ' ');
-				String linkLine = String.valueOf(maxPad) + (isSocketBean ? '\u250A' : '\u2502');
-				String dependencyLine = (isOpaqueSocket ? String.valueOf(maxPad).substring(0, maxPad.length - 1) + "(\u2504)" : linkLine) + " " + cycleInfo.getSocketInfo().getQualifiedName().getValue();
-
-				Arrays.fill(maxPad, ' ');
-				String arrowLine = String.valueOf(maxPad) + "\u25BC";
-				
-				char[] pad = new char[maxPad.length - Math.floorDiv(beanName.length(), 2)];
-				Arrays.fill(pad, ' ');
-				
-				// TODO we can't rely on the size anymore, the best would be to insert the \u25B2 afterwards 
-				
-				if(!isSocketBean) {
+				if(NestedBeanInfo.class.isAssignableFrom(cycleInfo.getBeanInfo().getClass())) {
+					String beanName = cycleInfo.getBeanInfo().getQualifiedName().getValue();
+					
+					Arrays.fill(maxPad, ' ');
+					String arrowLine = String.valueOf(maxPad) + "\u25BC";
+					String linkLine = String.valueOf(maxPad) + '\u2502';
+					String nestedLine = linkLine + " (nested)";
+					
+					char[] pad = new char[maxPad.length - Math.floorDiv(beanName.length(), 2)];
+					Arrays.fill(pad, ' ');
+					
 					messageBuilder.append("\u2502").append(pad).append(beanName).append("\n");
-				}
-				if(!isWiredTo) {
 					messageBuilder.append("\u2502").append(linkLine).append("\n");
-					messageBuilder.append("\u2502").append(dependencyLine).append("\n");
+					messageBuilder.append("\u2502").append(nestedLine).append("\n");
 					messageBuilder.append("\u2502").append(linkLine).append("\n");
 					
 					if(i < cycle.size() - 1) {
 						messageBuilder.append("\u2502").append(arrowLine).append("\n");
+					}
+				}
+				else {
+					boolean isSocketBean = SocketBeanInfo.class.isAssignableFrom(cycleInfo.getSocketInfo().getClass());
+					boolean isOpaqueSocket = isSocketBean && isWiredTo;
+					isWiredTo = ModuleBeanSocketInfo.class.isAssignableFrom(cycleInfo.getSocketInfo().getClass()) ? !((ModuleBeanSocketInfo)cycleInfo.getSocketInfo()).getQualifiedName().getBeanQName().equals(cycleInfo.getBeanInfo().getQualifiedName()) : false;
+					
+					String beanName = cycleInfo.getBeanInfo().getQualifiedName().getValue();
+					
+					Arrays.fill(maxPad, ' ');
+					String linkLine = String.valueOf(maxPad) + (isSocketBean ? '\u250A' : '\u2502');
+					String dependencyLine = (isOpaqueSocket ? String.valueOf(maxPad).substring(0, maxPad.length - 1) + "(\u2504)" : linkLine) + " " + cycleInfo.getSocketInfo().getQualifiedName().getValue();
+	
+					Arrays.fill(maxPad, ' ');
+					String arrowLine = String.valueOf(maxPad) + "\u25BC";
+					
+					char[] pad = new char[maxPad.length - Math.floorDiv(beanName.length(), 2)];
+					Arrays.fill(pad, ' ');
+					
+					// TODO we can't rely on the size anymore, the best would be to insert the \u25B2 afterwards 
+					
+					if(!isSocketBean) {
+						messageBuilder.append("\u2502").append(pad).append(beanName).append("\n");
+					}
+					if(!isWiredTo) {
+						messageBuilder.append("\u2502").append(linkLine).append("\n");
+						messageBuilder.append("\u2502").append(dependencyLine).append("\n");
+						messageBuilder.append("\u2502").append(linkLine).append("\n");
+						
+						if(i < cycle.size() - 1) {
+							messageBuilder.append("\u2502").append(arrowLine).append("\n");
+						}
 					}
 				}
 			}
@@ -412,9 +380,16 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 			
 			cycle.stream()
 				.filter(cycleInfo -> cycleInfo.getBeanInfo().getQualifiedName().getModuleQName().equals(this.moduleQName))
+				.filter(cycleInfo -> {
+					return !NestedBeanInfo.class.isAssignableFrom(cycleInfo.getBeanInfo().getClass()) || !NestedBeanInfo.class.isAssignableFrom(((NestedBeanInfo)cycleInfo.getBeanInfo()).getProvidingBean().getClass());
+				})
 				.forEach(cycleInfo -> cycleInfo.getBeanInfo().error("Bean " + cycleInfo.getBeanInfo().getQualifiedName() + " forms a cycle in module " + this.moduleQName + "\n" + message));
 		}
 		
 		return beanCycles.size() > 0;
+	}
+	
+	private Stream<NestedBeanInfo> extractNestedBeans(BeanInfo beanInfo) {
+		return Arrays.stream(beanInfo.getNestedBeans()).flatMap(nestedBeanInfo -> Stream.concat(Stream.of(nestedBeanInfo), this.extractNestedBeans(nestedBeanInfo)));
 	}
 }

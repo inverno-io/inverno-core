@@ -27,7 +27,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Module;
-import io.winterframework.core.compiler.ModuleAnnotationProcessor;
+import io.winterframework.core.compiler.WinterCompiler;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 
@@ -95,7 +95,7 @@ abstract class AbstractModuleInfoBuilder implements ModuleInfoBuilder {
 			}
 		}
 		else {
-			this.version = ModuleAnnotationProcessor.VERSION;
+			this.version = WinterCompiler.VERSION;
 		}
 	}
 }

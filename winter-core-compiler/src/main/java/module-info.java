@@ -29,8 +29,11 @@ module io.winterframework.core.compiler {
 	requires transitive java.compiler;
 	requires transitive io.winterframework.core.annotation;
 	
-	exports io.winterframework.core.compiler;
 	exports io.winterframework.core.compiler.spi;
+	exports io.winterframework.core.compiler.spi.plugin;
+	exports io.winterframework.core.compiler.spi.support;
 	
-	provides javax.annotation.processing.Processor with io.winterframework.core.compiler.ModuleAnnotationProcessor;
+	provides javax.annotation.processing.Processor with io.winterframework.core.compiler.WinterCompiler;
+	
+	uses io.winterframework.core.compiler.spi.plugin.CompilerPlugin;
 }

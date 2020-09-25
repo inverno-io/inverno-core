@@ -59,10 +59,10 @@ abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T,B>> implements Bea
 	 * instance creation and dependency injection.
 	 */
 	protected List<FallibleConsumer<T>> destroys;
-
+	
 	/**
 	 * <p>
-	 * Create a bean builder with the specified bean name and constructor.
+	 * Creates a bean builder with the specified bean name and constructor.
 	 * </p>
 	 * 
 	 * @param beanName    the bean name
@@ -77,13 +77,7 @@ abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T,B>> implements Bea
 	}
 
 	/**
-	 * <p>
-	 * Add a bean initialization operation.
-	 * </p>
-	 * 
-	 * @param init the bean initialization operation.
-	 * 
-	 * @return this builder
+	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -93,13 +87,7 @@ abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T,B>> implements Bea
 	}
 
 	/**
-	 * <p>
-	 * Add a bean destruction operation.
-	 * </p>
-	 * 
-	 * @param init the bean destruction operation.
-	 * 
-	 * @return this builder
+	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

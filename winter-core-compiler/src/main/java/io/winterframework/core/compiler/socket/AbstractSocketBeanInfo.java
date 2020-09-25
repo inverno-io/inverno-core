@@ -59,7 +59,7 @@ abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements Mutabl
 			ExecutableElement socketElement,
 			AnnotationMirror[] selectors,
 			boolean optional) {
-		super(processingEnvironment, element, null, qname, type);
+		super(processingEnvironment, element, qname, type);
 		
 		this.socketType = socketType;
 		this.socketElement = socketElement;

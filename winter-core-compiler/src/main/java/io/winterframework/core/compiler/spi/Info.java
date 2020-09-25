@@ -29,7 +29,7 @@ package io.winterframework.core.compiler.spi;
  * @author jkuhn
  *
  */
-public interface Info {
+public interface Info extends ReporterInfo {
 
 	/**
 	 * <p>
@@ -39,40 +39,4 @@ public interface Info {
 	 * @return a qualified name
 	 */
 	QualifiedName getQualifiedName();
-
-	/**
-	 * <p>
-	 * Indicates whether this info has errors.
-	 * </p>
-	 * 
-	 * @return true if there are errors, false otherwise
-	 */
-	boolean hasError();
-
-	/**
-	 * <p>
-	 * Indicates whether this info has warnings.
-	 * </p>
-	 * 
-	 * @return true if there are warnings, false otherwise
-	 */
-	boolean hasWarning();
-
-	/**
-	 * <p>
-	 * Reports an error on this info.
-	 * </p>
-	 * 
-	 * @param message the message to report
-	 */
-	void error(String message);
-
-	/**
-	 * <p>
-	 * Reports a warning on this info.
-	 * </p>
-	 * 
-	 * @param message the message to report
-	 */
-	void warning(String message);
 }

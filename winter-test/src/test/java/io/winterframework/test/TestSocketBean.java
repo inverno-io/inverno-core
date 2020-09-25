@@ -31,7 +31,6 @@ import org.mockito.Mockito;
 
 import com.sun.net.httpserver.HttpHandler;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 import io.winterframework.core.test.WinterModuleLoader;
 import io.winterframework.core.test.WinterModuleProxy;
@@ -42,7 +41,7 @@ import io.winterframework.core.test.WinterModuleProxyBuilder;
  * @author jkuhn
  *
  */
-public class TestSocketBean extends AbstractWinterTest {
+public class TestSocketBean extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.socketbean.moduleA";
 	private static final String MODULED = "io.winterframework.test.socketbean.moduleD";

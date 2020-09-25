@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 
 import io.winterframework.core.v1.Module.Bean;
 import io.winterframework.core.v1.Module.BeanBuilder;
-import io.winterframework.core.v1.Module.ModuleBeanBuilder;
 
 /**
  * <p>
@@ -41,8 +40,8 @@ import io.winterframework.core.v1.Module.ModuleBeanBuilder;
  * @see Bean
  * @see PrototypeModuleBean
  */
-class PrototypeModuleBeanBuilder<T> extends AbstractBeanBuilder<T, ModuleBeanBuilder<T>> implements ModuleBeanBuilder<T> {
-
+class PrototypeModuleBeanBuilder<T> extends AbstractModuleBeanBuilder<T> {
+	
 	/**
 	 * <p>
 	 * Creates a prototype module bean builder with the specified bean name and
@@ -55,7 +54,7 @@ class PrototypeModuleBeanBuilder<T> extends AbstractBeanBuilder<T, ModuleBeanBui
 	public PrototypeModuleBeanBuilder(String beanName, Supplier<T> constructor) {
 		super(beanName, constructor);
 	}
-
+	
 	/**
 	 * <p>
 	 * Builds the bean.
@@ -65,7 +64,7 @@ class PrototypeModuleBeanBuilder<T> extends AbstractBeanBuilder<T, ModuleBeanBui
 	 */
 	@Override
 	public Bean<T> build() {
-		return new PrototypeModuleBean<T>(this.beanName) {
+		return new PrototypeModuleBean<T>(this.beanName, this.override) {
 
 			@Override
 			protected T createInstance() {

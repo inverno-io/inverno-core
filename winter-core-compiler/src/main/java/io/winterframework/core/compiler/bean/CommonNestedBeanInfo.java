@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
@@ -57,17 +58,17 @@ public class CommonNestedBeanInfo extends AbstractBeanInfo implements NestedBean
 		this.accessorelement = element;
 		this.providingBean = providingBean;
 		
-		this.nestedBeans = type.asElement().getEnclosedElements().stream()
+		this.nestedBeans = this.processingEnvironment.getElementUtils().getAllMembers((TypeElement)type.asElement()).stream()
 			.filter(e -> e.getAnnotation(NestedBean.class) != null)
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {
 				boolean valid = true;
 				if(e.getParameters().size() > 0) {
-					this.warning("Ignoring invalid " + NestedBean.class.getSimpleName() + " " + this.qname.getBeanName() + ", " + element + " should be a no-argument method");
+					this.warning("Ignoring invalid " + NestedBean.class.getSimpleName() + " " + this.qname.getBeanName() + ", " + e.getEnclosingElement().toString() + "#" + e + " should be a no-argument method");
 					valid = false;
 				}
 				if(e.getReturnType().getKind().equals(TypeKind.VOID)) {
-					this.warning("Ignoring invalid " + NestedBean.class.getSimpleName() + " " + this.qname.getBeanName() + ", " + element + " should be a non-void method");
+					this.warning("Ignoring invalid " + NestedBean.class.getSimpleName() + " " + this.qname.getBeanName() + ", " + e.getEnclosingElement().toString() + "#" + e + " should be a non-void method");
 					valid = false;
 				}
 				return valid;

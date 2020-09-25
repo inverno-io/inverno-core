@@ -43,21 +43,22 @@ import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.BeanSocket;
 import io.winterframework.core.annotation.Destroy;
 import io.winterframework.core.annotation.Init;
+import io.winterframework.core.annotation.Overridable;
 import io.winterframework.core.annotation.Provide;
 import io.winterframework.core.annotation.Wrapper;
-import io.winterframework.core.compiler.ModuleAnnotationProcessor;
+import io.winterframework.core.compiler.WinterCompiler;
 import io.winterframework.core.compiler.TypeErrorException;
-import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.BeanSocketQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
+import io.winterframework.core.compiler.spi.ReporterInfo;
 
 /**
  * <p>
  * A {@link ModuleBeanInfoFactory} implementation used by the
- * {@link ModuleAnnotationProcessor} to create {@link ModuleBeanInfo} for
+ * {@link WinterCompiler} to create {@link ModuleBeanInfo} for
  * modules being compiled.
  * </p>
  * 
@@ -69,6 +70,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	private TypeMirror beanAnnotationType;
 	private TypeMirror provideAnnotationType;
 	private TypeMirror wrapperAnnotationType;
+	private TypeMirror overridableAnnotationType;
 	private TypeMirror supplierType;
 	
 	private NestedBeanInfoFactory nestedBeanFactory;
@@ -83,6 +85,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		this.beanAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Bean.class.getCanonicalName()).asType();
 		this.provideAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Provide.class.getCanonicalName()).asType();
 		this.wrapperAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wrapper.class.getCanonicalName()).asType();
+		this.overridableAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Overridable.class.getCanonicalName()).asType();
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
 		
 		this.nestedBeanFactory = new NestedBeanInfoFactory(this.processingEnvironment);
@@ -109,7 +112,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 		}*/
 		
-		Optional<? extends AnnotationMirror> beanAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.beanAnnotationType)).findFirst();
+		Optional<? extends AnnotationMirror> beanAnnotation = typeElement.getAnnotationMirrors().stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.beanAnnotationType)).findFirst();
 		if(!beanAnnotation.isPresent()) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Bean.class.getSimpleName());
 		}
@@ -154,21 +157,28 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		// Get provided type
 		TypeMirror providedType = null;
-		List<? extends TypeMirror> providedTypes = this.processingEnvironment.getTypeUtils().directSupertypes(beanType).stream()
+		Optional<? extends AnnotationMirror> provideAnnotation = typeElement.getAnnotationMirrors().stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.provideAnnotationType)).findFirst();
+		if(provideAnnotation.isPresent()) {
+			for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(provideAnnotation.get()).entrySet()) {
+				switch(value.getKey().getSimpleName().toString()) {
+					case "value" : providedType = (TypeMirror)value.getValue().getValue();
+						break;
+				}
+			}
+		}
+		List<? extends TypeMirror> provideAnnotatedSuperTypes = this.processingEnvironment.getTypeUtils().directSupertypes(beanType).stream()
 			.filter(superType -> superType.getAnnotationMirrors().stream().anyMatch(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.provideAnnotationType)))
-			.map(superType -> {
-				TypeMirror[] superTypeArguments = ((DeclaredType)superType).getTypeArguments().stream().toArray(TypeMirror[]::new);
-				TypeElement superTypeElement = (TypeElement)((DeclaredType)this.processingEnvironment.getTypeUtils().erasure(superType)).asElement();
-				
-				return this.processingEnvironment.getTypeUtils().getDeclaredType(superTypeElement, superTypeArguments);
-			})
 			.collect(Collectors.toList());
 		
-		if(providedTypes.size() == 1) {
-			providedType = providedTypes.get(0);
-		}
-		else if(providedTypes.size() > 1) {
+		if(providedType != null && provideAnnotatedSuperTypes.size() == 1 || provideAnnotatedSuperTypes.size() > 1) {
 			beanReporter.error("Bean " + beanQName + " can't provide multiple types");
+		}
+		else if(provideAnnotatedSuperTypes.size() == 1) {
+			TypeMirror[] superTypeArguments = ((DeclaredType)provideAnnotatedSuperTypes.get(0)).getTypeArguments().stream().toArray(TypeMirror[]::new);
+			TypeElement superTypeElement = (TypeElement)((DeclaredType)this.processingEnvironment.getTypeUtils().erasure(provideAnnotatedSuperTypes.get(0))).asElement();
+			
+			providedType = this.processingEnvironment.getTypeUtils().getDeclaredType(superTypeElement, superTypeArguments);
+			provideAnnotation = provideAnnotatedSuperTypes.get(0).getAnnotationMirrors().stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.provideAnnotationType)).findFirst();
 		}
 		
 		// Get Init
@@ -320,25 +330,32 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			else {
 				beanReporter.error("A wrapper bean element must extend " + Supplier.class.getCanonicalName());
 			}
-			if(providedType != null) {
-				beanReporter.error("Wrapper bean " + beanQName + " can't provide other types than its supplied type");
-			}
 			
-			if(beanReporter.hasError()) {
-				throw new BeanCompilationException();
-			}
-			moduleBeanInfo = new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
+			moduleBeanInfo = new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 		else {
-			if(beanReporter.hasError()) {
-				throw new BeanCompilationException();
-			}
 			moduleBeanInfo = new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 		
-		// Get Nested Beans
-		moduleBeanInfo.setNestedBeanInfos(this.nestedBeanFactory.create(moduleBeanInfo));
+		if(moduleBeanInfo.getProvidedType() != null && !this.processingEnvironment.getTypeUtils().isAssignable(moduleBeanInfo.getType(), moduleBeanInfo.getProvidedType())) {
+			this.processingEnvironment.getMessager().printMessage(Kind.ERROR, "Type " + providedType + " is incompatible with bean type " + moduleBeanInfo.getType(), typeElement, provideAnnotation.get());
+			throw new BeanCompilationException();
+		}
 		
-		return moduleBeanInfo;
+		ModuleBeanInfo resultModuleBeanInfo = moduleBeanInfo;
+		
+		Optional<? extends AnnotationMirror> overridableAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.overridableAnnotationType)).findFirst();
+		if(overridableAnnotation.isPresent()) {
+			CompiledOverridingSocketBeanInfo socketInfo = new CompiledOverridingSocketBeanInfo(this.processingEnvironment, typeElement, overridableAnnotation.get(), moduleBeanInfo.getQualifiedName(), moduleBeanInfo.getType());
+			resultModuleBeanInfo = new CompiledOverridableBeanInfo(moduleBeanInfo, socketInfo);
+		}
+		
+		// Get Nested Beans
+		moduleBeanInfo.setNestedBeanInfos(this.nestedBeanFactory.create(resultModuleBeanInfo));
+		
+		if(beanReporter.hasError()) {
+			throw new BeanCompilationException();
+		}
+		return resultModuleBeanInfo;
 	}
 }

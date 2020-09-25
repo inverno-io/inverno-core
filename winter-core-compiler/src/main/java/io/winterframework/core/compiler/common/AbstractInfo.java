@@ -30,7 +30,7 @@ import io.winterframework.core.compiler.spi.QualifiedName;
  * @author jkuhn
  *
  */
-public abstract class AbstractInfo<T extends QualifiedName> extends ReporterInfo implements Info {
+public abstract class AbstractInfo<T extends QualifiedName> extends GenericReporterInfo implements Info {
 
 	protected T qname;
 	

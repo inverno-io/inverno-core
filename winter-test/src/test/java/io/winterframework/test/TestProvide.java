@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 import io.winterframework.core.test.WinterModuleLoader;
 import io.winterframework.core.test.WinterModuleProxy;
@@ -33,7 +32,7 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestProvide extends AbstractWinterTest {
+public class TestProvide extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.provide.moduleA";
 	private static final String MODULEB = "io.winterframework.test.provide.moduleB";
@@ -93,7 +92,7 @@ public class TestProvide extends AbstractWinterTest {
 			Assertions.assertEquals(2, e.getDiagnostics().size());
 			
 			String multipleProvideError = "Bean io.winterframework.test.provide.moduleC:beanA can't provide multiple types";
-			String factoryProvideError = "Wrapper bean io.winterframework.test.provide.moduleC:beanB can't provide other types than its supplied type";
+			String factoryProvideError = "Type java.lang.Runnable is incompatible with bean type java.util.concurrent.Callable<java.lang.String>";
 			
 			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleProvideError, factoryProvideError)));
 		}

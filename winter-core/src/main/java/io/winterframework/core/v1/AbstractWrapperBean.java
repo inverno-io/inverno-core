@@ -15,6 +15,7 @@
  */
 package io.winterframework.core.v1;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import io.winterframework.core.v1.Module.Bean;
@@ -45,6 +46,8 @@ import io.winterframework.core.v1.Module.WrapperBeanBuilder;
  */
 abstract class AbstractWrapperBean<W extends Supplier<T>, T> extends Bean<T> {
 
+	protected Optional<Supplier<T>> override;
+	
 	/**
 	 * <p>
 	 * Creates an abstract wrapper bean with the specified name.
@@ -52,8 +55,9 @@ abstract class AbstractWrapperBean<W extends Supplier<T>, T> extends Bean<T> {
 	 * 
 	 * @param name the bean name
 	 */
-	public AbstractWrapperBean(String name) {
+	public AbstractWrapperBean(String name, Optional<Supplier<T>> override) {
 		super(name);
+		this.override = override;
 	}
 
 	/**

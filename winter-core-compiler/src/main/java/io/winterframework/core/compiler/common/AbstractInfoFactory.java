@@ -28,6 +28,7 @@ import javax.lang.model.type.TypeMirror;
 
 import io.winterframework.core.annotation.Module;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
+import io.winterframework.core.compiler.spi.ReporterInfo;
 
 /**
  * <p>
@@ -84,10 +85,10 @@ public abstract class AbstractInfoFactory {
 	}
 	
 	protected ReporterInfo getReporter(Element element) {
-		return new ReporterInfo(this.processingEnvironment, element);
+		return new GenericReporterInfo(this.processingEnvironment, element);
 	}
 	
 	protected ReporterInfo getReporter(Element element, AnnotationMirror annotation) {
-		return new ReporterInfo(this.processingEnvironment, element, annotation);
+		return new GenericReporterInfo(this.processingEnvironment, element, annotation);
 	}
 }

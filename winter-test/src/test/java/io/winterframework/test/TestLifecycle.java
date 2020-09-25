@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 import io.winterframework.core.test.WinterModuleProxy;
 
@@ -29,7 +28,7 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestLifecycle extends AbstractWinterTest {
+public class TestLifecycle extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.lifecycle.moduleA";
 	private static final String MODULEB = "io.winterframework.test.lifecycle.moduleB";

@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 import io.winterframework.core.test.WinterModuleLoader;
 import io.winterframework.core.test.WinterModuleProxy;
@@ -30,7 +29,7 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestIncludeExclude extends AbstractWinterTest {
+public class TestIncludeExclude extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.includeexclude.moduleA";
 	private static final String MODULEB = "io.winterframework.test.includeexclude.moduleB";

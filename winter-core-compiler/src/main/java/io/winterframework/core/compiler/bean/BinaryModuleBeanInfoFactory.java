@@ -31,7 +31,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 
-import io.winterframework.core.compiler.ModuleAnnotationProcessor;
+import io.winterframework.core.compiler.WinterCompiler;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
@@ -40,7 +40,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
 /**
  * <p>
  * A {@link ModuleBeanInfoFactory} implementation used by the
- * {@link ModuleAnnotationProcessor} to create {@link ModuleBeanInfo} for binary
+ * {@link WinterCompiler} to create {@link ModuleBeanInfo} for binary
  * modules (ie. already compiled) required as component modules in other modules
  * (possibly compiled modules).
  * </p>
@@ -98,7 +98,7 @@ class BinaryModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		if(this.moduleSocketInfosByWiredBeanQName.containsKey(beanQName)) {
 			beanSocketInfos = this.moduleSocketInfosByWiredBeanQName.get(beanQName).stream()
 				.map(moduleSocketInfo -> {
-					CommonModuleBeanSingleSocketInfo beanSingleSocketInfo = (CommonModuleBeanSingleSocketInfo)beanSocketInfoFactory.createBeanSocket(moduleSocketInfo);
+					CommonModuleBeanSingleSocketInfo beanSingleSocketInfo = (CommonModuleBeanSingleSocketInfo)beanSocketInfoFactory.createBeanSocket(beanQName, moduleSocketInfo);
 					beanSingleSocketInfo.setBean(moduleSocketInfo);
 					return beanSingleSocketInfo;
 				})

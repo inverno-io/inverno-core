@@ -19,12 +19,12 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ModuleElement;
 
-import io.winterframework.core.compiler.ModuleAnnotationProcessor;
+import io.winterframework.core.compiler.WinterCompiler;
 import io.winterframework.core.compiler.common.AbstractSocketInfoFactory;
 
 /**
  * <p>
- * Used by the {@link ModuleAnnotationProcessor} to create
+ * Used by the {@link WinterCompiler} to create
  * {@link SocketBeanInfoFactory} corresponding to a particular context (compiled
  * and binary).
  * </p>

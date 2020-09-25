@@ -15,6 +15,7 @@
  */
 package io.winterframework.core.v1;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
@@ -62,9 +63,10 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * </p>
 	 * 
 	 * @param name the bean name
+	 * @param override An optional override
 	 */
-	public SingletonWrapperBean(String name) {
-		super(name);
+	public SingletonWrapperBean(String name, Optional<Supplier<T>> override) {
+		super(name, override);
 	}
 
 	/**
@@ -79,9 +81,11 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 */
 	public synchronized final void create() {
 		if (this.wrapper == null) {
-			LOGGER.debug("Creating singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-			this.wrapper = this.createWrapper();
-			this.instance = this.wrapper.get();
+			LOGGER.debug("Creating singleton bean {} ({})", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "overridden").orElse(""));
+			this.instance = this.override.map(Supplier::get).orElseGet(() -> {
+				this.wrapper = this.createWrapper();
+				return this.wrapper.get();
+			});
 			this.parent.recordBean(this);
 		}
 	}
@@ -112,8 +116,11 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	public synchronized final void destroy() {
 		if (this.wrapper != null) {
 			LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-			this.destroyWrapper(this.wrapper);
-			this.wrapper = null;
+			if(!this.override.isPresent()) {
+				this.destroyWrapper(this.wrapper);
+				this.wrapper = null;
+			}
+			this.instance = null;
 		}
 	}
 }

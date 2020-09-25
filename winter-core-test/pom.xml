@@ -27,54 +27,6 @@
 			<groupId>io.winterframework</groupId>
 			<artifactId>winter-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>io.winterframework</groupId>
-			<artifactId>winter-core-compiler</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.winterframework</groupId>
-			<artifactId>winter-core-annotation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<scope>runtime</scope>
-		</dependency>
 	</dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-dependencies</id>
-						<phase>generate-test-resources</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<inherited>false</inherited>
-						<configuration>
-							<excludeGroupIds>io.winterframework</excludeGroupIds>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<configuration>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<configuration>
-					<skipLocalStaging>true</skipLocalStaging>
-					<skipRemoteStaging>true</skipRemoteStaging>
-					<skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>

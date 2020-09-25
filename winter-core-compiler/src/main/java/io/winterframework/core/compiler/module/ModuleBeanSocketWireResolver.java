@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
 import io.winterframework.core.compiler.socket.WirableSocketBeanInfo;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
-import io.winterframework.core.compiler.spi.ConfigurationInfo;
-import io.winterframework.core.compiler.spi.ConfigurationPropertyInfo;
-import io.winterframework.core.compiler.spi.ConfigurationSocketBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanMultiSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSingleSocketInfo;
@@ -36,7 +33,8 @@ import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
 import io.winterframework.core.compiler.spi.NestedBeanInfo;
-import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
+import io.winterframework.core.compiler.spi.OverridableBeanInfo;
+import io.winterframework.core.compiler.spi.OverridingSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
@@ -75,7 +73,10 @@ class ModuleBeanSocketWireResolver implements ModuleInfoVisitor<Void, Set<BeanQu
 		else if(NestedBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
 			return this.visit((NestedBeanInfo)beanInfo, wiredBeans);
 		}
-		if(ModuleBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
+		else if(OverridableBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
+			return this.visit((OverridableBeanInfo)beanInfo, wiredBeans);
+		}
+		else if(ModuleBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
 			return this.visit((ModuleBeanInfo)beanInfo, wiredBeans);
 		}
 		else if(SocketBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
@@ -98,8 +99,15 @@ class ModuleBeanSocketWireResolver implements ModuleInfoVisitor<Void, Set<BeanQu
 	}
 
 	@Override
-	public Void visit(WrapperBeanInfo moduleWrapperBeanInfo, Set<BeanQualifiedName> wiredBeans) {
-		return this.visit((ModuleBeanInfo)moduleWrapperBeanInfo, wiredBeans);
+	public Void visit(WrapperBeanInfo wrapperBeanInfo, Set<BeanQualifiedName> wiredBeans) {
+		return this.visit((ModuleBeanInfo)wrapperBeanInfo, wiredBeans);
+	}
+	
+	@Override
+	public Void visit(OverridableBeanInfo overridableBeanInfo, Set<BeanQualifiedName> wiredBeans) {
+		this.visit(overridableBeanInfo.getOverridingSocket(), wiredBeans);
+		this.visit((ModuleBeanInfo)overridableBeanInfo, wiredBeans);
+		return null;
 	}
 	
 	@Override
@@ -169,6 +177,11 @@ class ModuleBeanSocketWireResolver implements ModuleInfoVisitor<Void, Set<BeanQu
 		}
 		return null;
 	}
+	
+	@Override
+	public Void visit(OverridingSocketBeanInfo overridingSocketBeanInfo, Set<BeanQualifiedName> wiredBeans) {
+		return this.visit((SocketBeanInfo)overridingSocketBeanInfo, wiredBeans);
+	}
 
 	@Override
 	public Void visit(SocketInfo socketInfo, Set<BeanQualifiedName> wiredBeans) {
@@ -182,30 +195,6 @@ class ModuleBeanSocketWireResolver implements ModuleInfoVisitor<Void, Set<BeanQu
 
 	@Override
 	public Void visit(MultiSocketInfo multiSocketInfo, Set<BeanQualifiedName> wiredBeans) {
-		return null;
-	}
-	
-	@Override
-	public Void visit(ConfigurationPropertyInfo configurationPropertyInfo, Set<BeanQualifiedName> p) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Void visit(ConfigurationInfo configurationInfo, Set<BeanQualifiedName> p) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Void visit(ConfigurationSocketBeanInfo configurationSocketBeanInfo, Set<BeanQualifiedName> p) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public Void visit(NestedConfigurationPropertyInfo nestedConfigurationPropertyInfo, Set<BeanQualifiedName> p) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

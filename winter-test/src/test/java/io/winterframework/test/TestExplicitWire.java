@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 import io.winterframework.core.test.WinterModuleProxy;
 
@@ -33,7 +32,7 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestExplicitWire extends AbstractWinterTest {
+public class TestExplicitWire extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.explicitwire.moduleA";
 	private static final String MODULEB = "io.winterframework.test.explicitwire.moduleB";
@@ -155,6 +154,7 @@ public class TestExplicitWire extends AbstractWinterTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testMultiModuleWire() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		this.clearModuleTarget();
 		WinterModuleProxy moduleProxy = this.getWinterCompiler().compile(MODULEC, MODULED).load(MODULEC).build();
 		
 		moduleProxy.start();

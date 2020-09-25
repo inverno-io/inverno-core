@@ -76,15 +76,6 @@ public interface ModuleInfo extends Info {
 	 * @return an array of socket beans
 	 */
 	SocketBeanInfo[] getSockets();
-	
-	/**
-	 * <p>
-	 * Returns the configurations specified in the module.
-	 * </p>
-	 * 
-	 * @return an array of configuration
-	 */
-	ConfigurationInfo[] getConfigurations();
 
 	/**
 	 * <p>

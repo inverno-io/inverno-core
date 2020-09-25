@@ -48,8 +48,9 @@ class CompiledWrapperBeanInfo extends CommonModuleBeanInfo implements WrapperBea
 			BeanQualifiedName qname, 
 			TypeMirror wrapperType, 
 			TypeMirror type,
+			TypeMirror providedType,
 			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
-		this(processingEnvironment, element, annotation, qname, wrapperType, type, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, null, null, beanSocketInfos);
+		this(processingEnvironment, element, annotation, qname, wrapperType, type, providedType, Bean.Visibility.PUBLIC, Bean.Strategy.SINGLETON, null, null, beanSocketInfos);
 	}
 	
 	public CompiledWrapperBeanInfo(
@@ -59,12 +60,13 @@ class CompiledWrapperBeanInfo extends CommonModuleBeanInfo implements WrapperBea
 			BeanQualifiedName qname, 
 			TypeMirror wrapperType, 
 			TypeMirror type,
+			TypeMirror providedType,
 			Bean.Visibility visibility, 
 			Bean.Strategy strategy, 
 			List<ExecutableElement> initElements, 
 			List<ExecutableElement> destroyElements, 
 			List<? extends ModuleBeanSocketInfo> beanSocketInfos) {
-		super(processingEnvironment, element, annotation, qname, type, null, visibility, strategy, initElements, destroyElements, beanSocketInfos);
+		super(processingEnvironment, element, annotation, qname, type, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		
 		this.wrapperType = wrapperType;
 	}

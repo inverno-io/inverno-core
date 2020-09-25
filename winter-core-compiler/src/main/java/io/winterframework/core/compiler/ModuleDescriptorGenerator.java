@@ -19,9 +19,6 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import io.winterframework.core.compiler.spi.BeanInfo;
-import io.winterframework.core.compiler.spi.ConfigurationInfo;
-import io.winterframework.core.compiler.spi.ConfigurationPropertyInfo;
-import io.winterframework.core.compiler.spi.ConfigurationSocketBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanMultiSocketInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanSingleSocketInfo;
@@ -32,7 +29,8 @@ import io.winterframework.core.compiler.spi.MultiSocketBeanInfo;
 import io.winterframework.core.compiler.spi.MultiSocketInfo;
 import io.winterframework.core.compiler.spi.MultiSocketType;
 import io.winterframework.core.compiler.spi.NestedBeanInfo;
-import io.winterframework.core.compiler.spi.NestedConfigurationPropertyInfo;
+import io.winterframework.core.compiler.spi.OverridableBeanInfo;
+import io.winterframework.core.compiler.spi.OverridingSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
 import io.winterframework.core.compiler.spi.SingleSocketInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
@@ -75,11 +73,6 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 		String sockets = Arrays.stream(moduleInfo.getSockets()).map(socket -> this.visit(socket, pad + this.indent + this.indent)).collect(Collectors.joining("\n"));
 		if(sockets != null && !sockets.equals("")) {
 			result.append(sockets).append("\n");
-		}
-		result.append(pad).append(this.indent).append("configurations:").append("\n");
-		String configurations = Arrays.stream(moduleInfo.getConfigurations()).map(configuration -> this.visit(configuration, pad + this.indent + this.indent)).collect(Collectors.joining("\n"));
-		if(configurations != null && !configurations.equals("")) {
-			result.append(configurations).append("\n");
 		}
 		
 		result.append(pad).append(this.indent).append("beans:").append("\n");
@@ -136,7 +129,11 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 		}
 		result.append(pad).append("  ").append("strategy: ").append(moduleBeanInfo.getStrategy().toString()).append("\n");
 		if(moduleBeanInfo instanceof WrapperBeanInfo) {
-			result.append(pad).append("  ").append("wrapperType:").append(((WrapperBeanInfo)moduleBeanInfo).getWrapperType().toString()).append("\n");
+			result.append(pad).append("  ").append("wrapperType: ").append(((WrapperBeanInfo)moduleBeanInfo).getWrapperType().toString()).append("\n");
+		}
+		if(moduleBeanInfo instanceof OverridableBeanInfo) {
+			result.append(pad).append("  ").append("overridingSocket: ").append("\n");
+			result.append(this.visit(((OverridableBeanInfo)moduleBeanInfo).getOverridingSocket(), pad + "  " + this.indent)).append("\n");
 		}
 		result.append(pad).append("  ").append("init: ").append("\n");
 		if(moduleBeanInfo.getInitElements().length > 0) {
@@ -161,6 +158,16 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 	@Override
 	public String visit(WrapperBeanInfo moduleWrapperBeanInfo, String pad) {
 		return this.visit((ModuleBeanInfo)moduleWrapperBeanInfo, pad);
+	}
+	
+	@Override
+	public String visit(OverridableBeanInfo moduleWrapperBeanInfo, String pad) {
+		return this.visit((ModuleBeanInfo)moduleWrapperBeanInfo, pad);
+	}
+	
+	@Override
+	public String visit(OverridingSocketBeanInfo overridingSocketBeanInfo, String pad) {
+		return this.visit((SingleSocketBeanInfo)overridingSocketBeanInfo, pad);
 	}
 	
 	@Override
@@ -300,51 +307,5 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 			result.append(Arrays.stream(multiSocketInfo.getSelectors()).map(selector -> pad + "  " + this.indent + "- " + selector.toString()).collect(Collectors.joining("\n")));
 		}
 		return result.toString();
-	}
-	
-	@Override
-	public String visit(ConfigurationInfo configurationInfo, String pad) {
-		StringBuilder result = new StringBuilder();
-		
-		result.append(pad).append("- ").append("name: ").append(configurationInfo.getQualifiedName().getSimpleValue()).append("\n");
-		result.append(pad).append("  ").append("type: ").append(configurationInfo.getType()).append("\n");
-		result.append(pad).append("  ").append("properties: ").append("\n");
-		result.append(Arrays.stream(configurationInfo.getProperties()).map(configurationPropertyInfo -> {
-			if(configurationPropertyInfo instanceof NestedConfigurationPropertyInfo) {
-				return this.visit((NestedConfigurationPropertyInfo)configurationPropertyInfo, pad + "  " + this.indent);
-			}
-			else {
-				return this.visit(configurationPropertyInfo, pad + "  " + this.indent);
-			}
-		}).collect(Collectors.joining("\n")));
-		if(configurationInfo.getSocket().isPresent()) {
-			result.append("\n");
-			result.append(pad).append("  ").append("socket: ").append("\n");
-			result.append(this.visit(configurationInfo.getSocket().get(), pad + "  " + this.indent));
-		}
-		return result.toString();
-	}
-	
-	@Override
-	public String visit(ConfigurationPropertyInfo configurationPropertyInfo, String pad) {
-		StringBuilder result = new StringBuilder();
-		result.append(pad).append("- ").append("name: ").append(configurationPropertyInfo.getName()).append("\n");
-		result.append(pad).append("  ").append("type: ").append(configurationPropertyInfo.getType().toString()).append("\n");
-		result.append(pad).append("  ").append("hasDefault: ").append(configurationPropertyInfo.isDefault());
-		return result.toString();
-	}
-	
-	@Override
-	public String visit(NestedConfigurationPropertyInfo nestedConfigurationPropertyInfo, String pad) {
-		StringBuilder result = new StringBuilder();
-		result.append(this.visit((ConfigurationPropertyInfo)nestedConfigurationPropertyInfo, pad)).append("\n");
-		result.append(pad).append("  ").append("configuratorType: ").append(nestedConfigurationPropertyInfo.getConfiguratorClassName().toString());
-		
-		return result.toString(); 
-	}
-	
-	@Override
-	public String visit(ConfigurationSocketBeanInfo configurationSocketBeanInfo, String pad) {
-		return this.visit((SingleSocketBeanInfo)configurationSocketBeanInfo, pad);
 	}
 }

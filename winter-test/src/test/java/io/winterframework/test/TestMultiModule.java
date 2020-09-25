@@ -17,13 +17,13 @@ package io.winterframework.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
-import io.winterframework.core.test.WinterCompiler;
+import io.winterframework.core.test.WinterTestCompiler;
 import io.winterframework.core.test.WinterModuleLoader;
 import io.winterframework.core.test.WinterModuleProxy;
 
@@ -32,7 +32,7 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestMultiModule extends AbstractWinterTest {
+public class TestMultiModule extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.multi.moduleA";
 	private static final String MODULEB = "io.winterframework.test.multi.moduleB";
@@ -75,17 +75,8 @@ public class TestMultiModule extends AbstractWinterTest {
 	public void testMultiModuleImport() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		this.getWinterCompiler().compile(MODULEA, MODULEB);
 		
-		WinterCompiler extraCompiler = new WinterCompiler(new File(WINTER_CORE), 
-				new File(WINTER_CORE_ANNOTATION), 
-				new File(WINTER_CORE_COMPILER), 
-				new File(WINTER_EXTERNAL_DEPENDENCIES),
-				new File(MODULE_SOURCE), 
-				new File(MODULE_SOURCE_TARGET),
-				new File(MODULE_TARGET),
-				new File[] {new File(MODULE_TARGET, MODULEA), new File(MODULE_TARGET, MODULEB)});
-		
+		WinterTestCompiler extraCompiler = this.getWinterCompiler().withModulePaths(List.of(new File(this.getWinterCompiler().getModuleOutputPath(), MODULEA), new File(this.getWinterCompiler().getModuleOutputPath(), MODULEB)));
 		WinterModuleLoader moduleLoader = extraCompiler.compile(MODULEC);
-		
 		WinterModuleProxy moduleC = moduleLoader.load(MODULEC).build();
 		moduleC.start();
 		try {

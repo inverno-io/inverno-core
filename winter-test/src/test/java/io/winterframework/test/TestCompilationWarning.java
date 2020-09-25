@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 
 /**
@@ -31,7 +30,7 @@ import io.winterframework.core.test.WinterCompilationException;
  * @author jkuhn
  *
  */
-public class TestCompilationWarning extends AbstractWinterTest {
+public class TestCompilationWarning extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.warning.moduleA";
 	

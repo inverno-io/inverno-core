@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 import io.winterframework.core.test.WinterModuleProxy;
 
@@ -30,7 +29,7 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestBeanStrategy extends AbstractWinterTest {
+public class TestBeanStrategy extends AbstractCoreWinterTest {
 
 	private static final String MODULE = "io.winterframework.test.strategy";
 	

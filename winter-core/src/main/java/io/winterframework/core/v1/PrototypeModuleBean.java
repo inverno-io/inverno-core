@@ -19,7 +19,9 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,9 +94,10 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	 * </p>
 	 * 
 	 * @param name the bean name
+	 * @param override An optional override
 	 */
-	public PrototypeModuleBean(String name) {
-		super(name);
+	public PrototypeModuleBean(String name, Optional<Supplier<T>> override) {
+		super(name, override);
 	}
 
 	/**
@@ -121,7 +124,7 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	@Override
 	public synchronized final void create() {
 		if (this.instances == null) {
-			LOGGER.debug("Creating prototype bean {}", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
+			LOGGER.debug("Creating prototype bean {} ({})", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "overridden").orElse(""));
 			this.instances = new HashSet<>();
 			this.referenceQueue = new ReferenceQueue<T>();
 			this.parent.recordBean(this);
@@ -143,12 +146,28 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	@Override
 	public final T doGet() {
 		this.create();
-		this.expungeStaleInstances();
-		T instance = this.createInstance();
-		WeakReference<T> reference = new WeakReference<>(instance, this.referenceQueue);
-		this.instances.add(reference);
-
-		return instance;
+		return this.override
+			.map(Supplier::get)
+			.orElseGet(() -> {
+				this.expungeStaleInstances();
+				T instance = this.createInstance();
+				WeakReference<T> reference = new WeakReference<>(instance, this.referenceQueue);
+				this.instances.add(reference);
+		
+				return instance;
+			});
+		/*
+		if(this.override.isPresent()) {
+			return this.override.get().get();
+		}
+		else {
+			this.expungeStaleInstances();
+			T instance = this.createInstance();
+			WeakReference<T> reference = new WeakReference<>(instance, this.referenceQueue);
+			this.instances.add(reference);
+	
+			return instance;
+		}*/
 	}
 
 	/**
@@ -165,12 +184,14 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	public synchronized final void destroy() {
 		if (this.instances != null) {
 			LOGGER.debug("Destroying prototype bean {}", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-			this.expungeStaleInstances();
-			this.instances.stream()
-				.map(WeakReference::get)
-				.filter(Objects::nonNull)
-				.forEach(instance -> this.destroyInstance(instance));
-			this.instances.clear();
+			if(!this.override.isPresent()) {
+				this.expungeStaleInstances();
+				this.instances.stream()
+					.map(WeakReference::get)
+					.filter(Objects::nonNull)
+					.forEach(instance -> this.destroyInstance(instance));
+				this.instances.clear();
+			}
 			this.instances = null;
 		}
 	}

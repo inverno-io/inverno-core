@@ -18,26 +18,27 @@ package io.winterframework.core.compiler.module;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 
 import io.winterframework.core.annotation.Bean;
-import io.winterframework.core.compiler.ModuleAnnotationProcessor;
+import io.winterframework.core.compiler.WinterCompiler;
 import io.winterframework.core.compiler.common.AbstractInfo;
-import io.winterframework.core.compiler.spi.ConfigurationInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoVisitor;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
+import io.winterframework.core.compiler.spi.OverridableBeanInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
  * Represents module info of a compiled module. A compiled module is a module
  * that is currently compiled by the Java compiler and processed by the
- * {@link ModuleAnnotationProcessor}.
+ * {@link WinterCompiler}.
  * </p>
  * 
  * @author jkuhn
@@ -53,17 +54,14 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	
 	private List<SocketBeanInfo> socketInfos;
 	
-	private List<ConfigurationInfo> configurationInfos;
-	
 	private List<ModuleInfo> moduleInfos;
 	
-	public CompiledModuleInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos, List<ConfigurationInfo> configurationInfos, List<ModuleInfo> moduleInfos) {
+	public CompiledModuleInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos, List<ModuleInfo> moduleInfos) {
 		super(processingEnvironment, element, annotation, qname);
 		
 		this.version = version;
 		this.beanInfos = beanInfos != null ? Collections.unmodifiableList(beanInfos) : Collections.emptyList();
 		this.socketInfos = socketInfos != null ? Collections.unmodifiableList(socketInfos) : Collections.emptyList();
-		this.configurationInfos = configurationInfos != null ? Collections.unmodifiableList(configurationInfos) : Collections.emptyList();
 		this.moduleInfos = moduleInfos != null ? Collections.unmodifiableList(moduleInfos) : Collections.emptyList();
 	}
 	
@@ -93,12 +91,7 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 
 	@Override
 	public SocketBeanInfo[] getSockets() {
-		return this.socketInfos.stream().toArray(SocketBeanInfo[]::new);
-	}
-	
-	@Override
-	public ConfigurationInfo[] getConfigurations() {
-		return this.configurationInfos.stream().toArray(ConfigurationInfo[]::new);
+		return Stream.concat(this.socketInfos.stream(), this.beanInfos.stream().filter(beanInfo -> beanInfo instanceof OverridableBeanInfo).map(beanInfo -> ((OverridableBeanInfo)beanInfo).getOverridingSocket())).toArray(SocketBeanInfo[]::new);
 	}
 
 	@Override

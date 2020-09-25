@@ -18,8 +18,7 @@ package io.winterframework.core.compiler.module;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ModuleElement;
 
-import io.winterframework.core.compiler.ModuleAnnotationProcessor;
-import io.winterframework.core.compiler.spi.ConfigurationInfo;
+import io.winterframework.core.compiler.WinterCompiler;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
@@ -29,7 +28,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
 /**
  * <p>
  * Extracts qualified name and version of a module element. The version
- * corresponds to the current {@link ModuleAnnotationProcessor#VERSION} of the
+ * corresponds to the current {@link WinterCompiler#VERSION} of the
  * version of a binary module determined by the version of its Module class.
  * </p>
  * 
@@ -58,11 +57,6 @@ public class ModuleMetadataExtractor {
 
 		@Override
 		public ModuleInfoBuilder sockets(SocketBeanInfo[] sockets) {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		public ModuleInfoBuilder configurations(ConfigurationInfo[] configurations) {
 			throw new UnsupportedOperationException();
 		}
 

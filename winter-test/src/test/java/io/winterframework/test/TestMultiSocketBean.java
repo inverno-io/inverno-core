@@ -22,9 +22,8 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
-import io.winterframework.core.test.WinterCompiler;
+import io.winterframework.core.test.WinterTestCompiler;
 import io.winterframework.core.test.WinterModuleLoader;
 import io.winterframework.core.test.WinterModuleProxy;
 
@@ -33,7 +32,7 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestMultiSocketBean extends AbstractWinterTest {
+public class TestMultiSocketBean extends AbstractCoreWinterTest {
 	
 	private static final String MODULEB = "io.winterframework.test.socketbean.moduleB";
 	private static final String MODULEC = "io.winterframework.test.socketbean.moduleC";
@@ -74,17 +73,8 @@ public class TestMultiSocketBean extends AbstractWinterTest {
 		this.clearModuleTarget();
 		this.getWinterCompiler().compile(MODULEB);
 		
-		WinterCompiler extraCompiler = new WinterCompiler(new File(WINTER_CORE), 
-			new File(WINTER_CORE_ANNOTATION), 
-			new File(WINTER_CORE_COMPILER), 
-			new File(WINTER_EXTERNAL_DEPENDENCIES),
-			new File(MODULE_SOURCE), 
-			new File(MODULE_SOURCE_TARGET),
-			new File(MODULE_TARGET),
-			new File[] {new File(MODULE_TARGET, MODULEC)});
-	
+		WinterTestCompiler extraCompiler = this.getWinterCompiler().withModulePaths(List.of(new File(this.getWinterCompiler().getModuleOutputPath(), MODULEC)));
 		WinterModuleLoader moduleLoader = extraCompiler.compile(MODULEC);
-		
 		WinterModuleProxy moduleC = moduleLoader.load(MODULEC).build();
 		moduleC.start();
 		try {

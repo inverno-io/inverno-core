@@ -22,8 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Specifies the type actually provided by a bean, defaulting to the actual bean
- * type.
+ * Specifies the type provided by a bean, defaulting to the actual bean type.
  * </p>
  * 
  * <p>
@@ -35,15 +34,36 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * <p>
+ * This annotation can be either specified on the {@link Bean} annotated type or
+ * on one of its a super type. In the first case, the provided type is specified
+ * by the annotation value, in the second case, the provided type is the
+ * annotated direct super type, the annotation value being ignored. Defining a
+ * type incompatible with the actual bean type or Specifying the annotation
+ * multiple times will result in a compilation errors.
+ * </p>
+ * 
+ * <p>
  * For example, the following bean will be exposed as <code>SomeService</code>
  * outside the module. A bean can only provide one single type.
  * </p>
  * 
  * <pre>
- *     &#64;Bean
- *     public class ModuleBean implements &#64;Provide SomeService, SomeOtherService {
+ * &#64;Bean
+ * &#64;Provide(SomeService.class)
+ * public class ModuleBean implements SomeService, SomeOtherService {
  * 
- *     }
+ * }
+ * </pre>
+ * 
+ * <p>
+ * which is equivalent to:
+ * </p>
+ * 
+ * <pre>
+ * &#64;Bean
+ * public class ModuleBean implements &#64;Provide SomeService, SomeOtherService {
+ * 
+ * }
  * </pre>
  * 
  * <p>
@@ -59,7 +79,19 @@ import java.lang.annotation.Target;
  * @see Bean
  */
 @Retention(RetentionPolicy.CLASS)
-@Target({ ElementType.TYPE_USE })
+@Target({ ElementType.TYPE, ElementType.TYPE_USE })
 public @interface Provide {
 
+	/**
+	 * <p>
+	 * Specifies the type provided by the bean.
+	 * </p>
+	 * 
+	 * <p>
+	 * This type must be compatible with the actual bean type.
+	 * </p>
+	 * 
+	 * @return A type
+	 */
+	Class<?> value() default Object.class;
 }

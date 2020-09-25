@@ -15,6 +15,9 @@
  */
 package io.winterframework.core.v1;
 
+import java.util.Optional;
+import java.util.function.Supplier;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -47,16 +50,17 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 * The bean instance.
 	 */
 	protected T instance;
-
+	
 	/**
 	 * <p>
 	 * Creates a singleton module bean with the specified name.
 	 * </p>
 	 * 
 	 * @param name the bean name
+	 * @param override An optional override
 	 */
-	public SingletonModuleBean(String name) {
-		super(name);
+	public SingletonModuleBean(String name, Optional<Supplier<T>> override) {
+		super(name, override);
 	}
 
 	/**
@@ -71,8 +75,8 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 */
 	public synchronized final void create() {
 		if (this.instance == null) {
-			LOGGER.debug("Creating singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-			this.instance = this.createInstance();
+			LOGGER.debug("Creating singleton bean {} ({})", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "overridden").orElse(""));
+			this.instance = this.override.map(Supplier::get).orElseGet(this::createInstance);
 			this.parent.recordBean(this);
 		}
 	}
@@ -102,7 +106,9 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	public synchronized final void destroy() {
 		if (this.instance != null) {
 			LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-			this.destroyInstance(this.instance);
+			if(!this.override.isPresent()) {
+				this.destroyInstance(this.instance);
+			}
 			this.instance = null;
 		}
 	}

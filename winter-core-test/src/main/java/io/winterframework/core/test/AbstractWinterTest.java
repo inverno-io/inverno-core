@@ -18,6 +18,10 @@ package io.winterframework.core.test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author jkuhn
@@ -30,37 +34,44 @@ public abstract class AbstractWinterTest {
 		System.setProperty("org.apache.logging.log4j.simplelog.logFile", "system.out");
 	}
 	
-	private WinterCompiler winterCompiler;
+	private WinterTestCompiler winterCompiler;
 	
-	protected static final String WINTER_CORE = "../winter-core/target/classes";
-	
-	protected static final String WINTER_CORE_ANNOTATION = "../winter-core-annotation/target/classes";
-	
-	protected static final String WINTER_CORE_COMPILER = "../winter-core-compiler/target/classes";
-	
-	protected static final String WINTER_EXTERNAL_DEPENDENCIES = "../winter-core-test/target/dependency";
-	
-	protected static final String MODULE_SOURCE = "src/test/mods";
+	private static final String MODULE_SOURCE = "src/test/mods";
 
-	protected static final String MODULE_SOURCE_TARGET = "target/generated-test-sources";
+	private static final String MODULE_SOURCE_TARGET = "target/generated-test-sources";
 	
-	protected static final String MODULE_TARGET = "target/test/mods";
+	private static final String MODULE_TARGET = "target/test/mods";
 	
-	public AbstractWinterTest() {
+	private static final String TEST_DEPENDENCIES = "target/dependency";
+	
+	protected AbstractWinterTest(Function<File, File> moduleOverride, Function<File, File> annotationProcessorModuleOverride) {
+		moduleOverride = moduleOverride != null ? moduleOverride : file -> file;
+		annotationProcessorModuleOverride = annotationProcessorModuleOverride != null ? annotationProcessorModuleOverride : file -> {
+			if(file.getName().startsWith("winter-core-compiler")) {
+				return file;
+			}
+			return null;
+		};
+		List<File> modulePaths = new LinkedList<>();
+		List<File> annotationProcessorModulePath = new LinkedList<>();
+		for(File dep : new File(TEST_DEPENDENCIES).listFiles()) {
+			Optional.ofNullable(moduleOverride.apply(dep)).ifPresent(modulePaths::add);
+			Optional.ofNullable(annotationProcessorModuleOverride.apply(dep)).ifPresent(annotationProcessorModulePath::add);
+		}
+		
 		try {
-			this.winterCompiler = new WinterCompiler(new File(WINTER_CORE), 
-				new File(WINTER_CORE_ANNOTATION), 
-				new File(WINTER_CORE_COMPILER),
-				new File(WINTER_EXTERNAL_DEPENDENCIES),
-				new File(MODULE_SOURCE), 
-				new File(MODULE_SOURCE_TARGET),
-				new File(MODULE_TARGET));
-		} catch (IOException e) {
+			this.winterCompiler = new WinterTestCompiler(new File(MODULE_SOURCE), new File(MODULE_SOURCE_TARGET), new File(MODULE_TARGET), modulePaths, annotationProcessorModulePath);
+		}
+		catch (IOException e) {
 			throw new RuntimeException("Can't initialize Winter Compiler", e);
 		}
 	}
 	
-	protected WinterCompiler getWinterCompiler() {
+	public AbstractWinterTest() {
+		this(null, null);
+	}
+	
+	protected WinterTestCompiler getWinterCompiler() {
 		return this.winterCompiler;
 	}
 	

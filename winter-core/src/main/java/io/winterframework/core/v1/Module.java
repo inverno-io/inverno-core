@@ -15,6 +15,11 @@
  */
 package io.winterframework.core.v1;
 
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -24,6 +29,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -721,6 +727,16 @@ public abstract class Module {
 		 * @return a bean
 		 */
 		Bean<T> build();
+		
+		/**
+		 * <p>
+		 * Specifies an override that, when present, provides bean instances instead of the builder.
+		 * </p>
+		 * 
+		 * @param override An optional override
+		 * @return this builder
+		 */
+		ModuleBeanBuilder<T> override(Optional<Supplier<T>> override);
 	}
 	
 	/**
@@ -812,19 +828,52 @@ public abstract class Module {
 		 * @return a bean
 		 */
 		public Bean<T> build();
+		
+		/**
+		 * <p>
+		 * Specifies an override that, when present, provides bean instances instead of the builder.
+		 * </p>
+		 * 
+		 * @param override An optional override
+		 * @return this builder
+		 */
+		WrapperBeanBuilder<W, T> override(Optional<Supplier<T>> override);
 	}
 	
 	/**
 	 * <p>
-	 * Represents the socket type used to declare a configuration bean socket in a module.
+	 * Provides socket information to the Winter compiler.
+	 * </p>
+	 * 
+	 * <p>
+	 * These information are necessary for the compiler to be able to load component
+	 * modules in a module while preserving socket names and preventing dependency
+	 * cycles.
 	 * </p>
 	 * 
 	 * @author jkuhn
 	 *
-	 * @param <E> The configuration bean type targeted by the socket
-	 * 
-	 * @author jkuhn
-	 * @since 1.1
 	 */
-	protected static interface ConfigurationSocket<E> extends Supplier<E> {}
+	@Retention(CLASS)
+	@Target(PARAMETER)
+	protected @interface Socket {
+		
+		/**
+		 * <p>
+		 * Indicates the name of the socket, defaults to the name of the socket class.
+		 * </p>
+		 * 
+		 * @return A name
+		 */
+		String name() default "";
+		
+		/**
+		 * <p>
+		 * Indicates the name of the beans in the module a socket bean is wired to.
+		 * </p>
+		 * 
+		 * @return A list of bean names
+		 */
+		String[] wiredTo() default {};
+	}
 }

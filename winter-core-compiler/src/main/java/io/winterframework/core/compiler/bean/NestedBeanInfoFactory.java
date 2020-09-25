@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeKind;
@@ -50,7 +51,8 @@ public class NestedBeanInfoFactory {
 		
 		DeclaredType type = (DeclaredType)providingBean.getType();
 		
-		return type.asElement().getEnclosedElements().stream()
+//		return type.asElement().getEnclosedElements().stream()
+		return this.processingEnvironment.getElementUtils().getAllMembers((TypeElement)type.asElement()).stream()
 			.filter(e -> e.getAnnotation(NestedBean.class) != null)
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {

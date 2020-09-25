@@ -33,19 +33,19 @@ import javax.tools.Diagnostic.Kind;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.annotation.Selector;
-import io.winterframework.core.compiler.ModuleAnnotationProcessor;
+import io.winterframework.core.compiler.WinterCompiler;
 import io.winterframework.core.compiler.TypeErrorException;
 import io.winterframework.core.compiler.bean.NestedBeanInfoFactory;
-import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.MultiSocketType;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
+import io.winterframework.core.compiler.spi.ReporterInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
  * A {@link SocketBeanInfoFactory} implementation used by the
- * {@link ModuleAnnotationProcessor} to create {@link SocketBeanInfo} for
+ * {@link WinterCompiler} to create {@link SocketBeanInfo} for
  * modules being compiled.
  * </p>
  * 

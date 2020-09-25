@@ -17,14 +17,14 @@ package io.winterframework.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
-import io.winterframework.core.test.WinterCompiler;
+import io.winterframework.core.test.WinterTestCompiler;
 import io.winterframework.core.test.WinterModuleLoader;
 import io.winterframework.core.test.WinterModuleProxy;
 
@@ -33,7 +33,7 @@ import io.winterframework.core.test.WinterModuleProxy;
  * @author jkuhn
  *
  */
-public class TestSelector extends AbstractWinterTest {
+public class TestSelector extends AbstractCoreWinterTest {
 
 	private static final String MODULEA = "io.winterframework.test.selector.moduleA";
 	private static final String MODULEB = "io.winterframework.test.selector.moduleB";
@@ -42,6 +42,7 @@ public class TestSelector extends AbstractWinterTest {
 	
 	@Test
 	public void testSelectorBeanSocket() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		this.clearModuleTarget();
 		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEA);
 		
 		WinterModuleProxy moduleA = moduleLoader.load(MODULEA).build();
@@ -68,6 +69,7 @@ public class TestSelector extends AbstractWinterTest {
 	
 	@Test
 	public void testSelectorSocketBean() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		this.clearModuleTarget();
 		WinterModuleLoader moduleLoader = this.getWinterCompiler().compile(MODULEB, MODULEC);
 		
 		WinterModuleProxy moduleC = moduleLoader.load(MODULEC).build();
@@ -99,17 +101,8 @@ public class TestSelector extends AbstractWinterTest {
 		this.clearModuleTarget();
 		this.getWinterCompiler().compile(MODULEB);
 		
-		WinterCompiler extraCompiler = new WinterCompiler(new File(WINTER_CORE), 
-			new File(WINTER_CORE_ANNOTATION), 
-			new File(WINTER_CORE_COMPILER), 
-			new File(WINTER_EXTERNAL_DEPENDENCIES),
-			new File(MODULE_SOURCE), 
-			new File(MODULE_SOURCE_TARGET),
-			new File(MODULE_TARGET),
-			new File[] {new File(MODULE_TARGET, MODULEC)});
-	
+		WinterTestCompiler extraCompiler = this.getWinterCompiler().withModulePaths(List.of(new File(this.getWinterCompiler().getModuleOutputPath(), MODULEC)));
 		WinterModuleLoader moduleLoader = extraCompiler.compile(MODULEC);
-		
 		WinterModuleProxy moduleC = moduleLoader.load(MODULEC).build();
 		moduleC.start();
 		try {
@@ -136,6 +129,7 @@ public class TestSelector extends AbstractWinterTest {
 	
 	@Test
 	public void testSelectorSocketBeanBadExplicit() throws IOException, WinterCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		this.clearModuleTarget();
 		try {
 			this.getWinterCompiler().compile(MODULEB, MODULED);
 			Assertions.fail("Should throw a WinterCompilationException");

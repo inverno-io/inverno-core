@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 
 import io.winterframework.core.v1.Module.Bean;
 import io.winterframework.core.v1.Module.BeanBuilder;
-import io.winterframework.core.v1.Module.WrapperBeanBuilder;
 
 /**
  * <p>
@@ -42,7 +41,7 @@ import io.winterframework.core.v1.Module.WrapperBeanBuilder;
  * @param <W> the type of the wrapper bean
  * @param <T> the actual type of the bean
  */
-class PrototypeWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractBeanBuilder<W, WrapperBeanBuilder<W, T>> implements WrapperBeanBuilder<W, T> {
+class PrototypeWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractWrapperBeanBuilder<T, W> {
 
 	/**
 	 * <p>
@@ -66,7 +65,7 @@ class PrototypeWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractBean
 	 */
 	@Override
 	public Bean<T> build() {
-		return new PrototypeWrapperBean<W, T>(this.beanName) {
+		return new PrototypeWrapperBean<W, T>(this.beanName, this.override) {
 
 			@Override
 			protected W createWrapper() {

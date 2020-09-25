@@ -17,20 +17,20 @@ package io.winterframework.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
-import io.winterframework.core.test.WinterCompiler;
+import io.winterframework.core.test.WinterTestCompiler;
 
 /**
  * @author jkuhn
  *
  */
-public class TestMultiCycle extends AbstractWinterTest {
+public class TestMultiCycle extends AbstractCoreWinterTest {
 
 	private static final String MODULEAPI = "io.winterframework.test.multicycle.moduleAPI";
 	
@@ -41,7 +41,13 @@ public class TestMultiCycle extends AbstractWinterTest {
 	private static final String MODULED = "io.winterframework.test.multicycle.moduleD";
 	private static final String MODULEE = "io.winterframework.test.multicycle.moduleE";
 	private static final String MODULEF = "io.winterframework.test.multicycle.moduleF";
+	
+	private static final String MODULEG = "io.winterframework.test.multicycle.moduleG";
+	private static final String MODULEH = "io.winterframework.test.multicycle.moduleH";
 
+	private static final String MODULEI = "io.winterframework.test.multicycle.moduleI";
+	private static final String MODULEJ = "io.winterframework.test.multicycle.moduleJ";
+	
 	@Test
 	public void testMultiCycleSimple() throws IOException {
 		this.clearModuleTarget();
@@ -78,11 +84,11 @@ public class TestMultiCycle extends AbstractWinterTest {
 	public void testMultiCycleComplex() throws IOException, WinterCompilationException {
 		this.clearModuleTarget();
 		try {
-			this.getWinterCompiler().compile(MODULEAPI, MODULED, MODULEE, MODULEF, MODULEC);
+			this.getWinterCompiler().compile(MODULEAPI, MODULEF, MODULED, MODULEE, MODULEC);
 			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
-			Assertions.assertEquals(2, e.getDiagnostics().size());
+			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String cycleMessage = "Bean io.winterframework.test.multicycle.moduleC:serviceCImpl forms a cycle in module io.winterframework.test.multicycle.moduleC\n" + 
 				"  ┌───────────────────────────────┐\n" + 
@@ -130,21 +136,15 @@ public class TestMultiCycle extends AbstractWinterTest {
 	}
 	
 	@Test
-	public void testMultiCycleSimpleImport() throws IOException, WinterCompilationException {
+	public void testMultiCycleSimpleBinary() throws IOException, WinterCompilationException {
 		this.clearModuleTarget();
 		try {
 			this.getWinterCompiler().compile(MODULEB);
 		
-			WinterCompiler extraCompiler = new WinterCompiler(new File(WINTER_CORE), 
-				new File(WINTER_CORE_ANNOTATION), 
-				new File(WINTER_CORE_COMPILER), 
-				new File(WINTER_EXTERNAL_DEPENDENCIES),
-				new File(MODULE_SOURCE), 
-				new File(MODULE_SOURCE_TARGET),
-				new File(MODULE_TARGET),
-				new File[] {new File(MODULE_TARGET, MODULEA)});
-		
+			WinterTestCompiler extraCompiler = this.getWinterCompiler().withModulePaths(List.of(new File(this.getWinterCompiler().getModuleOutputPath(), MODULEA)));
+			
 			extraCompiler.compile(MODULEA);
+			Assertions.fail("Should throw a WinterCompilationException");
 		}
 		catch(WinterCompilationException e) {
 			Assertions.assertEquals(1, e.getDiagnostics().size());
@@ -165,5 +165,187 @@ public class TestMultiCycle extends AbstractWinterTest {
 			
 			Assertions.assertEquals(cycleMessage, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
 		}		
+	}
+	
+	@Test
+	public void testMultiCycleWithNested() throws IOException {
+		this.clearModuleTarget();
+		try {
+			this.getWinterCompiler().compile(MODULEG, MODULEH);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(2, e.getDiagnostics().size());
+			
+			String cycleMessage1 = "Bean io.winterframework.test.multicycle.moduleH:beanH forms a cycle in module io.winterframework.test.multicycle.moduleH\n" + 
+					"  ┌──────────────────────────────────┐\n" + 
+					"  │                                  │\n" + 
+					"  │          io.winterframework.test.multicycle.moduleH:beanH\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ io.winterframework.test.multicycle.moduleH:beanH:beanG\n" + 
+					"  │                                  │\n" + 
+					"  │                                  ▼\n" + 
+					"  │          io.winterframework.test.multicycle.moduleG:beanG\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ io.winterframework.test.multicycle.moduleG:beanG:runnable\n" + 
+					"  ▲                                  │\n" + 
+					"  │                                  ▼\n" + 
+					"  │                                  ┊\n" + 
+					"  │                                  ┊ io.winterframework.test.multicycle.moduleG:runnableSocket\n" + 
+					"  │                                  ┊\n" + 
+					"  │                                  ▼\n" + 
+					"  │    io.winterframework.test.multicycle.moduleH:beanH.someRunnable\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ (nested)\n" + 
+					"  │                                  │\n" + 
+					"  └──────────────────────────────────┘ ";
+			
+			Assertions.assertEquals(cycleMessage1, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
+			
+			String cycleMessage2 = "Bean io.winterframework.test.multicycle.moduleH:beanH.someRunnable forms a cycle in module io.winterframework.test.multicycle.moduleH\n" + 
+					"  ┌──────────────────────────────────┐\n" + 
+					"  │                                  │\n" + 
+					"  │          io.winterframework.test.multicycle.moduleH:beanH\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ io.winterframework.test.multicycle.moduleH:beanH:beanG\n" + 
+					"  │                                  │\n" + 
+					"  │                                  ▼\n" + 
+					"  │          io.winterframework.test.multicycle.moduleG:beanG\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ io.winterframework.test.multicycle.moduleG:beanG:runnable\n" + 
+					"  ▲                                  │\n" + 
+					"  │                                  ▼\n" + 
+					"  │                                  ┊\n" + 
+					"  │                                  ┊ io.winterframework.test.multicycle.moduleG:runnableSocket\n" + 
+					"  │                                  ┊\n" + 
+					"  │                                  ▼\n" + 
+					"  │    io.winterframework.test.multicycle.moduleH:beanH.someRunnable\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ (nested)\n" + 
+					"  │                                  │\n" + 
+					"  └──────────────────────────────────┘ ";
+			
+			Assertions.assertEquals(cycleMessage2, e.getDiagnostics().get(1).getMessage(Locale.getDefault()));
+		}
+	}
+	
+	@Test
+	public void testMultiCycleWithNestedBinary() throws IOException {
+		this.clearModuleTarget();
+		try {
+			this.getWinterCompiler().compile(MODULEG);
+		
+			WinterTestCompiler extraCompiler = this.getWinterCompiler().withModulePaths(List.of(new File(this.getWinterCompiler().getModuleOutputPath(), MODULEH)));
+			extraCompiler.compile(MODULEH);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(2, e.getDiagnostics().size());
+			
+			String cycleMessage1 = "Bean io.winterframework.test.multicycle.moduleH:beanH forms a cycle in module io.winterframework.test.multicycle.moduleH\n" + 
+					"  ┌──────────────────────────────────┐\n" + 
+					"  │                                  │\n" + 
+					"  │          io.winterframework.test.multicycle.moduleH:beanH\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ io.winterframework.test.multicycle.moduleH:beanH:beanG\n" + 
+					"  │                                  │\n" + 
+					"  │                                  ▼\n" + 
+					"  │          io.winterframework.test.multicycle.moduleG:beanG\n" + 
+					"  ▲                                  ┊\n" + 
+					"  │                                 (┄) io.winterframework.test.multicycle.moduleG:runnableSocket\n" + 
+					"  │                                  ┊\n" + 
+					"  │                                  ▼\n" + 
+					"  │    io.winterframework.test.multicycle.moduleH:beanH.someRunnable\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ (nested)\n" + 
+					"  │                                  │\n" + 
+					"  └──────────────────────────────────┘ ";
+			
+			Assertions.assertEquals(cycleMessage1, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
+			
+			String cycleMessage2 = "Bean io.winterframework.test.multicycle.moduleH:beanH.someRunnable forms a cycle in module io.winterframework.test.multicycle.moduleH\n" + 
+					"  ┌──────────────────────────────────┐\n" + 
+					"  │                                  │\n" + 
+					"  │          io.winterframework.test.multicycle.moduleH:beanH\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ io.winterframework.test.multicycle.moduleH:beanH:beanG\n" + 
+					"  │                                  │\n" + 
+					"  │                                  ▼\n" + 
+					"  │          io.winterframework.test.multicycle.moduleG:beanG\n" + 
+					"  ▲                                  ┊\n" + 
+					"  │                                 (┄) io.winterframework.test.multicycle.moduleG:runnableSocket\n" + 
+					"  │                                  ┊\n" + 
+					"  │                                  ▼\n" + 
+					"  │    io.winterframework.test.multicycle.moduleH:beanH.someRunnable\n" + 
+					"  │                                  │\n" + 
+					"  │                                  │ (nested)\n" + 
+					"  │                                  │\n" + 
+					"  └──────────────────────────────────┘ ";
+			
+			Assertions.assertEquals(cycleMessage2, e.getDiagnostics().get(1).getMessage(Locale.getDefault()));
+		}
+	}
+	
+	@Test
+	public void testMultiCycleWithOverridable() throws IOException {
+		this.clearModuleTarget();
+		try {
+			this.getWinterCompiler().compile(MODULEI, MODULEJ);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnostics().size());
+			
+			String cycleMessage1 = "Bean io.winterframework.test.multicycle.moduleJ:beanIOverride forms a cycle in module io.winterframework.test.multicycle.moduleJ\n" + 
+					"  ┌────────────────────────────────┐\n" + 
+					"  │                                │\n" + 
+					"  │    io.winterframework.test.multicycle.moduleJ:beanIOverride\n" + 
+					"  │                                │\n" + 
+					"  │                                │ io.winterframework.test.multicycle.moduleJ:beanIOverride:runnable\n" + 
+					"  │                                │\n" + 
+					"  │                                ▼\n" + 
+					"  │     io.winterframework.test.multicycle.moduleI:someRunnable\n" + 
+					"  ▲                                │\n" + 
+					"  │                                │ io.winterframework.test.multicycle.moduleI:someRunnable:beanI\n" + 
+					"  │                                │\n" + 
+					"  │                                ▼\n" + 
+					"  │                                ┊\n" + 
+					"  │                                ┊ io.winterframework.test.multicycle.moduleI:beanI\n" + 
+					"  │                                ┊\n" + 
+					"  └────────────────────────────────┘ ";
+			
+			Assertions.assertEquals(cycleMessage1, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
+		}
+	}
+	
+	@Test
+	public void testMultiCycleWithOverridableBinary() throws IOException {
+		this.clearModuleTarget();
+		try {
+			this.getWinterCompiler().compile(MODULEI);
+			
+			WinterTestCompiler extraCompiler = this.getWinterCompiler().withModulePaths(List.of(new File(this.getWinterCompiler().getModuleOutputPath(), MODULEJ)));
+			extraCompiler.compile(MODULEJ);
+			Assertions.fail("Should throw a WinterCompilationException");
+		}
+		catch(WinterCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnostics().size());
+			
+			String cycleMessage1 = "Bean io.winterframework.test.multicycle.moduleJ:beanIOverride forms a cycle in module io.winterframework.test.multicycle.moduleJ\n" + 
+					"  ┌────────────────────────────────┐\n" + 
+					"  │                                │\n" + 
+					"  │    io.winterframework.test.multicycle.moduleJ:beanIOverride\n" + 
+					"  │                                │\n" + 
+					"  │                                │ io.winterframework.test.multicycle.moduleJ:beanIOverride:runnable\n" + 
+					"  │                                │\n" + 
+					"  ▲                                ▼\n" + 
+					"  │     io.winterframework.test.multicycle.moduleI:someRunnable\n" + 
+					"  │                                ┊\n" + 
+					"  │                               (┄) io.winterframework.test.multicycle.moduleI:beanI\n" + 
+					"  │                                ┊\n" + 
+					"  └────────────────────────────────┘ ";
+			
+			Assertions.assertEquals(cycleMessage1, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));
+		}
 	}
 }

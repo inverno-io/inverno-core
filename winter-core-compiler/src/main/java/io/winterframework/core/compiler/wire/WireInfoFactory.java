@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -37,12 +38,12 @@ import javax.lang.model.type.TypeMirror;
 import io.winterframework.core.annotation.Wire;
 import io.winterframework.core.annotation.Wires;
 import io.winterframework.core.compiler.common.AbstractInfoFactory;
-import io.winterframework.core.compiler.common.ReporterInfo;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.BeanQualifiedName;
 import io.winterframework.core.compiler.spi.BeanSocketQualifiedName;
 import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
+import io.winterframework.core.compiler.spi.ReporterInfo;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
 
 /**
@@ -55,7 +56,7 @@ public class WireInfoFactory extends AbstractInfoFactory {
 
 	private Map<BeanQualifiedName, ? extends BeanInfo> beans;
 	
-	private Map<BeanSocketQualifiedName, ? extends ModuleBeanSocketInfo> beanSockets;
+	private Set<BeanSocketQualifiedName> beanSockets;
 	
 	private Map<BeanQualifiedName, ? extends SocketBeanInfo> requiredModuleSockets;
 	
@@ -68,7 +69,8 @@ public class WireInfoFactory extends AbstractInfoFactory {
 		this.moduleElement = moduleElement;
 		
 		this.beans = beans.stream().collect(Collectors.toMap(beanInfo -> beanInfo.getQualifiedName(), Function.identity()));
-		this.beanSockets = beanSockets.stream().collect(Collectors.toMap(beanSocketInfo -> beanSocketInfo.getQualifiedName(), Function.identity()));
+		this.beanSockets = beanSockets.stream().map(ModuleBeanSocketInfo::getQualifiedName).collect(Collectors.toSet());
+		
 		this.requiredModuleSockets = requiredModuleSockets.stream().collect(Collectors.toMap(moduleSocketInfo -> moduleSocketInfo.getQualifiedName(), Function.identity()));
 		
 		this.wireAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wire.class.getCanonicalName()).asType();
@@ -151,7 +153,7 @@ public class WireInfoFactory extends AbstractInfoFactory {
 				beanSocketQName = BeanSocketQualifiedName.valueOf(this.moduleQName, into);
 			}
 
-			if(!this.beanSockets.containsKey(beanSocketQName)) {
+			if(!this.beanSockets.contains(beanSocketQName)) {
 				// There's no bean socket with that name so let's try to interpret this as a ModuleSocket: <module>:<socket>
 				beanSocketQName = null;
 				throw new QualifiedNameFormatException();

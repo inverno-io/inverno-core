@@ -21,7 +21,6 @@ import java.util.Locale;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.winterframework.core.test.AbstractWinterTest;
 import io.winterframework.core.test.WinterCompilationException;
 
 /**
@@ -29,7 +28,7 @@ import io.winterframework.core.test.WinterCompilationException;
  * @author jkuhn
  *
  */
-public class TestConflict extends AbstractWinterTest {
+public class TestConflict extends AbstractCoreWinterTest {
 
 	private static final String MODULE = "io.winterframework.test.conflict";
 	
