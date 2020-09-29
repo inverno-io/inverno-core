@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
-	Copyright 2018 Jeremy KUHN
-	
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-	
-	   http://www.apache.org/licenses/LICENSE-2.0
-	
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
- -->
+<!-- Copyright 2018 Jeremy KUHN Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -72,15 +64,21 @@
 
 	<properties>
 		<version.winter>1.0.2-SNAPSHOT</version.winter>
-		
+
+		<!-- External Dependencies -->
 		<version.log4j>2.13.3</version.log4j>
 		<version.projectreactor>3.3.9.RELEASE</version.projectreactor>
 		<version.javacc>7.0.9</version.javacc>
-		
+		<version.lettuce>5.3.4.RELEASE</version.lettuce>
+		<version.commons.lang>3.11</version.commons.lang>
+		<version.commons.text>1.9</version.commons.text>
+
+		<!-- Test -->
 		<version.junit.jupiter>5.5.1</version.junit.jupiter>
 		<version.junit.platform>1.5.1</version.junit.platform>
 		<version.mockito-core>2.23.4</version.mockito-core>
-		
+
+		<!-- Maven plugins -->
 		<version.asm>8.0.1</version.asm>
 		<version.maven-clean-plugin>3.1.0</version.maven-clean-plugin>
 		<version.maven-resources-plugin>3.1.0</version.maven-resources-plugin>
@@ -114,7 +112,7 @@
 				<artifactId>winter-core-compiler</artifactId>
 				<version>${version.winter}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.apache.logging.log4j</groupId>
 				<artifactId>log4j-api</artifactId>
@@ -136,7 +134,22 @@
 				<artifactId>javacc</artifactId>
 				<version>${version.javacc}</version>
 			</dependency>
-			
+			<dependency>
+				<groupId>io.lettuce</groupId>
+				<artifactId>lettuce-core</artifactId>
+				<version>${version.lettuce}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${version.commons.lang}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-text</artifactId>
+				<version>${version.commons.text}</version>
+			</dependency>
+
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
@@ -266,7 +279,8 @@
 								<configuration>
 									<target>
 										<property name="sourceFile" value="pom.xml" />
-										<xslt in="${sourceFile}" out="${sourceFile}.new" force="true">
+										<xslt in="${sourceFile}" out="${sourceFile}.new"
+											force="true">
 											<style>
 												<string><![CDATA[
 <xsl:stylesheet version="2.0"
@@ -356,7 +370,8 @@
 								<configuration>
 									<target>
 										<property name="sourceFile" value="pom.xml" />
-										<xslt in="${sourceFile}" out="${sourceFile}.new" force="true">
+										<xslt in="${sourceFile}" out="${sourceFile}.new"
+											force="true">
 											<style>
 												<string><![CDATA[
 <xsl:stylesheet version="2.0"
