@@ -267,7 +267,7 @@ class ModuleGenerator {
 				System.out.println("Generating module " + moduleBuilder.getQualifiedName().toString() + "...");
 			}
 			moduleInfo = moduleBuilder.build();
-			if(moduleInfo.isFaulty() || pluginsExecutionResult.hasErrors()) {
+			if(moduleInfo.isFaulty() || pluginsExecutionResult.hasError()) {
 				roundFaultyModules.add(moduleName);
 			}
 			else {

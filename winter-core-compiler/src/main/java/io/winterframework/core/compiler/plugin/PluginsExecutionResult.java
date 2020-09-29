@@ -32,7 +32,7 @@ public class PluginsExecutionResult {
 		this.pluginExecutions = pluginExecutions;
 	}
 
-	public boolean hasErrors() {
+	public boolean hasError() {
 		return this.pluginExecutions.stream().anyMatch(GenericPluginExecution::hasError);
 	}
 	
