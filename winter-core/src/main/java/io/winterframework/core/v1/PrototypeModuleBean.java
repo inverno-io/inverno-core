@@ -152,22 +152,12 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 				this.expungeStaleInstances();
 				T instance = this.createInstance();
 				WeakReference<T> reference = new WeakReference<>(instance, this.referenceQueue);
-				this.instances.add(reference);
+				synchronized (this) {
+					this.instances.add(reference);
+				}
 		
 				return instance;
 			});
-		/*
-		if(this.override.isPresent()) {
-			return this.override.get().get();
-		}
-		else {
-			this.expungeStaleInstances();
-			T instance = this.createInstance();
-			WeakReference<T> reference = new WeakReference<>(instance, this.referenceQueue);
-			this.instances.add(reference);
-	
-			return instance;
-		}*/
 	}
 
 	/**

@@ -130,21 +130,12 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 			.orElseGet(() -> {
 				W wrapper = this.createWrapper();
 				T instance = wrapper.get();
-				this.instances.put(instance, wrapper);
+				synchronized (this) {
+					this.instances.put(instance, wrapper);
+				}
 				
 				return instance;
 			});
-		
-		/*if(this.override.isPresent()) {
-			return this.override.get().get();
-		}
-		else {
-			W wrapper = this.createWrapper();
-			T instance = wrapper.get();
-			this.instances.put(instance, wrapper);
-			
-			return instance;
-		}*/
 	}
 
 	/**
