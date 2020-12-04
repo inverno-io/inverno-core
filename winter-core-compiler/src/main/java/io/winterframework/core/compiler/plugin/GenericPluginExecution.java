@@ -65,7 +65,8 @@ class GenericPluginExecution implements PluginExecution {
 	}
 
 	public boolean hasError() {
-		return this.reporters.size() == 0 || this.reporters.stream().anyMatch(reporter -> reporter.hasError());
+		// TODO I don't know why this check was for...
+		return /*this.reporters.size() == 0 || */this.reporters.stream().anyMatch(reporter -> reporter.hasError());
 	}
 	
 	public boolean hasGeneratedSourceFiles() {
