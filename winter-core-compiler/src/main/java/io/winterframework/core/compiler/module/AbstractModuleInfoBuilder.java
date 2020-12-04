@@ -85,13 +85,13 @@ abstract class AbstractModuleInfoBuilder implements ModuleInfoBuilder {
 		}
 		
 		this.moduleQName = new ModuleQualifiedName(packageName, moduleName, moduleClassName);
-		
 		TypeElement moduleType = this.processingEnvironment.getElementUtils().getTypeElement(this.moduleQName.getClassName());
-		
 		if(moduleType != null) {
-			String name = this.processingEnvironment.getTypeUtils().asElement(moduleType.getSuperclass()).toString();
-			if(name.equals("io.winterframework.core.v1.Module")) {
+			if(moduleType.getSuperclass().toString().equals("io.winterframework.core.v1.Module")) {
 				this.version = 1;
+			}
+			else {
+				throw new IllegalStateException("Class " + this.moduleQName.getClassName() + " is not recognized as a winter module class which might indicate a name collision");
 			}
 		}
 		else {
