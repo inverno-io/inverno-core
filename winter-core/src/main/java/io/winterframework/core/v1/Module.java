@@ -321,7 +321,9 @@ public abstract class Module {
 		 * @return the aggregator instance.
 		 */
 		public BeanAggregator<E> add(E bean) {
-			this.aggregate.add(bean);
+			if(bean != null) {
+				this.aggregate.add(bean);
+			}
 			return this;
 		}
 
@@ -335,7 +337,9 @@ public abstract class Module {
 		 * @return the aggregator instance.
 		 */
 		public BeanAggregator<E> add(Collection<E> beans) {
-			this.aggregate.addAll(beans);
+			if(beans != null) {
+				this.aggregate.addAll(beans);
+			}
 			return this;
 		}
 
@@ -349,7 +353,9 @@ public abstract class Module {
 		 * @return the aggregator instance.
 		 */
 		public BeanAggregator<E> add(E[] beans) {
-			this.aggregate.addAll(Arrays.asList(beans));
+			if(beans != null) {
+				this.aggregate.addAll(Arrays.asList(beans));
+			}
 			return this;
 		}
 
