@@ -65,33 +65,54 @@ class PrototypeWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractWrap
 	 */
 	@Override
 	public Bean<T> build() {
-		return new PrototypeWrapperBean<W, T>(this.beanName, this.override) {
+		if(this.destroys.isEmpty()) {
+			return new PrototypeWrapperBean<W, T>(this.beanName, this.override) {
 
-			@Override
-			protected W createWrapper() {
-				W wrapper = constructor.get();
-				inits.stream().forEach(init -> {
-					try {
-						init.accept(wrapper);
-					} 
-					catch (Exception e) {
-						LOGGER.fatal(() -> "Error initializing bean " + name, e);
-						throw new RuntimeException("Error initializing bean " + name, e);
-					}
-				});
-				return wrapper;
-			}
+				@Override
+				protected W createWrapper() {
+					W wrapper = constructor.get();
+					inits.stream().forEach(init -> {
+						try {
+							init.accept(wrapper);
+						} 
+						catch (Exception e) {
+							LOGGER.fatal(() -> "Error initializing bean " + name, e);
+							throw new RuntimeException("Error initializing bean " + name, e);
+						}
+					});
+					return wrapper;
+				}
+			};
+		}
+		else {
+			return new PrototypeWeakWrapperBean<W, T>(this.beanName, this.override) {
 
-			@Override
-			protected void destroyWrapper(W wrapper) {
-				destroys.stream().forEach(destroy -> {
-					try {
-						destroy.accept(wrapper);
-					} catch (Exception e) {
-						LOGGER.warn(() -> "Error destroying bean " + name, e);
-					}
-				});
-			}
-		};
+				@Override
+				protected W createWrapper() {
+					W wrapper = constructor.get();
+					inits.stream().forEach(init -> {
+						try {
+							init.accept(wrapper);
+						} 
+						catch (Exception e) {
+							LOGGER.fatal(() -> "Error initializing bean " + name, e);
+							throw new RuntimeException("Error initializing bean " + name, e);
+						}
+					});
+					return wrapper;
+				}
+
+				@Override
+				protected void destroyWrapper(W wrapper) {
+					destroys.stream().forEach(destroy -> {
+						try {
+							destroy.accept(wrapper);
+						} catch (Exception e) {
+							LOGGER.warn(() -> "Error destroying bean " + name, e);
+						}
+					});
+				}
+			};
+		}
 	}
 }

@@ -15,8 +15,8 @@
  */
 package io.winterframework.core.v1;
 
-import java.lang.ref.WeakReference;
 import java.util.Optional;
+import java.util.WeakHashMap;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,11 +35,10 @@ import io.winterframework.core.v1.Module.Bean;
  * </p>
  * 
  * <p>
- * Unlike {@link PrototypeWeakWrapperBean}, this implementation doesn't keep
- * track of the instances it creates which makes it faster and consumes less
- * resources, in return instances must always be destroyed explicitly. This
- * implementation should be used for beans that do not define any destroy
- * method.
+ * As for {@link PrototypeModuleBean}, particular care must be taken when
+ * creating prototype beans instances outside of a module (eg.
+ * moduleInstance.prototypeBean()), see {@link PrototypeModuleBean}
+ * documentation for more information.
  * </p>
  * 
  * <p>
@@ -61,18 +60,24 @@ import io.winterframework.core.v1.Module.Bean;
  * @author jkuhn
  * @since 1.0
  * @see Bean
+ * @see PrototypeWrapperBean
+ * @see PrototypeWrapperBeanBuilder
  *
  * @param <W> the type of the wrapper bean
  * @param <T> the actual type of the bean
  */
-abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWrapperBean<W, T> {
+abstract class PrototypeWeakWrapperBean<W extends Supplier<T>, T> extends AbstractWrapperBean<W, T> {
 
 	/**
 	 * The bean logger.
 	 */
-	protected static final Logger LOGGER = LogManager.getLogger(PrototypeWrapperBean.class);
+	protected static final Logger LOGGER = LogManager.getLogger(PrototypeWeakWrapperBean.class);
 	
-	private boolean created;
+	/**
+	 * A weak hash map holding the bean instances issued by the bean as keys and
+	 * their corresponding wrapper instance as value.
+	 */
+	private WeakHashMap<T, W> instances;
 	
 	/**
 	 * <p>
@@ -82,7 +87,7 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * @param name the bean name
 	 * @param override An optional override
 	 */
-	public PrototypeWrapperBean(String name, Optional<Supplier<T>> override) {
+	public PrototypeWeakWrapperBean(String name, Optional<Supplier<T>> override) {
 		super(name, override);
 	}
 	
@@ -99,11 +104,11 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 */
 	@Override
 	public final void create() {
-		if (!this.created) {
+		if (this.instances == null) {
 			synchronized(this) {
 				LOGGER.debug("Creating prototype bean {} {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
+				this.instances = new WeakHashMap<>();
 				this.parent.recordBean(this);
-				this.created = true;
 			}
 		}
 	}
@@ -128,29 +133,36 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 			.map(Supplier::get)
 			.orElseGet(() -> {
 				W wrapper = this.createWrapper();
-				return wrapper.get();
+				T instance = wrapper.get();
+				synchronized (this) {
+					this.instances.put(instance, wrapper);
+				}
+				return instance;
 			});
 	}
 
 	/**
 	 * <p>
-	 * Destroys the prototype bean.
+	 * Destroys the prototype bean and as a result all bean wrapper instances it has
+	 * issued.
 	 * </p>
 	 * 
 	 * <p>
-	 * Since no references to the instances created by this bean have been kept,
-	 * this method basically does nothing.
+	 * This method delegates bean instance destruction to the
+	 * {@link #destroyWrapper(Object)} method.
 	 * </p>
 	 */
 	@Override
 	public final void destroy() {
-		synchronized(this) {
-			LOGGER.debug("Destroying prototype bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
+		if (this.instances != null) {
+			synchronized(this) {
+				LOGGER.debug("Destroying prototype bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
+				if(!this.override.isPresent()) {
+					this.instances.values().stream().forEach(wrapper -> this.destroyWrapper(wrapper));
+					this.instances.clear();
+				}
+				this.instances = null;
+			}
 		}
-	}
-	
-	@Override
-	protected void destroyWrapper(W wrapper) {
-		
 	}
 }

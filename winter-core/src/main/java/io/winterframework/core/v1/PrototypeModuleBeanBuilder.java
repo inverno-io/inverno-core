@@ -64,32 +64,52 @@ class PrototypeModuleBeanBuilder<T> extends AbstractModuleBeanBuilder<T> {
 	 */
 	@Override
 	public Bean<T> build() {
-		return new PrototypeModuleBean<T>(this.beanName, this.override) {
+		if(this.destroys.isEmpty()) {
+			return new PrototypeModuleBean<T>(this.beanName, this.override) {
 
-			@Override
-			protected T createInstance() {
-				T instance = constructor.get();
-				inits.stream().forEach(init -> {
-					try {
-						init.accept(instance);
-					} catch (Exception e) {
-						LOGGER.fatal(() -> "Error initializing bean " + name, e);
-						throw new RuntimeException("Error initializing bean " + name, e);
-					}
-				});
-				return instance;
-			}
+				@Override
+				protected T createInstance() {
+					T instance = constructor.get();
+					inits.stream().forEach(init -> {
+						try {
+							init.accept(instance);
+						} catch (Exception e) {
+							LOGGER.fatal(() -> "Error initializing bean " + name, e);
+							throw new RuntimeException("Error initializing bean " + name, e);
+						}
+					});
+					return instance;
+				}
+			};
+		}
+		else {
+			return new PrototypeWeakModuleBean<T>(this.beanName, this.override) {
 
-			@Override
-			protected void destroyInstance(T instance) {
-				destroys.stream().forEach(destroy -> {
-					try {
-						destroy.accept(instance);
-					} catch (Exception e) {
-						LOGGER.warn(() -> "Error destroying bean " + name, e);
-					}
-				});
-			}
-		};
+				@Override
+				protected T createInstance() {
+					T instance = constructor.get();
+					inits.stream().forEach(init -> {
+						try {
+							init.accept(instance);
+						} catch (Exception e) {
+							LOGGER.fatal(() -> "Error initializing bean " + name, e);
+							throw new RuntimeException("Error initializing bean " + name, e);
+						}
+					});
+					return instance;
+				}
+
+				@Override
+				protected void destroyInstance(T instance) {
+					destroys.stream().forEach(destroy -> {
+						try {
+							destroy.accept(instance);
+						} catch (Exception e) {
+							LOGGER.warn(() -> "Error destroying bean " + name, e);
+						}
+					});
+				}
+			};
+		}
 	}
 }

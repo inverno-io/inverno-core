@@ -79,14 +79,16 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * {@link #createWrapper()} method and implement the singleton pattern.
 	 * </p>
 	 */
-	public synchronized final void create() {
+	public final void create() {
 		if (this.wrapper == null) {
-			LOGGER.debug("Creating singleton bean {} {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
-			this.instance = this.override.map(Supplier::get).orElseGet(() -> {
-				this.wrapper = this.createWrapper();
-				return this.wrapper.get();
-			});
-			this.parent.recordBean(this);
+			synchronized(this) {
+				LOGGER.debug("Creating singleton bean {} {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
+				this.instance = this.override.map(Supplier::get).orElseGet(() -> {
+					this.wrapper = this.createWrapper();
+					return this.wrapper.get();
+				});
+				this.parent.recordBean(this);
+			}
 		}
 	}
 
@@ -113,14 +115,16 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * {@link #destroyWrapper(Object)} method.
 	 * </p>
 	 */
-	public synchronized final void destroy() {
+	public final void destroy() {
 		if (this.wrapper != null) {
-			LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-			if(!this.override.isPresent()) {
-				this.destroyWrapper(this.wrapper);
-				this.wrapper = null;
+			synchronized(this) {
+				LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
+				if(!this.override.isPresent()) {
+					this.destroyWrapper(this.wrapper);
+					this.wrapper = null;
+				}
+				this.instance = null;
 			}
-			this.instance = null;
 		}
 	}
 }

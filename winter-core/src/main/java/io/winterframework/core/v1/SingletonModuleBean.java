@@ -73,11 +73,13 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 * method and implement the singleton pattern.
 	 * </p>
 	 */
-	public synchronized final void create() {
+	public final void create() {
 		if (this.instance == null) {
-			LOGGER.debug("Creating singleton bean {} {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
-			this.instance = this.override.map(Supplier::get).orElseGet(this::createInstance);
-			this.parent.recordBean(this);
+			synchronized(this) {
+				LOGGER.debug("Creating singleton bean {} {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
+				this.instance = this.override.map(Supplier::get).orElseGet(this::createInstance);
+				this.parent.recordBean(this);
+			}
 		}
 	}
 
@@ -103,13 +105,15 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 * {@link #destroyInstance(Object)} method.
 	 * </p>
 	 */
-	public synchronized final void destroy() {
+	public final void destroy() {
 		if (this.instance != null) {
-			LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-			if(!this.override.isPresent()) {
-				this.destroyInstance(this.instance);
+			synchronized(this) {
+				LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
+				if(!this.override.isPresent()) {
+					this.destroyInstance(this.instance);
+				}
+				this.instance = null;
 			}
-			this.instance = null;
 		}
 	}
 }
