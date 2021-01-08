@@ -15,6 +15,9 @@
  */
 package io.winterframework.core.compiler;
 
+import java.util.function.Supplier;
+
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -51,6 +54,8 @@ class ModuleClassGenerationContext extends AbstractSourceGenerationContext<Modul
 		COMPONENT_MODULE_NEW,
 		COMPONENT_MODULE_BEAN_REFERENCE
 	}
+	
+	private TypeMirror supplierType = this.typeUtils.erasure(this.elementUtils.getTypeElement(Supplier.class.getCanonicalName()).asType());
 	
 	public ModuleClassGenerationContext(Types typeUtils, Elements elementUtils, GenerationMode mode) {
 		super(typeUtils, elementUtils, mode);
@@ -95,5 +100,14 @@ class ModuleClassGenerationContext extends AbstractSourceGenerationContext<Modul
 			return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Set"), type));
 		}
 		throw new IllegalArgumentException("Unexpected multi type: " + multiType);
+	}
+	
+	public TypeMirror getSupplierSocketType(TypeMirror socketType) {
+		if(this.typeUtils.isSameType(this.typeUtils.erasure(socketType), this.supplierType)) {
+			return socketType;
+		}
+		else {
+			return ((TypeElement)this.typeUtils.asElement(socketType)).getInterfaces().stream().filter(type -> this.typeUtils.isSameType(this.typeUtils.erasure(type), this.supplierType)).findFirst().orElseThrow(() -> new IllegalStateException("Socket type does not extend " + Supplier.class.getCanonicalName()));
+		}
 	}
 }

@@ -34,7 +34,7 @@ public interface SocketBeanInfo extends BeanInfo, SocketInfo {
 
 	/**
 	 * <p>
-	 * Returns the actual type of socket bean.
+	 * Returns the actual type of the socket bean.
 	 * </p>
 	 * 
 	 * <p>

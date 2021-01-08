@@ -232,10 +232,10 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				.map(socketInfo -> {
 					StringBuilder result = new StringBuilder().append(context.indent(4));
 					if(socketInfo.isOptional()) {
-						result.append("(").append(context.getTypeName(optionalType) +"<").append(context.getTypeName(socketInfo.getSocketType())).append(">)");
+						result.append("(").append(context.getTypeName(optionalType) +"<").append(context.getTypeName(context.getSupplierSocketType(socketInfo.getSocketType()))).append(">)");
 					}
 					else {
-						result.append("(").append(context.getTypeName(socketInfo.getSocketType())).append(")");
+						result.append("(").append(context.getTypeName(context.getSupplierSocketType(socketInfo.getSocketType()))).append(")");
 					}
 					result.append("this.sockets.get(\"").append(socketInfo.getQualifiedName().normalize()).append("\")");
 
@@ -555,10 +555,10 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			
 			if(socketBeanInfo.isOptional()) {
 				TypeMirror optionalType = context.getTypeUtils().erasure(context.getElementUtils().getTypeElement(Optional.class.getCanonicalName()).asType());
-				socketParameter.append(context.getTypeName(optionalType)).append("<").append(context.getTypeName(socketBeanInfo.getSocketType())).append(">");
+				socketParameter.append(context.getTypeName(optionalType)).append("<").append(context.getTypeName(context.getSupplierSocketType(socketBeanInfo.getSocketType()))).append(">");
 			}
 			else {
-				socketParameter.append(context.getTypeName(socketBeanInfo.getSocketType()));
+				socketParameter.append(context.getTypeName(context.getSupplierSocketType(socketBeanInfo.getSocketType())));
 			}
 			
 			socketParameter.append(" ").append(socketBeanInfo.getQualifiedName().normalize());
@@ -571,10 +571,10 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 		else if(context.getMode() == GenerationMode.SOCKET_FIELD) {
 			TypeMirror optionalType = context.getTypeUtils().erasure(context.getElementUtils().getTypeElement(Optional.class.getCanonicalName()).asType());
 			if(socketBeanInfo.isOptional()) {
-				return new StringBuilder().append(context.indent(2)).append("private ").append(context.getTypeName(optionalType)).append("<").append(context.getTypeName(socketBeanInfo.getSocketType())).append("> ").append(socketBeanInfo.getQualifiedName().normalize()).append(" = ").append(context.getTypeName(optionalType)).append(".empty();");
+				return new StringBuilder().append(context.indent(2)).append("private ").append(context.getTypeName(optionalType)).append("<").append(context.getTypeName(context.getSupplierSocketType(socketBeanInfo.getSocketType()))).append("> ").append(socketBeanInfo.getQualifiedName().normalize()).append(" = ").append(context.getTypeName(optionalType)).append(".empty();");
 			}
 			else {
-				return new StringBuilder().append(context.indent(2)).append("private ").append(context.getTypeName(socketBeanInfo.getSocketType())).append(" ").append(socketBeanInfo.getQualifiedName().normalize()).append(";");
+				return new StringBuilder().append(context.indent(2)).append("private ").append(context.getTypeName(context.getSupplierSocketType(socketBeanInfo.getSocketType()))).append(" ").append(socketBeanInfo.getQualifiedName().normalize()).append(";");
 			}
 		}
 		else if(context.getMode() == GenerationMode.SOCKET_ASSIGNMENT) {
@@ -606,7 +606,6 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 		}
 		else if(context.getMode() == GenerationMode.COMPONENT_MODULE_BEAN_REFERENCE) {
 			TypeMirror optionalType = context.getTypeUtils().erasure(context.getElementUtils().getTypeElement(Optional.class.getCanonicalName()).asType());
-
 			if(!socketBeanInfo.isOptional() || socketBeanInfo.isResolved()) {
 				StringBuilder result = new StringBuilder();
 				if(socketBeanInfo instanceof SingleSocketInfo) {
@@ -631,7 +630,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 	@Override
 	public StringBuilder visit(SingleSocketBeanInfo singleSocketBeanInfo, ModuleClassGenerationContext context) {
 		if(context.getMode() == GenerationMode.COMPONENT_MODULE_BEAN_REFERENCE) {
-			StringBuilder result = new StringBuilder().append("(").append(context.getTypeName(singleSocketBeanInfo.getSocketType())).append(")");
+			StringBuilder result = new StringBuilder().append("(").append(context.getTypeName(context.getSupplierSocketType(singleSocketBeanInfo.getSocketType()))).append(")");
 			if(singleSocketBeanInfo.isResolved()) {
 				result.append("() -> ").append(this.visit((SingleSocketInfo)singleSocketBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE)));
 			}
@@ -639,7 +638,6 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				result.append("null");
 			}
 			return result;
-//			return new StringBuilder().append("(").append(context.getTypeName(singleSocketBeanInfo.getSocketType())).append(")").append((singleSocketBeanInfo.isResolved() ? "() -> " + this.visit((SingleSocketInfo)singleSocketBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE)) : "null"));
 		}
 		return new StringBuilder();
 	}
@@ -647,7 +645,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 	@Override
 	public StringBuilder visit(MultiSocketBeanInfo multiSocketBeanInfo, ModuleClassGenerationContext context) {
 		if(context.getMode() == GenerationMode.COMPONENT_MODULE_BEAN_REFERENCE) {
-			StringBuilder result = new StringBuilder().append("(").append(context.getTypeName(multiSocketBeanInfo.getSocketType())).append(")");
+			StringBuilder result = new StringBuilder().append("(").append(context.getTypeName(context.getSupplierSocketType(multiSocketBeanInfo.getSocketType()))).append(")");
 			if(multiSocketBeanInfo.isResolved()) {
 				result.append("() -> ").append(this.visit((MultiSocketInfo)multiSocketBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE)));
 			}
@@ -655,7 +653,6 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				result.append("null");
 			}
 			return result;
-//			return new StringBuilder().append("(").append(context.getTypeName(multiSocketBeanInfo.getSocketType())).append(")").append((multiSocketBeanInfo.isResolved() ? "() -> " + this.visit((MultiSocketInfo)multiSocketBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE)) : "null"));
 		}
 		return new StringBuilder();
 	}
