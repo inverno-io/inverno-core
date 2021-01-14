@@ -574,7 +574,16 @@ public abstract class Module {
 		 * active.
 		 * </p>
 		 * 
-		 * @throws IllegalStateException if the enclosing module is inactive.
+		 * <p>
+		 * In case the enclosing module is not active but one of its ancestors is
+		 * active, this method starts the enclosing module in order to start modules in
+		 * their natural order. If no ancestor is active (ie. the enclosing module is
+		 * not part of a module initialization process), an
+		 * {@link IllegalStateException} is thrown.
+		 * </p>
+		 * 
+		 * @throws IllegalStateException if the enclosing module is inactive and not
+		 *                               part of a module initialization process.
 		 */
 		@Override
 		public final T get() throws IllegalStateException {
