@@ -565,7 +565,7 @@ public abstract class Module {
 		 */
 		@Override
 		public final T get() throws IllegalStateException {
-			if (!this.parent.isActive()) {
+			if (!this.parent.isActive() && (this.parent.parent != null && !this.parent.parent.isActive())) {
 				throw new IllegalArgumentException("Module " + this.parent.getName() + " is inactive.");
 			}
 			return this.doGet();
