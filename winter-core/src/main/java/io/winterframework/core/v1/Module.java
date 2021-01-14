@@ -237,6 +237,19 @@ public abstract class Module {
 	public boolean isActive() {
 		return active;
 	}
+	
+	/**
+	 * <p>
+	 * Determines whether this module or one of its ancestors is active which would
+	 * indicate that this module is a component module in a tree of module being
+	 * started.
+	 * </p>
+	 * 
+	 * @return true if an ancestor module is active, false otherwise.
+	 */
+	private boolean isSuperActive() {
+		return this.active || (this.parent != null && this.parent.isSuperActive());
+	}
 
 	/**
 	 * <p>
@@ -259,7 +272,7 @@ public abstract class Module {
 		this.active = true;
 		long t0 = System.nanoTime();
 		this.logger.info("Starting Module " + this.name + "...");
-		this.modules.stream().forEach(module -> module.start());
+		this.modules.stream().filter(module -> !module.isActive()).forEach(module -> module.start());
 		this.beans.stream().forEach(bean -> bean.create());
 		this.logger.info("Module {} started in {}ms", this.name, ((System.nanoTime() - t0) / 1000000));
 //		this.logger.info(this.beansStack.stream().map(bean -> bean.name.toString()).collect(Collectors.joining(", "))); // TEST
@@ -565,8 +578,13 @@ public abstract class Module {
 		 */
 		@Override
 		public final T get() throws IllegalStateException {
-			if (!this.parent.isActive() && (this.parent.parent != null && !this.parent.parent.isActive())) {
-				throw new IllegalArgumentException("Module " + this.parent.getName() + " is inactive.");
+			if (!this.parent.isActive()) {
+				if(this.parent.isSuperActive()) {
+					this.parent.start();
+				}
+				else {
+					throw new IllegalArgumentException("Module " + this.parent.getName() + " is inactive.");
+				}
 			}
 			return this.doGet();
 		}
