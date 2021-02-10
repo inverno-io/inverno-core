@@ -15,27 +15,18 @@
  */
 package io.winterframework.core.compiler.plugin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic.Kind;
 
 import io.winterframework.core.compiler.WinterCompiler;
+import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.plugin.CompilerPlugin;
 
@@ -63,7 +54,7 @@ public class PluginsExecutor {
 		this.loadPlugins();
 	}
 
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	private void loadPlugins() {
 		ServiceLoader<CompilerPlugin> loader;
 		if(WinterCompiler.class.getModule().isNamed()) {
@@ -76,12 +67,13 @@ public class PluginsExecutor {
 			loader = ServiceLoader.load(CompilerPlugin.class, PluginsExecutor.class.getClassLoader());
 		}
 		
-		TypeMirror targetAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Target.class.getCanonicalName()).asType();
+//		TypeMirror targetAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Target.class.getCanonicalName()).asType();
 		
 		this.compilerPluginContext = new GenericPluginContext(processingEnvironment);
 		this.plugins = loader.stream().map(provider -> {
 			CompilerPlugin plugin = provider.get();
-			TypeElement pluginAnnotationElement = this.processingEnvironment.getElementUtils().getTypeElement(plugin.getSupportedAnnotationType());
+			// We want to target all kind of types and also process module beans (without considering annotations)
+			/*TypeElement pluginAnnotationElement = this.processingEnvironment.getElementUtils().getTypeElement(plugin.getSupportedAnnotationType());
 			Optional<? extends AnnotationMirror> targetAnnotation = pluginAnnotationElement.getAnnotationMirrors().stream().filter(annotation -> this.processingEnvironment.getTypeUtils().isSameType(annotation.getAnnotationType(), targetAnnotationType)).findFirst();
 			if(!targetAnnotation.isPresent()) {
 				return null;
@@ -96,7 +88,7 @@ public class PluginsExecutor {
 			}
 			if(targetTypes == null || targetTypes.length > 1 || !targetTypes[0].equals(ElementType.TYPE.toString())) {
 				this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Ignoring Plugin " + plugin.getClass() + " which must target " + ElementType.TYPE + " only");
-			}
+			}*/
 			
 			plugin.init(this.compilerPluginContext);
 			return plugin;
@@ -109,9 +101,9 @@ public class PluginsExecutor {
 		return plugins;
 	}
 	
-	public PluginsExecutionTask getTask(ModuleQualifiedName module) {
+	public PluginsExecutionTask getTask(ModuleQualifiedName module, List<? extends BeanInfo> beans) {
 		if(!this.executionByModule.containsKey(module)) {
-			this.executionByModule.put(module, new PluginsExecutionTask(module, this.processingEnvironment, this.options, this.plugins));
+			this.executionByModule.put(module, new PluginsExecutionTask(module, this.processingEnvironment, this.options, this.plugins, beans));
 		}
 		return this.executionByModule.get(module);
 	}

@@ -58,7 +58,6 @@ import io.winterframework.core.compiler.socket.SocketCompilationException;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
 import io.winterframework.core.compiler.spi.SocketBeanInfo;
-import io.winterframework.core.compiler.spi.plugin.CompilerPlugin;
 
 /**
  * <p>
@@ -135,7 +134,7 @@ public class WinterCompiler extends AbstractProcessor {
 	
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
-		return Stream.concat(super.getSupportedAnnotationTypes().stream(), this.moduleGenerator.getPluginsExecutor().getPlugins().stream().map(CompilerPlugin::getSupportedAnnotationType)).collect(Collectors.toSet());
+		return Stream.concat(super.getSupportedAnnotationTypes().stream(), this.moduleGenerator.getPluginsExecutor().getPlugins().stream().flatMap(plugin -> plugin.getSupportedAnnotationTypes().stream())).collect(Collectors.toSet());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -243,7 +242,7 @@ public class WinterCompiler extends AbstractProcessor {
 						AnnotationMirror moduleAnnotation = this.processingEnv.getElementUtils().getAllAnnotationMirrors(moduleElement).stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst().get();
 						
 						final Set<String> includes = new HashSet<>();
-						final Set<String> excludes = new HashSet<>();;
+						final Set<String> excludes = new HashSet<>();
 						for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnv.getElementUtils().getElementValuesWithDefaults(moduleAnnotation).entrySet()) {
 							switch(value.getKey().getSimpleName().toString()) {
 								case "includes" : includes.addAll(((List<AnnotationValue>)value.getValue().getValue()).stream().map(v -> v.getValue().toString()).collect(Collectors.toSet()));

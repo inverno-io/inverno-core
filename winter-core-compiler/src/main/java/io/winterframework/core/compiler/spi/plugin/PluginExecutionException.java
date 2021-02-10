@@ -16,8 +16,13 @@
 package io.winterframework.core.compiler.spi.plugin;
 
 /**
+ * <p>
+ * Thrown during the execution of a {@link CompilerPlugin} to indicate an
+ * unrecoverable error.
+ * </p>
+ * 
  * @author jkuhn
- *
+ * @since 1.1
  */
 public class PluginExecutionException extends Exception {
 

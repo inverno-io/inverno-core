@@ -55,6 +55,13 @@ public class ModuleQualifiedName extends QualifiedName {
 	 * </p>
 	 */
 	private String className;
+	
+	/**
+	 * <p>
+	 * The source package name where to place generated source files.
+	 * </p>
+	 */
+	private String sourcePackageName;
 
 	/**
 	 * <p>
@@ -67,9 +74,9 @@ public class ModuleQualifiedName extends QualifiedName {
 	 * @throws QualifiedNameFormatException if one of the specified names is invalid
 	 */
 	public ModuleQualifiedName(String packageName, String moduleName) throws QualifiedNameFormatException {
-		this(packageName, moduleName, null);
+		this(packageName, moduleName, null, null);
 	}
-
+	
 	/**
 	 * <p>
 	 * Creates a module qualified name from the specified package and module names
@@ -84,13 +91,33 @@ public class ModuleQualifiedName extends QualifiedName {
 	 */
 	public ModuleQualifiedName(String packageName, String moduleName, String className)
 			throws QualifiedNameFormatException {
+		this(packageName, moduleName, className, null);
+	}
+
+	/**
+	 * <p>
+	 * Creates a module qualified name from the specified package and module names
+	 * with the specified class name and source package name.
+	 * </p>
+	 * 
+	 * @param packageName       the package name
+	 * @param moduleName        the module simple name
+	 * @param className         the module class name
+	 * @param sourcePackageName the module source package name
+	 * 
+	 * @throws QualifiedNameFormatException if one of the specified names is invalid
+	 */
+	public ModuleQualifiedName(String packageName, String moduleName, String className, String sourcePackageName)
+			throws QualifiedNameFormatException {
 		super((packageName == null || packageName.equals("") ? "" : packageName + ".") + moduleName);
 
 		this.packageName = packageName == null ? "" : packageName;
 		this.moduleName = moduleName;
-		this.className = null;
-
+		this.className = className;
+		this.sourcePackageName = sourcePackageName == null ? "" : sourcePackageName;
+		
 		this.validatePackageName(this.packageName);
+		this.validatePackageName(this.sourcePackageName);
 		this.validateQualifiedNamePart(this.moduleName);
 	}
 
@@ -144,7 +171,7 @@ public class ModuleQualifiedName extends QualifiedName {
 		if (this.className != null && !this.className.equals("")) {
 			return this.className;
 		}
-		return this.getValue() + "." + Character.toUpperCase(this.getModuleName().charAt(0))
+		return this.getSourcePackageName() + "." + Character.toUpperCase(this.getModuleName().charAt(0))
 				+ this.getModuleName().substring(1);
 	}
 
@@ -153,6 +180,20 @@ public class ModuleQualifiedName extends QualifiedName {
 		return this.getModuleName();
 	}
 
+	/**
+	 * <p>
+	 * Return the source package name.
+	 * </p>
+	 * 
+	 * @return the source package name.
+	 */
+	public String getSourcePackageName() {
+		if(this.sourcePackageName != null && !this.sourcePackageName.equals("")) {
+			return this.sourcePackageName;
+		}
+		return this.getValue();
+	}
+	
 	/**
 	 * <p>
 	 * Returns the module package name.
@@ -209,12 +250,30 @@ public class ModuleQualifiedName extends QualifiedName {
 	 *                                      qualified name
 	 */
 	public static ModuleQualifiedName valueOf(String qname, String className) throws QualifiedNameFormatException {
+		return valueOf(qname, className, null);
+	}
+	
+	/**
+	 * <p>
+	 * Creates a module qualified name from the specified raw value which should be
+	 * a valid Java name and with the specified class name.
+	 * </p>
+	 * 
+	 * @param qname             a raw qualified name
+	 * @param className         a module class name
+	 * @param sourcePackageName a module source package name
+	 * 
+	 * @return a module qualified name
+	 * @throws QualifiedNameFormatException if the specified value is not a module
+	 *                                      qualified name
+	 */
+	public static ModuleQualifiedName valueOf(String qname, String className, String sourcePackageName) throws QualifiedNameFormatException {
 		int lastDotIndex = qname.lastIndexOf(".");
 		if (lastDotIndex > -1) {
-			return new ModuleQualifiedName(qname.substring(0, lastDotIndex), qname.substring(lastDotIndex + 1),
-					className);
-		} else {
-			return new ModuleQualifiedName("", qname, className);
+			return new ModuleQualifiedName(qname.substring(0, lastDotIndex), qname.substring(lastDotIndex + 1), className, sourcePackageName);
+		} 
+		else {
+			return new ModuleQualifiedName("", qname, className, sourcePackageName);
 		}
 	}
 }

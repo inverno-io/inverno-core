@@ -44,6 +44,8 @@ import io.winterframework.core.compiler.spi.ModuleQualifiedName;
  */
 public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGenerationContext<A,B>, B extends Enum<B>> {
 
+	protected A parentGeneration;
+	
 	protected Types typeUtils;
 	
 	protected Elements elementUtils;
@@ -68,6 +70,7 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 	}
 	
 	protected AbstractSourceGenerationContext(A parentGeneration) {
+		this.parentGeneration = parentGeneration;
 		this.imports = parentGeneration.imports;
 		this.typeUtils = parentGeneration.typeUtils;
 		this.elementUtils = parentGeneration.elementUtils;

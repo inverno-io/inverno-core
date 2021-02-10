@@ -15,15 +15,59 @@
  */
 package io.winterframework.core.compiler.spi.plugin;
 
+import java.util.Set;
+
 /**
+ * <p>
+ * A Compiler plugin provides a way to extend the Winter compiler in order to
+ * process module beans or generate additional classes or resources during the
+ * compilation of a module.
+ * </p>
+ * 
+ * <p>
+ * A plugin is only executed once during the compilation of a module right
+ * before the module class is actually generated. If additional source files are
+ * generated during the execution of the plugin, the generation of the module
+ * class is postponed until the next round so that the Winter compiler can
+ * integrate them.
+ * </p>
+ * 
  * @author jkuhn
+ * @since 1.1
  *
  */
 public interface CompilerPlugin {
 
-	String getSupportedAnnotationType();
+	/**
+	 * <p>
+	 * Returns the list of annotation types supported by the plugin.
+	 * </p>
+	 * 
+	 * <p>
+	 * Note that this list can be empty if the plugin is only interested in
+	 * processing the module beans.
+	 * </p>
+	 * 
+	 * @return a list of annotation types
+	 */
+	Set<String> getSupportedAnnotationTypes();
 	
+	/**
+	 * <p>
+	 * Initializes the plugin with the specified context before execution.
+	 * </p>
+	 * 
+	 * @param pluginContext the context used to initialize the plugin.
+	 */
 	void init(PluginContext pluginContext);
 	
+	/**
+	 * <p>
+	 * Executes the plugin.
+	 * </p>
+	 * 
+	 * @param execution the plugin execution
+	 * @throws PluginExecutionException if something goes wrong during the execution
+	 */
 	void execute(PluginExecution execution) throws PluginExecutionException;
 }

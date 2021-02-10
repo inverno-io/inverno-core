@@ -43,7 +43,7 @@ public abstract class QualifiedName {
 	 * The raw qualified name value.
 	 * </p>
 	 */
-	private String value;
+	private final String value;
 
 	/**
 	 * <p>

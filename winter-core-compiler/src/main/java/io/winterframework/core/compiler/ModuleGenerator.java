@@ -18,6 +18,7 @@ package io.winterframework.core.compiler;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,7 +38,9 @@ import javax.tools.StandardLocation;
 
 import io.winterframework.core.compiler.ModuleClassGenerationContext.GenerationMode;
 import io.winterframework.core.compiler.plugin.PluginsExecutionResult;
+import io.winterframework.core.compiler.plugin.PluginsExecutionTask;
 import io.winterframework.core.compiler.plugin.PluginsExecutor;
+import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.ModuleInfo;
 import io.winterframework.core.compiler.spi.ModuleInfoBuilder;
@@ -205,11 +208,14 @@ class ModuleGenerator {
 	private ModuleInfo generateModule(ModuleInfoBuilder moduleBuilder, RoundEnvironment roundEnv, Map<String, ModuleInfo> roundModules, Map<String, ModuleInfo> roundGeneratedModules, Set<String> roundFaultyModules, Map<String, PluginsExecutionResult> roundPluginExecutedModules) {
 		String moduleName = moduleBuilder.getQualifiedName().toString();
 	
+		List<BeanInfo> moduleInjectableBeans = new ArrayList<>();
 		boolean generate = true;
 		if(this.moduleBeans.containsKey(moduleName)) {
+			moduleInjectableBeans.addAll(this.moduleBeans.get(moduleName));
 			moduleBuilder.beans(this.moduleBeans.get(moduleName).stream().toArray(ModuleBeanInfo[]::new));
 		}
 		if(this.moduleSockets.containsKey(moduleName)) {
+			moduleInjectableBeans.addAll(this.moduleSockets.get(moduleName));
 			moduleBuilder.sockets(this.moduleSockets.get(moduleName).stream().toArray(SocketBeanInfo[]::new));					
 		}
 		if(this.componentModuleBuilders.containsKey(moduleName)) {
@@ -218,11 +224,15 @@ class ModuleGenerator {
 				String componentModuleName = componentModuleBuilder.getQualifiedName().toString();
 				if(this.generatedModules.containsKey(componentModuleName)) {
 					// Previous rounds
-					componentModules.add(this.generatedModules.get(componentModuleName));
+					ModuleInfo componentModule = this.generatedModules.get(componentModuleName);
+					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
+					componentModules.add(componentModule);
 				}
 				else if(this.componentModules.containsKey(componentModuleName)) {
 					// compiled module
-					componentModules.add(this.componentModules.get(componentModuleName));
+					ModuleInfo componentModule = this.componentModules.get(componentModuleName);
+					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
+					componentModules.add(componentModule);
 				} 
 				else if(this.faultyModules.contains(componentModuleName)) {
 					// Faulty module
@@ -231,11 +241,16 @@ class ModuleGenerator {
 				else if(this.moduleBuilders.containsValue(componentModuleBuilder)) {
 					// Compiling Module
 					generate = false;
+					ModuleInfo componentModule = null;
 					if(roundModules.containsKey(componentModuleName)) {
-						componentModules.add(roundModules.get(componentModuleName));
+						componentModule = roundModules.get(componentModuleName);
 					}
 					else {
-						ModuleInfo componentModule = this.generateModule(componentModuleBuilder, roundEnv, roundModules, roundGeneratedModules, roundFaultyModules, roundPluginExecutedModules);
+						componentModule = this.generateModule(componentModuleBuilder, roundEnv, roundModules, roundGeneratedModules, roundFaultyModules, roundPluginExecutedModules);
+					}
+					
+					if(componentModule != null) {
+						Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
 						componentModules.add(componentModule);
 					}
 				}
@@ -243,6 +258,7 @@ class ModuleGenerator {
 					// Component Module
 					ModuleInfo componentModule = componentModuleBuilder.build();
 					this.componentModules.put(componentModuleName, componentModule);
+					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
 					componentModules.add(componentModule);
 				}
 			}
@@ -253,9 +269,10 @@ class ModuleGenerator {
 		
 		PluginsExecutionResult pluginsExecutionResult = this.getPreviousPluginsExecution(moduleBuilder, roundPluginExecutedModules);
 		if(pluginsExecutionResult == null) {
-			this.pluginsExecutor.getTask(moduleBuilder.getQualifiedName()).addRound(roundEnv);
+			PluginsExecutionTask pluginExecutionTask = this.pluginsExecutor.getTask(moduleBuilder.getQualifiedName(), moduleInjectableBeans);
+			pluginExecutionTask.addRound(roundEnv);
 			if(generate) {
-				pluginsExecutionResult = this.pluginsExecutor.getTask(moduleBuilder.getQualifiedName()).call();
+				pluginsExecutionResult = pluginExecutionTask.call();
 				roundPluginExecutedModules.put(moduleName, pluginsExecutionResult);
 				generate = !pluginsExecutionResult.hasGeneratedSourceFiles();
 			}

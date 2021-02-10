@@ -66,10 +66,13 @@ abstract class AbstractModuleInfoBuilder implements ModuleInfoBuilder {
 		String packageName = "";
 		String moduleName = "";
 		String moduleClassName = null;
+		String moduleSourcePackageName = null;
 		
 		for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(this.moduleAnnotation).entrySet()) {
 			switch(value.getKey().getSimpleName().toString()) {
 				case "className" : moduleClassName = (String)value.getValue().getValue();
+					break;
+				case "sourcePackage" : moduleSourcePackageName = (String)value.getValue().getValue();
 					break;
 			}
 		}
@@ -78,13 +81,15 @@ abstract class AbstractModuleInfoBuilder implements ModuleInfoBuilder {
 			moduleName = "DefaultModule";
 		}
 		else {
-			packageName = this.moduleElement.getQualifiedName().toString();
-			packageName = packageName.substring(0, packageName.lastIndexOf("."));
-			
-			moduleName = this.moduleElement.getQualifiedName().toString().substring(packageName.length() + 1);
+			moduleName = this.moduleElement.getQualifiedName().toString();
+			int moduleNameIndex = moduleName.lastIndexOf(".");
+			if(moduleNameIndex > 0) {
+				packageName = moduleName.substring(0, moduleNameIndex);
+				moduleName = moduleName.substring(moduleNameIndex + 1);
+			}
 		}
 		
-		this.moduleQName = new ModuleQualifiedName(packageName, moduleName, moduleClassName);
+		this.moduleQName = new ModuleQualifiedName(packageName, moduleName, moduleClassName, moduleSourcePackageName);
 		TypeElement moduleType = this.processingEnvironment.getElementUtils().getTypeElement(this.moduleQName.getClassName());
 		if(moduleType != null) {
 			if(moduleType.getSuperclass().toString().equals("io.winterframework.core.v1.Module")) {

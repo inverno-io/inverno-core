@@ -19,12 +19,27 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 /**
+ * <p>
+ * A plugin context expose Java compiler utilities for operating on program
+ * elements.
+ * </p>
+ * 
  * @author jkuhn
- *
+ * @since 1.1
  */
 public interface PluginContext {
 
+	/**
+	 * <p>Returns Java compiler elements utility.</p>
+	 * 
+	 * @return the compiler elements utility
+	 */
 	Elements getElementUtils();
 	
+	/**
+	 * <p>Returns Java compiler types utility.</p>
+	 * 
+	 * @return the compiler types utility
+	 */
 	Types getTypeUtils();
 }

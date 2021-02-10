@@ -34,6 +34,13 @@ import javax.lang.model.element.ExecutableElement;
  */
 public interface NestedBeanInfo extends BeanInfo {
 
+	/**
+	 * <p>
+	 * Returns the method used to access the nested bean instance.
+	 * </p>
+	 * 
+	 * @return An executable element
+	 */
 	ExecutableElement getAccessorElement();
 	
 	/**

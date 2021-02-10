@@ -130,7 +130,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			moduleClass.append(context.getImports().stream().sorted().filter(i -> i.lastIndexOf(".") > 0 && !i.substring(0, i.lastIndexOf(".")).equals(packageName)).map(i -> new StringBuilder().append("import ").append(i).append(";")).collect(context.joining("\n"))).append("\n\n");
 
 			moduleClass.append("@").append(context.getTypeName(generatedType)).append("(value= {\"").append(WinterCompiler.class.getCanonicalName()).append("\", \"").append(moduleInfo.getVersion()).append("\"}, date = \"").append(ZonedDateTime.now().toString() +"\")\n");
-			moduleClass.append("public class ").append(className).append(" extends ").append(context.getTypeName(moduleType)).append(" {").append("\n\n");
+			moduleClass.append("public final class ").append(className).append(" extends ").append(context.getTypeName(moduleType)).append(" {").append("\n\n");
 
 			if(module_field_modules.length() > 0) {
 				moduleClass.append(module_field_modules).append("\n\n");
@@ -199,7 +199,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				.map(socketInfo -> this.visit(socketInfo, context.withModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.SOCKET_INJECTOR)))
 				.collect(context.joining("\n\n"));
 
-			StringBuilder moduleBuilderClass = new StringBuilder().append(context.indent(1)).append("public static class Builder extends ").append(context.getTypeName(moduleBuilderType)).append("<").append(className).append("> {\n\n");
+			StringBuilder moduleBuilderClass = new StringBuilder().append(context.indent(1)).append("public static final class Builder extends ").append(context.getTypeName(moduleBuilderType)).append("<").append(className).append("> {\n\n");
 			if(module_builder_fields.length() > 0) {
 				moduleBuilderClass.append(module_builder_fields).append("\n\n");
 			}
@@ -243,7 +243,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				})
 				.collect(context.joining(",\n"));
 
-			StringBuilder linkerClass = new StringBuilder().append(context.indent(1)).append("public static class Linker extends ").append(context.getTypeName(moduleLinkerType)).append("<").append(className).append("> {").append("\n\n");
+			StringBuilder linkerClass = new StringBuilder().append(context.indent(1)).append("public static final class Linker extends ").append(context.getTypeName(moduleLinkerType)).append("<").append(className).append("> {").append("\n\n");
 			
 			linkerClass.append(context.indent(2)).append("public Linker(").append(context.getTypeName(mapType)).append("<String, Object> sockets) {").append("\n");
 			linkerClass.append(context.indent(3)).append("super(sockets);\n");
