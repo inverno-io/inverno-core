@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.Element;
+import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.compiler.WinterCompiler;
@@ -56,7 +56,7 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	
 	private List<ModuleInfo> moduleInfos;
 	
-	public CompiledModuleInfo(ProcessingEnvironment processingEnvironment, Element element, AnnotationMirror annotation, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos, List<ModuleInfo> moduleInfos) {
+	public CompiledModuleInfo(ProcessingEnvironment processingEnvironment, ModuleElement element, AnnotationMirror annotation, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos, List<ModuleInfo> moduleInfos) {
 		super(processingEnvironment, element, annotation, qname);
 		
 		this.version = version;
@@ -117,5 +117,10 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	@Override
 	public <R, P> R accept(ModuleInfoVisitor<R, P> visitor, P p) {
 		return visitor.visit(this,  p);
+	}
+	
+	@Override
+	public ModuleElement getElement() {
+		return (ModuleElement)super.getElement();
 	}
 }

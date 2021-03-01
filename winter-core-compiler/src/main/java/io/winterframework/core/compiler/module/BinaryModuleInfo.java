@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
+import javax.lang.model.element.ModuleElement;
 
 import io.winterframework.core.annotation.Bean;
 import io.winterframework.core.compiler.common.AbstractInfo;
@@ -40,7 +40,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  *
  */
 class BinaryModuleInfo extends AbstractInfo<ModuleQualifiedName> implements ModuleInfo {
-
+	
 	private int version;
 	
 	private boolean faulty;
@@ -49,7 +49,7 @@ class BinaryModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Modu
 	
 	private List<ModuleBeanInfo> beanInfos;
 	
-	public BinaryModuleInfo(ProcessingEnvironment processingEnvironment, Element element, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos) {
+	public BinaryModuleInfo(ProcessingEnvironment processingEnvironment, ModuleElement element, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos) {
 		super(processingEnvironment, element, qname);
 		
 		this.version = version;
@@ -113,5 +113,10 @@ class BinaryModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Modu
 	@Override
 	public <R, P> R accept(ModuleInfoVisitor<R, P> visitor, P p) {
 		return visitor.visit(this,  p);
+	}
+	
+	@Override
+	public ModuleElement getElement() {
+		return (ModuleElement)super.getElement();
 	}
 }

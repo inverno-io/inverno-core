@@ -103,4 +103,9 @@ abstract class AbstractModuleInfoBuilder implements ModuleInfoBuilder {
 			this.version = WinterCompiler.VERSION;
 		}
 	}
+	
+	@Override
+	public ModuleElement getElement() {
+		return this.moduleElement;
+	}
 }

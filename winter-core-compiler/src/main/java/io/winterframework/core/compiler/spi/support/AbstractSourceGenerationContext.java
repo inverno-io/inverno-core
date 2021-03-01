@@ -58,15 +58,20 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 	
 	protected static final String DEFAULT_INDENT = "\t";
 	
-	protected String indent = DEFAULT_INDENT;
+	protected String indent;
 	
 	protected ModuleQualifiedName moduleQualifiedName;
 	
 	public AbstractSourceGenerationContext(Types typeUtils, Elements elementUtils, B mode) {
+		this(typeUtils, elementUtils, mode, DEFAULT_INDENT);
+	}
+	
+	public AbstractSourceGenerationContext(Types typeUtils, Elements elementUtils, B mode, String indent) {
 		this.imports = new HashMap<>();
 		this.typeUtils = typeUtils;
 		this.elementUtils = elementUtils;
 		this.mode = mode;
+		this.setIndent(indent);
 	}
 	
 	protected AbstractSourceGenerationContext(A parentGeneration) {
@@ -75,6 +80,7 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		this.typeUtils = parentGeneration.typeUtils;
 		this.elementUtils = parentGeneration.elementUtils;
 		this.mode = parentGeneration.getMode();
+		this.setIndent(parentGeneration.indent);
 		this.indentDepth = parentGeneration.indentDepth;
 		this.moduleQualifiedName = parentGeneration.moduleQualifiedName;
 	}
@@ -92,6 +98,10 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 	}
 	
 	public abstract A withMode(B mode);
+	
+	public A withIndentDepthAdd(int delta) {
+		return this.withIndentDepth(this.indentDepth + delta);
+	}
 	
 	public abstract A withIndentDepth(int indentDepth);
 	
@@ -202,6 +212,15 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		else {
 			return type.toString();
 		}
+	}
+	
+	public Collector<CharSequence, ?, StringBuilder> joining() {
+		return Collector.of(
+				StringBuilder::new, 
+				(stringBuilder, seq) -> stringBuilder.append(seq),
+				StringBuilder::append, 
+				stringBuilder -> stringBuilder
+			);
 	}
 	
 	public Collector<CharSequence, ?, StringBuilder> joining(CharSequence delimiter) {

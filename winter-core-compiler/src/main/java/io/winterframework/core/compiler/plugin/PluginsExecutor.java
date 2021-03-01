@@ -24,7 +24,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.ModuleElement;
 
+import io.winterframework.core.compiler.GenericCompilerOptions;
 import io.winterframework.core.compiler.WinterCompiler;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
@@ -38,15 +40,13 @@ public class PluginsExecutor {
 
 	private ProcessingEnvironment processingEnvironment;
 	
-	private WinterCompiler.Options options;
-	
-	private GenericPluginContext compilerPluginContext;
+	private GenericCompilerOptions options;
 	
 	private Set<CompilerPlugin> plugins;
 	
 	private Map<ModuleQualifiedName, PluginsExecutionTask> executionByModule;
 	
-	public PluginsExecutor(ProcessingEnvironment processingEnvironment, WinterCompiler.Options options) {
+	public PluginsExecutor(ProcessingEnvironment processingEnvironment, GenericCompilerOptions options) {
 		this.processingEnvironment = processingEnvironment;
 		this.options = options;
 		this.executionByModule = new HashMap<>();
@@ -54,7 +54,6 @@ public class PluginsExecutor {
 		this.loadPlugins();
 	}
 
-//	@SuppressWarnings("unchecked")
 	private void loadPlugins() {
 		ServiceLoader<CompilerPlugin> loader;
 		if(WinterCompiler.class.getModule().isNamed()) {
@@ -67,30 +66,9 @@ public class PluginsExecutor {
 			loader = ServiceLoader.load(CompilerPlugin.class, PluginsExecutor.class.getClassLoader());
 		}
 		
-//		TypeMirror targetAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Target.class.getCanonicalName()).asType();
-		
-		this.compilerPluginContext = new GenericPluginContext(processingEnvironment);
 		this.plugins = loader.stream().map(provider -> {
 			CompilerPlugin plugin = provider.get();
-			// We want to target all kind of types and also process module beans (without considering annotations)
-			/*TypeElement pluginAnnotationElement = this.processingEnvironment.getElementUtils().getTypeElement(plugin.getSupportedAnnotationType());
-			Optional<? extends AnnotationMirror> targetAnnotation = pluginAnnotationElement.getAnnotationMirrors().stream().filter(annotation -> this.processingEnvironment.getTypeUtils().isSameType(annotation.getAnnotationType(), targetAnnotationType)).findFirst();
-			if(!targetAnnotation.isPresent()) {
-				return null;
-			}
-			
-			String[] targetTypes = null;
-			for(Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(targetAnnotation.get()).entrySet()) {
-				switch(entry.getKey().getSimpleName().toString()) {
-					case "value" : targetTypes = ((List<AnnotationValue>)entry.getValue().getValue()).stream().map(v -> v.getValue().toString()).toArray(String[]::new);
-						break;
-				}
-			}
-			if(targetTypes == null || targetTypes.length > 1 || !targetTypes[0].equals(ElementType.TYPE.toString())) {
-				this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Ignoring Plugin " + plugin.getClass() + " which must target " + ElementType.TYPE + " only");
-			}*/
-			
-			plugin.init(this.compilerPluginContext);
+			plugin.init(new GenericPluginContext(this.processingEnvironment, this.options.withFilter(name -> plugin.getSupportedOptions() != null && plugin.getSupportedOptions().contains(name))));
 			return plugin;
 		})
 		.filter(Objects::nonNull)
@@ -101,10 +79,10 @@ public class PluginsExecutor {
 		return plugins;
 	}
 	
-	public PluginsExecutionTask getTask(ModuleQualifiedName module, List<? extends BeanInfo> beans) {
-		if(!this.executionByModule.containsKey(module)) {
-			this.executionByModule.put(module, new PluginsExecutionTask(module, this.processingEnvironment, this.options, this.plugins, beans));
+	public PluginsExecutionTask getTask(ModuleElement moduleElement, ModuleQualifiedName moduleQualifiedName, List<? extends BeanInfo> beans) {
+		if(!this.executionByModule.containsKey(moduleQualifiedName)) {
+			this.executionByModule.put(moduleQualifiedName, new PluginsExecutionTask(this.processingEnvironment, moduleElement, moduleQualifiedName, this.options, this.plugins, beans));
 		}
-		return this.executionByModule.get(module);
+		return this.executionByModule.get(moduleQualifiedName);
 	}
 }

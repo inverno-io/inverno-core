@@ -27,6 +27,7 @@
  */
 module io.winterframework.core.compiler {
 	requires transitive java.compiler;
+	requires transitive jdk.compiler;
 	requires transitive io.winterframework.core.annotation;
 	
 	exports io.winterframework.core.compiler.spi;

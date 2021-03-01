@@ -15,6 +15,8 @@
  */
 package io.winterframework.core.compiler.spi;
 
+import javax.lang.model.element.ModuleElement;
+
 /**
  * <p>
  * A module info builder is used to create Module info from beans, sockets and
@@ -26,6 +28,15 @@ package io.winterframework.core.compiler.spi;
  */
 public interface ModuleInfoBuilder {
 
+	/**
+	 * <p>
+	 * Returns the module element.
+	 * </p>
+	 * 
+	 * @return A module element
+	 */
+	ModuleElement getElement();
+	
 	/**
 	 * <p>
 	 * Returns the qualified name of the module being build by the builder.

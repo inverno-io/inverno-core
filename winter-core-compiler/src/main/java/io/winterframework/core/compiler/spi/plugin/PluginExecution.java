@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 
 import io.winterframework.core.annotation.Module;
@@ -47,11 +48,22 @@ import io.winterframework.core.compiler.spi.ReporterInfo;
 public interface PluginExecution {
 
 	/**
-	 * <p>Returns the module being compiled.</p>
+	 * <p>
+	 * Returns the element of the module being compiled.
+	 * </p>
 	 * 
-	 * @return a module qualified name.
+	 * @return a module element
 	 */
-	ModuleQualifiedName getModule();
+	ModuleElement getModuleElement();
+	
+	/**
+	 * <p>
+	 * Returns the qualified name of the module being compiled.
+	 * </p>
+	 * 
+	 * @return a module qualified name
+	 */
+	ModuleQualifiedName getModuleQualifiedName();
 	
 	/**
 	 * <p>

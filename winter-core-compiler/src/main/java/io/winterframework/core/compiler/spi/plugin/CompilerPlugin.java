@@ -50,7 +50,20 @@ public interface CompilerPlugin {
 	 * 
 	 * @return a list of annotation types
 	 */
-	Set<String> getSupportedAnnotationTypes();
+	default Set<String> getSupportedAnnotationTypes() {
+		return Set.of();
+	}
+	
+	/**
+	 * <p>
+	 * Returns the list of options supported by the plugin.
+	 * </p>
+	 * 
+	 * @return a list of options
+	 */
+	default Set<String> getSupportedOptions() {
+		return Set.of();
+	}
 	
 	/**
 	 * <p>

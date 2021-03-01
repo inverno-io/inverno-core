@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.processing.FilerException;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
@@ -61,7 +62,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  */
 class ModuleGenerator {
 
-	private WinterCompiler.Options options;
+	private GenericCompilerOptions options;
 	
 	private Map<String, ModuleInfo> generatedModules;
 	private Map<String, ModuleInfo> componentModules;
@@ -81,7 +82,7 @@ class ModuleGenerator {
 	
 	private PluginsExecutor pluginsExecutor;
 	
-	public ModuleGenerator(ProcessingEnvironment processingEnv, WinterCompiler.Options options) {
+	public ModuleGenerator(ProcessingEnvironment processingEnv, GenericCompilerOptions options) {
 		this.processingEnvironment = processingEnv;
 		this.options = options;
 		this.moduleClassGenerator = new ModuleClassGenerator();
@@ -178,7 +179,7 @@ class ModuleGenerator {
 		return Collections.unmodifiableMap(this.componentModuleBuilders);
 	}
 	
-	public WinterCompiler.Options getOptions() {
+	public GenericCompilerOptions getOptions() {
 		return options;
 	}
 	
@@ -207,7 +208,7 @@ class ModuleGenerator {
 	
 	private ModuleInfo generateModule(ModuleInfoBuilder moduleBuilder, RoundEnvironment roundEnv, Map<String, ModuleInfo> roundModules, Map<String, ModuleInfo> roundGeneratedModules, Set<String> roundFaultyModules, Map<String, PluginsExecutionResult> roundPluginExecutedModules) {
 		String moduleName = moduleBuilder.getQualifiedName().toString();
-	
+		
 		List<BeanInfo> moduleInjectableBeans = new ArrayList<>();
 		boolean generate = true;
 		if(this.moduleBeans.containsKey(moduleName)) {
@@ -269,7 +270,7 @@ class ModuleGenerator {
 		
 		PluginsExecutionResult pluginsExecutionResult = this.getPreviousPluginsExecution(moduleBuilder, roundPluginExecutedModules);
 		if(pluginsExecutionResult == null) {
-			PluginsExecutionTask pluginExecutionTask = this.pluginsExecutor.getTask(moduleBuilder.getQualifiedName(), moduleInjectableBeans);
+			PluginsExecutionTask pluginExecutionTask = this.pluginsExecutor.getTask(moduleBuilder.getElement(), moduleBuilder.getQualifiedName(), moduleInjectableBeans);
 			pluginExecutionTask.addRound(roundEnv);
 			if(generate) {
 				pluginsExecutionResult = pluginExecutionTask.call();
@@ -295,7 +296,15 @@ class ModuleGenerator {
 				
 				if(this.options.isGenerateModuleDescriptor()) {
 					try {
-						FileObject moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, moduleInfo.getQualifiedName().getValue() + "/", "META-INF/winter/module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
+						FileObject moduleDescriptorFile;
+						try {
+							// module oriented
+							moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, moduleInfo.getQualifiedName().getValue() + "/", "META-INF/winter/core/module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
+						}
+						catch (FilerException e) {
+							// not module oriented after all
+							moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", "META-INF/winter/core/module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
+						}
 						try (Writer writer = moduleDescriptorFile.openWriter()) {
 							writer.write(moduleInfo.accept(this.moduleDescriptorGenerator, ""));
 							writer.flush();

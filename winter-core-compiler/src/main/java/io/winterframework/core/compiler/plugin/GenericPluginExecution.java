@@ -24,10 +24,12 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import javax.annotation.processing.FilerException;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
@@ -46,23 +48,27 @@ import io.winterframework.core.compiler.spi.plugin.PluginExecution;
  */
 class GenericPluginExecution implements PluginExecution {
 
-	private ProcessingEnvironment processingEnvironment;
-	private ModuleQualifiedName module; 
-	private Set<? extends Element> elements;
-	private List<? extends BeanInfo> beans;
+	private final ProcessingEnvironment processingEnvironment;
+	private final ModuleElement moduleElement;
+	private final ModuleQualifiedName moduleQualifiedName; 
+	private final Set<? extends Element> elements;
+	private final List<? extends BeanInfo> beans;
 	
-	private List<ReporterInfo> reporters;
-	private List<JavaFileObject> generatedSourceFiles;
+	private final List<ReporterInfo> reporters;
+	private final List<JavaFileObject> generatedSourceFiles;
+	private final List<FileObject> generatedResourceFiles;
 	
 	private boolean failed;
 	
-	public GenericPluginExecution(ProcessingEnvironment processingEnvironment, ModuleQualifiedName module, Set<? extends Element> elements, List<? extends BeanInfo> beans) {
+	public GenericPluginExecution(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleQualifiedName module, Set<? extends Element> elements, List<? extends BeanInfo> beans) {
 		this.processingEnvironment = processingEnvironment;
-		this.module = module;
+		this.moduleElement = moduleElement;
+		this.moduleQualifiedName = module;
 		this.elements = elements;
 		this.beans = beans;
 		this.reporters = new LinkedList<>();
 		this.generatedSourceFiles = new LinkedList<>();
+		this.generatedResourceFiles = new LinkedList<>();
 	}
 	
 	public void setFailed(boolean failed) {
@@ -86,9 +92,22 @@ class GenericPluginExecution implements PluginExecution {
 		return this.generatedSourceFiles;
 	}
 	
+	public boolean hasGeneratedResourceFiles() {
+		return this.generatedResourceFiles.size() > 0;
+	}
+	
+	public List<FileObject> getGeneratedResourceFiles() {
+		return this.generatedResourceFiles;
+	}
+	
 	@Override
-	public ModuleQualifiedName getModule() {
-		return this.module;
+	public ModuleElement getModuleElement() {
+		return this.moduleElement;
+	}
+	
+	@Override
+	public ModuleQualifiedName getModuleQualifiedName() {
+		return this.moduleQualifiedName;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -144,10 +163,19 @@ class GenericPluginExecution implements PluginExecution {
 	
 	@Override
 	public void createResourceFile(String path, Element[] originatingElements, Supplier<String> resource) throws IOException {
-		FileObject resourceFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, this.module.getValue() + "/", path, originatingElements);
+		FileObject resourceFile;
+		try {
+			// module oriented
+			resourceFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, this.moduleQualifiedName.getValue() + "/", path, originatingElements);
+		}
+		catch (FilerException e) {
+			// not module oriented after all
+			resourceFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", path, originatingElements);
+		}
 		try(Writer writer = resourceFile.openWriter()) {
 			writer.write(resource.get());
 			writer.flush();
 		}
+		this.generatedResourceFiles.add(resourceFile);
 	}
 }

@@ -70,7 +70,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  */
 //@SupportedAnnotationTypes({"io.winterframework.core.annotation/io.winterframework.core.annotation.Module","io.winterframework.core.annotation/io.winterframework.core.annotation.Bean"})
 @SupportedAnnotationTypes({"io.winterframework.core.annotation.Module","io.winterframework.core.annotation.Bean"})
-@SupportedOptions({WinterCompiler.Options.DEBUG, WinterCompiler.Options.VERBOSE, WinterCompiler.Options.GENERATE_DESCRIPTOR})
+@SupportedOptions({GenericCompilerOptions.DEBUG, GenericCompilerOptions.VERBOSE, GenericCompilerOptions.GENERATE_DESCRIPTOR})
 public class WinterCompiler extends AbstractProcessor {
 
 	public static final int VERSION = 1;
@@ -80,48 +80,10 @@ public class WinterCompiler extends AbstractProcessor {
 	private Map<String, SocketBeanInfoFactory> socketFactories = new TreeMap<>(Collections.reverseOrder());
 	private Map<String, ModuleBeanInfoFactory> beanFactories = new TreeMap<>(Collections.reverseOrder());
 	
-	/**
-	 * <p>
-	 * Provides the options that can be passed to the module annotation processor.
-	 * </p>
-	 */
-	public static class Options {
-		
-		public static final String DEBUG = "winter.debug";
-		
-		public static final String VERBOSE = "winter.verbose";
-		
-		public static final String GENERATE_DESCRIPTOR = "winter.generateDescriptor";
-		
-		private boolean generateModuleDescriptor;
-		
-		private boolean debug;
-		
-		private boolean verbose;
-		
-		public Options(Map<String, String> processingEnvOptions) {
-			this.debug = processingEnvOptions.containsKey(DEBUG);
-			this.verbose = processingEnvOptions.containsKey(VERBOSE);
-			this.generateModuleDescriptor = processingEnvOptions.containsKey(GENERATE_DESCRIPTOR);
-		}
-
-		public boolean isDebug() {
-			return debug;
-		}
-
-		public boolean isVerbose() {
-			return verbose;
-		}
-		
-		public boolean isGenerateModuleDescriptor() {
-			return generateModuleDescriptor;
-		}
-	}
-	
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
-		this.moduleGenerator = new ModuleGenerator(processingEnv, new WinterCompiler.Options(processingEnv.getOptions()));
+		this.moduleGenerator = new ModuleGenerator(processingEnv, new GenericCompilerOptions(processingEnv.getOptions()));
 		
 		this.socketFactories = new TreeMap<>(Collections.reverseOrder());
 		this.beanFactories = new TreeMap<>(Collections.reverseOrder());
@@ -134,7 +96,12 @@ public class WinterCompiler extends AbstractProcessor {
 	
 	@Override
 	public Set<String> getSupportedAnnotationTypes() {
-		return Stream.concat(super.getSupportedAnnotationTypes().stream(), this.moduleGenerator.getPluginsExecutor().getPlugins().stream().flatMap(plugin -> plugin.getSupportedAnnotationTypes().stream())).collect(Collectors.toSet());
+		return Stream.concat(super.getSupportedAnnotationTypes().stream(), this.moduleGenerator.getPluginsExecutor().getPlugins().stream().filter(plugin -> plugin.getSupportedAnnotationTypes() != null).flatMap(plugin -> plugin.getSupportedAnnotationTypes().stream())).collect(Collectors.toSet());
+	}
+	
+	@Override
+	public Set<String> getSupportedOptions() {
+		return Stream.concat(super.getSupportedOptions().stream(), this.moduleGenerator.getPluginsExecutor().getPlugins().stream().filter(plugin -> plugin.getSupportedOptions() != null).flatMap(plugin -> plugin.getSupportedOptions().stream())).collect(Collectors.toSet());
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -19,6 +19,10 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
+import com.sun.source.util.DocTrees;
+
+import io.winterframework.core.compiler.GenericCompilerOptions;
+import io.winterframework.core.compiler.spi.CompilerOptions;
 import io.winterframework.core.compiler.spi.plugin.PluginContext;
 
 /**
@@ -28,9 +32,18 @@ import io.winterframework.core.compiler.spi.plugin.PluginContext;
 class GenericPluginContext implements PluginContext {
 
 	private ProcessingEnvironment processingEnvironment;
-
-	public GenericPluginContext(ProcessingEnvironment processingEnvironment) {
+	private GenericCompilerOptions options;
+	
+	private DocTrees docTrees;
+	
+	public GenericPluginContext(ProcessingEnvironment processingEnvironment, GenericCompilerOptions options) {
 		this.processingEnvironment = processingEnvironment;
+		this.options = options;
+	}
+
+	@Override
+	public CompilerOptions getOptions() {
+		return this.options;
 	}
 	
 	@Override
@@ -41,5 +54,13 @@ class GenericPluginContext implements PluginContext {
 	@Override
 	public Types getTypeUtils() {
 		return this.processingEnvironment.getTypeUtils();
+	}
+	
+	@Override
+	public DocTrees getDocUtils() {
+		if(this.docTrees == null) {
+			this.docTrees = DocTrees.instance(this.processingEnvironment);
+		}
+		return this.docTrees;
 	}
 }

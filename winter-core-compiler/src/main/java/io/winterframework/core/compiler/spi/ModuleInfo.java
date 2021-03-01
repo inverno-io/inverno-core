@@ -17,6 +17,8 @@ package io.winterframework.core.compiler.spi;
 
 import java.util.Optional;
 
+import javax.lang.model.element.ModuleElement;
+
 /**
  * <p>
  * A module info holds the data required to process a module.
@@ -27,6 +29,15 @@ import java.util.Optional;
  */
 public interface ModuleInfo extends Info {
 
+	/**
+	 * <p>
+	 * Returns the module element.
+	 * </p>
+	 * 
+	 * @return A module element
+	 */
+	ModuleElement getElement();
+	
 	/**
 	 * <p>
 	 * Returns a module qualified name.

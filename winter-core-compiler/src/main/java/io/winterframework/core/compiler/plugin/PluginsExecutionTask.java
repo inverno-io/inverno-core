@@ -31,7 +31,7 @@ import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 
-import io.winterframework.core.compiler.WinterCompiler;
+import io.winterframework.core.compiler.GenericCompilerOptions;
 import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
 import io.winterframework.core.compiler.spi.plugin.CompilerPlugin;
@@ -43,26 +43,29 @@ import io.winterframework.core.compiler.spi.plugin.PluginExecutionException;
  */
 public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 
-	private ModuleQualifiedName module;
+	private final ProcessingEnvironment processingEnvironment;
 	
-	private List<? extends BeanInfo> beans;
+	private final ModuleElement moduleElement;
 	
-	private ProcessingEnvironment processingEnvironment;
+	private final ModuleQualifiedName moduleQualifiedName;
 	
-	private WinterCompiler.Options options;
+	private final List<? extends BeanInfo> beans;
 	
-	private Map<CompilerPlugin, Set<Element>> elementsByPlugins;
+	private final GenericCompilerOptions options;
 	
-	PluginsExecutionTask(ModuleQualifiedName module, ProcessingEnvironment processingEnvironment, WinterCompiler.Options options, Set<? extends CompilerPlugin> plugins, List<? extends BeanInfo> beans) {
-		this.module = module;
-		this.beans = beans;
+	private final Map<CompilerPlugin, Set<Element>> elementsByPlugins;
+	
+	PluginsExecutionTask(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleQualifiedName module, GenericCompilerOptions options, Set<? extends CompilerPlugin> plugins, List<? extends BeanInfo> beans) {
 		this.processingEnvironment = processingEnvironment;
+		this.moduleElement = moduleElement;
+		this.moduleQualifiedName = module;
+		this.beans = beans;
 		this.options = options;
 		this.elementsByPlugins = plugins.stream().collect(Collectors.toMap(Function.identity(), plugin -> new HashSet<>()));
 	}
 
 	public ModuleQualifiedName getModule() {
-		return this.module;
+		return this.moduleQualifiedName;
 	}
 	
 	public void addRound(RoundEnvironment roundEnv) {
@@ -76,7 +79,7 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 							// We exclude elements coming from the unnamed module 
 							return null;
 						}
-						if(!moduleElement.getQualifiedName().toString().equals(this.module.toString())) {
+						if(!moduleElement.getQualifiedName().toString().equals(this.moduleQualifiedName.toString())) {
 							// We only consider elements from the module we are trying to generate
 							return null;
 						}
@@ -91,11 +94,11 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 	
 	public PluginsExecutionResult call() {
 		if(this.options.isVerbose()) {
-			System.out.println("Executing plugins for module " + this.module + "...");
+			System.out.println("Executing plugins for module " + this.moduleQualifiedName + "...");
 		}
 		PluginsExecutionResult result = new PluginsExecutionResult(this.elementsByPlugins.entrySet().stream()
 			.map(entry -> {
-				GenericPluginExecution execution = new GenericPluginExecution(this.processingEnvironment, this.module, entry.getValue(), this.beans);
+				GenericPluginExecution execution = new GenericPluginExecution(this.processingEnvironment, this.moduleElement, this.moduleQualifiedName, entry.getValue(), this.beans);
 				try {
 					if(this.options.isVerbose()) {
 						System.out.print(" - " + entry.getKey().getClass().getCanonicalName() + " (" + entry.getValue().size() + " elements)... ");
@@ -110,34 +113,20 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 						else {
 							System.out.println("[  OK  ]");
 						}
-						System.out.println(execution.getGeneratedSourceFiles().stream().map(source -> "     - " + source.toUri().toString()).collect(Collectors.joining("\n")));
-					}
-					
-					/*if(entry.getValue().size() > 0) {
-						entry.getKey().execute(execution);
-						if(this.options.isVerbose()) {
-							if(execution.hasError()) {
-								System.out.println("[  KO  ]");
-							}
-							else {
-								System.out.println("[  OK  ]");
-							}
+						if(execution.hasGeneratedSourceFiles()) {
 							System.out.println(execution.getGeneratedSourceFiles().stream().map(source -> "     - " + source.toUri().toString()).collect(Collectors.joining("\n")));
 						}
-					}
-					else {
-						if(this.options.isVerbose()) {
-							System.out.println("[ SKIP ]");
+						if(execution.hasGeneratedResourceFiles()) {
+							System.out.println(execution.getGeneratedResourceFiles().stream().map(source -> "     - " + source.toUri().toString()).collect(Collectors.joining("\n")));
 						}
-					}*/
-					
+					}
 				}
 				catch (PluginExecutionException e) {
 					execution.setFailed(true);
 					if(this.options.isVerbose()) {
 						System.out.println("[  KO  ]");
 					}
-					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Error executing plugin " + entry.getKey().getClass() + " for module " + this.module + ": " + e.getMessage());
+					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Error executing plugin " + entry.getKey().getClass() + " for module " + this.moduleQualifiedName + ": " + e.getMessage());
 					if(this.options.isDebug()) {
 						e.printStackTrace();
 					}
@@ -147,7 +136,7 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 					if(this.options.isVerbose()) {
 						System.out.println("[  KO  ]");
 					}
-					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Fatal error executing plugin " + entry.getKey().getClass() + " for module " + this.module);
+					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Fatal error executing plugin " + entry.getKey().getClass() + " for module " + this.moduleQualifiedName);
 					t.printStackTrace();
 				}
 				return execution;
