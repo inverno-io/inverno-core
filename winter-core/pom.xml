@@ -25,6 +25,7 @@
 		<dependency>
 			<groupId>io.winterframework</groupId>
 			<artifactId>winter-core-annotation</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>

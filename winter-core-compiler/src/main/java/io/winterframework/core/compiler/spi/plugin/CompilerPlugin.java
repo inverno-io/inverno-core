@@ -17,6 +17,8 @@ package io.winterframework.core.compiler.spi.plugin;
 
 import java.util.Set;
 
+import javax.lang.model.element.ModuleElement;
+
 /**
  * <p>
  * A Compiler plugin provides a way to extend the Winter compiler in order to
@@ -73,6 +75,22 @@ public interface CompilerPlugin {
 	 * @param pluginContext the context used to initialize the plugin.
 	 */
 	void init(PluginContext pluginContext);
+	
+	/**
+	 * <p>Determines whether the plugin can be executed for the specified module.</p>
+	 * 
+	 * <p>
+	 * A plugin might not execute for several reasons, in such cases this method
+	 * must return false. For instance when a module required by a generated class
+	 * or a module providing a supported annotation is not declared in the compiled
+	 * module descriptor, the plugin can't execute.
+	 * </p>
+	 * 
+	 * @param moduleElement the module element
+	 * 
+	 * @return true if the plugin can be executed, false otherwise
+	 */
+	boolean canExecute(ModuleElement moduleElement);
 	
 	/**
 	 * <p>

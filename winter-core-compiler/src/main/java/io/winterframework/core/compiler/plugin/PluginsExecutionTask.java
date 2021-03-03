@@ -71,23 +71,29 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 	public void addRound(RoundEnvironment roundEnv) {
 		this.elementsByPlugins.entrySet().forEach(entry -> {
 			for(String supportedAnnotationType : entry.getKey().getSupportedAnnotationTypes()) {
+				// This can be null when there is missing dependencies (typically the module
+				// provided the supported annotation is just not required in the compiled
+				// module). 
+				// In such case the plugin execution will be skipped later in the process.
 				TypeElement pluginAnnotationTypeElement = this.processingEnvironment.getElementUtils().getTypeElement(supportedAnnotationType);
-				entry.getValue().addAll(roundEnv.getElementsAnnotatedWith(pluginAnnotationTypeElement).stream()
-					.map(element -> {
-						ModuleElement moduleElement = this.processingEnvironment.getElementUtils().getModuleOf(element);
-						if(moduleElement == null) {
-							// We exclude elements coming from the unnamed module 
-							return null;
-						}
-						if(!moduleElement.getQualifiedName().toString().equals(this.moduleQualifiedName.toString())) {
-							// We only consider elements from the module we are trying to generate
-							return null;
-						}
-						return element;
-					})
-					.filter(Objects::nonNull)
-					.collect(Collectors.toSet())
-				);
+				if(pluginAnnotationTypeElement != null) {
+					entry.getValue().addAll(roundEnv.getElementsAnnotatedWith(pluginAnnotationTypeElement).stream()
+						.map(element -> {
+							ModuleElement moduleElement = this.processingEnvironment.getElementUtils().getModuleOf(element);
+							if(moduleElement == null) {
+								// We exclude elements coming from the unnamed module 
+								return null;
+							}
+							if(!moduleElement.getQualifiedName().toString().equals(this.moduleQualifiedName.toString())) {
+								// We only consider elements from the module we are trying to generate
+								return null;
+							}
+							return element;
+						})
+						.filter(Objects::nonNull)
+						.collect(Collectors.toSet())
+					);
+				}
 			}
 		});
 	}
@@ -98,49 +104,57 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 		}
 		PluginsExecutionResult result = new PluginsExecutionResult(this.elementsByPlugins.entrySet().stream()
 			.map(entry -> {
-				GenericPluginExecution execution = new GenericPluginExecution(this.processingEnvironment, this.moduleElement, this.moduleQualifiedName, entry.getValue(), this.beans);
-				try {
-					if(this.options.isVerbose()) {
-						System.out.print(" - " + entry.getKey().getClass().getCanonicalName() + " (" + entry.getValue().size() + " elements)... ");
+				if(this.options.isVerbose()) {
+					System.out.print(" - " + entry.getKey().getClass().getCanonicalName() + " (" + entry.getValue().size() + " elements)... ");
+				}
+				if(entry.getKey().canExecute(this.moduleElement)) {
+					GenericPluginExecution execution = new GenericPluginExecution(this.processingEnvironment, this.moduleElement, this.moduleQualifiedName, entry.getValue(), this.beans);
+					try {
+						// We want to execute a plugin even if annotated elements are not considered since we also want to process module beans
+						entry.getKey().execute(execution);
+						if(this.options.isVerbose()) {
+							if(execution.hasError()) {
+								System.out.println("[  KO  ]");
+							}
+							else {
+								System.out.println("[  OK  ]");
+							}
+							if(execution.hasGeneratedSourceFiles()) {
+								System.out.println(execution.getGeneratedSourceFiles().stream().map(source -> "     - " + source.toUri().toString()).collect(Collectors.joining("\n")));
+							}
+							if(execution.hasGeneratedResourceFiles()) {
+								System.out.println(execution.getGeneratedResourceFiles().stream().map(source -> "     - " + source.toUri().toString()).collect(Collectors.joining("\n")));
+							}
+						}
 					}
-					
-					// We want to execute a plugin even if annotated elements are not considered since we also want to process module beans
-					entry.getKey().execute(execution);
-					if(this.options.isVerbose()) {
-						if(execution.hasError()) {
+					catch (PluginExecutionException e) {
+						execution.setFailed(true);
+						if(this.options.isVerbose()) {
 							System.out.println("[  KO  ]");
 						}
-						else {
-							System.out.println("[  OK  ]");
-						}
-						if(execution.hasGeneratedSourceFiles()) {
-							System.out.println(execution.getGeneratedSourceFiles().stream().map(source -> "     - " + source.toUri().toString()).collect(Collectors.joining("\n")));
-						}
-						if(execution.hasGeneratedResourceFiles()) {
-							System.out.println(execution.getGeneratedResourceFiles().stream().map(source -> "     - " + source.toUri().toString()).collect(Collectors.joining("\n")));
+						this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Error executing plugin " + entry.getKey().getClass() + " for module " + this.moduleQualifiedName + ": " + e.getMessage());
+						if(this.options.isDebug()) {
+							e.printStackTrace();
 						}
 					}
-				}
-				catch (PluginExecutionException e) {
-					execution.setFailed(true);
-					if(this.options.isVerbose()) {
-						System.out.println("[  KO  ]");
+					catch (Throwable t) {
+						execution.setFailed(true);
+						if(this.options.isVerbose()) {
+							System.out.println("[  KO  ]");
+						}
+						this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Fatal error executing plugin " + entry.getKey().getClass() + " for module " + this.moduleQualifiedName);
+						t.printStackTrace();
 					}
-					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Error executing plugin " + entry.getKey().getClass() + " for module " + this.moduleQualifiedName + ": " + e.getMessage());
-					if(this.options.isDebug()) {
-						e.printStackTrace();
-					}
+					return execution;
 				}
-				catch (Throwable t) {
-					execution.setFailed(true);
-					if(this.options.isVerbose()) {
-						System.out.println("[  KO  ]");
-					}
-					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Fatal error executing plugin " + entry.getKey().getClass() + " for module " + this.moduleQualifiedName);
-					t.printStackTrace();
+				else {
+					System.out.println("[ SKIP ]");
+					return null;
 				}
-				return execution;
-			}).collect(Collectors.toList())
+				
+			})
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList())
 		);
 		if(this.options.isVerbose()) {
 			System.out.println();
