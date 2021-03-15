@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  * and dependency injection is done.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  */
 @Retention(CLASS)

@@ -21,30 +21,68 @@ package io.winterframework.core.compiler.spi.plugin;
  * unrecoverable error.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.1
  */
 public class PluginExecutionException extends Exception {
 
 	private static final long serialVersionUID = 398594865570634000L;
 
+	/**
+	 * <p>
+	 * Creates a plugin execution exception.
+	 * </p>
+	 */
 	public PluginExecutionException() {
 	}
 
+	/**
+	 * <p>
+	 * Creates a plugin execution exception with the specified message.
+	 * </p>
+	 * 
+	 * @param message the message
+	 */
 	public PluginExecutionException(String message) {
 		super(message);
 	}
 
+	/**
+	 * <p>
+	 * Creates a plugin execution exception with the specified cause.
+	 * </p>
+	 * 
+	 * @param cause the cause
+	 */
 	public PluginExecutionException(Throwable cause) {
 		super(cause);
 	}
 
+	/**
+	 * <p>
+	 * Creates a plugin execution exception with the specified message and cause.
+	 * </p>
+	 * 
+	 * @param message the message
+	 * @param cause   the cause
+	 */
 	public PluginExecutionException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public PluginExecutionException(String message, Throwable cause, boolean enableSuppression,
-			boolean writableStackTrace) {
+	/**
+	 * <p>
+	 * Creates a plugin execution exception with the specified message, cause,
+	 * suppression enabled or disabled and writable stack trace enabled or disabled.
+	 * </p>
+	 * 
+	 * @param message            the message
+	 * @param cause              the cause
+	 * @param enableSuppression  true to enable suppression, false otherwise
+	 * @param writableStackTrace true to make the stack trace writable, false
+	 *                           otherwise
+	 */
+	public PluginExecutionException(String message, Throwable cause, boolean enableSuppression,	boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 

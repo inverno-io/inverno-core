@@ -26,7 +26,7 @@ import io.winterframework.core.compiler.spi.CompilerOptions;
 import io.winterframework.core.compiler.spi.plugin.PluginContext;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class GenericPluginContext implements PluginContext {

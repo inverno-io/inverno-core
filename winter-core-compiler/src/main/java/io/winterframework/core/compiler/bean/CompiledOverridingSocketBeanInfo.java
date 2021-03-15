@@ -35,7 +35,7 @@ import io.winterframework.core.compiler.spi.NestedBeanInfo;
 import io.winterframework.core.compiler.spi.OverridingSocketBeanInfo;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class CompiledOverridingSocketBeanInfo extends AbstractBeanInfo implements OverridingSocketBeanInfo, MutableSingleSocketInfo, WirableSocketBeanInfo {

@@ -27,7 +27,7 @@ import javax.lang.model.type.TypeMirror;
  * class processed by the Winter compiler.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class TypeErrorException extends Exception {

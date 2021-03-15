@@ -47,6 +47,8 @@ import java.lang.annotation.Target;
  * outside the module. A bean can only provide one single type.
  * </p>
  * 
+ * <blockquote>
+ * 
  * <pre>
  * &#64;Bean
  * &#64;Provide(SomeService.class)
@@ -55,9 +57,13 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  * 
+ * </blockquote>
+ * 
  * <p>
  * which is equivalent to:
  * </p>
+ * 
+ * <blockquote>
  * 
  * <pre>
  * &#64;Bean
@@ -66,6 +72,8 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  * 
+ * </blockquote>
+ * 
  * <p>
  * Note that this also has an impact on bean wiring. From within the module the
  * bean provides its actual visible type which can then be wired to any
@@ -73,7 +81,7 @@ import java.lang.annotation.Target;
  * provided type.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
  * @see Bean

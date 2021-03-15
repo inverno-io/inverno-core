@@ -33,7 +33,7 @@ import io.winterframework.core.v1.Module.Bean;
  * dependent beans receive the same instance.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * @see Bean
  * 

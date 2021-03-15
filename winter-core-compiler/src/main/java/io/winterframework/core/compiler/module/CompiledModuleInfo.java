@@ -41,7 +41,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  * {@link WinterCompiler}.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements ModuleInfo {

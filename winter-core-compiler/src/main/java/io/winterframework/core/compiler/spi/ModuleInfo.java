@@ -24,7 +24,7 @@ import javax.lang.model.element.ModuleElement;
  * A module info holds the data required to process a module.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface ModuleInfo extends Info {

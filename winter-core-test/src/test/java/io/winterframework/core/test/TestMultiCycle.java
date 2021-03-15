@@ -27,7 +27,7 @@ import io.winterframework.test.WinterCompilationException;
 import io.winterframework.test.WinterTestCompiler;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class TestMultiCycle extends AbstractCoreWinterTest {

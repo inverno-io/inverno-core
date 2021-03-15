@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  * injected in a multiple socket like list or arrays.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  */
 @Retention(RetentionPolicy.CLASS)

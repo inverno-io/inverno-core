@@ -29,7 +29,7 @@ import io.winterframework.test.WinterModuleProxy;
 
 /**
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class TestProvide extends AbstractCoreWinterTest {

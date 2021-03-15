@@ -28,7 +28,7 @@ import io.winterframework.core.compiler.spi.BeanQualifiedName;
  * Base class for Bean info: module bean, wrapper bean and socket bean.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class AbstractBeanInfo extends AbstractInfo<BeanQualifiedName> implements BeanInfo {

@@ -22,7 +22,7 @@ package io.winterframework.core.compiler.spi;
  * collection of other beans.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface ModuleBeanMultiSocketInfo extends ModuleBeanSocketInfo, MultiSocketInfo {

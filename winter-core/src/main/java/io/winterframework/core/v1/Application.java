@@ -38,7 +38,7 @@ import org.apache.logging.log4j.Logger;
  * stops the module when the virtual machine shuts down.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
  * @param <T> the module type

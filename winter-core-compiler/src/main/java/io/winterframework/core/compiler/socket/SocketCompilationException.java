@@ -21,7 +21,7 @@ package io.winterframework.core.compiler.socket;
  * the bean from corresponding compiled module info.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class SocketCompilationException extends Exception {

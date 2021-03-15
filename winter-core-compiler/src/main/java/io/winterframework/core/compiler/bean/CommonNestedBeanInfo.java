@@ -35,7 +35,7 @@ import io.winterframework.core.compiler.spi.ModuleBeanInfo;
 import io.winterframework.core.compiler.spi.NestedBeanInfo;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class CommonNestedBeanInfo extends AbstractBeanInfo implements NestedBeanInfo {

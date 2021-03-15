@@ -36,7 +36,7 @@ import io.winterframework.core.compiler.spi.SingleSocketBeanInfo;
  * Represents a common single socket bean info.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class CommonSingleSocketBeanInfo extends AbstractSocketBeanInfo implements SingleSocketBeanInfo, MutableSingleSocketInfo {

@@ -49,10 +49,12 @@ import io.winterframework.core.compiler.spi.SocketInfo;
 import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 
 /**
- * <p>A {@link ModuleInfoVisitor} implementation that generates a Winter module class.</p>
+ * <p>
+ * A {@link ModuleInfoVisitor} implementation used to generates a Winter module
+ * class.
+ * </p>
  * 
- * @author jkuhn
- *
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  */
 class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleClassGenerationContext> {
 

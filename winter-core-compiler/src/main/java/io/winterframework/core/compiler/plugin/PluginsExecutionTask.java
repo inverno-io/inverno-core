@@ -38,7 +38,7 @@ import io.winterframework.core.compiler.spi.plugin.CompilerPlugin;
 import io.winterframework.core.compiler.spi.plugin.PluginExecutionException;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {

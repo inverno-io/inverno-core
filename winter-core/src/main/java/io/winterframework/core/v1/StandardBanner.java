@@ -34,7 +34,7 @@ import java.util.Optional;
  * <li>The list of modules in the application module layer.</li>
  * </ul>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  */
 public class StandardBanner implements Banner {

@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * result should never be used in the development of a module.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  */
 @Retention(CLASS)

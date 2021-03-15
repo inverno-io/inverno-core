@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class AbstractWinterTest {

@@ -20,7 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import io.winterframework.core.v1.Module;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class WinterModuleProxy extends Module {

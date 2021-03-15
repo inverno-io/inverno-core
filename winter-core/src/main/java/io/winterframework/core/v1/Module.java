@@ -75,7 +75,7 @@ import org.apache.logging.log4j.Logger;
  * A module should always be built using a {@link ModuleBuilder}.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  */
 public abstract class Module {
@@ -156,9 +156,9 @@ public abstract class Module {
 	 * </p>
 	 * 
 	 * @param <T>          the type of the module to create
-	 * @param moduleLinker the module linker to use to create the module.
+	 * @param moduleLinker the module linker to use to create the module
 	 * 
-	 * @return the registered module.
+	 * @return the registered module
 	 */
 	protected <T extends Module> T with(ModuleLinker<T> moduleLinker) {
 		T module = moduleLinker.link();
@@ -309,7 +309,7 @@ public abstract class Module {
 	 * Aggregates single beans, collections of beans and arrays of beans.
 	 * </p>
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 *
 	 * @param <E> the bean type
 	 */
@@ -422,7 +422,7 @@ public abstract class Module {
 	 * 
 	 * @param <T> the module type to link.
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 */
 	protected static abstract class ModuleLinker<T extends Module> {
@@ -464,7 +464,7 @@ public abstract class Module {
 	 * 
 	 * @param <T> the module type to build.
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 */
 	protected static abstract class ModuleBuilder<T extends Module> {
@@ -539,7 +539,7 @@ public abstract class Module {
 	 * A bean has to be registered in a module before it can be used.
 	 * </p>
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 * @see BeanBuilder
 	 *
@@ -631,7 +631,7 @@ public abstract class Module {
 	 * A BeanBuilder is always created for a specific module instance.
 	 * </p>
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 * @see Bean
 	 * @see ModuleBeanBuilder
@@ -648,12 +648,21 @@ public abstract class Module {
 		 * throw checked exception.
 		 * </p>
 		 * 
-		 * @author jkuhn
+		 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 		 *
 		 * @param <T> the type of the input to the operation
 		 */
 		@FunctionalInterface
 		static interface FallibleConsumer<T> {
+			
+			/**
+			 * <p>
+			 * Performs this operation on the given argument.
+			 * </p>
+			 * 
+			 * @param t the input argument
+			 * @throws Exception if something goes wrong processing the argument
+			 */
 			void accept(T t) throws Exception;
 		}
 		
@@ -692,21 +701,24 @@ public abstract class Module {
 	 * dependency injection) and before its destruction respectively.
 	 * </p>
 	 * 
+	 * <blockquote>
+	 * 
 	 * <pre>
-	 *     this.bean = ModuleBeanBuilder
-	 *         .singleton("bean", () -&gt; {
-	 *              BeanA beanA = new BeanA(serviceSocket.get());
-	 *              return beanA;
-	 *          })
-	 *          .init(BeanA::init)
-	 *          .destroy(BeanA::destroy)
-	 *          .build(this);
+	 * this.bean = ModuleBeanBuilder
+	 *     .singleton("bean", () -&gt; {
+	 *          BeanA beanA = new BeanA(serviceSocket.get());
+	 *          return beanA;
+	 *      })
+	 *      .init(BeanA::init)
+	 *      .destroy(BeanA::destroy)
+	 *      .build(this);
 	 * </pre>
 	 * 
-	 * @param <T> the actual type of the bean to build
-	 * @param <B> the bean builder type to support method chaining
+	 * </blockquote>
 	 * 
-	 * @author jkuhn
+	 * @param <T> the actual type of the bean to build
+	 * 
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 * @see Bean
 	 */
@@ -793,21 +805,25 @@ public abstract class Module {
 	 * {@link WeakReference} is strongly advised.
 	 * </p>
 	 * 
+	 * <blockquote>
+	 * 
 	 * <pre>
-	 *     this.bean = WrapperBeanBuilder
-	 *         .singleton("bean", () -&gt; {
-	 *              BeanA beanA = new BeanA(serviceSocket.get());
-	 *              return beanA;
-	 *          })
-	 *          .init(BeanA::init)
-	 *          .destroy(BeanA::destroy)
-	 *          .build(this);
+	 * this.bean = WrapperBeanBuilder
+	 *     .singleton("bean", () -&gt; {
+	 *          BeanA beanA = new BeanA(serviceSocket.get());
+	 *          return beanA;
+	 *      })
+	 *      .init(BeanA::init)
+	 *      .destroy(BeanA::destroy)
+	 *      .build(this);
 	 * </pre>
 	 * 
-	 * @param <T> the actual type of the bean to build
-	 * @param <B> the bean builder type to support method chaining
+	 * </blockquote>
 	 * 
-	 * @author jkuhn
+	 * @param <T> the actual type of the bean to build
+	 * @param <W> the bean wrapper which supplies the bean instance
+	 * 
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 * @see Bean
 	 */
@@ -824,6 +840,7 @@ public abstract class Module {
 		 * </p>
 		 * 
 		 * @param <T>         the type of the bean to build
+		 * @param <W>         the bean wrapper which supplies the bean instance
 		 * @param beanName    the bean name
 		 * @param constructor the bean instance supplier
 		 * 
@@ -844,6 +861,7 @@ public abstract class Module {
 		 * </p>
 		 * 
 		 * @param <T>         the type of the bean to build
+		 * @param <W>         the bean wrapper which supplies the bean instance
 		 * @param beanName    the bean name
 		 * @param constructor the bean instance supplier
 		 * 
@@ -884,7 +902,7 @@ public abstract class Module {
 	 * cycles.
 	 * </p>
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 *
 	 */
 	@Retention(CLASS)

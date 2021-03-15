@@ -21,7 +21,7 @@ package io.winterframework.core.compiler.spi;
  * defines an injection point for one single bean.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface SingleSocketInfo extends SocketInfo {

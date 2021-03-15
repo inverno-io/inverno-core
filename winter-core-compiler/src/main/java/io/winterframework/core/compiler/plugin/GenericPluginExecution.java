@@ -43,7 +43,7 @@ import io.winterframework.core.compiler.spi.ReporterInfo;
 import io.winterframework.core.compiler.spi.plugin.PluginExecution;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class GenericPluginExecution implements PluginExecution {

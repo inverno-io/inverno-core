@@ -35,7 +35,7 @@ import io.winterframework.core.compiler.spi.MultiSocketType;
  * Base class for socket info factories.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class AbstractSocketInfoFactory extends AbstractInfoFactory {

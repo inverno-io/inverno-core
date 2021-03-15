@@ -27,7 +27,7 @@ import io.winterframework.core.compiler.spi.QualifiedName;
  * Base class for info.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class AbstractInfo<T extends QualifiedName> extends GenericReporterInfo implements Info {

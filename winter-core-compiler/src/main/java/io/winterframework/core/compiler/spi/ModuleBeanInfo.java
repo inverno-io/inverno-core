@@ -25,7 +25,7 @@ import io.winterframework.core.annotation.Bean;
  * A module bean info holds the data required to process a bean in a module.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface ModuleBeanInfo extends BeanInfo {

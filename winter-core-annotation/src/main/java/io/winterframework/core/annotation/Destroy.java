@@ -40,13 +40,17 @@ import java.lang.annotation.Target;
  * make sure instance are properly destroyed:
  * </p>
  * 
+ * <blockquote>
+ * 
  * <pre>
- *     try (MyPrototype instance = myModuleInstance.myPrototype()) {
- *         ...
- *     }
+ * try (MyPrototype instance = myModuleInstance.myPrototype()) {
+ *     ...
+ * }
  * </pre>
  * 
- * @author jkuhn
+ * </blockquote>
+ * 
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  */
 @Retention(CLASS)

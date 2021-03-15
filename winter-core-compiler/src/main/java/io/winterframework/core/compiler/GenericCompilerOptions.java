@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 import io.winterframework.core.compiler.spi.CompilerOptions;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class GenericCompilerOptions implements CompilerOptions {

@@ -23,7 +23,7 @@ import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileObject;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class WinterCompilerDiagnosticListener implements DiagnosticListener<JavaFileObject> {

@@ -34,7 +34,7 @@ import io.winterframework.core.compiler.spi.NestedBeanInfo;
  * Represents a common multi socket bean info.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class CommonMultiSocketBeanInfo extends AbstractSocketBeanInfo implements MultiSocketBeanInfo, MutableMultiSocketInfo {

@@ -33,7 +33,7 @@ import io.winterframework.core.compiler.spi.BeanInfo;
 import io.winterframework.core.compiler.spi.NestedBeanInfo;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class NestedBeanInfoFactory {

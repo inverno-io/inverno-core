@@ -33,7 +33,7 @@ import io.winterframework.core.compiler.spi.MultiSocketType;
  * Represents common multiple socket meta data.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * 
  */
 class CommonModuleBeanMultiSocketInfo extends AbstractModuleBeanSocketInfo implements ModuleBeanMultiSocketInfo, MutableMultiSocketInfo {

@@ -28,7 +28,7 @@ import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
  * Represents a bean socket wire info.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class ModuleBeanSocketWireInfo extends WireInfo<BeanSocketQualifiedName> {

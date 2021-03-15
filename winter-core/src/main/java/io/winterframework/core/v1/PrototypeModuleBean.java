@@ -41,7 +41,7 @@ import io.winterframework.core.v1.Module.Bean;
  * method.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * @see Bean
  * @see PrototypeWeakModuleBean

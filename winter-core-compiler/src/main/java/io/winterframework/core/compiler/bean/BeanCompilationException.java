@@ -20,7 +20,7 @@ package io.winterframework.core.compiler.bean;
  * Exception thrown when a bean could not be process properly.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class BeanCompilationException extends Exception {

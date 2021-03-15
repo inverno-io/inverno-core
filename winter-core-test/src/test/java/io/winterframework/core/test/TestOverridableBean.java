@@ -28,7 +28,7 @@ import io.winterframework.test.WinterModuleProxy;
 import io.winterframework.test.WinterModuleProxyBuilder;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class TestOverridableBean extends AbstractCoreWinterTest {

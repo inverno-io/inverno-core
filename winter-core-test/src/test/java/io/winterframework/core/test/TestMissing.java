@@ -27,7 +27,7 @@ import io.winterframework.test.WinterCompilationException;
 
 /**
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class TestMissing extends AbstractCoreWinterTest {

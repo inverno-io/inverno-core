@@ -33,7 +33,7 @@
  * as there's no need for a module to be opened.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  */
 module io.winterframework.core.annotation {

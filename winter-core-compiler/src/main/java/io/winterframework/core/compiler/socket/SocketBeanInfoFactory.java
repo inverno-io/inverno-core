@@ -29,7 +29,7 @@ import io.winterframework.core.compiler.common.AbstractSocketInfoFactory;
  * and binary).
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class SocketBeanInfoFactory extends AbstractSocketInfoFactory {
