@@ -23,7 +23,7 @@ import javax.lang.model.type.TypeMirror;
  * module.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface WrapperBeanInfo extends ModuleBeanInfo {

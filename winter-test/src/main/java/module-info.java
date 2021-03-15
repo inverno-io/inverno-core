@@ -19,13 +19,14 @@
  * Winter unit test utility module.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 module io.winterframework.test {
 	requires transitive java.compiler;
 	
 	requires io.winterframework.core;
+	requires static io.winterframework.core.annotation; // for javadoc...
 	
 	exports io.winterframework.test;
 }

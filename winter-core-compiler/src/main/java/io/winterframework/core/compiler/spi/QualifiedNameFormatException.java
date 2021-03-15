@@ -20,26 +20,54 @@ package io.winterframework.core.compiler.spi;
  * Thrown by a {@link QualifiedName} implementation to indicate a bad format.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class QualifiedNameFormatException extends IllegalArgumentException {
 
 	private static final long serialVersionUID = 888383750681678589L;
 
+	/**
+	 * <p>
+	 * Creates a qualified name format exception.
+	 * </p>
+	 */
 	public QualifiedNameFormatException() {
 		super();
 	}
 
-	public QualifiedNameFormatException(String message, Throwable cause) {
-		super(message, cause);
+	/**
+	 * <p>
+	 * Creates a qualified name format exception with the specified message.
+	 * </p>
+	 * 
+	 * @param message the message
+	 */
+	public QualifiedNameFormatException(String message) {
+		super(message);
 	}
 
-	public QualifiedNameFormatException(String s) {
-		super(s);
-	}
-
+	/**
+	 * <p>
+	 * Creates a qualified name format exception with the specified cause.
+	 * </p>
+	 * 
+	 * @param cause the cause
+	 */
 	public QualifiedNameFormatException(Throwable cause) {
 		super(cause);
+	}
+
+	/**
+	 * <p>
+	 * Creates a qualified name format exception with the specified message and
+	 * cause.
+	 * </p>
+	 * 
+	 * @param message the message
+	 * @param cause   the cause
+	 */
+	public QualifiedNameFormatException(String message, Throwable cause) {
+		super(message, cause);
 	}
 }

@@ -27,7 +27,7 @@
  * start and stop a module.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  */
 module io.winterframework.core {

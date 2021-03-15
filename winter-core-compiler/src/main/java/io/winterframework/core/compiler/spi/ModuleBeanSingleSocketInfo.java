@@ -21,7 +21,7 @@ package io.winterframework.core.compiler.spi;
  * bean or a one-to-one relationship between two beans.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface ModuleBeanSingleSocketInfo extends ModuleBeanSocketInfo, SingleSocketInfo {

@@ -65,7 +65,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  * {@link Bean} annotations and generate a Winter module class.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 //@SupportedAnnotationTypes({"io.winterframework.core.annotation/io.winterframework.core.annotation.Module","io.winterframework.core.annotation/io.winterframework.core.annotation.Bean"})

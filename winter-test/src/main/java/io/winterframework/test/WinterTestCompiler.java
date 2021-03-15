@@ -35,7 +35,7 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class WinterTestCompiler {

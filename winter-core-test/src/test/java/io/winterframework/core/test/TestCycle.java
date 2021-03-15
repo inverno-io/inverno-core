@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import io.winterframework.test.WinterCompilationException;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class TestCycle extends AbstractCoreWinterTest {

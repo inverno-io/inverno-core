@@ -31,7 +31,7 @@ import io.winterframework.core.v1.Module.BeanBuilder;
  * application.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
  * @param <T> the actual type of the bean.

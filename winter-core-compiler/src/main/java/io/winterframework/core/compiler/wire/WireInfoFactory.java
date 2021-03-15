@@ -49,7 +49,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
 /**
  * <p>Used when building a compiled module to create wire info from the compiled module element.</p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class WireInfoFactory extends AbstractInfoFactory {

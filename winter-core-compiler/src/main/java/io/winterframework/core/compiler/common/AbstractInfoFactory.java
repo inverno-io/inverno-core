@@ -35,7 +35,7 @@ import io.winterframework.core.compiler.spi.ReporterInfo;
  * Base class for info factories.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class AbstractInfoFactory {

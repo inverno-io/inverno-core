@@ -28,7 +28,7 @@ package io.winterframework.core.compiler.spi;
  * <code>com.example.myModule:myBean:param</code>).
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class BeanSocketQualifiedName extends QualifiedName {
@@ -122,8 +122,8 @@ public class BeanSocketQualifiedName extends QualifiedName {
 	 * Creates a bean socket qualified name from the specified module qualified name
 	 * and the specified raw value of the form
 	 * <code>&lt;beanName&gt;:&lt;socketName&gt;</code> where
-	 * <code>&lt;beanName&gt;</code> and <code>&lt;socketName&gt;</code> is a valid
-	 * Java name.
+	 * <code>&lt;beanName&gt;</code> and <code>&lt;socketName&gt;</code> are valid
+	 * Java names.
 	 * </p>
 	 * 
 	 * @param moduleQName a module qualified name

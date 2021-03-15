@@ -31,7 +31,7 @@ import io.winterframework.core.v1.Module.BeanBuilder;
  * dependent beans through the application.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
  * @see BeanBuilder

@@ -42,7 +42,7 @@ import io.winterframework.core.compiler.spi.ReporterInfo;
  * It also allows to create source file or resource file.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.1
  */
 public interface PluginExecution {

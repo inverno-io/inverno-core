@@ -22,7 +22,7 @@ import javax.lang.model.type.TypeMirror;
  * Base bean info interface specifying data and services common to all beans.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface BeanInfo extends Info {
@@ -54,7 +54,7 @@ public interface BeanInfo extends Info {
 	 * A nested bean follows the lifecyle of its providing bean.
 	 * </p>
 	 * 
-	 * @return
+	 * @return an array of nested beans
 	 */
 	NestedBeanInfo[] getNestedBeans();
 }

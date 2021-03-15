@@ -21,7 +21,7 @@ package io.winterframework.test.lifecycle.moduleC;
 import io.winterframework.core.annotation.Bean;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 @Bean

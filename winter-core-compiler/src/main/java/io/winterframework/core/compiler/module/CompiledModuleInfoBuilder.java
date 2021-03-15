@@ -62,7 +62,7 @@ import io.winterframework.core.compiler.wire.WireInfoFactory;
  * annotated with {@link Module} and currently compiled by the Java compiler.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {

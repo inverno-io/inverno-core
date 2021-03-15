@@ -58,7 +58,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  * compiled and generated yet.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  */
 class ModuleGenerator {
 

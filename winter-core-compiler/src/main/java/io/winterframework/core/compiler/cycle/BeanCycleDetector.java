@@ -38,7 +38,7 @@ import io.winterframework.core.compiler.spi.SocketInfo;
  * Detects cycles in a graph of beans.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class BeanCycleDetector {
@@ -115,7 +115,7 @@ public class BeanCycleDetector {
 	/**
 	 * <p>Represents a link in bean dependency cycle.</p>
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 *
 	 */
 	public class CycleInfo {

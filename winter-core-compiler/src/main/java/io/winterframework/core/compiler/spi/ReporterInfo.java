@@ -22,7 +22,7 @@ package io.winterframework.core.compiler.spi;
  * module's elements and annotations during compilation.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface ReporterInfo {

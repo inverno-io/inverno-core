@@ -1,3 +1,6 @@
+import io.winterframework.core.annotation.Bean;
+import io.winterframework.core.annotation.Module;
+
 /*
  * Copyright 2018 Jeremy KUHN
  *
@@ -16,12 +19,13 @@
 
 /**
  * <p>
- * The Winter framework compiler module, providing a {@link Module} annotation
- * processor that analyzes the source code looking for {@link Bean} annotated
+ * The Winter framework compiler module, providing a {@link Module @Module} annotation
+ * processor that analyzes the source code looking for {@link Bean @Bean} annotated
  * class to generate a corresponding module class at compile time.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
+ * @since 1.0
  *
  * @provides javax.annotation.processing.Processor
  */

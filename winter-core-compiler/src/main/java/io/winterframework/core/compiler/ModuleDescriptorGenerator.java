@@ -40,7 +40,7 @@ import io.winterframework.core.compiler.spi.WrapperBeanInfo;
 /**
  * <p>A {@link ModuleInfoVisitor} used to generate module descriptor in a readable YAML format.</p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {

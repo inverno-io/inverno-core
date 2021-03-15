@@ -22,10 +22,10 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Annotation that aggregates several {@link Wire} annotations.
+ * Annotation that aggregates several {@link Wire @Wire} annotations.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
  * @see Wire
@@ -36,7 +36,7 @@ public @interface Wires {
 
 	/**
 	 * <p>
-	 * The list of {@link Wire} to consider when compiling a module.
+	 * The list of {@link Wire @Wire} to consider when compiling a module.
 	 * </p>
 	 * 
 	 * @return A list of wire

@@ -23,7 +23,7 @@ import io.winterframework.core.compiler.spi.SingleSocketInfo;
  * Mutable single socket bean info for internal use.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface MutableSingleSocketInfo extends SingleSocketInfo {

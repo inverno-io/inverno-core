@@ -28,7 +28,7 @@ import io.winterframework.core.compiler.spi.CompilerOptions;
  * elements.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.1
  */
 public interface PluginContext {
@@ -65,7 +65,7 @@ public interface PluginContext {
 	 * Returns Java compiler doc trees utility.
 	 * </p>
 	 * 
-	 * @return
+	 * @return the compiler documentation utility
 	 */
 	DocTrees getDocUtils();
 }

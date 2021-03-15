@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 /**
  * <p>
  * Indicates that an annotated class or interface is a bean. Inside a module, a
- * bean represents one or more instance that can be wired to other bean
+ * bean represents one or more instances that can be wired to other bean
  * instances visible to this module.
  * </p>
  * 
@@ -40,74 +40,82 @@ import java.util.function.Supplier;
  * be defined in injection points or sockets which can be either the constructor
  * for required dependencies or setter methods for optional dependencies. By
  * convention, any setter method is considered as a socket which may lead to
- * ambiguities. In that case a {@link BeanSocket} annotation can be used to
- * specify explicit bean sockets.
+ * ambiguities. In that case a {@link BeanSocket @BeanSocket} annotation can be
+ * used to specify explicit bean sockets.
  * </p>
  * 
+ * <blockquote>
+ * 
  * <pre>
- *     &#64;Bean
- *     public class ModuleBean implements SomeService {
- *         
- *         public ModuleBean(RequiredDependency requiredDependency) {
- *             ...
- *         }
- *         
- *         public void setOptionalDependency(OptionalDependency optionalDependency) {
- *             ...
- *         }
- *         
- *         &#64;Init
- *         public void init() {
- *             ...
- *         }
- *         
- *         &#64;Destroy
- *         public void destroy() {
- *             ...
- *         }
+ * &#64;Bean
+ * public class ModuleBean implements SomeService {
+ *     
+ *     public ModuleBean(RequiredDependency requiredDependency) {
+ *         ...
  *     }
+ *     
+ *     public void setOptionalDependency(OptionalDependency optionalDependency) {
+ *         ...
+ *     }
+ *     
+ *     &#64;Init
+ *     public void init() {
+ *         ...
+ *     }
+ *     
+ *     &#64;Destroy
+ *     public void destroy() {
+ *         ...
+ *     }
+ * }
  * </pre>
+ * 
+ * </blockquote>
  * 
  * <p>
  * A wrapper bean is used to expose legacy code that can't be instrumented. A
- * wrapper bean must implement {@link Supplier} and be annotated with
- * {@link Wrapper}.
+ * wrapper bean must be a class annotated with {@link Bean @Bean} and
+ * {@link Wrapper @Wrapper} and implements {@link Supplier}.
  * </p>
  * 
+ * <blockquote>
+ * 
  * <pre>
- *     &#64;Bean
- *     &#64;Wrapper
- *     public class WrapperBean implements Supplier&lt;SomeService&gt; {
- *         
- *         private WeakReference<SomeService> instance;
- *         
- *         public WrapperBean(RequiredDependency requiredDependency) {
- *             // Instantiate the wrapped instance
- *             this.instance = new WeakReference<>(...)
- *         }
- *         
- *         public void setOptionalDependency(OptionalDependency optionalDependency) {
- *             // Set optional dependency on the instance
- *             this.instance.set...
- *         }
- *         
- *         public SomeService get() {
- *             return this.instance.get();
- *         }
- *         
- *         &#64;Init
- *         public void init() {
- *             // Init the instance
- *             this.instance.get().init();
- *         }
- *         
- *         &#64;Destroy
- *         public void destroy() {
- *             // Destroy the instance
- *             this.instance.get().destroy();
- *         }
+ * &#64;Bean
+ * &#64;Wrapper
+ * public class WrapperBean implements Supplier&lt;SomeService&gt; {
+ *     
+ *     private WeakReference{@literal <SomeService>} instance;
+ *     
+ *     public WrapperBean(RequiredDependency requiredDependency) {
+ *         // Instantiate the wrapped instance
+ *         this.instance = new WeakReference{@literal <>}(...)
  *     }
+ *     
+ *     public void setOptionalDependency(OptionalDependency optionalDependency) {
+ *         // Set optional dependency on the instance
+ *         this.instance.set...
+ *     }
+ *     
+ *     public SomeService get() {
+ *         return this.instance.get();
+ *     }
+ *     
+ *     &#64;Init
+ *     public void init() {
+ *         // Init the instance
+ *         this.instance.get().init();
+ *     }
+ *     
+ *     &#64;Destroy
+ *     public void destroy() {
+ *         // Destroy the instance
+ *         this.instance.get().destroy();
+ *     }
+ * }
  * </pre>
+ * 
+ * </blockquote>
  * 
  * <p>
  * A socket bean is a particular type of bean which is used to declare a module
@@ -117,45 +125,26 @@ import java.util.function.Supplier;
  * "socket" designation). From a dependency injection perspective, inside the
  * module, a socket bean is considered just like any other bean and is
  * automatically or explicitly injected in beans visible to the module. A socket
- * bean must be an interface annotated with {@link Bean} with a
+ * bean must be an interface annotated with {@link Bean @Bean} with a
  * {@link Visibility#PUBLIC} visibility and extends {@link Supplier}.
  * </p>
  * 
- * <pre>
- *     &#64;Bean
- *     public interface SocketBean implements Supplier&lt;SomeService&gt; {
- *     }
- * </pre>
- * 
- * <p>
- * A configuration bean is a particular type of bean used to create specific
- * socket beans providing configuration data. It supports specific features that
- * makes it very convenient to use when one need to provide configuration data
- * to a module. A configuration bean must be an interface annotated with
- * {@link Bean} and {@link Configuration} with a {@link Visibility#PUBLIC}
- * visibility. Configuration properties are specified in non-void no-argument
- * methods and default values can be specified in default methods.
- * </p>
+ * <blockquote>
  * 
  * <pre>
- *     &#64;Bean
- *     &#64;Configuration
- *     public interface ConfigurationBean {
- *         
- *         String paramerter1();
- *         
- *         default int parameter2() {
- *             return 42;
- *         }
- *     }
+ * &#64;Bean
+ * public interface SocketBean implements Supplier&lt;SomeService&gt; {
+ * 
+ * }
  * </pre>
  * 
- * @author jkuhn
+ * </blockquote>
+ * 
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
  * @see BeanSocket
  * @see Wrapper
- * @see Configuration
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ ElementType.TYPE })
@@ -174,7 +163,7 @@ public @interface Bean {
 	/**
 	 * Indicates the visibility of a bean in a module.
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 */
 	public static enum Visibility {
@@ -225,7 +214,7 @@ public @interface Bean {
 	 * on a socket bean
 	 * </p>
 	 * 
-	 * @author jkuhn
+	 * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 */
 	public static enum Strategy {

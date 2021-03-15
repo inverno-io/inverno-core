@@ -35,7 +35,7 @@ import java.lang.annotation.Target;
  * data to component modules)
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.1
  */
 @Retention(RetentionPolicy.CLASS)

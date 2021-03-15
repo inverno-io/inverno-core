@@ -34,7 +34,7 @@ import io.winterframework.core.compiler.spi.BeanQualifiedName;
  * Base class for socket bean info.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements MutableSocketBeanInfo, WirableSocketBeanInfo {

@@ -36,7 +36,7 @@ import io.winterframework.core.compiler.spi.ModuleQualifiedName;
  * Base class for module info builders.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 abstract class AbstractModuleInfoBuilder implements ModuleInfoBuilder {

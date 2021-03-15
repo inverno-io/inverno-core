@@ -26,7 +26,7 @@ package io.winterframework.core.compiler.spi;
  * <code>&lt;identifier&gt;(.&lt;identifier&gt;)+</code>.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class QualifiedName {

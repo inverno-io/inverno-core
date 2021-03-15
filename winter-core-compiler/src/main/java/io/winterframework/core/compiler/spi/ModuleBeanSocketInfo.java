@@ -24,7 +24,7 @@ package io.winterframework.core.compiler.spi;
  * A bean socket specifies a dependency injection point on a bean.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface ModuleBeanSocketInfo extends SocketInfo {

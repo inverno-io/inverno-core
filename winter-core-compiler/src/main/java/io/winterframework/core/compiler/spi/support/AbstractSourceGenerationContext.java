@@ -39,33 +39,79 @@ import io.winterframework.core.compiler.spi.ModuleQualifiedName;
  * to simplify the generation of Java source classes.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGenerationContext<A,B>, B extends Enum<B>> {
 
+	/**
+	 * The parent generation context.
+	 */
 	protected A parentGeneration;
 	
+	/**
+	 * The types utility.
+	 */
 	protected Types typeUtils;
 	
+	/**
+	 * The elements utility.
+	 */
 	protected Elements elementUtils;
 	
+	/**
+	 * The generation mode.
+	 */
 	protected B mode;
 	
+	/**
+	 * The map of imports.
+	 */
 	protected Map<String, String> imports;
 	
+	/**
+	 * The indent depth.
+	 */
 	protected int indentDepth = 0;
 	
+	/**
+	 * The default indent.
+	 */
 	protected static final String DEFAULT_INDENT = "\t";
 	
+	/**
+	 * The indent used during generation.
+	 */
 	protected String indent;
 	
+	/**
+	 * The qualified name of the module being generated.
+	 */
 	protected ModuleQualifiedName moduleQualifiedName;
 	
+	/**
+	 * <p>
+	 * Creates a source generation context.
+	 * </p>
+	 * 
+	 * @param typeUtils    the types utility
+	 * @param elementUtils the elements utility
+	 * @param mode         the generation mode
+	 */
 	public AbstractSourceGenerationContext(Types typeUtils, Elements elementUtils, B mode) {
 		this(typeUtils, elementUtils, mode, DEFAULT_INDENT);
 	}
 	
+	/**
+	 * <p>
+	 * Creates a source generation context.
+	 * </p>
+	 * 
+	 * @param typeUtils    the types utility
+	 * @param elementUtils the elements utility
+	 * @param mode         the generation mode
+	 * @param indent       the indent
+	 */
 	public AbstractSourceGenerationContext(Types typeUtils, Elements elementUtils, B mode, String indent) {
 		this.imports = new HashMap<>();
 		this.typeUtils = typeUtils;
@@ -74,6 +120,13 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		this.setIndent(indent);
 	}
 	
+	/**
+	 * <p>
+	 * Creates a source generation context from a parent generation context.
+	 * </p>
+	 * 
+	 * @param parentGeneration the parent generation context
+	 */
 	protected AbstractSourceGenerationContext(A parentGeneration) {
 		this.parentGeneration = parentGeneration;
 		this.imports = parentGeneration.imports;
@@ -85,10 +138,27 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		this.moduleQualifiedName = parentGeneration.moduleQualifiedName;
 	}
 	
+	/**
+	 * <p>
+	 * Sets the generation indent.
+	 * </p>
+	 * 
+	 * @param indent an indent
+	 */
 	public void setIndent(String indent) {
 		this.indent = indent;
 	}
 	
+	/**
+	 * <p>
+	 * Returns an indent of the specified depth from the current generation indent
+	 * depth.
+	 * </p>
+	 * 
+	 * @param depth the relative indent depth
+	 * 
+	 * @return an indent
+	 */
 	public String indent(int depth) {
 		String repeatIndent = "";
 		for(int i=0;i<this.indentDepth + depth;i++) {
@@ -97,50 +167,170 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		return repeatIndent;
 	}
 	
+	/**
+	 * <p>
+	 * Returns a new generation context created from this context with the specified
+	 * mode.
+	 * </p>
+	 * 
+	 * <p>
+	 * This generation context remains untouched.
+	 * </p>
+	 * 
+	 * @param mode a generation mode
+	 * 
+	 * @return a new generation context
+	 */
 	public abstract A withMode(B mode);
 	
+	/**
+	 * <p>
+	 * Returns a new generation context created from this context with an indent
+	 * depth increased by the specified delta.
+	 * </p>
+	 * 
+	 * <p>
+	 * This generation context remains untouched.
+	 * </p>
+	 * 
+	 * @param delta the indent depth delta
+	 * 
+	 * @return a new generation context
+	 */
 	public A withIndentDepthAdd(int delta) {
 		return this.withIndentDepth(this.indentDepth + delta);
 	}
 	
+	/**
+	 * <p>
+	 * Returns a new generation context created from this context with the specified
+	 * indent depth.
+	 * </p>
+	 * 
+	 * <p>
+	 * This generation context remains untouched.
+	 * </p>
+	 * 
+	 * @param indentDepth the indent depth
+	 * 
+	 * @return a new generation context
+	 */
 	public abstract A withIndentDepth(int indentDepth);
 	
+	/**
+	 * <p>
+	 * Returns a new generation context created from this context for the specified
+	 * module.
+	 * </p>
+	 * 
+	 * <p>
+	 * This generation context remains untouched.
+	 * </p>
+	 * 
+	 * @param moduleQualifiedName a module qualified name
+	 * 
+	 * @return a new generation context
+	 */
 	public abstract A withModule(ModuleQualifiedName moduleQualifiedName);
 	
+	/**
+	 * <p>
+	 * Returns the generation mode.
+	 * </p>
+	 * 
+	 * @return the generation mode
+	 */
 	public B getMode() {
 		return this.mode;
 	}
 	
+	/**
+	 * <p>
+	 * Returns the indent depth.
+	 * </p>
+	 * 
+	 * @return the indent depth
+	 */
 	public int getIndentDepth() {
 		return indentDepth;
 	}
 	
+	/**
+	 * <p>
+	 * Returns the generated module.
+	 * </p>
+	 * 
+	 * @return the generated module qualified name
+	 */
 	public ModuleQualifiedName getModule() {
 		return this.moduleQualifiedName;
 	}
 	
+	/**
+	 * <p>
+	 * Returns the types utility.
+	 * </p>
+	 * 
+	 * @return the types utility
+	 */
 	public Types getTypeUtils() {
 		return this.typeUtils;
 	}
 	
+	/**
+	 * <p>
+	 * Returns the elements utility.
+	 * </p>
+	 * 
+	 * @return the elements utility
+	 */
 	public Elements getElementUtils() {
 		return this.elementUtils;
 	}
 	
+	/**
+	 * <p>
+	 * Adds the specified import to the context.
+	 * </p>
+	 * 
+	 * @param className     the simple name of the imported type
+	 * @param canonicalName the canonical name of the imported type
+	 */
 	public void addImport(String className, String canonicalName) {
 		if(!this.imports.containsKey(className)) {
 			this.imports.put(className, canonicalName);
 		}
 	}
 	
+	/**
+	 * <p>
+	 * Removes the import for the specified class.
+	 * </p>
+	 * 
+	 * @param className a simple class name
+	 */
 	public void removeImport(String className) {
 		this.imports.remove(className);
 	}
 	
+	/**
+	 * <p>
+	 * Returns the list of imports.
+	 * </p>
+	 * 
+	 * @return a set of imports
+	 */
 	public Set<String> getImports() {
 		return new HashSet<>(this.imports.values());
 	}
-	
+
+	/**
+	 * <p>
+	 * Adds the specified import to the context.
+	 * </p>
+	 * 
+	 * @param type the imported type of the imported class
+	 */
 	private void addImport(TypeMirror type) {
 		if(type.getKind().equals(TypeKind.ARRAY)) {
 			this.addImport(((ArrayType)type).getComponentType());
@@ -165,11 +355,28 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		}
 	}
 	
+	/**
+	 * <p>
+	 * Determines whether the specified type is imported.
+	 * </p>
+	 * 
+	 * @param type a type
+	 * @return true if the type is imported, false otherwise
+	 */
 	private boolean isImported(TypeMirror type) {
 		Element erasedElement = this.typeUtils.asElement(this.typeUtils.erasure(type));
 		return this.imports.containsKey(erasedElement.getSimpleName().toString()) && this.imports.get(erasedElement.getSimpleName().toString()).equals(erasedElement.toString());
 	}
 	
+	/**
+	 * <p>
+	 * Adds the specified canonical name to the list of imports if not done yet and
+	 * returns the simple type name.
+	 * </p>
+	 * 
+	 * @param canonicalName a canonical name
+	 * @return the simple type name
+	 */
 	public String getTypeName(String canonicalName) {
 		String packageName = canonicalName.lastIndexOf(".") != -1 ? canonicalName.substring(0, canonicalName.lastIndexOf(".")) : "";
 		String className = canonicalName.substring(packageName.length() + 1);
@@ -182,6 +389,15 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		return canonicalName;
 	}
 	
+	/**
+	 * <p>
+	 * Adds the specified type to the list of imports if not done yet and returns
+	 * the simple type name.
+	 * </p>
+	 * 
+	 * @param type a type
+	 * @return the simple type name
+	 */
 	public String getTypeName(TypeMirror type) {
 		this.addImport(type);
 		
@@ -214,6 +430,15 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		}
 	}
 	
+	/**
+	 * <p>
+	 * Returns a Collector that concatenates the input elements into a
+	 * StringBuilder, in encounter order.
+	 * </p>
+	 * 
+	 * @return a Collector that concatenates the input elements into a
+	 *         StringBuilder, in encounter order
+	 */
 	public Collector<CharSequence, ?, StringBuilder> joining() {
 		return Collector.of(
 				StringBuilder::new, 
@@ -223,6 +448,17 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 			);
 	}
 	
+	/**
+	 * <p>
+	 * Returns a Collector that concatenates the input elements, separated by the
+	 * specified delimiter, in encounter order.
+	 * </p>
+	 * 
+	 * @param delimiter the delimiter to be used between each element
+	 * 
+	 * @return A Collector which concatenates CharSequence elements, separated by
+	 *         the specified delimiter, in encounter order
+	 */
 	public Collector<CharSequence, ?, StringBuilder> joining(CharSequence delimiter) {
 		return Collector.of(
 			StringBuilder::new, 

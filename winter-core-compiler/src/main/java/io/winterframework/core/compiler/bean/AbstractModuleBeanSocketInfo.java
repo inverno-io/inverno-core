@@ -30,7 +30,7 @@ import io.winterframework.core.compiler.spi.ModuleBeanSocketInfo;
 /**
  * <p>Base class for {@link ModuleBeanSocketInfo} implementations.</p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 abstract class AbstractModuleBeanSocketInfo extends AbstractInfo<BeanSocketQualifiedName> implements ModuleBeanSocketInfo {

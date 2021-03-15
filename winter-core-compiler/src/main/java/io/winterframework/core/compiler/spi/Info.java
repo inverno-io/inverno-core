@@ -26,7 +26,7 @@ package io.winterframework.core.compiler.spi;
  * inconsistencies preventing a further processing of the element.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface Info extends ReporterInfo {

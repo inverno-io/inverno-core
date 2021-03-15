@@ -24,12 +24,12 @@ import java.util.function.Supplier;
 
 /**
  * <p>
- * Used in conjunction with {@link Bean} to indicate a wrapper bean.
+ * Used in conjunction with {@link Bean @Bean} to indicate a wrapper bean.
  * </p>
  * 
  * <p>
  * A wrapper bean should be used to create beans using legacy code which can't
- * be annotated with {@link Bean}, it allows to delegate the actual
+ * be annotated with {@link Bean @Bean}, it allows to delegate the actual
  * instantiation, initialization and destruction to a wrapper class. As a result
  * a wrapper implementing the {@link Supplier} interface.
  * </p>
@@ -48,7 +48,7 @@ import java.util.function.Supplier;
  * instance to prevent memory leaks that might arise in certain situations.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
  * @see Bean

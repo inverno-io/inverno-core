@@ -27,7 +27,7 @@ import javax.lang.model.type.TypeMirror;
  * assignable to the socket type.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface SocketBeanInfo extends BeanInfo, SocketInfo {

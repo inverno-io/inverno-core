@@ -27,7 +27,7 @@ import io.winterframework.core.v1.Module.BeanBuilder;
  * Base class for {@link BeanBuilder} implementations.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
  * @see Bean

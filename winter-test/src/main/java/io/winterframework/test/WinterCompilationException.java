@@ -21,7 +21,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
 /**
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public class WinterCompilationException extends Exception {

@@ -20,7 +20,7 @@ package io.winterframework.core.compiler.spi;
  * A module info visitor is used to process a module info.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  * @param <R> the visitor result type
  * @param <P> the visitor parameter type
@@ -29,7 +29,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit module info.
+	 * Visits module info.
 	 * </p>
 	 * 
 	 * @param moduleInfo the info to visit
@@ -41,7 +41,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit bean info.
+	 * Visits bean info.
 	 * </p>
 	 * 
 	 * @param beanInfo the info to visit
@@ -53,11 +53,11 @@ public interface ModuleInfoVisitor<R, P> {
 	
 	/**
 	 * <p>
-	 * Visit nested bean info.
+	 * Visits nested bean info.
 	 * </p>
 	 * 
-	 * @param beanInfo the info to visit
-	 * @param p        a visitor parameter
+	 * @param nestedBeanInfo the info to visit
+	 * @param p              a visitor parameter
 	 * 
 	 * @return a visitor result
 	 */
@@ -65,7 +65,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit module bean info.
+	 * Visits module bean info.
 	 * </p>
 	 * 
 	 * @param moduleBeanInfo the info to visit
@@ -77,7 +77,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit wrapper bean info.
+	 * Visits wrapper bean info.
 	 * </p>
 	 * 
 	 * @param wrapperBeanInfo the info to visit
@@ -89,7 +89,7 @@ public interface ModuleInfoVisitor<R, P> {
 	
 	/**
 	 * <p>
-	 * Visit overridable bean info.
+	 * Visits overridable bean info.
 	 * </p>
 	 * 
 	 * @param overridableBeanInfo the info to visit
@@ -101,7 +101,7 @@ public interface ModuleInfoVisitor<R, P> {
 	
 	/**
 	 * <p>
-	 * Visit overriding socket bean info.
+	 * Visits overriding socket bean info.
 	 * </p>
 	 * 
 	 * @param overridingSocketBeanInfo the info to visit
@@ -113,7 +113,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit socket info.
+	 * Visits socket info.
 	 * </p>
 	 * 
 	 * @param socketInfo the info to visit
@@ -125,7 +125,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit single socket info.
+	 * Visits single socket info.
 	 * </p>
 	 * 
 	 * @param singleSocketInfo the info to visit
@@ -137,7 +137,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit multiple socket info.
+	 * Visits multiple socket info.
 	 * </p>
 	 * 
 	 * @param multiSocketInfo the info to visit
@@ -149,7 +149,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit bean socket info.
+	 * Visits bean socket info.
 	 * </p>
 	 * 
 	 * @param beanSocketInfo the info to visit
@@ -161,7 +161,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit bean single socket info.
+	 * Visits bean single socket info.
 	 * </p>
 	 * 
 	 * @param beanSingleSocketInfo the info to visit
@@ -173,7 +173,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit bean multiple socket info.
+	 * Visits bean multiple socket info.
 	 * </p>
 	 * 
 	 * @param beanMultiSocketInfo the info to visit
@@ -185,7 +185,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit socket bean info.
+	 * Visits socket bean info.
 	 * </p>
 	 * 
 	 * @param socketBeanInfo the info to visit
@@ -197,7 +197,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit single socket bean info.
+	 * Visits single socket bean info.
 	 * </p>
 	 * 
 	 * @param singleSocketBeanInfo the info to visit
@@ -209,7 +209,7 @@ public interface ModuleInfoVisitor<R, P> {
 
 	/**
 	 * <p>
-	 * Visit multiple socket bean info.
+	 * Visits multiple socket bean info.
 	 * </p>
 	 * 
 	 * @param multiSocketBeanInfo the info to visit

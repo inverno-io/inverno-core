@@ -45,7 +45,7 @@ import io.winterframework.core.compiler.spi.SocketBeanInfo;
  * (possibly compiled modules).
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class BinaryModuleBeanInfoFactory extends ModuleBeanInfoFactory {

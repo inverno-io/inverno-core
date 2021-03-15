@@ -27,7 +27,7 @@ import io.winterframework.core.compiler.spi.QualifiedNameFormatException;
 /**
  * <p>Base class for wire info associating one or more beans to a socket.</p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public abstract class WireInfo<T extends QualifiedName> extends GenericReporterInfo {

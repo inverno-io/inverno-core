@@ -33,7 +33,7 @@ import io.winterframework.core.annotation.Selector;
  * modules or beans.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface SocketInfo extends Info {

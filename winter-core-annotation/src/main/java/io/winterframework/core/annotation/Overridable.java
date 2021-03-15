@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Used in conjunction with {@link Bean} to indicate an overridable bean.
+ * Used in conjunction with {@link Bean @Bean} to indicate an overridable bean.
  * </p>
  * 
  * <p>
@@ -31,8 +31,8 @@ import java.lang.annotation.Target;
  * exposed on the module
  * </p>
  * 
- * @author jkuhn
- * @since 1.0
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
+ * @since 1.1
  * 
  * @see Bean
  */

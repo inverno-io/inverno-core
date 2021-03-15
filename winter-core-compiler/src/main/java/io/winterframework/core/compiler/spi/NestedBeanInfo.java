@@ -29,7 +29,7 @@ import javax.lang.model.element.ExecutableElement;
  * are not directly exposed on a module.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface NestedBeanInfo extends BeanInfo {

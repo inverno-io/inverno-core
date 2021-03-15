@@ -21,7 +21,7 @@ package io.winterframework.core.compiler.spi;
  * override for an {@link OverridableBeanInfo}.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 public interface OverridingSocketBeanInfo extends SingleSocketBeanInfo {

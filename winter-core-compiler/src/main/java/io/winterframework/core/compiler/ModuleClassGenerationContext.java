@@ -28,12 +28,11 @@ import io.winterframework.core.compiler.spi.support.AbstractSourceGenerationCont
 
 /**
  * <p>
- * Represents a module class generation which is used as a context by the
- * {@link ModuleClassGenerator} during the generation of a Winter module class.
+ * Represents a generation context used by the {@link ModuleClassGenerator}
+ * during the generation of a Winter module class.
  * </p>
  * 
- * @author jkuhn
- *
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  */
 class ModuleClassGenerationContext extends AbstractSourceGenerationContext<ModuleClassGenerationContext, ModuleClassGenerationContext.GenerationMode> {
 

@@ -26,7 +26,7 @@ import io.winterframework.core.v1.Module.WrapperBeanBuilder;
  * Base class for {@link WrapperBeanBuilder} implementations.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.1
  * 
  * @see Bean

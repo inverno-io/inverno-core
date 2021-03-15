@@ -22,8 +22,9 @@ import io.winterframework.core.compiler.spi.QualifiedName;
 import io.winterframework.core.compiler.spi.ReporterInfo;
 
 /**
- * @author jkuhn
- *
+ * <p>Base {@link Info} implementation.</p>
+ * 
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  */
 public abstract class AbstractInfo<E extends QualifiedName> implements Info {
 	
@@ -31,6 +32,14 @@ public abstract class AbstractInfo<E extends QualifiedName> implements Info {
 	
 	private ReporterInfo reporter;
 	
+	/**
+	 * <p>
+	 * Creates an info.
+	 * </p>
+	 * 
+	 * @param name     the qualified name
+	 * @param reporter the reporter
+	 */
 	public AbstractInfo(E name, ReporterInfo reporter) {
 		this.name = Objects.requireNonNull(name);
 		this.reporter = Objects.requireNonNull(reporter);

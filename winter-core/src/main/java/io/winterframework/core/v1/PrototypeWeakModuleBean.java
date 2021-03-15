@@ -62,13 +62,17 @@ import io.winterframework.core.v1.Module.Bean;
  * invoked twice because it might, and get new instances as follows:
  * </p>
  * 
+ * <blockquote>
+ * 
  * <pre>
- *     try (MyPrototype instance = myModuleInstance.myPrototype()) {
- *         ...
- *     }
+ * try (MyPrototype instance = myModuleInstance.myPrototype()) {
+ *     ...
+ * }
  * </pre>
  * 
- * @author jkuhn
+ * </blockquote>
+ * 
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * @see Bean
  * @see PrototypeWeakModuleBean

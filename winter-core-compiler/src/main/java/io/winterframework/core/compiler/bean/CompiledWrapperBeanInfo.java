@@ -35,7 +35,7 @@ import io.winterframework.core.compiler.spi.WrapperBeanInfo;
  * the module implementation.
  * </p>
  * 
- * @author jkuhn
+ * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  *
  */
 class CompiledWrapperBeanInfo extends CommonModuleBeanInfo implements WrapperBeanInfo {
