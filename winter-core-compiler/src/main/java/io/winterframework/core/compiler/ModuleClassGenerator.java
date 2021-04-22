@@ -277,7 +277,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				})
 				.collect(context.joining(",\n"));
 			
-			StringBuilder moduleNew = new StringBuilder().append(context.indent(2)).append("this.").append(moduleInfo.getQualifiedName().normalize()).append(" = this.with(new ").append(context.getTypeName(componentModuleType)).append(".Linker(");
+			StringBuilder moduleNew = new StringBuilder().append(context.indent(2)).append("this.").append(context.getFieldName(moduleInfo.getQualifiedName())/*moduleInfo.getQualifiedName().normalize()*/).append(" = this.with(new ").append(context.getTypeName(componentModuleType)).append(".Linker(");
 			if(component_module_arguments.length() > 0) {
 				moduleNew.append(context.getTypeName(mapType)).append(".ofEntries(\n");
 				moduleNew.append(component_module_arguments);
@@ -292,7 +292,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 		}
 		else if(context.getMode() == GenerationMode.COMPONENT_MODULE_FIELD) {
 			TypeMirror componentModuleType = context.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
-			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(componentModuleType)).append(" ").append(moduleInfo.getQualifiedName().normalize()).append(";");
+			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(componentModuleType)).append(" ").append(context.getFieldName(moduleInfo.getQualifiedName())/*moduleInfo.getQualifiedName().normalize()*/).append(";");
 		}
 		return null;
 	}
@@ -326,13 +326,13 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 	public StringBuilder visit(ModuleBeanInfo moduleBeanInfo, ModuleClassGenerationContext context) {
 		if(context.getMode() == GenerationMode.BEAN_FIELD) {
 			TypeMirror moduleBeanType = context.getTypeUtils().getDeclaredType(context.getElementUtils().getTypeElement(WINTER_CORE_MODULE_BEAN_CLASS), moduleBeanInfo.getType());
-			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(moduleBeanType)).append(" ").append(moduleBeanInfo.getQualifiedName().normalize()).append(";");
+			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(moduleBeanType)).append(" ").append(context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/).append(";");
 		}
 		else if(context.getMode() == GenerationMode.BEAN_ACCESSOR) {
 			StringBuilder beanAccessor = new StringBuilder();
 			TypeMirror type = moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType(); 
 			beanAccessor.append(context.indent(1)).append(moduleBeanInfo.getVisibility().equals(Bean.Visibility.PUBLIC) ? "public " : "private ").append(context.getTypeName(type)).append(" ").append(moduleBeanInfo.getQualifiedName().normalize()).append("() {\n");
-			beanAccessor.append(context.indent(2)).append("return this.").append(moduleBeanInfo.getQualifiedName().normalize()).append(".get()").append(";\n");
+			beanAccessor.append(context.indent(2)).append("return this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/).append(".get()").append(";\n");
 			beanAccessor.append(context.indent(1)).append("}\n");
 			
 			return beanAccessor;
@@ -350,7 +350,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				return beanNew;
 			}
 			else {
-				String variable = moduleBeanInfo.getQualifiedName().normalize();
+				String variable = context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/;
 				
 				TypeMirror beanType;
 				TypeMirror beanBuilderType;
@@ -424,10 +424,10 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 		else if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
 			if(moduleBeanInfo.getQualifiedName().getModuleQName().equals(context.getModule())) {
 				// We can't use bean accessor for internal beans since provided types are ignored inside a module
-				return new StringBuilder().append("this.").append(moduleBeanInfo.getQualifiedName().normalize()).append(".get()");
+				return new StringBuilder().append("this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/).append(".get()");
 			}
 			else {
-				return new StringBuilder().append("this.").append(moduleBeanInfo.getQualifiedName().getModuleQName().normalize()).append(".").append(moduleBeanInfo.getQualifiedName().normalize()).append("()");
+				return new StringBuilder().append("this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName().getModuleQName())/*moduleBeanInfo.getQualifiedName().getModuleQName().normalize()*/).append(".").append(moduleBeanInfo.getQualifiedName().normalize()).append("()");
 			}
 		}
 		return new StringBuilder();

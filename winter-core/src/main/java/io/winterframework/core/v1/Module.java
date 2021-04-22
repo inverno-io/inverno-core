@@ -271,10 +271,10 @@ public abstract class Module {
 		}
 		this.active = true;
 		long t0 = System.nanoTime();
-		this.logger.info("Starting Module " + this.name + "...");
+		this.logger.info("Starting Module {}...", () -> this.name);
 		this.modules.stream().filter(module -> !module.isActive()).forEach(module -> module.start());
 		this.beans.stream().forEach(bean -> bean.create());
-		this.logger.info("Module {} started in {}ms", this.name, ((System.nanoTime() - t0) / 1000000));
+		this.logger.info("Module {} started in {}ms", () -> this.name, () -> ((System.nanoTime() - t0) / 1000000));
 //		this.logger.info(this.beansStack.stream().map(bean -> bean.name.toString()).collect(Collectors.joining(", "))); // TEST
 	}
 
@@ -290,17 +290,22 @@ public abstract class Module {
 	 */
 	public void stop() {
 		long t0 = System.nanoTime();
-		this.logger.info("Stopping Module " + this.name + "...");
+		this.logger.info("Stopping Module {}...", () -> this.name);
 		this.beansStack.forEach(bean -> {
+			long bean_t0 = System.nanoTime();
 			try {
 				bean.destroy();
-			} catch (Exception e) {
+			} 
+			catch (Exception e) {
 				this.logger.warn("Error destroying Bean {}", () -> (bean.parent != null ? bean.parent.getName() + ":" : "") + bean.name);
+			}
+			finally {
+				this.logger.debug("Bean {} destroyed in {}ms", () -> (bean.parent != null ? bean.parent.getName() + ":" : "") + bean.name, () -> ((System.nanoTime() - bean_t0) / 1000000));
 			}
 		});
 		this.modules.stream().forEach(module -> module.stop());
 		this.beansStack.clear();
-		this.logger.info("Module {} stopped in {}ms", this.name, ((System.nanoTime() - t0) / 1000000));
+		this.logger.info("Module {} stopped in {}ms", () -> this.name, () -> ((System.nanoTime() - t0) / 1000000));
 		this.active = false;
 	}
 

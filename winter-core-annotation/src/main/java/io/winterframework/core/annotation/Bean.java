@@ -31,8 +31,8 @@ import java.util.function.Supplier;
  * <p>
  * A bean is fully identified by its name (which defaults to the name of the
  * class) and the name of the module exposing the bean (eg.
- * [MODULE_NAME]:[BEAN_NAME]). We can differentiate four kinds of beans: module
- * bean, wrapper bean, socket bean and configuration bean.
+ * [MODULE_NAME]:[BEAN_NAME]). We can differentiate three kinds of beans: module
+ * bean, wrapper bean and socket bean.
  * </p>
  * 
  * <p>

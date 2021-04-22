@@ -1,4 +1,4 @@
-# Winter Framework Documentation
+# Winter Framework Core
 
 ## Motivation
 
@@ -50,7 +50,7 @@ So how do you create a Java module? There is plenty of documentation you can rea
 
 A Java module is specified in a `module-info.java` file located in the default package. Let's assume you want to create module `io.winterframework.example.sample`, you can create the following file structure:
 
-```shell
+```
 src
 └── io.winterframework.example.sample
     ├── io
@@ -78,7 +78,7 @@ module io.winterframework.example.sample {      // 1
 
 Now let's say you need to use some external types defined and exported in another module `io.winterframework.example.other`:
 
-```shell
+```
 src
 ├── io.winterframework.example.sample
 │   ├── ...
@@ -104,7 +104,7 @@ The modular system has also changed the way Java applications are built and run.
 
 If we consider previous modules, they are compiled and run as follows:
 
-```shell
+```
 > javac --module-source-path src -d jmods --module io.winterframework.example.sample --module io.winterframework.example.other
 
 > java --module-path jmods/ --module io.winterframework.example.sample/io.winterframework.example.sample.Sample
@@ -118,7 +118,7 @@ You should now have a basic understanding of how a Winter application is built a
 
 ### Maven
 
-The easiest way to setup a Winter module project is to start by creating a regular Java Maven project which inherits from `io.winterframework:winter-parent` project and depends on `io.winterframework:winter-core`:
+The easiest way to setup a Winter module project is to start by creating a regular Java Maven project which inherits from `io.winterframework.dist:winter-parent` project and depends on `io.winterframework:winter-core`:
 
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -126,7 +126,7 @@ The easiest way to setup a Winter module project is to start by creating a regul
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.winterframework</groupId>
+        <groupId>io.winterframework.dist</groupId>
         <artifactId>winter-parent</artifactId>
         <version>1.0.0</version>
     </parent>
@@ -305,6 +305,41 @@ Since a wrapper bean is annotated with `@Bean` annotation, it can be configured 
 > Note that since a new wrapper instance is created every time a new bean instance is requested, a wrapper class is not required to return a new or distinct result in the `get()` method. Nonetheless a wrapper instance is used to create, initialize and destroy exactly one instance of the supplied type and as a result it is good practice to have the wrapper instance always return the same bean instance. This is especially true and done naturally when initialization or destruction methods are specified.
 
 > When designing a prototype wrapper bean, particular care must be taken to make sure the wrapper does not hold a strong reference to the wrapped instance in order to prevent memory leak when a prototype bean instance is requested by the application. It is strongly advised to rely on `WeakReference<>` in that particular use case. 
+
+### Nested Bean
+
+A nested bean is, as its name suggests, a bean inside a bean. A nested bean instance is obtained by invoking a particular method on another bean instance. Instances thus obtained participate in dependency injection but unlike other types of bean they do not follow any particular lifecycle or strategy, the implementor of the nested bean method is free to decide whether a new instance should be returned on each invocation.
+
+A nested bean is declared in the class of a bean, by annotating a non-void method with no arguments with `@NestedBean` annotation. The name of a nested bean is given by the name of the bean providing the instance and the name of the annotated method following this notation: `[MODULE]:[BEAN].[METHOD_NAME]`.
+
+```java
+@Bean
+public class SomeBean {
+
+    ...
+
+    @NestedBean
+    public SomeNestedBean nestedBean() {
+        ...
+    }
+}
+```
+
+It is also possible to *cascade* nested beans.
+
+### Overridable
+
+A module bean or a wrapper bean can be declared as overridable which allows to override the bean inside the module by a socket bean of the same type.
+
+An overridable bean is defined as a module bean or a wrapper bean whose class has been annotated with `@Overridable`. This basically tells the Winter compiler to create an extra optional socket bean with the particular feature of being able to take over the bean when an instance is provided on module instantiation.
+
+```java
+@Bean
+@Overridable
+public class SomeBean {
+    
+}
+```
 
 ### Lifecycle
 
@@ -733,7 +768,7 @@ An application module is basically a regular module whose lifecycle is managed b
 
 Furthermore, a Winter application outputs a customizable `Banner` on startup providing useful environment information in the application log. 
 
-```shell
+```
 mars 04, 2020 1:14:27 PM io.winterframework.core.v1.Application run
 INFO: Winter is starting...
 
