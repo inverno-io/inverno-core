@@ -148,7 +148,9 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 					return execution;
 				}
 				else {
-					System.out.println("[ SKIP ]");
+					if(this.options.isVerbose()) {
+						System.out.println("[ SKIP ]");
+					}
 					return null;
 				}
 				

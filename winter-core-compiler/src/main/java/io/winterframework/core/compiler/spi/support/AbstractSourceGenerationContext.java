@@ -32,6 +32,7 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import io.winterframework.core.compiler.spi.ModuleQualifiedName;
+import io.winterframework.core.compiler.spi.QualifiedName;
 
 /**
  * <p>
@@ -90,6 +91,11 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 	protected ModuleQualifiedName moduleQualifiedName;
 	
 	/**
+	 * The map of field names used to avoid duplicates.
+	 */
+	protected Map<QualifiedName, String> fieldNames;
+	
+	/**
 	 * <p>
 	 * Creates a source generation context.
 	 * </p>
@@ -118,6 +124,7 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		this.elementUtils = elementUtils;
 		this.mode = mode;
 		this.setIndent(indent);
+		this.fieldNames = new HashMap<>();
 	}
 	
 	/**
@@ -136,6 +143,7 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		this.setIndent(parentGeneration.indent);
 		this.indentDepth = parentGeneration.indentDepth;
 		this.moduleQualifiedName = parentGeneration.moduleQualifiedName;
+		this.fieldNames = parentGeneration.fieldNames;
 	}
 	
 	/**
@@ -428,6 +436,32 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		else {
 			return type.toString();
 		}
+	}
+	
+	/**
+	 * <p>
+	 * Returns a unique field name corresponding to the specified qualified name.
+	 * </p>
+	 * 
+	 * @param qName a qualified name
+	 * 
+	 * @return a unique field name
+	 */
+	public String getFieldName(QualifiedName qName) {
+		String fieldName = this.fieldNames.get(qName);
+		if(fieldName != null) {
+			return fieldName;
+		}
+
+		String normalizedQName = qName.normalize();
+		fieldName = normalizedQName;
+		int index = 1;
+		while(this.fieldNames.containsValue(fieldName)) {
+			fieldName = normalizedQName + "_" + index;
+			index++;
+		}
+		this.fieldNames.put(qName, fieldName);
+		return fieldName;
 	}
 	
 	/**

@@ -32,7 +32,7 @@
  */
 module io.winterframework.core {
 	requires org.apache.logging.log4j;
-	requires transitive java.compiler;
+	requires static transitive java.compiler;
 	
 	requires static transitive io.winterframework.core.annotation;
 

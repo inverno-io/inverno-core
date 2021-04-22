@@ -16,16 +16,23 @@
 package io.winterframework.core.v1;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * <p>
- * A module wrapper which starts it as an application and stops it when the
- * application is gracefully shutdown. An application basically provides boiler
- * plate code to properly run a module as an application.
+ * A module wrapper which starts a module as an application and stops it when
+ * the application is gracefully shutdown. An application basically provides
+ * boiler plate code to properly run a module as an application.
  * </p>
  * 
  * <p>
@@ -38,6 +45,14 @@ import org.apache.logging.log4j.Logger;
  * stops the module when the virtual machine shuts down.
  * </p>
  * 
+ * <p>
+ * A pidfile can also be created after the application has started and removed
+ * after the application has shutdown gracefully. by specifying the path to the
+ * pidfile in the {@value Application#PROPERTY_PID_FILE} system property. By
+ * default no pidfile is created. An application will fail to start if a pidfile
+ * designating a valid process already exists.
+ * </p>
+ * 
  * @author <a href="mailto:jeremy.kuhn@winterframework.io">Jeremy Kuhn</a>
  * @since 1.0
  * 
@@ -45,6 +60,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class Application<T extends Module> {
 
+	private static final String PROPERTY_PID_FILE = "winter.application.pid_file";
+	
 	/**
 	 * Application logger.
 	 */
@@ -64,6 +81,11 @@ public class Application<T extends Module> {
 	 * The active module.
 	 */
 	private T module;
+	
+	/**
+	 * Path to the pidfile if one has been specified.
+	 */
+	private Optional<Path> pidfile;
 
 	/**
 	 * <p>
@@ -75,6 +97,7 @@ public class Application<T extends Module> {
 	protected Application(Module.ModuleBuilder<T> moduleBuilder) {
 		this.moduleBuilder = moduleBuilder;
 		this.banner = new StandardBanner();
+		this.pidfile = Optional.ofNullable(System.getProperty(PROPERTY_PID_FILE)).map(Paths::get);
 	}
 
 	/**
@@ -133,12 +156,34 @@ public class Application<T extends Module> {
 	 * @throws IllegalStateException if the application is already running.
 	 */
 	public T run() throws IllegalStateException {
+		this.pidfile.filter(Files::exists).ifPresent(pidfile -> {
+			try {
+				if(ProcessHandle.of(Long.parseLong(new String(Files.readAllBytes(pidfile)))).isPresent()) {
+					throw new IllegalStateException("A pidfile pointing to an active process is present: " + pidfile);
+				}
+				else {
+					Files.delete(pidfile);
+				}
+			}
+			catch (NumberFormatException | IOException e) {
+				throw new IllegalStateException("An invalid pidfile is present: " + pidfile, e);
+			}
+		});
 		if (this.module != null) {
 			throw new IllegalStateException("Module " + this.module.getName() + " already started");
 		}
 		this.module = this.moduleBuilder.build();
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			this.module.stop();
+			LogManager.shutdown();
+			this.pidfile.ifPresent(pidfile -> {
+				try {
+					Files.deleteIfExists(pidfile);
+				} 
+				catch (IOException e) {
+					throw new UncheckedIOException("Error deleting pidfile", e);
+				}
+			});
 		}));
 
 		if (this.banner != null) {
@@ -150,6 +195,16 @@ public class Application<T extends Module> {
 		}
 		this.module.start();
 
+		this.pidfile.ifPresent(pidfile -> {
+			try {
+				Files.createDirectories(pidfile.getParent());
+				Files.write(pidfile, Long.toString(ProcessHandle.current().pid()).getBytes(), StandardOpenOption.CREATE_NEW);
+			} 
+			catch (IOException e) {
+				throw new UncheckedIOException("Error creating pidfile", e);
+			}
+		});
+		
 		return this.module;
 	}
 }
