@@ -8,22 +8,19 @@ The framework has been designed to build highly modular applications using stand
 
 ## Creating a Winter module
 
-A **Winter Module** is a regular Java module, that requires `io.winterframework.core` and `io.winterframework.core.annotation` modules, and which is annotated with `@Module` annotation. The following `app_hello` module is a simple Winter module:
+A **Winter Module** is a regular Java module, that requires `io.winterframework.core` and `io.winterframework.core.annotation` modules, and which is annotated with `@Module` annotation. The following *hello* module is a simple Winter module:
 
 ```java
 @io.winterframework.core.annotation.Module
-module io.winterframework.example.app_hello {
+module io.winterframework.example.hello {
     requires io.winterframework.core;
-    requires io.winterframework.core.annotation;
-    
-    exports io.winterframework.example.app_hello;
 }
 ```
 
 A **Winter Bean** can be a regular Java class annotated with `@Bean` annotation. A bean represents the basic building block of an application which is typically composed of multiple interconnected beans instances. The following `HelloService` bean can be used to create a basic application:
 
 ```java
-package io.winterframework.example.app_hello;
+package io.winterframework.example.hello;
 
 import io.winterframework.core.annotation.Bean;
 
@@ -38,19 +35,19 @@ public class HelloService {
 }
 ```
 
-At compile time, the Winter framework will generate a module class named after the module, `io.winterframework.example.app_hello.App_hello` in our example. This class contains all the logic required to instantiate and wire the application beans at runtime. It can be used in a Java program to access and use the `HelloService`. This program can be in the same Java module or in any other Java module which requires module `io.winterframework.example.app_hello`:
+At compile time, the Winter framework will generate a module class named after the module, `io.winterframework.example.hello.Hello` in our example. This class contains all the logic required to instantiate and wire the application beans at runtime. It can be used in a Java program to access and use the `HelloService`. This program can be in the same Java module or in any other Java module which requires module `io.winterframework.example.hello`:
 
 ```java
-package io.winterframework.example.app_hello;
+package io.winterframework.example.hello;
 
 import io.winterframework.core.v1.Application;
 
 public class Main {
     
     public static void main(String[] args) {
-        App_hello app_hello = Application.with(new App_hello.Builder()).run();
+        Hello hello = Application.with(new Hello.Builder()).run();
 
-        app_hello.helloService().sayHello(args[0]);
+        hello.helloService().sayHello(args[0]);
     }
 }
 ```
@@ -68,10 +65,10 @@ The development of a Winter module is pretty easy using [Apache Maven](https://m
     <parent>
         <groupId>io.winterframework.dist</groupId>
         <artifactId>winter-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <groupId>io.winterframework.example</groupId>
-    <artifactId>app_hello</artifactId>
+    <artifactId>hello</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <dependencies>
@@ -80,10 +77,10 @@ The development of a Winter module is pretty easy using [Apache Maven](https://m
             <artifactId>winter-core</artifactId>
         </dependency>
     </dependencies>
-</project> 
+</project>
 ```
 
-Java source files for `io.winterframework.example.app_hello` module must be placed in `src/main/java` directory, the module can then be built using Maven:
+Java source files for `io.winterframework.example.hello` module must be placed in `src/main/java` directory, the module can then be built using Maven:
 
 ```
 $ mvn install
@@ -95,7 +92,7 @@ You can then run the application:
 $ mvn winter:run -Dwinter.run.arguments=John
 
 [INFO] --- winter-maven-plugin:1.0.0-SNAPSHOT:run (default-cli) @ app-hello ---
-[INFO] Running project: io.winterframework.example.app_hello@1.0.0-SNAPSHOT...
+[INFO] Running project: io.winterframework.example.hello@1.0.0-SNAPSHOT...
 Hello John!!!
 
 ```
@@ -105,13 +102,13 @@ Hello John!!!
 You can also choose to build your Winter module using pure Java commands. Assuming Winter framework modules are located under `lib/` directory and Java source files for `io.winterframework.example.hello` module are placed in `src/io.winterframework.example.hello` directory, you can build the module with the `javac` command:
 
 ```
-$ javac --processor-module-path lib/ --module-path lib/ --module-source-path src/ -d jmods/ --module io.winterframework.example.app_hello 
+$ javac --processor-module-path lib/ --module-path lib/ --module-source-path src/ -d jmods/ --module io.winterframework.example.hello 
 ```
 
 The application can then be run as follows:
 
 ```
-$ java --module-path lib/:jmods/ --module io.winterframework.example.app_hello/io.winterframework.example.app_hello.Main John
+$ java --module-path lib/:jmods/ --module io.winterframework.example.hello/io.winterframework.example.hello.Main John
 Hello John!!!
 ```
 
