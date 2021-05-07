@@ -1,8 +1,15 @@
-# Winter Framework Core
+[inversion-of-control]: https://en.wikipedia.org/wiki/Inversion_of_control
+[dependency-injection]: https://en.wikipedia.org/wiki/Dependency_injection
+[object-oriented-programming]: https://en.wikipedia.org/wiki/Object-oriented_programming
+[separation-of-concerns]: https://en.wikipedia.org/wiki/Separation_of_concerns
+
+[gradle]: https://gradle.org/
+
+# Winter Core
 
 ## Motivation
 
-[Inversion of Control](https://en.wikipedia.org/wiki/Inversion_of_control) and [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection) principles are not new and many Java applications have been developed following these principles over the past two decades using frameworks such as Spring, CDI, Guice... However these recognized solutions might have some issues in practice especially with the way Java has evolved and how applications should be developed nowadays.
+[Inversion of Control][inversion-of-control] and [Dependency Injection][dependency-injection] principles are not new and many Java applications have been developed following these principles over the past two decades using frameworks such as Spring, CDI, Guice... However these recognized solutions might have some issues in practice especially with the way Java has evolved and how applications should be developed nowadays.
 
 Dependency injection errors like a missing dependency or a cycle in the dependency graph are often reported at runtime when the application is started. Most of the time these issues are easy to fix but when considering big applications split into multiple modules developed by different people, it might become more complex. In any case you can't tell for sure if an application will start before you actually start it.
 
@@ -14,7 +21,9 @@ Although IoC frameworks make the development of modular applications easier, the
 
 These points are very high level, please have a look at this [article](https://medium.com/@jeremy.kuhn.winter/reviving-java-ioc-di-and-why-does-it-matters-b1a2b0b57cca) if you like to learn more about the general ideas behind the Winter framework. The Winter framework proposes a new approach of IoC/DI principles consistent with latest developments of the Java platform and perfectly adapted to the development of modern applications in Java.   
 
-In this documentation, we’ll assume that you have a working knowledge of [Inversion of Control](https://en.wikipedia.org/wiki/Inversion_of_control) and [Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection) principles as well as [Object Oriented Programming](https://en.wikipedia.org/wiki/Object-oriented_programming).
+## Prerequisites
+
+In this documentation, we’ll assume that you have a working knowledge of [Inversion of Control][inversion-of-control] and [Dependency Injection][dependency-injection] principles as well as [Object Oriented Programming][object-oriented-programming].
 
 ## Overview
 
@@ -38,19 +47,19 @@ A **bean** is a component of a module and more widely an application. It has req
 
 The **Winter compiler** is an annotation processor which runs inside the Java compiler and generates module classes based on Winter annotations found on the modules and classes being compiled.
 
-### Java modular system
+### Java module system
 
-Before you can create your first Winter module, you must first understand what a Java module is and how it might change your life as a Java developer. If you are already familiar with it, you can skip that section and go directly to the [project setup](project-setup) section.
+Before you can create your first Winter module, you must first understand what a Java module is and how it might change your life as a Java developer. If you are already familiar with it, you can skip that section and go directly to the [project setup](#project-setup) section.
 
-The Java modular system has been introduced in Java 9 mostly to modularize the overgrowing Java runtime library which is now split into multiple interdependent modules loaded when you need them at runtime or compile time. This basically means that the size of the Java runtime you need to compile and/or run your application now depends on your application's needs which is a pretty big improvement.
+The Java module system has been introduced in Java 9 mostly to modularize the overgrowing Java runtime library which is now split into multiple interdependent modules loaded when you need them at runtime or compile time. This basically means that the size of the Java runtime you need to compile and/or run your application now depends on your application's needs which is a pretty big improvement.
 
 If you know OSGI or Maven already, you might say that modules have existed in Java for a long time but now they are fully integrated into the language, the compiler and the runtime. You can create a Java module, specify what packages are exposed and what dependencies are required and the good part is that both the compiler and JVM tell you when you do something wrong being as close as possible to the code, there’s no more xml or manifest files to care about.
 
-So how do you create a Java module? There is plenty of documentation you can read to have a complete and deep understanding of the Java modular system, here we will only explain what you need to know to develop regular Winter modules.
+So how do you create a Java module? There is plenty of documentation you can read to have a complete and deep understanding of the Java module system, here we will only explain what you need to know to develop regular Winter modules.
 
 A Java module is specified in a `module-info.java` file located in the default package. Let's assume you want to create module `io.winterframework.example.sample`, you can create the following file structure:
 
-```
+```plaintext
 src
 └── io.winterframework.example.sample
     ├── io
@@ -78,7 +87,7 @@ module io.winterframework.example.sample {      // 1
 
 Now let's say you need to use some external types defined and exported in another module `io.winterframework.example.other`:
 
-```
+```plaintext
 src
 ├── io.winterframework.example.sample
 │   ├── ...
@@ -104,7 +113,7 @@ The modular system has also changed the way Java applications are built and run.
 
 If we consider previous modules, they are compiled and run as follows:
 
-```
+```plaintext
 > javac --module-source-path src -d jmods --module io.winterframework.example.sample --module io.winterframework.example.other
 
 > java --module-path jmods/ --module io.winterframework.example.sample/io.winterframework.example.sample.Sample
@@ -132,6 +141,7 @@ The easiest way to setup a Winter module project is to start by creating a regul
     </parent>
     <groupId>io.winterframework.example</groupId>
     <artifactId>sample</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
     ...
     <dependencies>
@@ -158,7 +168,7 @@ module io.winterframework.example.sample {
 }
 ```
 
-If you do not want your project to inherit from `io.winterframework:winter-parent` project, you'll have to explicitly specify compiler source and target version (>=9), dependencies version and configure the Maven compiler plugin to invoke the Winter compiler.
+If you do not want your project to inherit from `io.winterframework.dist:winter-parent` project, you'll have to explicitly specify compiler source and target version (>=9), dependencies version and configure the Maven compiler plugin to invoke the Winter compiler.
 
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -167,25 +177,33 @@ If you do not want your project to inherit from `io.winterframework:winter-paren
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.winterframework.example</groupId>
     <artifactId>sample</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>9</maven.compiler.source>
         <maven.compiler.target>9</maven.compiler.target>
-        <winter.version>1.0.0</winter.version>
+        <version.winter>1.0.0</version.winter>
     </properties>
 
-    ...
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.winterframework.dist</groupId>
+                <artifactId>winter-dependencies</artifactId>
+                <version>${version.winter}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        ...
         <dependency>
             <groupId>io.winterframework</groupId>
             <artifactId>winter-core</artifactId>
-            <version>${winter.version}</version>
         </dependency>
-        ...
     </dependencies>
-    ...
     
     <build>
         <plugins>
@@ -197,7 +215,7 @@ If you do not want your project to inherit from `io.winterframework:winter-paren
                         <path>
                             <groupId>io.winterframework</groupId>
                             <artifactId>winter-core-compiler</artifactId>
-                            <version>${winter.version}</version>
+                            <version>${version.winter}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
@@ -212,7 +230,7 @@ A Winter module is built just as a regular Maven project using maven commands (c
 
 ### Gradle
 
-Since version 6.4, it is also possible to use [Gradle](https://gradle.org/) to build Winter module projects. Here is a sample `build.gradle` file:
+Since version 6.4, it is also possible to use [Gradle][gradle] to build Winter module projects. Here is a sample `build.gradle` file:
 
 ```groovy
 plugins {
@@ -415,7 +433,7 @@ public class SomeWrapperBean implements Supplier<SomeLegacyBean> {
 }
 ```
 
-> We stated here that all bean instances are eventually destroyed but this is actually not always the case. Depending on the bean strategy and the context in which it is used, it might not be destroyed at all, hopefully workarounds exist to make sure a bean instance is always properly destroyed. We'll cover this more in detail when we'll describe [bean strategies](strategy).
+> We stated here that all bean instances are eventually destroyed but this is actually not always the case. Depending on the bean strategy and the context in which it is used, it might not be destroyed at all, hopefully workarounds exist to make sure a bean instance is always properly destroyed. We'll cover this more in detail when we'll describe [bean strategies](#strategy).
 
 ### Visibility
 
@@ -453,7 +471,7 @@ Particular care must be taken when a singleton bean instance is requested to a m
 
 A singleton bean is the basic building block of any application which explains why it is the default strategy. An application is basically made of multiple long living components rather than volatile disposable components. A server is a typical example of singleton bean, it is created when the application is started, initialized to accept requests and destroyed when the application is stopped.
 
-> A singleton instance is held by exactly one module instance, if you instantiate a module twice, you'll get two singleton bean instances, one in the first module instance and the other in the second module instance. This basically differs from the standard singleton pattern, you'll see more in detail why this actually matters when we'll describe [composite modules](composite-module).
+> A singleton instance is held by exactly one module instance, if you instantiate a module twice, you'll get two singleton bean instances, one in the first module instance and the other in the second module instance. This basically differs from the standard singleton pattern, you'll see more in detail why this actually matters when we'll describe [composite modules](#composite-module).
 
 #### Prototype
 
@@ -571,7 +589,7 @@ Module io.winterframework.sample.sampleModule {
 }
 ```
 
-Most of the time this is something you’ll do especially if you want to create [composite modules](modular-application), however if you only use the module class from within the module, typically in a main method or embedded in some other class, you won’t have to do it. 
+Most of the time this is something you’ll do especially if you want to create [composite modules](#modular-application), however if you only use the module class from within the module, typically in a main method or embedded in some other class, you won’t have to do it. 
 
 > Note that the Java compiler fails if you try to export a package which is empty before compilation, since the module class is generated this might actually happen, so you need to make sure the class will be generated in a package containing some code. This is not an ideal situation however a module usually defines and exports a package named after its name so this should solve the issue.
 
@@ -634,7 +652,7 @@ It might expose three singleton beans:
 
 ```java
 public interface CoffeeBeansContainer {
-	void fill(CoffeeBean[] beans);
+    void fill(CoffeeBean[] beans);
 }
 ```
 
@@ -642,7 +660,7 @@ public interface CoffeeBeansContainer {
 
 ```java
 public interface WaterReservoir {
-	void fill(int waterQuantity);
+    void fill(int waterQuantity);
 }
 ```
 
@@ -650,7 +668,7 @@ public interface WaterReservoir {
 
 ```java
 public interface CoffeeMaker {
-	Coffee make();
+    Coffee make();
 }
 ```
 
@@ -702,11 +720,11 @@ Then it would expose the `io.winterframework.sample.coffeeMakerFactoryModule:cof
 ```java
 public interface CoffeeMaker {
 
-	void fillWithCoffeeBeans(CoffeeBeans[] beans);
-	
-	void filleWithWater();
-	
-	Coffee makeCoffee();
+    void fillWithCoffeeBeans(CoffeeBeans[] beans);
+    
+    void filleWithWater();
+    
+    Coffee makeCoffee();
 }
 ```
 
@@ -716,7 +734,7 @@ Inside a cooking appliances factory application, you might instantiate one or mo
 CoffeeMakerFactoryModule coffeeMakerFactoryModule = new CoffeeMakerFactoryModule.Builder(rawMaterials...).build();
 coffeeMakerFactoryModule.start();
 
-CoffeeMaker coffeeMaker_1 = coffeeMakerFactoryModule.coffeeMaker();                                                // We can massively produce coffee makers
+CoffeeMaker coffeeMaker_1 = coffeeMakerFactoryModule.coffeeMaker(); // We can massively produce coffee makers
 ...
 CoffeeMaker coffeeMaker_n = coffeeMakerFactoryModule.coffeeMaker();
 
@@ -735,17 +753,17 @@ Propagating the right data to the right coffee maker component can be a tedious 
 
 ```java
 public Coffee orderCoffee(Param_1 p1, Param_2 p2, ... Param_n pn) {
-	// Receive a large amount of parameters to make a coffee
-	
-	try {
-		CoffeeMakerModule coffeeMakerFactoryModule = new CoffeeMakerFactoryModule.Builder(p1, p2, ... pn).build(); // Parameters are injected only where they are needed
-		coffeeMakerModule.start();
-	
-		return offeeMakerModule.coffeeMaker().makeCoffee();
-	}
-	finally {
-		coffeeMakerFactoryModule.stop();
-	}
+    // Receive a large amount of parameters to make a coffee
+    
+    try {
+        CoffeeMakerModule coffeeMakerFactoryModule = new CoffeeMakerFactoryModule.Builder(p1, p2, ... pn).build(); // Parameters are injected only where they are needed
+        coffeeMakerModule.start();
+    
+        return offeeMakerModule.coffeeMaker().makeCoffee();
+    }
+    finally {
+        coffeeMakerFactoryModule.stop();
+    }
 }
 ```
 
@@ -757,8 +775,8 @@ A Winter module can also be used to bootstrap a whole application. In such situa
 
 ```java
 public static void main(String[] args) {
-	CoffeeMakerModule coffeeMakerModule = Application.with(new CoffeeMakerModule.Builder(...)).run();
-	...
+    CoffeeMakerModule coffeeMakerModule = Application.with(new CoffeeMakerModule.Builder(...)).run();
+    ...
 }
 ```
 
@@ -768,7 +786,7 @@ An application module is basically a regular module whose lifecycle is managed b
 
 Furthermore, a Winter application outputs a customizable `Banner` on startup providing useful environment information in the application log. 
 
-```
+```plaintext
 mars 04, 2020 1:14:27 PM io.winterframework.core.v1.Application run
 INFO: Winter is starting...
 
@@ -805,15 +823,15 @@ The `StandardBanner` is displayed by default but you can specify custom implemen
 
 ```java
 public static void main(String[] args) {
-	CustomBanner customBanner = ...
-	CoffeeMakerModule coffeeMakerModule = Application.with(new CoffeeMakerModule.Builder(...)).banner(customBanner).run();
-	...
+    CustomBanner customBanner = ...
+    CoffeeMakerModule coffeeMakerModule = Application.with(new CoffeeMakerModule.Builder(...)).banner(customBanner).run();
+    ...
 }
 ```
 
 ## Dependency Injection
 
-[Dependency Injection](https://en.wikipedia.org/wiki/Dependency_injection) principle is at the heart of the Winter framework. Inside a Winter module, beans instances are wired into each other based on their respective types and dependencies.
+[Dependency Injection][dependency-injection] principle is at the heart of the Winter framework. Inside a Winter module, beans instances are wired into each other based on their respective types and dependencies.
 
 In order to understand how this works, you could imagine that each bean exposes multiple sockets and that multiple wires leave the bean, as many as necessary. After creating and initializing bean instances, the module has to plug these wires into compatible sockets. The type of the wire, which is the type of the bean, must match the type of the socket, which is the type of the dependency defined in the bean.
 
@@ -836,22 +854,22 @@ Let's go back to our coffee maker example and define the dependencies of the `Co
 ```java
 @Bean
 public class CoffeMakerImpl implements CoffeMaker {
-	
-	private PowerSupply powerSupply;
-	
-	private WaterReservoir waterReservoir;
-	
-	private CoffeeBeansContainer coffeeBeansContainer;
-	
-	public CoffeeMakerImpl(PowerSupply powerSupply, WaterReservoir waterReservoir, CoffeeBeansContainer coffeeBeansContainer) {
-		this.powerSupply = powerSupply;
-		this.waterReservoir = waterReservoir;
-		this.coffeeBeansContainer = coffeeBeansContainer;
-	}
-	
-	public Coffee make() {
-		...
-	}
+    
+    private PowerSupply powerSupply;
+    
+    private WaterReservoir waterReservoir;
+    
+    private CoffeeBeansContainer coffeeBeansContainer;
+    
+    public CoffeeMakerImpl(PowerSupply powerSupply, WaterReservoir waterReservoir, CoffeeBeansContainer coffeeBeansContainer) {
+        this.powerSupply = powerSupply;
+        this.waterReservoir = waterReservoir;
+        this.coffeeBeansContainer = coffeeBeansContainer;
+    }
+    
+    public Coffee make() {
+        ...
+    }
 }
 ```
 
@@ -865,15 +883,15 @@ There should be only one public constructor defined in a bean class, this is act
 ```java
 @Bean
 public class CoffeMakerImpl implements CoffeMaker {
-	
-	@BeanSocket
-	public CoffeeMakerImpl(PowerSupply powerSupply, WaterReservoir waterReservoir, CoffeeBeansContainer coffeeBeansContainer) {
-		...
-	}
-	
-	public CoffeeMakerImpl(PowerSupply powerSupply, WaterReservoir waterReservoir, CoffeeBeansContainer coffeeBeansContainer, SomeOptionalDependency dependency) {
-		...
-	}
+    
+    @BeanSocket
+    public CoffeeMakerImpl(PowerSupply powerSupply, WaterReservoir waterReservoir, CoffeeBeansContainer coffeeBeansContainer) {
+        ...
+    }
+    
+    public CoffeeMakerImpl(PowerSupply powerSupply, WaterReservoir waterReservoir, CoffeeBeansContainer coffeeBeansContainer, SomeOptionalDependency dependency) {
+        ...
+    }
 }
 ```
 
@@ -882,22 +900,22 @@ The coffee maker should now have everything it needs to make coffee but let's sa
 ```java
 @Bean
 public class CoffeMakerImpl implements CoffeMaker {
-	
-	...	
-	private MilkFrother milkFrother
-	
-	...	
-	public void setMilkFrother(MilkFrother milkFrother) {
-		this.milkFrother = milkFrother;
-	}
-	
-	public Coffee make() {
-		...
-		if(this.milkFrother != null) {
-			// Do something useful with the milk frother
-			...
-		}
-	}
+    
+    ...    
+    private MilkFrother milkFrother
+    
+    ...    
+    public void setMilkFrother(MilkFrother milkFrother) {
+        this.milkFrother = milkFrother;
+    }
+    
+    public Coffee make() {
+        ...
+        if(this.milkFrother != null) {
+            // Do something useful with the milk frother
+            ...
+        }
+    }
 }
 ```
 
@@ -908,17 +926,17 @@ By convention, every setter method on a bean is considered an optional socket, t
 ```java
 @Bean
 public class CoffeMakerImpl implements CoffeMaker {
-	
-	...	
-	@BeanSocket
-	public void setMilkFrother(MilkFrother milkFrother) {
-		...
-	}
+    
+    ...    
+    @BeanSocket
+    public void setMilkFrother(MilkFrother milkFrother) {
+        ...
+    }
 
-	...
-	public void setSomethingElse() {
-		...
-	}	
+    ...
+    public void setSomethingElse() {
+        ...
+    }    
 }
 ```
 
@@ -1016,7 +1034,7 @@ Let's assume we actually have two beans of type `WaterReservoir` in the coffee m
 @Module
 @Wire(beans="smallWaterReservoir", into="coffeeMakerImpl:waterReservoir")
 Module io.winterframework.sample.coffeeMakerModule {
-	...
+    ...
 }
 ```
 
@@ -1026,7 +1044,7 @@ The `beans` attribute is an array of bean qualified names of the form `([MODULE]
 
 The `into` attribute is a bean socket qualified name of the form `([MODULE]|([MODULE]:)?[BEAN]):[SOCKET_NAME]`. When specifying a wire on a bean socket name which is necessarily defined in a bean in the current module, the module name can be omitted. 
 
-> The module name is in fact only necessary when specifying a wire on a socket bean of a module composed in a [composite module](composite-module).
+> The module name is in fact only necessary when specifying a wire on a socket bean of a module composed in a [composite module](#composite-module).
 
 Obviously, multiple `@Wire` annotations can be specified on a module definition. If a specified bean does not exist, if the specified socket does not exist, if the specified beans does not match the specified socket or if multiple beans were specified for a single socket, the Winter compiler will raise compilation errors.
 
@@ -1036,7 +1054,7 @@ Resolving conflicts is one way of using explicit wiring, but in the case of a mu
 @Module
 @Wire(beans={"beanA", "beanB"}, into="someBean:multipleSomeType")
 Module someModule {
-	...
+    ...
 }
 ```
 
@@ -1057,11 +1075,11 @@ public @interface SuperSteam {}
 ```java
 @Bean
 public class CoffeMakerImpl implements CoffeMaker {
-	
-	...
-	public void setMilkFrother(@AnnotationSelector(SuperSteam.class) MilkFrother milkFrother) {
-		...
-	}
+    
+    ...
+    public void setMilkFrother(@AnnotationSelector(SuperSteam.class) MilkFrother milkFrother) {
+        ...
+    }
 
 }
 ```
@@ -1072,7 +1090,7 @@ If no bean of type `MilkForther` annotated with `@SuperSteam` exists, a compilat
 
 ## Modular application
 
-Modularity is at the heart of the Winter framework, it has been built on the idea that flexibility, maintainability and stability, especially on large and complex applications can only be achieved through a proper modularization and strict [separation of concerns](https://en.wikipedia.org/wiki/Separation_of_concerns).
+Modularity is at the heart of the Winter framework, it has been built on the idea that flexibility, maintainability and stability, especially on large and complex applications can only be achieved through a proper modularization and strict [separation of concerns][separation-of-concerns].
 
 So far, we explored how to define and compose beans inside a module to implement a wider component or a standalone application but the Winter framework also allows the composition of modules to create even more complex components and applications.
 
@@ -1087,9 +1105,9 @@ Let's assume module `io.winterframework.sample.milkFrotherModule` provides a `Mi
 ```java
 @Module
 Module io.winterframework.sample.coffeeMakerModule {
-	...
-	requires io.winterframework.sample.milkFrotherModule;
-	...
+    ...
+    requires io.winterframework.sample.milkFrotherModule;
+    ...
 }
 ```
 
@@ -1100,11 +1118,11 @@ In some situations, you might want to explicitly include or exclude required mod
 ```java
 @Module(includes={"moduleA", "moduleB"})
 Module someModule {
-	...
-	requires moduleA;
-	requires moduleB;
-	requires moduleC; // moduleC will be ignored by the Winter compiler
-	...
+    ...
+    requires moduleA;
+    requires moduleB;
+    requires moduleC; // moduleC will be ignored by the Winter compiler
+    ...
 }
 ```
 
@@ -1117,11 +1135,11 @@ Explicit wiring can be used as described before using fully qualified names for 
 @Wire(beans="moduleA:bean1", into="someBean:socket")     // Explicitly wire bean 'bean1' of component module 'moduleA' into bean socket 'socket' in bean 'someBean' of module 'someModule'
 @Wire(beans="moduleB:bean2", into="moduleC:socketBean")  // Explicitly wire bean 'bean2' of component module 'moduleB' into socket bean 'socketBean' of module 'moduleC'
 Module someModule {
-	...
-	requires moduleA;
-	requires moduleB;
-	requires moduleC;
-	...
+    ...
+    requires moduleA;
+    requires moduleB;
+    requires moduleC;
+    ...
 }
 ```
 
@@ -1140,7 +1158,7 @@ Let's see how it works for the `io.winterframework.sample.coffeeMakerModule:coff
 ```java
 @Bean
 public class CoffeMakerImpl implements @Provide CoffeMaker {
-	...
+    ...
 }
 ```
 
@@ -1152,4 +1170,5 @@ The provided type is only considered outside the module when used in a composite
 
 Hiding implementation and only expose public API is very convenient when you developed a component module and it is a best practice in general if you want to enforce modularity inside an application. Most of the time modules should always depend on public API so from a dependency injection perspective it doesn't really matters whether a module expose implementation classes but you can't guarantee that nobody will ever create a dependency on an implementation class if that class is accessible which would be quite bad for maintainability. Being able to control the types actually exposed in a module enforces a proper isolation.
 
-> Particular care must be taken when using [selectors](selector) in a composite module, the type of component modules beans considered by the Winter compiler will be the provided types, so if you want to specify properties matching selectors, you have to specify them on the provided types and not the actual beans types. 
+> Particular care must be taken when using [selectors](#selector) in a composite module, the type of component modules beans considered by the Winter compiler will be the provided types, so if you want to specify properties matching selectors, you have to specify them on the provided types and not the actual beans types. 
+
