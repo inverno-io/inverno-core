@@ -1,8 +1,16 @@
-<img src="src/img/winter_portable.svg" style="width: 100%;"/>
+[winterframework-io]: https://www.winterframework.io
 
-The [Winter framework](https://www.winterframework.io) core project provides an Inversion of Control and Dependency Injection framework for the Java 9+ platform. It has the particularity of not using Java reflection for object instantiation and dependency injection, everything being verified and done statically during compilation.
+[winter-root-doc]: https://github.com/winterframework-io/winter/tree/master/doc/reference-guide.md
 
-This approach has many advantages over other IoC/DI solutions starting with the static checking of the bean dependency graph at compile time which guarantees that a program is correct and will run properly. Debugging is also made easier since you can actually access the source code where beans are instantiated and wired together. Finally, the startup time of a program is greatly reduced since everything is known in advance, such program can even be further optimized with ahead of time compilation solutions like [GraalVM](https://www.graalvm.org/)...
+[graal-vm]: https://www.graalvm.org/
+[maven]: https://maven.apache.org/
+[apache-license]: https://www.apache.org/licenses/LICENSE-2.0
+
+# Winter Core
+
+The [Winter framework][winterframework-io] core project provides an Inversion of Control and Dependency Injection framework for the Java 9+ platform. It has the particularity of not using Java reflection for object instantiation and dependency injection, everything being verified and done statically during compilation.
+
+This approach has many advantages over other IoC/DI solutions starting with the static checking of the bean dependency graph at compile time which guarantees that a program is correct and will run properly. Debugging is also made easier since you can actually access the source code where beans are instantiated and wired together. Finally, the startup time of a program is greatly reduced since everything is known in advance, such program can even be further optimized with ahead of time compilation solutions like [GraalVM][graal-vm]...
 
 The framework has been designed to build highly modular applications using standard Java 9+ modules. A Winter module supports encapsulation, it only exposes the beans that need to be exposed and it clearly specifies the dependencies it requires to operate properly. This greatly improves program stability over time and simplifies the use of a module. Since a Winter module has a very small runtime footprint it can also be easily integrated in any application.
 
@@ -54,7 +62,7 @@ public class Main {
 
 ### Building and running with Maven
 
-The development of a Winter module is pretty easy using [Apache Maven](https://maven.apache.org/), you simply need to create a standard Java project that inherits from `io.winterframework.dist:winter-parent` project and declare a dependency to `io.winterframework:winter-core`:
+The development of a Winter module is pretty easy using [Apache Maven][maven], you simply need to create a standard Java project that inherits from `io.winterframework.dist:winter-parent` project and declare a dependency to `io.winterframework:winter-core`:
 
 ```xml
 <!-- pom.xml -->
@@ -82,13 +90,13 @@ The development of a Winter module is pretty easy using [Apache Maven](https://m
 
 Java source files for `io.winterframework.example.hello` module must be placed in `src/main/java` directory, the module can then be built using Maven:
 
-```
+```plaintext
 $ mvn install
 ```
 
 You can then run the application:
 
-```
+```plaintext
 $ mvn winter:run -Dwinter.run.arguments=John
 
 [INFO] --- winter-maven-plugin:1.0.0-SNAPSHOT:run (default-cli) @ app-hello ---
@@ -101,29 +109,30 @@ Hello John!!!
 
 You can also choose to build your Winter module using pure Java commands. Assuming Winter framework modules are located under `lib/` directory and Java source files for `io.winterframework.example.hello` module are placed in `src/io.winterframework.example.hello` directory, you can build the module with the `javac` command:
 
-```
+```plaintext
 $ javac --processor-module-path lib/ --module-path lib/ --module-source-path src/ -d jmods/ --module io.winterframework.example.hello 
 ```
 
 The application can then be run as follows:
 
-```
+```plaintext
 $ java --module-path lib/:jmods/ --module io.winterframework.example.hello/io.winterframework.example.hello.Main John
 Hello John!!!
 ```
 
 ### Summary
 
-In this simple example, we created a Winter module which exposes one bean and use it to implement logic in an application. As you can imagine a real life application is far more complex than that, composed of many modules providing multiple beans in different ways and wired altogether. The Winter framework has been designed to create such applications in a simple, elegant and efficient way, please consult the [reference documentation](https://github.com/winterframework-io/winter/tree/master/doc/reference-guide.md) to get the full picture.
+In this simple example, we created a Winter module which exposes one bean and use it to implement logic in an application. As you can imagine a real life application is far more complex than that, composed of many modules providing multiple beans in different ways and wired altogether. The Winter framework has been designed to create such applications in a simple, elegant and efficient way, please consult the [reference documentation][winter-root-doc] to get the full picture.
 
 ## Building Winter framework
 
 The Winter framework can be built using Maven and Java 9+ with the following command:
 
-```
+```plaintext
 $ mvn install
 ```
 
 ## License
 
-The Winter Framework is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
+The Winter Framework is released under version 2.0 of the [Apache License][apache-license].
+
