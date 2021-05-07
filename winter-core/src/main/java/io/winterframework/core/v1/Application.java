@@ -156,6 +156,7 @@ public class Application<T extends Module> {
 	 * @throws IllegalStateException if the application is already running.
 	 */
 	public T run() throws IllegalStateException {
+		long t0 = System.nanoTime();
 		this.pidfile.filter(Files::exists).ifPresent(pidfile -> {
 			try {
 				if(ProcessHandle.of(Long.parseLong(new String(Files.readAllBytes(pidfile)))).isPresent()) {
@@ -204,6 +205,7 @@ public class Application<T extends Module> {
 				throw new UncheckedIOException("Error creating pidfile", e);
 			}
 		});
+		LOGGER.info("Application {} started in {}ms", () -> this.module.getName(), () -> ((System.nanoTime() - t0) / 1000000));
 		
 		return this.module;
 	}
