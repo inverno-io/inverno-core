@@ -19,7 +19,7 @@ Beans instantiation and wiring are done at runtime using Java reflection which o
 
 Although IoC frameworks make the development of modular applications easier, they often require a rigorous methodology to make it the right way. For instance, you must know precisely what components are provided and/or required by all the modules composing an application and make sure one doesn't provide a component that might interfere with another.
 
-These points are very high level, please have a look at this [article](https://medium.com/@jeremy.kuhn.winter/reviving-java-ioc-di-and-why-does-it-matters-b1a2b0b57cca) if you like to learn more about the general ideas behind the Winter framework. The Winter framework proposes a new approach of IoC/DI principles consistent with latest developments of the Java platform and perfectly adapted to the development of modern applications in Java.   
+These points are very high level, please have a look at this [article](https://medium.com/@jeremy.kuhn.winter/reviving-java-ioc-di-and-why-does-it-matters-b1a2b0b57cca) if you like to learn more about the general ideas behind the Winter framework. The Winter framework proposes a new approach of IoC/DI principles consistent with latest developments of the Java™ platform and perfectly adapted to the development of modern applications in Java.   
 
 ## Prerequisites
 
@@ -1016,7 +1016,7 @@ The `io.winterframework.sample.coffeeMakerModule:coffeeMakerImpl` bean defines t
 
 This configuration results in the following graph of beans:
 
-<img src="img/coffee_maker_bean_graph.svg" style="width: 100%; display: block; margin: 2em auto;"/>
+<img class="mt-4 mb-5" src="img/coffee_maker_bean_graph.svg"/>
 
 The module is viable since all required beans sockets are resolved and the graph of beans is a directed acyclic graph. The Winter compiler can then generate a module class containing the logic to instantiate the beans in the right order and the dependency injection logic. When an instance of the `io.winterframework.sample.coffeeMakerModule` module is started, the `waterReservoirImpl` bean and the `coffeeBeansContainerImpl` are instantiated first then the `coffeeMakerImpl` bean is instantiated next using previously created instances and the `powerSupply` instance injected when the module was created.
 

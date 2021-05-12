@@ -8,11 +8,11 @@
 
 # Winter Core
 
-The [Winter framework][winterframework-io] core project provides an Inversion of Control and Dependency Injection framework for the Java 9+ platform. It has the particularity of not using Java reflection for object instantiation and dependency injection, everything being verified and done statically during compilation.
+The [Winter framework][winterframework-io] core project provides an Inversion of Control and Dependency Injection framework for the Java™ platform. It has the particularity of not using reflection for object instantiation and dependency injection, everything being verified and done statically during compilation.
 
 This approach has many advantages over other IoC/DI solutions starting with the static checking of the bean dependency graph at compile time which guarantees that a program is correct and will run properly. Debugging is also made easier since you can actually access the source code where beans are instantiated and wired together. Finally, the startup time of a program is greatly reduced since everything is known in advance, such program can even be further optimized with ahead of time compilation solutions like [GraalVM][graal-vm]...
 
-The framework has been designed to build highly modular applications using standard Java 9+ modules. A Winter module supports encapsulation, it only exposes the beans that need to be exposed and it clearly specifies the dependencies it requires to operate properly. This greatly improves program stability over time and simplifies the use of a module. Since a Winter module has a very small runtime footprint it can also be easily integrated in any application.
+The framework has been designed to build highly modular applications using standard Java modules. A Winter module supports encapsulation, it only exposes the beans that need to be exposed and it clearly specifies the dependencies it requires to operate properly. This greatly improves program stability over time and simplifies the use of a module. Since a Winter module has a very small runtime footprint it can also be easily integrated in any application.
 
 ## Creating a Winter module
 
@@ -73,7 +73,7 @@ The development of a Winter module is pretty easy using [Apache Maven][maven], y
     <parent>
         <groupId>io.winterframework.dist</groupId>
         <artifactId>winter-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
     <groupId>io.winterframework.example</groupId>
     <artifactId>hello</artifactId>
@@ -99,7 +99,7 @@ You can then run the application:
 ```plaintext
 $ mvn winter:run -Dwinter.run.arguments=John
 
-[INFO] --- winter-maven-plugin:1.0.0-SNAPSHOT:run (default-cli) @ app-hello ---
+[INFO] --- winter-maven-plugin:1.0.0:run (default-cli) @ app-hello ---
 [INFO] Running project: io.winterframework.example.hello@1.0.0-SNAPSHOT...
 Hello John!!!
 
@@ -126,7 +126,7 @@ In this simple example, we created a Winter module which exposes one bean and us
 
 ## Building Winter framework
 
-The Winter framework can be built using Maven and Java 9+ with the following command:
+The Winter framework can be built using Maven and a JDK>=9 with the following command:
 
 ```plaintext
 $ mvn install
