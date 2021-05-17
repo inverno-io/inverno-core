@@ -24,7 +24,7 @@
 		<version>1-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>winter-root</artifactId>
+	<artifactId>winter-core-root</artifactId>
 	<version>1.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 

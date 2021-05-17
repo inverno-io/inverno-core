@@ -19,7 +19,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>io.winterframework</groupId>
-		<artifactId>winter-root</artifactId>
+		<artifactId>winter-core-root</artifactId>
 		<version>1.0.2-SNAPSHOT</version>
 	</parent>
 	
