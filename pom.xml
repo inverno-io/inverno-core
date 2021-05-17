@@ -21,11 +21,11 @@
 	<parent>
 		<groupId>io.winterframework</groupId>
 		<artifactId>winter-oss-parent</artifactId>
-		<version>1-SNAPSHOT</version>
+		<version>1</version>
 	</parent>
 	
 	<artifactId>winter-core-root</artifactId>
-	<version>1.0.2-SNAPSHOT</version>
+	<version>1.1.0</version>
 	<packaging>pom</packaging>
 
 	<name>winter-root</name>
