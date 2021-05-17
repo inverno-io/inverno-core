@@ -25,8 +25,8 @@ if (( $# > 0 ))
 		mvn versions:set -DgenerateBackupPoms=false -DnewVersion=$1
 		git commit -a -m "Release $1"
 		git tag -a $1 -m "Release $1"
-		mvn clean package
-		mvn -pl '!winter-test,!winter-core-test' clean deploy -Pio.winterframework.release
+		mvn clean install
+		mvn -pl '!winter-test,!winter-core-test' clean deploy -Dmaven.test.skip=true -Pio.winterframework.release
 fi
 
 if (( $# == 2 ))
