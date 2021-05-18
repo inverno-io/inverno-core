@@ -19,7 +19,7 @@ Beans instantiation and wiring are done at runtime using Java reflection which o
 
 Although IoC frameworks make the development of modular applications easier, they often require a rigorous methodology to make it the right way. For instance, you must know precisely what components are provided and/or required by all the modules composing an application and make sure one doesn't provide a component that might interfere with another.
 
-These points are very high level, please have a look at this [article](https://medium.com/@jeremy.kuhn.winter/reviving-java-ioc-di-and-why-does-it-matters-b1a2b0b57cca) if you like to learn more about the general ideas behind the Winter framework. The Winter framework proposes a new approach of IoC/DI principles consistent with latest developments of the Java™ platform and perfectly adapted to the development of modern applications in Java.   
+These points are very high level, please have a look at this [article](https://winterframework.medium.com/reviving-java-ioc-di-and-why-does-it-matters-b1a2b0b57cca) if you like to learn more about the general ideas behind the Winter framework. The Winter framework proposes a new approach of IoC/DI principles consistent with latest developments of the Java™ platform and perfectly adapted to the development of modern applications in Java.   
 
 ## Prerequisites
 
