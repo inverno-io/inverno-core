@@ -1016,7 +1016,7 @@ The `io.winterframework.sample.coffeeMakerModule:coffeeMakerImpl` bean defines t
 
 This configuration results in the following graph of beans:
 
-<img class="mt-4 mb-5" src="img/coffee_maker_bean_graph.svg"/>
+<img class="mt-4 mb-5" src="img/coffee_maker_bean_graph.svg" alt="Beans dependency graph"/>
 
 The module is viable since all required beans sockets are resolved and the graph of beans is a directed acyclic graph. The Winter compiler can then generate a module class containing the logic to instantiate the beans in the right order and the dependency injection logic. When an instance of the `io.winterframework.sample.coffeeMakerModule` module is started, the `waterReservoirImpl` bean and the `coffeeBeansContainerImpl` are instantiated first then the `coffeeMakerImpl` bean is instantiated next using previously created instances and the `powerSupply` instance injected when the module was created.
 
