@@ -26,7 +26,7 @@ if (( $# > 0 ))
 		git commit -a -m "Release $1"
 		git tag -a $1 -m "Release $1"
 		mvn clean install
-		mvn -pl '!winter-test,!winter-core-test' clean deploy -Dmaven.test.skip=true -Pio.winterframework.release
+		mvn -pl '!inverno-test,!inverno-core-test' clean deploy -Dmaven.test.skip=true -Pio.inverno.release
 fi
 
 if (( $# == 2 ))

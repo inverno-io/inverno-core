@@ -19,23 +19,23 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>io.winterframework</groupId>
-		<artifactId>winter-oss-parent</artifactId>
+		<groupId>io.inverno</groupId>
+		<artifactId>inverno-oss-parent</artifactId>
 		<version>2-SNAPSHOT</version>
 	</parent>
 	
-	<artifactId>winter-core-root</artifactId>
+	<artifactId>inverno-core-root</artifactId>
 	<version>1.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>winter-root</name>
-	<description>The Winter framework is an Inversion of Control and Dependency Injection framework for the Java 9+ platform.</description>
+	<name>inverno-root</name>
+	<description>The Inverno framework is an Inversion of Control and Dependency Injection framework for the Java 9+ platform.</description>
 	<inceptionYear>2020</inceptionYear>
 	<organization>
-		<name>Winter Framework IO</name>
-		<url>https://winterframework.io</url>
+		<name>Inverno Framework</name>
+		<url>https://inverno.io</url>
 	</organization>
-	<url>https://github.com/winterframework-io/winter</url>
+	<url>https://github.com/inverno-io/inverno-core</url>
 
 	<licenses>
 		<license>
@@ -48,19 +48,19 @@
 		<developer>
 			<id>jkuhn</id>
 			<name>Jeremy Kuhn</name>
-			<email>jeremy.kuhn@winterframework.io</email>
+			<email>jeremy.kuhn@inverno.io</email>
 		</developer>
 	</developers>
 
 	<scm>
-		<url>https://github.com/winterframework-io/winter.git</url>
-		<connection>scm:git:git://github.com/winterframework-io/winter.git</connection>
-		<developerConnection>scm:git:git@github.com:winterframework-io/winter.git</developerConnection>
+		<url>https://github.com/inverno-io/inverno.git</url>
+		<connection>scm:git:git://github.com/inverno-io/inverno.git</connection>
+		<developerConnection>scm:git:git@github.com:inverno-io/inverno.git</developerConnection>
 	</scm>
 
 	<issueManagement>
 		<system>GitHub</system>
-		<url>https://github.com/winterframework-io/winter/issues</url>
+		<url>https://github.com/inverno-io/inverno-core/issues</url>
 	</issueManagement>
 
 	<distributionManagement>
@@ -75,11 +75,11 @@
 	</distributionManagement>
 
 	<modules>
-		<module>winter-core</module>
-		<module>winter-core-annotation</module>
-		<module>winter-core-compiler</module>
-		<module>winter-core-test</module>
-		<module>winter-test</module>
+		<module>inverno-core</module>
+		<module>inverno-core-annotation</module>
+		<module>inverno-core-compiler</module>
+		<module>inverno-core-test</module>
+		<module>inverno-test</module>
 	</modules>
 
 	<build>
@@ -100,7 +100,7 @@
 	
 	<profiles>
 		<profile>
-			<id>io.winterframework.prerelease</id>
+			<id>io.inverno.prerelease</id>
 			<build>
 				<plugins>
 					<plugin>
@@ -153,7 +153,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>io.winterframework.release</id>
+			<id>io.inverno.release</id>
 			<build>
 				<plugins>
 					<plugin>

@@ -105,8 +105,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="544.06861"
-     inkscape:cy="430.44879"
+     inkscape:cx="738.76385"
+     inkscape:cy="317.31688"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -115,9 +115,9 @@
      fit-margin-right="0"
      fit-margin-bottom="0"
      inkscape:window-width="3840"
-     inkscape:window-height="2031"
+     inkscape:window-height="1499"
      inkscape:window-x="0"
-     inkscape:window-y="55"
+     inkscape:window-y="27"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata5">
@@ -127,7 +127,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -137,100 +137,87 @@
      id="layer1"
      transform="translate(110.25364,-35.884253)">
     <g
-       id="g4573"
-       transform="translate(96.177574,25.961221)">
+       id="g1021">
       <rect
          rx="10"
          ry="9.999999"
-         y="102.05401"
-         x="-18.928537"
+         y="128.01523"
+         x="77.249039"
          height="24"
          width="249"
          id="rect10-3"
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <text
          id="text4522-6"
-         y="115.80584"
-         x="-1.8979511"
+         y="141.76706"
+         x="109.5097"
          style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
          xml:space="preserve"><tspan
            style="font-size:6.35000038px;stroke-width:0.26458332"
-           y="115.80584"
-           x="-1.8979511"
+           y="141.76706"
+           x="109.5097"
            id="tspan4520-7"
-           sodipodi:role="line">io.winterframework.sample.coffeeMakerModule:waterReservoirImpl</tspan></text>
-    </g>
-    <g
-       id="g4578"
-       transform="translate(94.573957,-51.782738)">
+           sodipodi:role="line">io.inverno.sample.coffeeMakerModule:waterReservoirImpl</tspan></text>
       <rect
          rx="10"
          ry="9.999999"
-         y="142.94624"
-         x="-17.324921"
+         y="91.163506"
+         x="77.249039"
          height="24"
          width="249"
          id="rect10-5"
          style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <text
          id="text4522-3"
-         y="156.69807"
-         x="-11.357231"
+         y="104.91534"
+         x="98.446808"
          style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
          xml:space="preserve"><tspan
            style="font-size:6.35000038px;stroke-width:0.26458332"
-           y="156.69807"
-           x="-11.357231"
+           y="104.91534"
+           x="98.446808"
            id="tspan4520-5"
-           sodipodi:role="line">io.winterframework.sample.coffeeMakerModule:coffeeBeansContainerImpl</tspan></text>
-    </g>
-    <rect
-       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
-       id="rect10-6"
-       width="249"
-       height="24"
-       x="77.249039"
-       y="164.86696" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="104.36583"
-       y="178.61879"
-       id="text4522-2"><tspan
-         sodipodi:role="line"
-         x="104.36583"
+           sodipodi:role="line">io.inverno.sample.coffeeMakerModule:coffeeBeansContainerImpl</tspan></text>
+      <rect
+         y="164.86696"
+         x="77.249039"
+         height="24"
+         width="249"
+         id="rect10-6"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <text
+         id="text4522-2"
          y="178.61879"
-         style="font-size:6.35000038px;stroke-width:0.26458332"
-         id="tspan4588">io.winterframework.sample.coffeeMakerModule:powerSupply</tspan></text>
-    <g
-       id="g4692"
-       transform="translate(-86.367559,2.4568448)">
+         x="119.59591"
+         style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           id="tspan4588"
+           style="font-size:6.35000038px;stroke-width:0.26458332"
+           y="178.61879"
+           x="119.59591"
+           sodipodi:role="line">io.inverno.sample.coffeeMakerModule:powerSupply</tspan></text>
+      <rect
+         rx="10"
+         ry="9.999999"
+         y="36.384254"
+         x="-109.75364"
+         height="24"
+         width="249"
+         id="rect10"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <text
+         id="text4522"
+         y="50.136089"
+         x="-72.959923"
+         style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-size:6.35000038px;stroke-width:0.26458332"
+           y="50.136089"
+           x="-72.959923"
+           id="tspan4520"
+           sodipodi:role="line">io.inverno.sample.coffeeMakerModule:coffeeMakerImpl</tspan></text>
       <g
-         transform="translate(-1.6036172,-21.247927)"
-         id="g4568">
-        <rect
-           style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect10"
-           width="249"
-           height="24"
-           x="-21.782467"
-           y="55.175335"
-           ry="9.999999"
-           rx="10" />
-        <text
-           xml:space="preserve"
-           style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-           x="-0.21883017"
-           y="68.92717"
-           id="text4522"><tspan
-             sodipodi:role="line"
-             id="tspan4520"
-             x="-0.21883017"
-             y="68.92717"
-             style="font-size:6.35000038px;stroke-width:0.26458332">io.winterframework.sample.coffeeMakerModule:coffeeMakerImpl</tspan></text>
-      </g>
-      <g
-         transform="translate(65.389881,-5.2916667)"
+         transform="translate(-20.977678,-2.8348219)"
          id="g4647">
         <rect
            style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.99999994;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -252,7 +239,7 @@
              style="font-size:4.93888903px;stroke-width:0.26458332">powerSupply</tspan></text>
       </g>
       <g
-         transform="translate(137.67412,-15.839289)"
+         transform="translate(51.306561,-13.382444)"
          id="g4652">
         <rect
            style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.99999994;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -274,7 +261,7 @@
              style="font-size:4.93888903px;stroke-width:0.26458332">coffeeBeansContainer</tspan></text>
       </g>
       <g
-         transform="translate(137.96132,-9.2247035)"
+         transform="translate(51.593761,-6.7678587)"
          id="g4670">
         <rect
            style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:4.00000011, 4.00000011;stroke-dashoffset:0;stroke-opacity:1"
@@ -296,7 +283,7 @@
              style="font-size:4.93888903px;stroke-width:0.26458332">milkFrother</tspan></text>
       </g>
       <g
-         transform="translate(-17.513385,-13.382441)"
+         transform="translate(-103.88094,-10.925596)"
          id="g4657">
         <rect
            style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -317,24 +304,24 @@
              y="77.725159"
              style="font-size:4.93888903px;stroke-width:0.26458332">waterReservoir</tspan></text>
       </g>
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path4694"
+         d="M 76.729168,103.47619 C 50.648811,103.2872 42.711309,72.482147 42.711309,72.482147"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM)" />
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path4694-1"
+         d="M 77.742502,140.32045 C -4.6563074,140.13146 -18.45244,71.528781 -18.45244,71.528781"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-2)" />
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path4694-9"
+         d="M 76.797561,176.41717 C -61.919701,176.03919 -71.369108,71.339787 -71.369108,71.339787"
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-8)" />
     </g>
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM)"
-       d="M 76.729168,103.47619 C 50.648811,103.2872 42.711309,72.482147 42.711309,72.482147"
-       id="path4694"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-2)"
-       d="M 77.742502,140.32045 C -4.6563074,140.13146 -18.45244,71.528781 -18.45244,71.528781"
-       id="path4694-1"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-8)"
-       d="M 76.797561,176.41717 C -61.919701,176.03919 -71.369108,71.339787 -71.369108,71.339787"
-       id="path4694-9"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc" />
   </g>
 </svg>
