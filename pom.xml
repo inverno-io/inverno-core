@@ -21,11 +21,11 @@
 	<parent>
 		<groupId>io.inverno</groupId>
 		<artifactId>inverno-oss-parent</artifactId>
-		<version>2</version>
+		<version>3-SNAPSHOT</version>
 	</parent>
 	
 	<artifactId>inverno-core-root</artifactId>
-	<version>1.2.0</version>
+	<version>1.3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>inverno-root</name>
