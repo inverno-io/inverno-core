@@ -17,6 +17,7 @@ package io.inverno.core.compiler.spi.plugin;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -165,4 +166,14 @@ public interface PluginExecution {
 	 * @throws IOException If an I/O error occurs during the creation of the file
 	 */
 	void createResourceFile(String path, Element[] originatingElements, Supplier<String> resource) throws IOException;
+	
+	/**
+	 * <p>
+	 * Returns the path to the module source directory.
+	 * </p>
+	 * 
+	 * @return The path to the source directory
+	 * @throws IOException If an I/O error occurs
+	 */
+	Path getModuleSourceDir() throws IOException;
 }

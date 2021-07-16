@@ -18,6 +18,8 @@ package io.inverno.core.compiler.plugin;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -177,5 +179,21 @@ class GenericPluginExecution implements PluginExecution {
 			writer.flush();
 		}
 		this.generatedResourceFiles.add(resourceFile);
+	}
+	
+	@Override
+	public Path getModuleSourceDir() throws IOException {
+		FileObject dummy;
+		try {
+			// module oriented
+			dummy = this.processingEnvironment.getFiler().getResource(StandardLocation.SOURCE_PATH, this.moduleQualifiedName.getValue() + "/", "module-info.java");
+		}
+		catch (FilerException e) {
+			// not module oriented after all
+			dummy = this.processingEnvironment.getFiler().getResource(StandardLocation.SOURCE_PATH, "", "module-info.java");
+		}
+		// If there's no module-info.java file in the source path this method throws a FileNotFoundException
+		// This should actually never happen since if we get there it means we are compiling an Inverno module
+		return Paths.get(dummy.toUri()).normalize().getParent();
 	}
 }
