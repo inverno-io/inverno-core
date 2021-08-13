@@ -137,7 +137,7 @@ The easiest way to setup an Inverno module project is to start by creating a reg
     <parent>
         <groupId>io.inverno.dist</groupId>
         <artifactId>inverno-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.2.0</version>
     </parent>
     <groupId>io.inverno.example</groupId>
     <artifactId>sample</artifactId>
@@ -181,9 +181,10 @@ If you do not want your project to inherit from `io.inverno.dist:inverno-parent`
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>9</maven.compiler.source>
-        <maven.compiler.target>9</maven.compiler.target>
-        <version.inverno>1.0.0</version.inverno>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <version.inverno>1.3.0</version.inverno>
+        <version.inverno.dist>1.2.0</version.inverno.dist>
     </properties>
 
     <dependencyManagement>
@@ -191,7 +192,7 @@ If you do not want your project to inherit from `io.inverno.dist:inverno-parent`
             <dependency>
                 <groupId>io.inverno.dist</groupId>
                 <artifactId>inverno-dependencies</artifactId>
-                <version>${version.inverno}</version>
+                <version>${version.inverno.dist}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -242,8 +243,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.inverno:inverno-core:1.0.0'
-    annotationProcessor 'io.inverno:inverno-core-compiler:1.0.0'
+    implementation 'io.inverno:inverno-core:1.3.0'
+    annotationProcessor 'io.inverno:inverno-core-compiler:1.3.0'
 }
 
 java {
@@ -800,7 +801,7 @@ INFO: Inverno is starting...
      ║                ,   __\_/\_\__   ,    | || | | |\ \/ /|  __/| | | | | | |_| |               ║
      ║                 , /_/ /\/\ \_\ ,     |_||_| |_| \__/  \___||_| |_| |_|\___/                ║
      ║                  ,     /\     ,                                                            ║
-     ║                    ,   \/   ,                                  -- 1.2.0 --                 ║
+     ║                    ,   \/   ,                                  -- 1.3.0 --                 ║
      ║                      ' -- '                                                                ║
      ╠════════════════════════════════════════════════════════════════════════════════════════════╣
      ║ Java runtime        : OpenJDK Runtime Environment                                          ║
