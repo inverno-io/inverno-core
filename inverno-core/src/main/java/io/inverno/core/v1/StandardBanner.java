@@ -116,7 +116,7 @@ public class StandardBanner implements Banner {
 					bannerBuilder.append(String.format(BANNER_BODY, ""));
 				}
 	
-				bannerBuilder.append(this.buildBodyProperty("Modules", ""));
+				bannerBuilder.append(this.buildBodyProperty("Modules", " "));
 	
 				this.getClass().getModule().getLayer().modules().stream()
 					.map(m -> m.getDescriptor().toNameAndVersion())
