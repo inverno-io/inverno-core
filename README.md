@@ -73,7 +73,7 @@ The development of an Inverno module is pretty easy using [Apache Maven][maven],
     <parent>
         <groupId>io.inverno.dist</groupId>
         <artifactId>inverno-parent</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
     </parent>
     <groupId>io.inverno.example</groupId>
     <artifactId>hello</artifactId>

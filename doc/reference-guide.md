@@ -137,7 +137,7 @@ The easiest way to setup an Inverno module project is to start by creating a reg
     <parent>
         <groupId>io.inverno.dist</groupId>
         <artifactId>inverno-parent</artifactId>
-        <version>1.2.0</version>
+        <version>1.2.1</version>
     </parent>
     <groupId>io.inverno.example</groupId>
     <artifactId>sample</artifactId>
@@ -184,7 +184,7 @@ If you do not want your project to inherit from `io.inverno.dist:inverno-parent`
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <version.inverno>1.3.0</version.inverno>
-        <version.inverno.dist>1.2.0</version.inverno.dist>
+        <version.inverno.dist>1.2.1</version.inverno.dist>
     </properties>
 
     <dependencyManagement>
