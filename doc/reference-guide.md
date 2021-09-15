@@ -137,7 +137,7 @@ The easiest way to setup an Inverno module project is to start by creating a reg
     <parent>
         <groupId>io.inverno.dist</groupId>
         <artifactId>inverno-parent</artifactId>
-        <version>1.2.1</version>
+        <version>${VERSION_INVERNO_DIST}</version>
     </parent>
     <groupId>io.inverno.example</groupId>
     <artifactId>sample</artifactId>
@@ -183,8 +183,8 @@ If you do not want your project to inherit from `io.inverno.dist:inverno-parent`
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <version.inverno>1.3.0</version.inverno>
-        <version.inverno.dist>1.2.1</version.inverno.dist>
+        <version.inverno>${VERSION_INVERNO_CORE}</version.inverno>
+        <version.inverno.dist>${VERSION_INVERNO_DIST}</version.inverno.dist>
     </properties>
 
     <dependencyManagement>
@@ -243,14 +243,14 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.inverno:inverno-core:1.3.0'
-    annotationProcessor 'io.inverno:inverno-core-compiler:1.3.0'
+    implementation 'io.inverno:inverno-core:${VERSION_INVERNO_CORE}'
+    annotationProcessor 'io.inverno:inverno-core-compiler:${VERSION_INVERNO_CORE}'
 }
 
 java {
     modularity.inferModulePath = true
-    sourceCompatibility = JavaVersion.VERSION_1_9
-    targetCompatibility = JavaVersion.VERSION_1_9
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 application {
@@ -687,7 +687,7 @@ coffeeMakerModule.waterReservoir().fill(1.5);                                   
 
 CoffeeMaker coffeeMaker = coffeeMakerModule.coffeeMaker();                           // Get the coffee maker instance
 
-Coffee coffee_1 = coffeeMaker.make();                            // Deliver some tasty coffees
+Coffee coffee_1 = coffeeMaker.make();                                                // Deliver some tasty coffees
 ...
 Coffee coffee_n = coffeeMaker.make();
 
@@ -801,7 +801,7 @@ INFO: Inverno is starting...
      ║                ,   __\_/\_\__   ,    | || | | |\ \/ /|  __/| | | | | | |_| |               ║
      ║                 , /_/ /\/\ \_\ ,     |_||_| |_| \__/  \___||_| |_| |_|\___/                ║
      ║                  ,     /\     ,                                                            ║
-     ║                    ,   \/   ,                                  -- 1.3.0 --                 ║
+     ║                    ,   \/   ,                                  -- ${VERSION_INVERNO_CORE} --                 ║
      ║                      ' -- '                                                                ║
      ╠════════════════════════════════════════════════════════════════════════════════════════════╣
      ║ Java runtime        : OpenJDK Runtime Environment                                          ║

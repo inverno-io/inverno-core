@@ -75,7 +75,7 @@ The development of an Inverno module is pretty easy using [Apache Maven][maven],
     <parent>
         <groupId>io.inverno.dist</groupId>
         <artifactId>inverno-parent</artifactId>
-        <version>1.2.1</version>
+        <version>${VERSION_INVERNO_DIST}</version>
     </parent>
     <groupId>io.inverno.example</groupId>
     <artifactId>hello</artifactId>
@@ -101,7 +101,7 @@ You can then run the application:
 ```plaintext
 $ mvn inverno:run -Dinverno.run.arguments=John
 
-[INFO] --- inverno-maven-plugin:1.2.0:run (default-cli) @ app-hello ---
+[INFO] --- inverno-maven-plugin:${VERSION_INVERNO_TOOLS}:run (default-cli) @ app-hello ---
 [INFO] Running project: io.inverno.example.hello@1.0.0-SNAPSHOT...
 Hello John!!!
 
