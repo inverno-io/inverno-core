@@ -128,7 +128,7 @@ In this simple example, we created an Inverno module which exposes one bean and 
 
 ## Building Inverno core framework
 
-The Inverno core framework can be built using Maven and a JDK>=9 with the following command:
+The Inverno core framework can be built using Maven and a JDK 11+ with the following command:
 
 ```plaintext
 $ mvn install
