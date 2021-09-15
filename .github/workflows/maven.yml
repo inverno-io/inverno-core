@@ -24,7 +24,7 @@ jobs:
         cache: maven
     - name: Build and Verify with Maven
       run: mvn -B verify --file pom.xml -s .github/ci-settings.xml
-  build:
+  deploy:
     name: Deploy to OSSRH
     if: ${{ github.repository_owner == 'inverno-io' && (github.event_name == 'push' || github.event_name == 'schedule') }}
     needs: verify
