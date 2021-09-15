@@ -8,6 +8,8 @@
 
 # Inverno Core
 
+[![CI/CD](https://github.com/inverno-io/inverno-core/actions/workflows/maven.yml/badge.svg)](https://github.com/inverno-io/inverno-core/actions/workflows/maven.yml)
+
 The [Inverno core framework][inverno-io] project provides an Inversion of Control and Dependency Injection framework for the Java™ platform. It has the particularity of not using reflection for object instantiation and dependency injection, everything being verified and done statically during compilation.
 
 This approach has many advantages over other IoC/DI solutions starting with the static checking of the bean dependency graph at compile time which guarantees that a program is correct and will run properly. Debugging is also made easier since you can actually access the source code where beans are instantiated and wired together. Finally, the startup time of a program is greatly reduced since everything is known in advance, such program can even be further optimized with ahead of time compilation solutions like [GraalVM][graal-vm]...
