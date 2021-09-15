@@ -18,25 +18,27 @@
 
 	<interactiveMode>false</interactiveMode>
 
-	<profile>
-		<id>ossrh</id>
-		<activation>
-			<activeByDefault>true</activeByDefault>
-		</activation>
-		<repositories>
-			<repository>
-				<id>ossrh-SNAPSHOT</id>
-				<name>OSSRH Snapshots</name>
-				<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-				<releases>
-					<enabled>false</enabled>
-				</releases>
-				<snapshots>
-					<enabled>true</enabled>
-					<updatePolicy>always</updatePolicy>
-				</snapshots>
-			</repository>
-		</repositories>
-	</profile>
+	<profiles>
+		<profile>
+			<id>ossrh</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<repositories>
+				<repository>
+					<id>ossrh-SNAPSHOT</id>
+					<name>OSSRH Snapshots</name>
+					<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+					<releases>
+						<enabled>false</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+					</snapshots>
+				</repository>
+			</repositories>
+		</profile>
+	</profiles>
 
 </settings>
