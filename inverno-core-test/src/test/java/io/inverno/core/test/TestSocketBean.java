@@ -113,8 +113,9 @@ public class TestSocketBean extends AbstractCoreInvernoTest {
 			.optionalDependency("extHttpHandlerList", this.extHttpHandlerList)
 			.optionalDependency("extHttpHandlerCollection", this.extHttpHandlerCollection)
 			.optionalDependency("extHttpHandlerSet", this.extHttpHandlerSet)
-			.dependencies(this.extCallableCollection, this.extCallableArray, this.extDataSource, this.extCallableSet, this.extCallableList).build();
+			.dependencies(this.extCallableArray, this.extCallableCollection, this.extCallableList, this.extCallableSet, this.extDataSource).build();
 		
+		//public Builder(Callable<String>[] extCallableArray, Collection<Callable<String>> extCallableCollection, List<Callable<String>> extCallableList, Set<Callable<String>> extCallableSet, DataSource extDataSource) {
 		//public static Builder with(Collection<Callable<String>> extCallableCollection, Callable<String>[] extCallableArray, DataSource extDataSource, Set<Callable<String>> extCallableSet, List<Callable<String>> extCallableList) {
 		
 		moduleProxy.start();
@@ -164,7 +165,7 @@ public class TestSocketBean extends AbstractCoreInvernoTest {
 				.optionalDependency("extHttpHandlerList", this.extHttpHandlerList)
 				.optionalDependency("extHttpHandlerCollection", this.extHttpHandlerCollection)
 				.optionalDependency("extHttpHandlerSet", this.extHttpHandlerSet)
-				.dependencies(this.extCallableCollection, this.extCallableArray, null, this.extCallableSet, this.extCallableList).build();
+				.dependencies(this.extCallableArray, this.extCallableCollection, this.extCallableList, this.extCallableSet, null).build();
 			Assertions.fail("Required socket can't be null");
 		} catch (Exception e) {
 			Throwable current = e;
@@ -187,7 +188,7 @@ public class TestSocketBean extends AbstractCoreInvernoTest {
 			.optionalDependency("extHttpHandlerList", this.extHttpHandlerList)
 			.optionalDependency("extHttpHandlerCollection", this.extHttpHandlerCollection)
 			.optionalDependency("extHttpHandlerSet", this.extHttpHandlerSet)
-			.dependencies(this.extCallableCollection, this.extCallableArray, this.extDataSource, this.extCallableSet, this.extCallableList).build();
+			.dependencies(this.extCallableArray, this.extCallableCollection, this.extCallableList, this.extCallableSet, this.extDataSource).build();
 		
 		try {
 			moduleProxy.start();

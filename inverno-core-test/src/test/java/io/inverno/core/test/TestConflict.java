@@ -42,10 +42,10 @@ public class TestConflict extends AbstractCoreInvernoTest {
 			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
 			String conflictMessage = "Multiple beans matching socket io.inverno.core.test.conflict:beanA:svc were found\n" + 
-					"  - io.inverno.core.test.conflict:serviceB of type io.inverno.core.test.conflict.ServiceB\n" + 
 					"  - io.inverno.core.test.conflict:serviceA of type io.inverno.core.test.conflict.ServiceA\n" + 
+					"  - io.inverno.core.test.conflict:serviceB of type io.inverno.core.test.conflict.ServiceB\n" + 
 					"  \n" + 
-					"  Consider specifying an explicit wiring in module io.inverno.core.test.conflict (eg. @io.inverno.core.annotation.Wire(beans=\"io.inverno.core.test.conflict:serviceB\", into=\"io.inverno.core.test.conflict:beanA:svc\") )\n" + 
+					"  Consider specifying an explicit wiring in module io.inverno.core.test.conflict (eg. @io.inverno.core.annotation.Wire(beans=\"io.inverno.core.test.conflict:serviceA\", into=\"io.inverno.core.test.conflict:beanA:svc\") )\n" + 
 					"   ";
 
 			Assertions.assertEquals(conflictMessage, e.getDiagnostics().get(0).getMessage(Locale.getDefault()));

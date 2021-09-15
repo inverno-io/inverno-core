@@ -18,6 +18,7 @@ package io.inverno.core.compiler.module;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -110,6 +111,11 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 
 	@Override
 	public ModuleInfo build() {
+		// let's try to sort beans, sockets and modules so that we have something deterministic
+		Arrays.sort(this.beans, Comparator.comparing(bean -> bean.getQualifiedName().getValue()));
+		Arrays.sort(this.sockets, Comparator.comparing(socket -> socket.getQualifiedName().getValue()));
+		Arrays.sort(this.modules, Comparator.comparing(module -> module.getQualifiedName().getValue()));
+		
 		boolean hasNameConflicts = this.checkNameConflicts();
 		boolean socketsResolved = this.resolveSockets();
 		boolean hasBeanCycles = this.checkBeanCycles();
