@@ -1,0 +1,48 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Java CI/CD with Maven
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  verify:
+    name: Build and verify
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+        cache: maven
+    - name: Build and Verify with Maven
+      run: mvn -B verify --file pom.xml
+  build:
+    name: Deploy to OSSRH
+    if: ${{ github.repository_owner == 'inverno-io' && (github.event_name == 'push' || github.event_name == 'schedule') }}
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        java-version: '16'
+        distribution: 'adopt'
+        cache: maven
+    - name: Get project version
+      run: echo "PROJECT_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:evaluate -Dexpression=project.version -B | grep -v '\[')" >> $GITHUB_ENV
+    - name: Deploy with Maven
+      env:
+        INVERNO_OSSRH_USERNAME: ${{ secrets.INVERNO_OSSRH_USERNAME }}
+        INVERNO_OSSRH_PASSWORD: ${{ secrets.INVERNO_OSSRH_PASSWORD }}
+      if: ${{ endsWith(env.PROJECT_VERSION, '-SNAPSHOT') }}
+      run: mvn -B deploy --file pom.xml -s .github/cd-settings.xml -Pio.inverno.snapshot -Dmaven.test.skip=true
