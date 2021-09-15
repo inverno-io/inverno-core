@@ -45,4 +45,4 @@ jobs:
         INVERNO_OSSRH_USERNAME: ${{ secrets.INVERNO_OSSRH_USERNAME }}
         INVERNO_OSSRH_PASSWORD: ${{ secrets.INVERNO_OSSRH_PASSWORD }}
       if: ${{ endsWith(env.PROJECT_VERSION, '-SNAPSHOT') }}
-      run: mvn -B deploy --file pom.xml -s .github/cd-settings.xml -Pio.inverno.snapshot -Dmaven.test.skip=true
+      run: mvn -B deploy --file pom.xml -s .github/cd-settings.xml -pl '!inverno-core-test' -Pio.inverno.snapshot -Dmaven.test.skip=true
