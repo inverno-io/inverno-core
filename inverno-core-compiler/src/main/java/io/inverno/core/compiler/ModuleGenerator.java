@@ -299,11 +299,11 @@ class ModuleGenerator {
 						FileObject moduleDescriptorFile;
 						try {
 							// module oriented
-							moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, moduleInfo.getQualifiedName().getValue() + "/", "META-INF/inverno/core/module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
+							moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, moduleInfo.getQualifiedName().getValue() + "/", "META-INF/inverno/core/" + moduleInfo.getQualifiedName().getValue() + "module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
 						}
 						catch (FilerException e) {
 							// not module oriented after all
-							moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", "META-INF/inverno/core/module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
+							moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", "META-INF/inverno/core/" + moduleInfo.getQualifiedName().getValue() + "module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
 						}
 						try (Writer writer = moduleDescriptorFile.openWriter()) {
 							writer.write(moduleInfo.accept(this.moduleDescriptorGenerator, ""));

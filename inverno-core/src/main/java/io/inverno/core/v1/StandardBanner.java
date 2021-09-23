@@ -132,20 +132,30 @@ public class StandardBanner implements Banner {
 	
 	private StringBuilder buildBodyProperty(String name, String value) {
 		StringBuilder bodyProperty = new StringBuilder();
-		int valueIndex = 0;
-		while(valueIndex < value.length()) {
-			bodyProperty.append(String.format(BANNER_BODY_PROPERTY, valueIndex == 0 ? name : "", valueIndex == 0 ? ":" : "", value.substring(valueIndex, Math.min(valueIndex + 68, value.length()))));
-			valueIndex += 68;
+		if(value == null || value.length() == 0) {
+			bodyProperty.append(String.format(BANNER_BODY_PROPERTY, name, ":", ""));
+		}
+		else {
+			int valueIndex = 0;
+			while(valueIndex < value.length()) {
+				bodyProperty.append(String.format(BANNER_BODY_PROPERTY, valueIndex == 0 ? name : "", valueIndex == 0 ? ":" : "", value.substring(valueIndex, Math.min(valueIndex + 68, value.length()))));
+				valueIndex += 68;
+			}
 		}
 		return bodyProperty;
 	}
 	
 	private StringBuilder buildBodyItem(String value) {
 		StringBuilder bodyProperty = new StringBuilder();
-		int valueIndex = 0;
-		while(valueIndex < value.length()) {
-			bodyProperty.append(String.format(BANNER_BODY_ITEM, valueIndex == 0 ? "*" : "", value.substring(valueIndex, Math.min(valueIndex + 87, value.length()))));
-			valueIndex += 87;
+		if(value == null || value.length() == 0) {
+			bodyProperty.append(String.format(BANNER_BODY_ITEM, "*", ""));
+		}
+		else {
+			int valueIndex = 0;
+			while(valueIndex < value.length()) {
+				bodyProperty.append(String.format(BANNER_BODY_ITEM, valueIndex == 0 ? "*" : "", value.substring(valueIndex, Math.min(valueIndex + 87, value.length()))));
+				valueIndex += 87;
+			}
 		}
 		return bodyProperty;
 	}
