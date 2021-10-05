@@ -28,6 +28,7 @@ import javax.lang.model.element.TypeElement;
 
 import io.inverno.core.annotation.Module;
 import io.inverno.core.compiler.spi.BeanInfo;
+import io.inverno.core.compiler.spi.ModuleInfo;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
 import io.inverno.core.compiler.spi.ReporterInfo;
 
@@ -116,6 +117,15 @@ public interface PluginExecution {
 	 * @return a list of beans
 	 */
 	BeanInfo[] getBeans();
+	
+	/**
+	 * <p>
+	 * Returns the modules composed in the module being compiled.
+	 * </p>
+	 * 
+	 * @return a list of module info
+	 */
+	ModuleInfo[] getModules();
 	
 	/**
 	 * <p>

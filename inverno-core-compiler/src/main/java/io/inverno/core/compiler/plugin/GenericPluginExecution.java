@@ -40,6 +40,7 @@ import javax.tools.StandardLocation;
 
 import io.inverno.core.compiler.common.GenericReporterInfo;
 import io.inverno.core.compiler.spi.BeanInfo;
+import io.inverno.core.compiler.spi.ModuleInfo;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
 import io.inverno.core.compiler.spi.ReporterInfo;
 import io.inverno.core.compiler.spi.plugin.PluginExecution;
@@ -55,6 +56,7 @@ class GenericPluginExecution implements PluginExecution {
 	private final ModuleQualifiedName moduleQualifiedName; 
 	private final Set<? extends Element> elements;
 	private final List<? extends BeanInfo> beans;
+	private final List<? extends ModuleInfo> modules;
 	
 	private final List<ReporterInfo> reporters;
 	private final List<JavaFileObject> generatedSourceFiles;
@@ -62,12 +64,14 @@ class GenericPluginExecution implements PluginExecution {
 	
 	private boolean failed;
 	
-	public GenericPluginExecution(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleQualifiedName module, Set<? extends Element> elements, List<? extends BeanInfo> beans) {
+	public GenericPluginExecution(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleQualifiedName module, Set<? extends Element> elements, List<? extends BeanInfo> beans, List<? extends ModuleInfo> modules) {
 		this.processingEnvironment = processingEnvironment;
 		this.moduleElement = moduleElement;
 		this.moduleQualifiedName = module;
 		this.elements = elements;
 		this.beans = beans;
+		this.modules = modules;
+		
 		this.reporters = new LinkedList<>();
 		this.generatedSourceFiles = new LinkedList<>();
 		this.generatedResourceFiles = new LinkedList<>();
@@ -137,6 +141,11 @@ class GenericPluginExecution implements PluginExecution {
 	@Override
 	public BeanInfo[] getBeans() {
 		return this.beans.stream().toArray(BeanInfo[]::new);
+	}
+	
+	@Override
+	public ModuleInfo[] getModules() {
+		return this.modules.toArray(ModuleInfo[]::new);
 	}
 
 	@Override

@@ -219,8 +219,8 @@ class ModuleGenerator {
 			moduleInjectableBeans.addAll(this.moduleSockets.get(moduleName));
 			moduleBuilder.sockets(this.moduleSockets.get(moduleName).stream().toArray(SocketBeanInfo[]::new));					
 		}
+		List<ModuleInfo> componentModules = new ArrayList<>();
 		if(this.componentModuleBuilders.containsKey(moduleName)) {
-			List<ModuleInfo> componentModules = new ArrayList<>();
 			for(ModuleInfoBuilder componentModuleBuilder : this.componentModuleBuilders.get(moduleName)) {
 				String componentModuleName = componentModuleBuilder.getQualifiedName().toString();
 				if(this.generatedModules.containsKey(componentModuleName)) {
@@ -270,7 +270,7 @@ class ModuleGenerator {
 		
 		PluginsExecutionResult pluginsExecutionResult = this.getPreviousPluginsExecution(moduleBuilder, roundPluginExecutedModules);
 		if(pluginsExecutionResult == null) {
-			PluginsExecutionTask pluginExecutionTask = this.pluginsExecutor.getTask(moduleBuilder.getElement(), moduleBuilder.getQualifiedName(), moduleInjectableBeans);
+			PluginsExecutionTask pluginExecutionTask = this.pluginsExecutor.getTask(moduleBuilder.getElement(), moduleBuilder.getQualifiedName(), moduleInjectableBeans, componentModules);
 			pluginExecutionTask.addRound(roundEnv);
 			if(generate) {
 				pluginsExecutionResult = pluginExecutionTask.call();
@@ -299,7 +299,7 @@ class ModuleGenerator {
 						FileObject moduleDescriptorFile;
 						try {
 							// module oriented
-							moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, moduleInfo.getQualifiedName().getValue() + "/", "META-INF/inverno/core/" + moduleInfo.getQualifiedName().getValue() + "module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
+							moduleDescriptorFile = this.processingEnvironment.getFiler().createResource(StandardLocation.CLASS_OUTPUT, moduleInfo.getQualifiedName().getValue() + "/", "META-INF/inverno/core/" + moduleInfo.getQualifiedName().getValue() + "/module.yml", this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
 						}
 						catch (FilerException e) {
 							// not module oriented after all

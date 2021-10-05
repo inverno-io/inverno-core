@@ -29,6 +29,7 @@ import javax.lang.model.element.ModuleElement;
 import io.inverno.core.compiler.GenericCompilerOptions;
 import io.inverno.core.compiler.InvernoCompiler;
 import io.inverno.core.compiler.spi.BeanInfo;
+import io.inverno.core.compiler.spi.ModuleInfo;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
 import io.inverno.core.compiler.spi.plugin.CompilerPlugin;
 
@@ -79,9 +80,9 @@ public class PluginsExecutor {
 		return plugins;
 	}
 	
-	public PluginsExecutionTask getTask(ModuleElement moduleElement, ModuleQualifiedName moduleQualifiedName, List<? extends BeanInfo> beans) {
+	public PluginsExecutionTask getTask(ModuleElement moduleElement, ModuleQualifiedName moduleQualifiedName, List<? extends BeanInfo> beans, List<? extends ModuleInfo> modules) {
 		if(!this.executionByModule.containsKey(moduleQualifiedName)) {
-			this.executionByModule.put(moduleQualifiedName, new PluginsExecutionTask(this.processingEnvironment, moduleElement, moduleQualifiedName, this.options, this.plugins, beans));
+			this.executionByModule.put(moduleQualifiedName, new PluginsExecutionTask(this.processingEnvironment, moduleElement, moduleQualifiedName, this.options, this.plugins, beans, modules));
 		}
 		return this.executionByModule.get(moduleQualifiedName);
 	}

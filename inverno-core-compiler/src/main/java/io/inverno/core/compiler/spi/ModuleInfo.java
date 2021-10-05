@@ -68,7 +68,7 @@ public interface ModuleInfo extends Info {
 
 	/**
 	 * <p>
-	 * Returns the modules required by the module.
+	 * Returns the modules composed in the module.
 	 * </p>
 	 * 
 	 * @return an array of module info

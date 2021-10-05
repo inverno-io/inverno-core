@@ -33,6 +33,7 @@ import javax.tools.Diagnostic.Kind;
 
 import io.inverno.core.compiler.GenericCompilerOptions;
 import io.inverno.core.compiler.spi.BeanInfo;
+import io.inverno.core.compiler.spi.ModuleInfo;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
 import io.inverno.core.compiler.spi.plugin.CompilerPlugin;
 import io.inverno.core.compiler.spi.plugin.PluginExecutionException;
@@ -51,15 +52,18 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 	
 	private final List<? extends BeanInfo> beans;
 	
+	private final List<? extends ModuleInfo> modules;
+	
 	private final GenericCompilerOptions options;
 	
 	private final Map<CompilerPlugin, Set<Element>> elementsByPlugins;
 	
-	PluginsExecutionTask(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleQualifiedName module, GenericCompilerOptions options, Set<? extends CompilerPlugin> plugins, List<? extends BeanInfo> beans) {
+	PluginsExecutionTask(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, ModuleQualifiedName module, GenericCompilerOptions options, Set<? extends CompilerPlugin> plugins, List<? extends BeanInfo> beans, List<? extends ModuleInfo> modules) {
 		this.processingEnvironment = processingEnvironment;
 		this.moduleElement = moduleElement;
 		this.moduleQualifiedName = module;
 		this.beans = beans;
+		this.modules = modules;
 		this.options = options;
 		this.elementsByPlugins = plugins.stream().collect(Collectors.toMap(Function.identity(), plugin -> new HashSet<>()));
 	}
@@ -108,7 +112,7 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 					System.out.print(" - " + entry.getKey().getClass().getCanonicalName() + " (" + entry.getValue().size() + " elements)... ");
 				}
 				if(entry.getKey().canExecute(this.moduleElement)) {
-					GenericPluginExecution execution = new GenericPluginExecution(this.processingEnvironment, this.moduleElement, this.moduleQualifiedName, entry.getValue(), this.beans);
+					GenericPluginExecution execution = new GenericPluginExecution(this.processingEnvironment, this.moduleElement, this.moduleQualifiedName, entry.getValue(), this.beans, this.modules);
 					try {
 						// We want to execute a plugin even if annotated elements are not considered since we also want to process module beans
 						entry.getKey().execute(execution);
