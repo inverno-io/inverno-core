@@ -427,7 +427,7 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 				return "? extends " + this.getTypeName(((WildcardType)type).getExtendsBound());
 			}
 			else if(((WildcardType)type).getSuperBound() != null) {
-				return "? extends " + this.getTypeName(((WildcardType)type).getSuperBound());
+				return "? super " + this.getTypeName(((WildcardType)type).getSuperBound());
 			}
 			else {
 				return "?";
