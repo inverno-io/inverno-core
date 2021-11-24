@@ -308,7 +308,7 @@ public abstract class Module {
 		this.logger.info("Module {} stopped in {}ms", () -> this.name, () -> ((System.nanoTime() - t0) / 1000000));
 		this.active = false;
 	}
-
+	
 	/**
 	 * <p>
 	 * Aggregates single beans, collections of beans and arrays of beans.
@@ -379,7 +379,7 @@ public abstract class Module {
 
 		/**
 		 * <p>
-		 * Filters null bean and return a list representation of the aggregate.
+		 * Filters null beans and returns a list representation of the aggregate.
 		 * </p>
 		 * 
 		 * @return a list of beans
@@ -387,10 +387,21 @@ public abstract class Module {
 		public List<E> toList() {
 			return this.aggregate.stream().filter(Objects::nonNull).collect(Collectors.toList());
 		}
+		
+		/**
+		 * <p>
+		 * Filters null beans and returns a list representation of the aggregate or an empty optional if the aggregate is empty.
+		 * </p>
+		 * 
+		 * @return an optional containing the aggregate as a list or an empty optional
+		 */
+		public Optional<List<E>> toOptionalList() {
+			return Optional.of(this.aggregate.stream().filter(Objects::nonNull).collect(Collectors.toList())).filter(list -> !list.isEmpty());
+		}
 
 		/**
 		 * <p>
-		 * Filters null bean and return a set representation of the aggregate.
+		 * Filters null beans and returns a set representation of the aggregate.
 		 * </p>
 		 * 
 		 * @return a set of beans
@@ -401,16 +412,39 @@ public abstract class Module {
 
 		/**
 		 * <p>
-		 * Filters null bean and return an array representation of the aggregate.
+		 * Filters null beans and returns a set representation of the aggregate or an empty optional if the aggregate is empty.
 		 * </p>
 		 * 
-		 * @param generator a function which produces a new array of the desired type
-		 *                  and the provided length
-		 * 
+		 * @return an optional containing the aggregate as a set or an empty optional
+		 */
+		public Optional<Set<E>> toOptionalSet() {
+			return Optional.of(this.aggregate.stream().filter(Objects::nonNull).collect(Collectors.toSet())).filter(set -> !set.isEmpty());
+		}
+		
+		/**
+		 * <p>
+		 * Filters null beans and returns an array representation of the aggregate.
+		 * </p>
+		 *
+		 * @param generator a function which produces a new array of the desired type and the provided length
+		 *
 		 * @return an array of beans
 		 */
 		public E[] toArray(IntFunction<E[]> generator) {
 			return this.aggregate.stream().filter(Objects::nonNull).toArray(generator);
+		}
+		
+		/**
+		 * <p>
+		 * Filters null beans and returns an array representation of the aggregate or an empty optional if the aggregate is empty.
+		 * </p>
+		 * 
+		 * @param generator a function which produces a new array of the desired type and the provided length
+		 * 
+		 * @return an optional containing the aggregate as an array or an empty optional
+		 */
+		public Optional<E[]> toOptionalArray(IntFunction<E[]> generator) {
+			return Optional.of(this.aggregate.stream().filter(Objects::nonNull).toArray(generator)).filter(array -> array.length > 0);
 		}
 	}
 

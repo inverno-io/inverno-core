@@ -135,7 +135,7 @@ public class SocketResolver {
 					socket.error("No bean was found matching required socket " + socket.getQualifiedName() + " of type " + socket.getType() + ", consider defining a bean or socket bean matching the socket in module " + this.moduleQName);
 				}
 				else {
-					socket.warning("No bean was found matching optional socket " + socket.getQualifiedName() + " of type " + socket.getType() + ", socket will be empty");
+					socket.warning("No bean was found matching optional socket " + socket.getQualifiedName() + " of type " + socket.getType());
 				}
 				return null;
 			}
@@ -201,7 +201,7 @@ public class SocketResolver {
 					socket.error("No bean was found matching required socket " + socket.getQualifiedName() + " of type " + socket.getType() + ", consider defining a bean or a socket bean matching the socket in module " + this.moduleQName);
 				}
 				else {
-					socket.warning("No bean was found matching optional socket " + socket.getQualifiedName() + " of type " + socket.getType() + ", socket will be null");
+					socket.warning("No bean was found matching optional socket " + socket.getQualifiedName() + " of type " + socket.getType());
 				}
 				return null;
 			}

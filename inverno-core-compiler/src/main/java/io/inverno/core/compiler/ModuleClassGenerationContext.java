@@ -25,6 +25,10 @@ import javax.lang.model.util.Types;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
 import io.inverno.core.compiler.spi.MultiSocketType;
 import io.inverno.core.compiler.spi.support.AbstractSourceGenerationContext;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * <p>
@@ -45,6 +49,7 @@ class ModuleClassGenerationContext extends AbstractSourceGenerationContext<Modul
 		BEAN_NEW,
 		BEAN_ACCESSOR,
 		BEAN_REFERENCE,
+		BEAN_OPTIONAL_REFERENCE,
 		SOCKET_PARAMETER,
 		SOCKET_FIELD,
 		SOCKET_ASSIGNMENT,
@@ -54,7 +59,14 @@ class ModuleClassGenerationContext extends AbstractSourceGenerationContext<Modul
 		COMPONENT_MODULE_BEAN_REFERENCE
 	}
 	
-	private TypeMirror supplierType = this.typeUtils.erasure(this.elementUtils.getTypeElement(Supplier.class.getCanonicalName()).asType());
+	private TypeMirror supplierType;
+	
+	private String optionalTypeName;
+	private String supplierTypeName;
+	private String mapTypeName;
+	private String listTypeName;
+	private String setTypeName;
+	private String npeTypeName;
 	
 	public ModuleClassGenerationContext(Types typeUtils, Elements elementUtils, GenerationMode mode) {
 		super(typeUtils, elementUtils, mode);
@@ -102,11 +114,81 @@ class ModuleClassGenerationContext extends AbstractSourceGenerationContext<Modul
 	}
 	
 	public TypeMirror getSupplierSocketType(TypeMirror socketType) {
-		if(this.typeUtils.isSameType(this.typeUtils.erasure(socketType), this.supplierType)) {
+		if(this.typeUtils.isSameType(this.typeUtils.erasure(socketType), this.getSupplierType())) {
 			return socketType;
 		}
 		else {
-			return ((TypeElement)this.typeUtils.asElement(socketType)).getInterfaces().stream().filter(type -> this.typeUtils.isSameType(this.typeUtils.erasure(type), this.supplierType)).findFirst().orElseThrow(() -> new IllegalStateException("Socket type does not extend " + Supplier.class.getCanonicalName()));
+			return ((TypeElement)this.typeUtils.asElement(socketType)).getInterfaces().stream().filter(type -> this.typeUtils.isSameType(this.typeUtils.erasure(type), this.getSupplierType())).findFirst().orElseThrow(() -> new IllegalStateException("Socket type does not extend " + Supplier.class.getCanonicalName()));
 		}
+	}
+	
+	private TypeMirror getSupplierType() {
+		if(this.supplierType == null) {
+			if(this.parentGeneration != null) {
+				return this.parentGeneration.getSupplierType();
+			}
+			this.supplierType = this.typeUtils.erasure(this.elementUtils.getTypeElement(Supplier.class.getCanonicalName()).asType());
+		}
+		return this.supplierType;
+	}
+	
+	public String getOptionalTypeName() {
+		if(this.optionalTypeName == null) {
+			if(this.parentGeneration != null) {
+				return this.parentGeneration.getOptionalTypeName();
+			}
+			this.optionalTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Optional.class.getCanonicalName()).asType()));
+		}
+		return this.optionalTypeName;
+	}
+	
+	public String getSupplierTypeName() {
+		if(this.supplierTypeName == null) {
+			if(this.parentGeneration != null) {
+				return this.parentGeneration.getSupplierTypeName();
+			}
+			this.supplierTypeName = this.getTypeName(this.getSupplierType());
+		}
+		return this.supplierTypeName;
+	}
+	
+	public String getMapTypeName() {
+		if(this.mapTypeName == null) {
+			if(this.parentGeneration != null) {
+				return this.parentGeneration.getMapTypeName();
+			}
+			this.mapTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Map.class.getCanonicalName()).asType()));
+		}
+		return this.mapTypeName;
+	}
+	
+	public String getListTypeName() {
+		if(this.listTypeName == null) {
+			if(this.parentGeneration != null) {
+				return this.parentGeneration.getListTypeName();
+			}
+			this.listTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(List.class.getCanonicalName()).asType()));
+		}
+		return this.listTypeName;
+	}
+	
+	public String getSetTypeName() {
+		if(this.setTypeName == null) {
+			if(this.parentGeneration != null) {
+				return this.parentGeneration.getSetTypeName();
+			}
+			this.setTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Set.class.getCanonicalName()).asType()));
+		}
+		return this.setTypeName;
+	}
+	
+	public String getNpeTypeName() {
+		if(this.npeTypeName == null) {
+			if(this.parentGeneration != null) {
+				return this.parentGeneration.getNpeTypeName();
+			}
+			this.npeTypeName = this.getTypeName(this.elementUtils.getTypeElement(NullPointerException.class.getCanonicalName()).asType());
+		}
+		return this.npeTypeName;
 	}
 }

@@ -233,7 +233,7 @@ An Inverno module is built just as a regular Maven project using maven commands 
 
 Since version 6.4, it is also possible to use [Gradle][gradle] to build Inverno module projects. Here is a sample `build.gradle` file:
 
-```groovy
+```java
 plugins {
     id 'application'
 }
