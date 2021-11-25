@@ -53,12 +53,12 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 	/**
 	 * The types utility.
 	 */
-	protected Types typeUtils;
+	protected final Types typeUtils;
 	
 	/**
 	 * The elements utility.
 	 */
-	protected Elements elementUtils;
+	protected final Elements elementUtils;
 	
 	/**
 	 * The generation mode.
@@ -68,7 +68,7 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 	/**
 	 * The map of imports.
 	 */
-	protected Map<String, String> imports;
+	protected final Map<String, String> imports;
 	
 	/**
 	 * The indent depth.

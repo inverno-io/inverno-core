@@ -90,8 +90,8 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			
 			StringBuilder module_constructor_parameters = Arrays.stream(moduleInfo.getSockets()) 
 				.filter(socketInfo -> socketInfo.isWired())
-				.map(socketInfo -> this.visit(socketInfo , context.withModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.SOCKET_PARAMETER)))
-				.collect(context.joining(", "));
+				.map(socketInfo -> new StringBuilder().append(context.indent(3)).append(this.visit(socketInfo , context.withModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.SOCKET_PARAMETER))))
+				.collect(context.joining("," + System.lineSeparator()));
 			
 			StringBuilder module_constructor_modules = Arrays.stream(moduleInfo.getModules())
 				.map(componentModuleInfo -> this.visit(componentModuleInfo, context.withModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.COMPONENT_MODULE_NEW)))
@@ -129,7 +129,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			
 			moduleClass.append(context.getImports().stream().sorted().filter(i -> i.lastIndexOf(".") > 0 && !i.substring(0, i.lastIndexOf(".")).equals(packageName)).map(i -> new StringBuilder().append("import ").append(i).append(";")).collect(context.joining(System.lineSeparator()))).append(System.lineSeparator()).append(System.lineSeparator());
 
-			moduleClass.append("@").append(context.getTypeName(generatedType)).append("(value= {\"").append(InvernoCompiler.class.getCanonicalName()).append("\", \"").append(moduleInfo.getVersion()).append("\"}, date = \"").append(ZonedDateTime.now().toString() +"\")").append(System.lineSeparator());
+			moduleClass.append("@").append(context.getTypeName(generatedType)).append("(value= {\"").append(InvernoCompiler.class.getCanonicalName()).append("\", \"").append(moduleInfo.getVersion()).append("\"}, date = \"").append(ZonedDateTime.now().toString()).append("\")").append(System.lineSeparator());
 			moduleClass.append("public final class ").append(className).append(" extends ").append(context.getTypeName(moduleType)).append(" {").append(System.lineSeparator()).append(System.lineSeparator());
 
 			if(module_field_modules.length() > 0) {
@@ -139,7 +139,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				moduleClass.append(module_field_beans).append(System.lineSeparator()).append(System.lineSeparator());
 			}
 			
-			moduleClass.append(context.indent(1)).append("private ").append(className).append("(").append(module_constructor_parameters).append(") {").append(System.lineSeparator());
+			moduleClass.append(context.indent(1)).append("private ").append(className).append("(").append(System.lineSeparator()).append(module_constructor_parameters).append(System.lineSeparator()).append(context.indent(2)).append(") {").append(System.lineSeparator());
 			moduleClass.append(context.indent(2)).append("super(\"").append(moduleInfo.getQualifiedName().getValue()).append("\");").append(System.lineSeparator());
 			
 			if(module_constructor_modules.length() > 0) {
