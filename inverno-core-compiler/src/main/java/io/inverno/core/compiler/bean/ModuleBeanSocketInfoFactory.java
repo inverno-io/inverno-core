@@ -74,8 +74,8 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 			throw new IllegalArgumentException("Element must be a parameter");
 		}
 		ExecutableElement socketElement = (ExecutableElement)variableElement.getEnclosingElement();
-		String socketName = null;
-		AnnotationMirror[] selectors = null;
+		String socketName;
+		AnnotationMirror[] selectors;
 		boolean optional = false;
 		if(socketElement.getKind().equals(ElementKind.CONSTRUCTOR)) {
 			socketName = variableElement.getSimpleName().toString();
@@ -94,48 +94,62 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 			optional = true;
 		}
 		
-		boolean lazy = variableElement.getAnnotation(Lazy.class) != null;
-		
-		final TypeMirror socketType;
-		if(lazy) {
-			TypeMirror lazyType = variableElement.asType();
-			if(!this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(lazyType), this.supplierType)) {
-				this.processingEnvironment.getMessager().printMessage(Kind.ERROR, "Invalid lazy socket which should be of type " + Supplier.class.getCanonicalName(), variableElement);
-				return Optional.empty();
-			}
-			
-			if(((DeclaredType)lazyType).getTypeArguments().size() == 0) {
-				socketType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
-			}
-			else {
-				socketType = ((DeclaredType)lazyType).getTypeArguments().get(0);
-			}
-		}
-		else {
-			socketType = variableElement.asType();
-		}
-		
-		// Check if socket type can be resolved otherwise dependency injection might fail
-		this.validateType(socketType);
-		
-		// This should never throw a QualifiedNameFormatException as a Java variable is a valid qualified name part
 		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(this.beanQName, socketName);
+		
+		boolean lazy = variableElement.getAnnotation(Lazy.class) != null;
+		TypeMirror socketType = variableElement.asType();
 		MultiSocketType multiType = this.getMultiType(socketType);
 		if(multiType != null) {
+			socketType = this.getComponentType(socketType);
+			if(lazy) {
+				try {
+					socketType = this.getLazyType(socketType);
+				}
+				catch(IllegalArgumentException e) {
+					this.processingEnvironment.getMessager().printMessage(Kind.ERROR, e.getMessage(), variableElement);
+					return Optional.empty();
+				}
+			}
+			// Check if socket type can be resolved otherwise dependency injection might fail
+			this.validateType(socketType);
 			if(optional) {
-				return Optional.of(new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, socketElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, lazy, multiType));
+				return Optional.of(new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, socketElement, socketQName, socketType, socketElement, selectors, optional, lazy, multiType));
 			}
 			else {
-				return Optional.of(new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, variableElement, socketQName, this.getComponentType(socketType), socketElement, selectors, optional, lazy, multiType));
+				return Optional.of(new CommonModuleBeanMultiSocketInfo(this.processingEnvironment, variableElement, socketQName, socketType, socketElement, selectors, optional, lazy, multiType));
 			}
 		}
 		else {
+			if(lazy) {
+				try {
+					socketType = this.getLazyType(socketType);
+				}
+				catch(IllegalArgumentException e) {
+					this.processingEnvironment.getMessager().printMessage(Kind.ERROR, e.getMessage(), variableElement);
+					return Optional.empty();
+				}
+			}
+			// Check if socket type can be resolved otherwise dependency injection might fail
+			this.validateType(socketType);
 			if(optional) {
 				return Optional.of(new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, socketElement, socketQName, socketType, socketElement, selectors, optional, lazy));
 			}
 			else {
 				return Optional.of(new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, variableElement, socketQName, socketType, socketElement, selectors, optional, lazy));
 			}
+		}
+	}
+	
+	private TypeMirror getLazyType(TypeMirror type) throws IllegalArgumentException {
+		if(!this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(type), this.supplierType)) {
+			throw new IllegalArgumentException("Invalid lazy socket which should be of type " + Supplier.class.getCanonicalName());
+		}
+
+		if(((DeclaredType)type).getTypeArguments().isEmpty()) {
+			return this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
+		}
+		else {
+			return ((DeclaredType)type).getTypeArguments().get(0);
 		}
 	}
 	

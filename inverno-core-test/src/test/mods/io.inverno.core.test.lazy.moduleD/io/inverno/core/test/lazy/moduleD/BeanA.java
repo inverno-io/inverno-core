@@ -20,6 +20,7 @@ import io.inverno.core.annotation.Lazy;
 
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Bean
 public class BeanA {
@@ -27,8 +28,8 @@ public class BeanA {
 	public List<Runnable> runnables1;
 	public List<Runnable> runnables2;
 	
-	public BeanA(@Lazy Supplier<List<Runnable>> runnables) {
-		this.runnables1 = runnables.get();
-		this.runnables2 = runnables.get();
+	public BeanA(@Lazy List<Supplier<Runnable>> runnables) {
+		this.runnables1 = runnables.stream().map(Supplier::get).collect(Collectors.toList());
+		this.runnables2 = runnables.stream().map(Supplier::get).collect(Collectors.toList());
 	}
 }

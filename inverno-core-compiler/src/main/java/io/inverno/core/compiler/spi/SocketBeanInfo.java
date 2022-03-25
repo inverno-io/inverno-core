@@ -68,7 +68,7 @@ public interface SocketBeanInfo extends BeanInfo, SocketInfo {
 	 * socket bean defined in a component module.
 	 * </p>
 	 * 
-	 * @return true if the socket is a lazy socket, false otherwise
+	 * @return true if the socket is a wired within the module, false otherwise
 	 */
 	boolean isWired();
 }

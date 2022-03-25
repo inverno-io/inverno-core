@@ -17,7 +17,6 @@ package io.inverno.core.compiler;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +35,6 @@ import io.inverno.core.compiler.spi.ModuleInfo;
 import io.inverno.core.compiler.spi.ModuleInfoVisitor;
 import io.inverno.core.compiler.spi.MultiSocketBeanInfo;
 import io.inverno.core.compiler.spi.MultiSocketInfo;
-import io.inverno.core.compiler.spi.MultiSocketType;
 import io.inverno.core.compiler.spi.NestedBeanInfo;
 import io.inverno.core.compiler.spi.OverridableBeanInfo;
 import io.inverno.core.compiler.spi.OverridingSocketBeanInfo;
@@ -357,13 +355,14 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				
 				StringBuilder beanNew = new StringBuilder().append(context.indent(2)).append("this.").append(variable).append(" = this.with(").append(context.getTypeName(beanBuilderType)).append(System.lineSeparator());
 				
-				if(moduleBeanInfo.getStrategy().equals(Bean.Strategy.SINGLETON)) {
-					beanNew.append(context.indent(3)).append(".singleton(\"").append(moduleBeanInfo.getQualifiedName().getSimpleValue()).append("\", () -> {").append(System.lineSeparator());
-				}
-				else if(moduleBeanInfo.getStrategy().equals(Bean.Strategy.PROTOTYPE)) {
-					beanNew.append(context.indent(3)).append(".prototype(\"").append(moduleBeanInfo.getQualifiedName().getSimpleValue()).append("\", () -> {").append(System.lineSeparator());
-				}
-				else {
+				switch (moduleBeanInfo.getStrategy()) {
+					case SINGLETON:
+						beanNew.append(context.indent(3)).append(".singleton(\"").append(moduleBeanInfo.getQualifiedName().getSimpleValue()).append("\", () -> {").append(System.lineSeparator());
+						break;
+					case PROTOTYPE:
+						beanNew.append(context.indent(3)).append(".prototype(\"").append(moduleBeanInfo.getQualifiedName().getSimpleValue()).append("\", () -> {").append(System.lineSeparator());
+						break;
+					default:
 					throw new IllegalArgumentException("Unkown bean strategy: " + moduleBeanInfo.getStrategy());
 				}
 				
@@ -371,16 +370,14 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				if(moduleBeanInfo.getRequiredSockets().length > 0) {
 					beanNew.append(System.lineSeparator());
 					beanNew.append(Arrays.stream(moduleBeanInfo.getRequiredSockets())
-						.sorted(new Comparator<ModuleBeanSocketInfo>() {
-							public int compare(ModuleBeanSocketInfo s1, ModuleBeanSocketInfo s2) {
-								if(s1.getSocketElement().get() != s2.getSocketElement().get()) {
-									throw new IllegalStateException("Comparing required sockets with different socket elements");
-								}
-								List<String> orderedDependencyNames = s1.getSocketElement().get().getParameters().stream().map(element -> element.getSimpleName().toString()).collect(Collectors.toList());
-								return orderedDependencyNames.indexOf(s1.getQualifiedName().getSimpleValue()) - orderedDependencyNames.indexOf(s2.getQualifiedName().getSimpleValue());
+						.sorted((ModuleBeanSocketInfo s1, ModuleBeanSocketInfo s2) -> {
+							if(s1.getSocketElement().get() != s2.getSocketElement().get()) {
+								throw new IllegalStateException("Comparing required sockets with different socket elements");
 							}
+							List<String> orderedDependencyNames = s1.getSocketElement().get().getParameters().stream().map(element -> element.getSimpleName().toString()).collect(Collectors.toList());
+							return orderedDependencyNames.indexOf(s1.getQualifiedName().getSimpleValue()) - orderedDependencyNames.indexOf(s2.getQualifiedName().getSimpleValue());
 						})
-						.map(socketInfo -> new StringBuilder().append(context.indent(5)).append((socketInfo.isLazy() ? "() -> " : "")).append(this.visit(socketInfo, context.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(5))))
+						.map(socketInfo -> new StringBuilder().append(context.indent(5)).append(this.visit(socketInfo, context.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(5))))
 						.collect(context.joining("," + System.lineSeparator())));
 					beanNew.append(System.lineSeparator()).append(context.indent(4)).append(");").append(System.lineSeparator());
 				}
@@ -394,7 +391,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 					.map(socketInfo -> {
 						StringBuilder optSocket = new StringBuilder().append(context.indent(4));
 						if(socketInfo.isLazy()) {
-							optSocket.append(variable).append(".").append(socketInfo.getSocketElement().get().getSimpleName().toString()).append("(() ->").append(this.visit(socketInfo, context.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(4))).append(");");
+							optSocket.append(variable).append(".").append(socketInfo.getSocketElement().get().getSimpleName().toString()).append("(").append(this.visit(socketInfo, context.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(4))).append(");");
 						}
 						else {
 							optSocket.append(this.visit(socketInfo, context.withMode(GenerationMode.BEAN_OPTIONAL_REFERENCE).withIndentDepth(4))).append(".ifPresent(").append(variable).append("::").append(socketInfo.getSocketElement().get().getSimpleName().toString()).append(");");
@@ -498,52 +495,71 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			if(multiSocketInfo.isResolved()) {
 				TypeMirror beanAggregatorType = context.getTypeUtils().erasure(context.getElementUtils().getTypeElement(INVERNO_CORE_MODULE_BEANAGGREGATOR_CLASS).asType());
 
-				StringBuilder beanSocketReference = new StringBuilder().append("new ").append(context.getTypeName(beanAggregatorType)).append("<").append(context.getTypeName(unwildDependencyType)).append(">()").append(System.lineSeparator());
+				boolean lazy = multiSocketInfo instanceof ModuleBeanMultiSocketInfo && ((ModuleBeanMultiSocketInfo)multiSocketInfo).isLazy();
+				
+				StringBuilder beanSocketReference = new StringBuilder().append("new ").append(context.getTypeName(beanAggregatorType)).append("<");
+				if(lazy) {
+					beanSocketReference.append(context.getSupplierTypeName()).append("<").append(context.getTypeName(unwildDependencyType)).append(">");
+				}
+				else {
+					beanSocketReference.append(context.getTypeName(unwildDependencyType));
+				}
+				beanSocketReference.append(">()").append(System.lineSeparator());
 				beanSocketReference.append(Arrays.stream(multiSocketInfo.getBeans())
-					.map(beanInfo -> new StringBuilder(context.indent(1)).append(".add(").append(this.visit(beanInfo, context.withMode(GenerationMode.BEAN_REFERENCE))).append(")"))
+					.map(beanInfo -> {
+						StringBuilder beanRef = new StringBuilder(context.indent(1)).append(".add(");
+						if(lazy) {
+							beanRef.append("() -> ");
+						}
+						return beanRef.append(this.visit(beanInfo, context.withMode(GenerationMode.BEAN_REFERENCE))).append(")");
+					})
 					.collect(context.joining(System.lineSeparator()))).append(System.lineSeparator());
 
-				if(multiSocketInfo.getMultiType().equals(MultiSocketType.ARRAY)) {
-					beanSocketReference.append(context.indent(0));
-					if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
-						beanSocketReference.append(".toArray(");
-					}
-					else {
-						beanSocketReference.append(".toOptionalArray(");
-					}
-					beanSocketReference.append(context.getTypeName(unwildDependencyType)).append("[]::new)");
-				}
-				else if(multiSocketInfo.getMultiType().equals(MultiSocketType.COLLECTION) || multiSocketInfo.getMultiType().equals(MultiSocketType.LIST)) {
-					beanSocketReference.append(context.indent(0));
-					if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
-						beanSocketReference.append(".toList()");
-					}
-					else {
-						beanSocketReference.append(".toOptionalList()");
-					}
-				}
-				else if(multiSocketInfo.getMultiType().equals(MultiSocketType.SET)) {
-					beanSocketReference.append(context.indent(0));
-					if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
-						beanSocketReference.append(".toSet()");
-					}
-					else {
-						beanSocketReference.append(".toOptionalSet()");
-					}
+				switch (multiSocketInfo.getMultiType()) {
+					case ARRAY:
+						beanSocketReference.append(context.indent(0));
+						if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
+							beanSocketReference.append(".toArray(");
+						}
+						else {
+							beanSocketReference.append(".toOptionalArray(");
+						}	beanSocketReference.append(context.getTypeName(unwildDependencyType)).append("[]::new)");
+						break;
+					case COLLECTION:
+					case LIST:
+						beanSocketReference.append(context.indent(0));
+						if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
+							beanSocketReference.append(".toList()");
+						}
+						else {
+							beanSocketReference.append(".toOptionalList()");
+						}	break;
+					case SET:
+						beanSocketReference.append(context.indent(0));
+						if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
+							beanSocketReference.append(".toSet()");
+						}
+						else {
+							beanSocketReference.append(".toOptionalSet()");
+						}	break;
+					default:
+						break;
 				}
 
 				return beanSocketReference;
 			}
 			else {
 				if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
-					if(multiSocketInfo.getMultiType().equals(MultiSocketType.ARRAY)) {
-						return new StringBuilder().append("new ").append(context.getTypeName(unwildDependencyType)).append("[0]");
-					}
-					else if(multiSocketInfo.getMultiType().equals(MultiSocketType.COLLECTION) || multiSocketInfo.getMultiType().equals(MultiSocketType.LIST)) {
-						return new StringBuilder().append(context.getListTypeName()).append(".of()");
-					}
-					else if(multiSocketInfo.getMultiType().equals(MultiSocketType.SET)) {
-						return new StringBuilder().append(context.getSetTypeName()).append(".of()");
+					switch (multiSocketInfo.getMultiType()) {
+						case ARRAY:
+							return new StringBuilder().append("new ").append(context.getTypeName(unwildDependencyType)).append("[0]");
+						case COLLECTION:
+						case LIST:
+							return new StringBuilder().append(context.getListTypeName()).append(".of()");
+						case SET:
+							return new StringBuilder().append(context.getSetTypeName()).append(".of()");
+						default:
+							break;
 					}
 				}
 				else {
@@ -567,6 +583,9 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 
 	@Override
 	public StringBuilder visit(ModuleBeanSingleSocketInfo beanSingleSocketInfo, ModuleClassGenerationContext context) {
+		if(beanSingleSocketInfo.isLazy() && (context.getMode() == GenerationMode.BEAN_REFERENCE || context.getMode() == GenerationMode.BEAN_OPTIONAL_REFERENCE)) {
+			return new StringBuilder("() -> ").append(this.visit((SingleSocketInfo)beanSingleSocketInfo, context));
+		}
 		return this.visit((SingleSocketInfo)beanSingleSocketInfo, context);
 	}
 
