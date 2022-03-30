@@ -37,4 +37,8 @@ module io.inverno.core.test {
 	requires org.junit.platform.commons;
 	requires org.junit.jupiter.engine;
 	requires org.mockito;
+	requires net.bytebuddy;
+	requires net.bytebuddy.agent;
+	
+	exports io.inverno.core.test;
 }

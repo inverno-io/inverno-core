@@ -103,7 +103,7 @@
 				<configuration>
 <!-- 					<argLine>add-opens java.base/java.lang.invoke=io.inverno.test</argLine> -->
 					<includes>
-<!-- 						<include>**/TestGenerics.java</include> -->
+<!-- 					<include>**/TestSocketBean.java</include> -->
 					</includes>
 				</configuration>
 			</plugin>
