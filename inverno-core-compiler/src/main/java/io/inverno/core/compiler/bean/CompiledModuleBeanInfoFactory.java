@@ -15,30 +15,6 @@
  */
 package io.inverno.core.compiler.bean;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.ModuleElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic.Kind;
-
 import io.inverno.core.annotation.Bean;
 import io.inverno.core.annotation.BeanSocket;
 import io.inverno.core.annotation.Destroy;
@@ -54,6 +30,28 @@ import io.inverno.core.compiler.spi.ModuleBeanInfo;
 import io.inverno.core.compiler.spi.ModuleBeanSocketInfo;
 import io.inverno.core.compiler.spi.QualifiedNameFormatException;
 import io.inverno.core.compiler.spi.ReporterInfo;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.ModuleElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic.Kind;
 
 /**
  * <p>
@@ -346,7 +344,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		Optional<? extends AnnotationMirror> overridableAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.overridableAnnotationType)).findFirst();
 		if(overridableAnnotation.isPresent()) {
-			CompiledOverridingSocketBeanInfo socketInfo = new CompiledOverridingSocketBeanInfo(this.processingEnvironment, typeElement, overridableAnnotation.get(), moduleBeanInfo.getQualifiedName(), moduleBeanInfo.getType());
+			CompiledOverridingSocketBeanInfo socketInfo = new CompiledOverridingSocketBeanInfo(this.processingEnvironment, typeElement, overridableAnnotation.get(), moduleBeanInfo.getQualifiedName(), moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType());
 			resultModuleBeanInfo = new CompiledOverridableBeanInfo(moduleBeanInfo, socketInfo);
 		}
 		

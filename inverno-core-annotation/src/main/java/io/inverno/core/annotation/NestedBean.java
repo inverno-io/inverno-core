@@ -22,19 +22,14 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Indicates that the return value of a particular method on a module bean or a
- * socket bean should be considered as a bean and considered during dependency
- * injection.
+ * Indicates that the return value of a particular method on a module bean or a socket bean should be considered as a bean and considered during dependency injection.
  * </p>
- * 
+ *
  * <p>
- * A nested bean can be seen as a lightweight bean as it doesn't follow any
- * particular lifecycle. Unlike regular module bean, it can be null and
- * {@link NullPointerException} can then be thrown at runtime. They have to be
- * used wisely and sparingly when they make sense (eg. cascading configuration
- * data to component modules)
+ * A nested bean can be seen as a lightweight bean as it doesn't follow any particular lifecycle. Unlike regular module bean, it can be null and {@link NullPointerException} can then be thrown at
+ * runtime. They have to be used wisely and sparingly when they make sense (eg. cascading configuration data to component modules)
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.1
  */

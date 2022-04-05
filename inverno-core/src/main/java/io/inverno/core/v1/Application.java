@@ -24,38 +24,31 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * <p>
- * A module wrapper which starts a module as an application and stops it when
- * the application is gracefully shutdown. An application basically provides
- * boiler plate code to properly run a module as an application.
+ * A module wrapper which starts a module as an application and stops it when the application is gracefully shutdown. An application basically provides boiler plate code to properly run a module as an
+ * application.
  * </p>
- * 
+ *
  * <p>
- * An application can display a {@link Banner} when it starts. By default, the
- * {@link StandardBanner} is displayed.
+ * An application can display a {@link Banner} when it starts. By default, the {@link StandardBanner} is displayed.
  * </p>
- * 
+ *
  * <p>
- * An application also registers a virtual-machine shutdown hook that gracefully
- * stops the module when the virtual machine shuts down.
+ * An application also registers a virtual-machine shutdown hook that gracefully stops the module when the virtual machine shuts down.
  * </p>
- * 
+ *
  * <p>
- * A pidfile can also be created after the application has started and removed
- * after the application has shutdown gracefully. by specifying the path to the
- * pidfile in the {@value Application#PROPERTY_PID_FILE} system property. By
- * default no pidfile is created. An application will fail to start if a pidfile
- * designating a valid process already exists.
+ * A pidfile can also be created after the application has started and removed after the application has shutdown gracefully. by specifying the path to the pidfile in the
+ * {@value Application#PROPERTY_PID_FILE} system property. By default no pidfile is created. An application will fail to start if a pidfile designating a valid process already exists.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
+ *
  * @param <T> the module type
  */
 public class Application<T extends Module> {
@@ -65,13 +58,18 @@ public class Application<T extends Module> {
 	/**
 	 * Application logger.
 	 */
-	private static Logger LOGGER = LogManager.getLogger(Application.class);
+	private static final Logger LOGGER = LogManager.getLogger(Application.class);
 
 	/**
 	 * The wrapped module builder.
 	 */
-	private Module.ModuleBuilder<T> moduleBuilder;
+	private final Module.ModuleBuilder<T> moduleBuilder;
 
+	/**
+	 * Path to the pidfile if one has been specified.
+	 */
+	private final Optional<Path> pidfile;
+	
 	/**
 	 * The application banner.
 	 */
@@ -82,11 +80,6 @@ public class Application<T extends Module> {
 	 */
 	private T module;
 	
-	/**
-	 * Path to the pidfile if one has been specified.
-	 */
-	private Optional<Path> pidfile;
-
 	/**
 	 * <p>
 	 * Creates a new Application for the module created with the specified builder.
@@ -116,13 +109,12 @@ public class Application<T extends Module> {
 
 	/**
 	 * <p>
-	 * Creates and run a new application for the module created with the specified
-	 * builder.
+	 * Creates and run a new application for the module created with the specified builder.
 	 * </p>
-	 * 
+	 *
 	 * @param <E>           the module type.
 	 * @param moduleBuilder the module builder.
-	 * 
+	 *
 	 * @return a running module instance.
 	 */
 	public static <E extends Module> E run(Module.ModuleBuilder<E> moduleBuilder) {
@@ -133,13 +125,13 @@ public class Application<T extends Module> {
 	 * <p>
 	 * Sets the application banner.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * If null is specified no banner will be displayed
 	 * </p>
-	 * 
+	 *
 	 * @param banner the banner to set or null to display no banner.
-	 * 
+	 *
 	 * @return this application.
 	 */
 	public Application<T> banner(Banner banner) {
@@ -157,17 +149,17 @@ public class Application<T extends Module> {
 	 */
 	public T run() throws IllegalStateException {
 		long t0 = System.nanoTime();
-		this.pidfile.filter(Files::exists).ifPresent(pidfile -> {
+		this.pidfile.filter(Files::exists).ifPresent(file -> {
 			try {
-				if(ProcessHandle.of(Long.parseLong(new String(Files.readAllBytes(pidfile)))).isPresent()) {
-					throw new IllegalStateException("A pidfile pointing to an active process is present: " + pidfile);
+				if(ProcessHandle.of(Long.parseLong(new String(Files.readAllBytes(file)))).isPresent()) {
+					throw new IllegalStateException("A pidfile pointing to an active process is present: " + file);
 				}
 				else {
-					Files.delete(pidfile);
+					Files.delete(file);
 				}
 			}
 			catch (NumberFormatException | IOException e) {
-				throw new IllegalStateException("An invalid pidfile is present: " + pidfile, e);
+				throw new IllegalStateException("An invalid pidfile is present: " + file, e);
 			}
 		});
 		if (this.module != null) {
@@ -177,9 +169,9 @@ public class Application<T extends Module> {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			this.module.stop();
 			LogManager.shutdown();
-			this.pidfile.ifPresent(pidfile -> {
+			this.pidfile.ifPresent(file -> {
 				try {
-					Files.deleteIfExists(pidfile);
+					Files.deleteIfExists(file);
 				} 
 				catch (IOException e) {
 					throw new UncheckedIOException("Error deleting pidfile", e);
@@ -196,10 +188,10 @@ public class Application<T extends Module> {
 		}
 		this.module.start();
 
-		this.pidfile.ifPresent(pidfile -> {
+		this.pidfile.ifPresent(file -> {
 			try {
-				Files.createDirectories(pidfile.getParent());
-				Files.write(pidfile, Long.toString(ProcessHandle.current().pid()).getBytes(), StandardOpenOption.CREATE_NEW);
+				Files.createDirectories(file.getParent());
+				Files.write(file, Long.toString(ProcessHandle.current().pid()).getBytes(), StandardOpenOption.CREATE_NEW);
 			} 
 			catch (IOException e) {
 				throw new UncheckedIOException("Error creating pidfile", e);

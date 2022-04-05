@@ -15,21 +15,20 @@
  */
 package io.inverno.core.compiler.wire;
 
+import io.inverno.core.compiler.spi.BeanInfo;
+import io.inverno.core.compiler.spi.ModuleBeanInfo;
+import io.inverno.core.compiler.spi.ModuleQualifiedName;
+import io.inverno.core.compiler.spi.MultiSocketInfo;
+import io.inverno.core.compiler.spi.OverridableBeanInfo;
+import io.inverno.core.compiler.spi.SocketInfo;
+import io.inverno.core.compiler.spi.WiringStrategy;
 import java.util.Collection;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
-
-import io.inverno.core.compiler.spi.BeanInfo;
-import io.inverno.core.compiler.spi.ModuleBeanInfo;
-import io.inverno.core.compiler.spi.ModuleQualifiedName;
-import io.inverno.core.compiler.spi.MultiSocketInfo;
-import io.inverno.core.compiler.spi.SocketInfo;
-import io.inverno.core.compiler.spi.WiringStrategy;
 
 /**
  * <p>
@@ -51,10 +50,12 @@ public class TypeWiringStrategy implements WiringStrategy {
 		this.moduleQName = moduleQName;
 	}
 	
-	
 	@Override
 	public boolean isWirable(BeanInfo bean, SocketInfo socket) {
-		if(ModuleBeanInfo.class.isAssignableFrom(bean.getClass()) && !bean.getQualifiedName().getModuleQName().equals(this.moduleQName) && ((ModuleBeanInfo)bean).getProvidedType() != null) {
+		if(OverridableBeanInfo.class.isAssignableFrom(bean.getClass()) && ((OverridableBeanInfo)bean).getProvidedType() != null) {
+			return this.isAssignable(((ModuleBeanInfo)bean).getProvidedType(), socket);
+		}
+		else if(ModuleBeanInfo.class.isAssignableFrom(bean.getClass()) && !bean.getQualifiedName().getModuleQName().equals(this.moduleQName) && ((ModuleBeanInfo)bean).getProvidedType() != null) {
 			return this.isAssignable(((ModuleBeanInfo)bean).getProvidedType(), socket);
 		}
 		else {

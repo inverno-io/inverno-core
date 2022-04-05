@@ -15,6 +15,7 @@
  */
 package io.inverno.core.v1;
 
+import io.inverno.core.v1.Module.Bean;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -22,62 +23,48 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import io.inverno.core.v1.Module.Bean;
 
 /**
  * <p>
  * A prototype module {@link Bean} implementation.
  * </p>
- * 
+ *
  * <p>
- * A Prototype bean is instantiated each time it is requested, a distinct
- * instance is injected into each dependent bean.
+ * A Prototype bean is instantiated each time it is requested, a distinct instance is injected into each dependent bean.
  * </p>
- * 
+ *
  * <p>
- * Particular care must be taken when creating prototype beans instances outside
- * of a module (eg. moduleInstance.prototypeBean()). Modules keep weak
- * references on the prototype beans instances it creates to be able to properly
- * destroy them. The use of weak references prevent memory leaks. This works
- * properly for prototype beans instances injected into singleton instances, but
- * it is not possible to do so with a prototype bean instance referenced outside
- * of a module as it is not possible to access the instance once it has been
- * dereferenced and processed by the garbage collector. When a module is stopped
- * the behavior is then unpredictable and depends on whether the bean instance
- * is still referenced or the garbage collector has yet enqueued its reference.
- * To sum up when a module is stopped, prototype beans instances referenced in
- * singleton beans instances or referenced outside the module are always
- * destroyed and they might be destroyed if they have been, but are no longer,
- * referenced outside the module.
+ * Particular care must be taken when creating prototype beans instances outside of a module (eg. moduleInstance.prototypeBean()). Modules keep weak references on the prototype beans instances it
+ * creates to be able to properly destroy them. The use of weak references prevent memory leaks. This works properly for prototype beans instances injected into singleton instances, but it is not
+ * possible to do so with a prototype bean instance referenced outside of a module as it is not possible to access the instance once it has been dereferenced and processed by the garbage collector.
+ * When a module is stopped the behavior is then unpredictable and depends on whether the bean instance is still referenced or the garbage collector has yet enqueued its reference. To sum up when a
+ * module is stopped, prototype beans instances referenced in singleton beans instances or referenced outside the module are always destroyed and they might be destroyed if they have been, but are no
+ * longer, referenced outside the module.
  * </p>
- * 
+ *
  * <p>
- * If you want to create disposable beans that live outside a module, you should
- * consider creating prototype beans that implement {@link AutoCloseable},
- * define the <code>close()</code> as destroy method, make sure it can be
- * invoked twice because it might, and get new instances as follows:
+ * If you want to create disposable beans that live outside a module, you should consider creating prototype beans that implement {@link AutoCloseable}, define the <code>close()</code> as destroy
+ * method, make sure it can be invoked twice because it might, and get new instances as follows:
  * </p>
- * 
+ *
  * <blockquote>
- * 
+ *
  * <pre>
  * try (MyPrototype instance = myModuleInstance.myPrototype()) {
  *     ...
  * }
  * </pre>
- * 
+ *
  * </blockquote>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  * @see Bean
  * @see PrototypeWeakModuleBean
  * @see PrototypeModuleBeanBuilder
- * 
+ *
  * @param <T> the actual type of the bean
  */
 abstract class PrototypeWeakModuleBean<T> extends AbstractModuleBean<T> {
@@ -107,11 +94,11 @@ abstract class PrototypeWeakModuleBean<T> extends AbstractModuleBean<T> {
 	}
 
 	/**
-	 * Expunges stake instances from the list.
+	 * Expunges stale instances from the list.
 	 */
 	@SuppressWarnings("unchecked")
 	private void expungeStaleInstances() {
-		for (T ref; (ref = (T) this.referenceQueue.poll()) != null;) {
+		for (WeakReference<T> ref; (ref = (WeakReference<T>) this.referenceQueue.poll()) != null;) {
 			this.instances.remove(ref);
 		}
 	}
@@ -120,11 +107,9 @@ abstract class PrototypeWeakModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Creates the prototype bean.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * Since a new bean instance must be created each time the bean is requested,
-	 * this method basically does nothing, instances being created in the
-	 * {@link #get()} method.
+	 * Since a new bean instance must be created each time the bean is requested, this method basically does nothing, instances being created in the {@link #get()} method.
 	 * </p>
 	 */
 	@Override
@@ -133,7 +118,7 @@ abstract class PrototypeWeakModuleBean<T> extends AbstractModuleBean<T> {
 			synchronized(this) {
 				LOGGER.debug("Creating prototype bean {} {}", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name, () -> this.override.map(s -> "(overridden)").orElse(""));
 				this.instances = new HashSet<>();
-				this.referenceQueue = new ReferenceQueue<T>();
+				this.referenceQueue = new ReferenceQueue<>();
 				this.parent.recordBean(this);
 			}
 		}
@@ -143,12 +128,11 @@ abstract class PrototypeWeakModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Returns a new bean instance.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This method delegates bean instance creation to the {@link #createInstance()}
-	 * method.
+	 * This method delegates bean instance creation to the {@link #createInstance()} method.
 	 * </p>
-	 * 
+	 *
 	 * @return a bean instance
 	 */
 	@Override
@@ -172,10 +156,9 @@ abstract class PrototypeWeakModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Destroys the prototype bean and as a result all bean instances it has issued.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This method delegates bean instance destruction to the
-	 * {@link #destroyInstance(Object)} method.
+	 * This method delegates bean instance destruction to the {@link #destroyInstance(Object)} method.
 	 * </p>
 	 */
 	@Override

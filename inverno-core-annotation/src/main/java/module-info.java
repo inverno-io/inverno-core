@@ -16,23 +16,18 @@
 
 /**
  * <p>
- * The Inverno Framework annotation module, providing annotations to be used to
- * create modular applications based on Inversion of Control principle and
- * Dependency Injection.
+ * The Inverno Framework annotation module, providing annotations to be used to create modular applications based on Inversion of Control principle and Dependency Injection.
  * </p>
- * 
+ *
  * <p>
- * The framework actually processes these annotations at compile time to
- * statically check bean dependencies. This prevents many common dependency
- * injection issues at runtime like missing dependencies, conflicts...
+ * The framework actually processes these annotations at compile time to statically check bean dependencies. This prevents many common dependency injection issues at runtime like missing
+ * dependencies, conflicts...
  * </p>
- * 
+ *
  * <p>
- * As a consequence, reflection is not required to instantiate beans which
- * reduce the module loading time. This also goes well with Java modular system
- * as there's no need for a module to be opened.
+ * As a consequence, reflection is not required to instantiate beans which reduce the module loading time. This also goes well with Java modular system as there's no need for a module to be opened.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  */

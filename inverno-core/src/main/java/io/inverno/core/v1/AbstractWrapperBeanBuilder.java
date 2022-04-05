@@ -15,11 +15,11 @@
  */
 package io.inverno.core.v1;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import io.inverno.core.v1.Module.Bean;
 import io.inverno.core.v1.Module.WrapperBeanBuilder;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * <p>
@@ -32,15 +32,16 @@ import io.inverno.core.v1.Module.WrapperBeanBuilder;
  * @see Bean
  * @see WrapperBeanBuilder
  * 
- * @param <W> the type of the wrapper bean
- * @param <T> the actual type of the bean built by this builder
+ * @param <P> the type provided by the bean to build
+ * @param <T> the actual type of the bean to build
+ * @param <W> the bean wrapper which supplies the bean instance
  */
-abstract class AbstractWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractBeanBuilder<W, WrapperBeanBuilder<W, T>> implements WrapperBeanBuilder<W, T> {
+abstract class AbstractWrapperBeanBuilder<P, T, W extends Supplier<T>> extends AbstractBeanBuilder<W, WrapperBeanBuilder<P, T, W>> implements WrapperBeanBuilder<P, T, W> {
 
 	/**
 	 * The override that, when present, provides bean instances instead of the builder. 
 	 */
-	protected Optional<Supplier<T>> override = Optional.empty();
+	protected final Optional<Supplier<P>> override;
 
 	/**
 	 * <p>
@@ -52,14 +53,54 @@ abstract class AbstractWrapperBeanBuilder<T, W extends Supplier<T>> extends Abst
 	 */
 	protected AbstractWrapperBeanBuilder(String beanName, Supplier<W> constructor) {
 		super(beanName, constructor);
+		this.override = Optional.empty();
 	}
-
+	
 	/**
-	 * {@inheritDoc}
+	 * <p>
+	 * Creates an overridable wrapper bean builder.
+	 * </p>
+	 *
+	 * @param overriddenBuilder the overridden wrapper bean builder
+	 * @param override          the override
 	 */
-	@Override
-	public WrapperBeanBuilder<W, T> override(Optional<Supplier<T>> override) {
+	protected AbstractWrapperBeanBuilder(AbstractWrapperBeanBuilder<?, T, W> overriddenBuilder, Optional<Supplier<P>> override) {
+		super(overriddenBuilder.beanName, overriddenBuilder.constructor);
 		this.override = override != null ? override : Optional.empty();
-		return this;
+		this.inits = overriddenBuilder.inits != null ? new LinkedList<>(overriddenBuilder.inits) : null;
+		this.destroys = overriddenBuilder.destroys != null ? new LinkedList<>(overriddenBuilder.destroys) : null;
+	}
+	
+	/**
+	 * <p>
+	 * A wrapper bean wrapper that exposes the provided type.
+	 * </p>
+	 * 
+	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
+	 * @since 1.5
+	 */
+	protected class ProvidingWrapper implements Supplier<P> {
+		
+		/**
+		 * The underlying wrapper.
+		 */
+		protected W wrapper;
+		
+		/**
+		 * <p>
+		 * Creates a providing wrapper.
+		 * </p>
+		 * 
+		 * @param wrapper the underlying wrapper to wrap.
+		 */
+		public ProvidingWrapper(W wrapper) {
+			this.wrapper = wrapper;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public P get() {
+			return (P)wrapper.get();
+		}
 	}
 }

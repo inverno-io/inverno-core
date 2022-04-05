@@ -15,11 +15,11 @@
  */
 package io.inverno.core.v1;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import io.inverno.core.v1.Module.Bean;
 import io.inverno.core.v1.Module.ModuleBeanBuilder;
+import java.util.LinkedList;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * <p>
@@ -32,14 +32,15 @@ import io.inverno.core.v1.Module.ModuleBeanBuilder;
  * @see Bean
  * @see ModuleBeanBuilder
  * 
- * @param <T> the actual type of the bean built by this builder
+ * @param <P> the type provided by the bean to build
+ * @param <T> the actual type of the bean to build
  */
-abstract class AbstractModuleBeanBuilder<T> extends AbstractBeanBuilder<T, ModuleBeanBuilder<T>> implements ModuleBeanBuilder<T> {
+abstract class AbstractModuleBeanBuilder<P, T> extends AbstractBeanBuilder<T, ModuleBeanBuilder<P, T>> implements ModuleBeanBuilder<P, T> {
 
 	/**
 	 * The override that, when present, provides bean instances instead of the builder. 
 	 */
-	protected Optional<Supplier<T>> override = Optional.empty();
+	protected final Optional<Supplier<P>> override;
 	
 	/**
 	 * <p>
@@ -51,14 +52,21 @@ abstract class AbstractModuleBeanBuilder<T> extends AbstractBeanBuilder<T, Modul
 	 */
 	protected AbstractModuleBeanBuilder(String beanName, Supplier<T> constructor) {
 		super(beanName, constructor);
+		this.override = Optional.empty();
 	}
 	
 	/**
-	 * {@inheritDoc}
+	 * <p>
+	 * Creates an overridable module bean builder.
+	 * </p>
+	 * 
+	 * @param overriddenBuilder the overridden module bean builder
+	 * @param override          the override
 	 */
-	@Override
-	public ModuleBeanBuilder<T> override(Optional<Supplier<T>> override) {
+	protected AbstractModuleBeanBuilder(AbstractModuleBeanBuilder<?, T> overriddenBuilder, Optional<Supplier<P>> override) {
+		super(overriddenBuilder.beanName, overriddenBuilder.constructor);
 		this.override = override != null ? override : Optional.empty();
-		return this;
+		this.inits = overriddenBuilder.inits != null ? new LinkedList<>(overriddenBuilder.inits) : null;
+		this.destroys = overriddenBuilder.destroys != null ? new LinkedList<>(overriddenBuilder.destroys) : null;
 	}
 }

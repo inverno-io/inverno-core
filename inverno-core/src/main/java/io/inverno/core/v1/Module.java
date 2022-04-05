@@ -16,9 +16,8 @@
 package io.inverno.core.v1;
 
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
 import java.lang.annotation.Retention;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
@@ -34,7 +33,6 @@ import java.util.Set;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,27 +40,24 @@ import org.apache.logging.log4j.Logger;
  * <p>
  * The Module base class.
  * </p>
- * 
+ *
  * <p>
- * Generated module classes inherit this class which provides base module
- * lifecycle implementation.
+ * Generated module classes inherit this class which provides base module lifecycle implementation.
  * </p>
- * 
+ *
  * <p>
  * The following describes module startup steps:
  * </p>
- * 
+ *
  * <ol>
  * <li>Start the required Inverno modules included in the module.</li>
  * <li>Create the module beans that weren't already created.</li>
  * </ol>
- * 
+ *
  * <p>
- * Dependencies between beans determine the order in which they are created, as
- * a result a bean can be created before the enclosing module is actually
- * started.
+ * Dependencies between beans determine the order in which they are created, as a result a bean can be created before the enclosing module is actually started.
  * </p>
- * 
+ *
  * <p>
  * The following describes the module destroy steps:
  * </p>
@@ -70,11 +65,11 @@ import org.apache.logging.log4j.Logger;
  * <li>Destroy the module beans in the reverse creation order.</li>
  * <li>Stop the required Inverno modules included in the module.</li>
  * </ol>
- * 
+ *
  * <p>
  * A module should always be built using a {@link ModuleBuilder}.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  */
@@ -83,33 +78,33 @@ public abstract class Module {
 	/**
 	 * The module logger.
 	 */
-	private Logger logger = LogManager.getLogger(this.getClass());
+	private final Logger logger = LogManager.getLogger(this.getClass());
 
 	/**
 	 * The module name.
 	 */
-	private String name;
+	private final String name;
+
+	/**
+	 * The list of required Inverno modules include in the module.
+	 */
+	private final List<Module> modules;
+
+	/**
+	 * The list of beans in the module.
+	 */
+	private final List<Bean<?>> beans;
+
+	/**
+	 * The bean stack used to track bean creation order.
+	 */
+	private final Deque<Bean<?>> beansStack;
 
 	/**
 	 * The parent module.
 	 */
 	private Module parent;
-
-	/**
-	 * The list of required Inverno modules include in the module.
-	 */
-	private List<Module> modules;
-
-	/**
-	 * The list of beans in the module.
-	 */
-	private List<Bean<?>> beans;
-
-	/**
-	 * The bean stack used to track bean creation order.
-	 */
-	private Deque<Bean<?>> beansStack;
-
+	
 	/**
 	 * THe module's state
 	 */
@@ -147,17 +142,16 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Creates a module with the specified module linker and register it in this
-	 * module.
+	 * Creates a module with the specified module linker and register it in this module.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * A module can only be registered once to exactly one module.
 	 * </p>
-	 * 
+	 *
 	 * @param <T>          the type of the module to create
 	 * @param moduleLinker the module linker to use to create the module
-	 * 
+	 *
 	 * @return the registered module
 	 */
 	protected <T extends Module> T with(ModuleLinker<T> moduleLinker) {
@@ -171,20 +165,19 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Creates a module bean with the specified bean builder and registers it in
-	 * this module.
+	 * Creates a module bean with the specified bean builder and registers it in this module.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * A bean can only be registered once to exactly one module.
 	 * </p>
-	 * 
-	 * @param <T>         the actual type of the bean
+	 *
+	 * @param <T>         the type of the bean
 	 * @param beanBuilder the bean builder to use to create the bean
-	 * 
+	 *
 	 * @return the registered bean
 	 */
-	protected <T> Bean<T> with(ModuleBeanBuilder<T> beanBuilder) {
+	protected <T> Bean<T> with(ModuleBeanBuilder<T, ?> beanBuilder) {
 		Bean<T> bean = beanBuilder.build();
 		bean.parent = this;
 		this.beans.add(bean);
@@ -194,21 +187,19 @@ public abstract class Module {
 	
 	/**
 	 * <p>
-	 * Creates a wrapper bean with the specified bean builder and registers it in
-	 * this module.
+	 * Creates a wrapper bean with the specified bean builder and registers it in this module.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * A bean can only be registered once to exactly one module.
 	 * </p>
-	 * 
-	 * @param <W>         the type of the wrapper bean
-	 * @param <T>         the actual type of the bean
+	 *
+	 * @param <T>         the type of the bean
 	 * @param beanBuilder the bean builder to use to create the bean
-	 * 
+	 *
 	 * @return the registered bean
 	 */
-	protected <W extends Supplier<T>, T> Bean<T> with(WrapperBeanBuilder<W, T> beanBuilder) {
+	protected <T> Bean<T> with(WrapperBeanBuilder<T, ?, ?> beanBuilder) {
 		Bean<T> bean = beanBuilder.build();
 		bean.parent = this;
 		this.beans.add(bean);
@@ -240,11 +231,9 @@ public abstract class Module {
 	
 	/**
 	 * <p>
-	 * Determines whether this module or one of its ancestors is active which would
-	 * indicate that this module is a component module in a tree of module being
-	 * started.
+	 * Determines whether this module or one of its ancestors is active which would indicate that this module is a component module in a tree of module being started.
 	 * </p>
-	 * 
+	 *
 	 * @return true if an ancestor module is active, false otherwise.
 	 */
 	private boolean isSuperActive() {
@@ -255,14 +244,12 @@ public abstract class Module {
 	 * <p>
 	 * Starts the module.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * It creates and wires the beans defined within the module and the required
-	 * Inverno modules it includes, the bean dependency graph determines the order
-	 * into which beans are created. When the module is stopped, beans are destroyed
-	 * in the reverse order.
+	 * It creates and wires the beans defined within the module and the required Inverno modules it includes, the bean dependency graph determines the order into which beans are created. When the
+	 * module is stopped, beans are destroyed in the reverse order.
 	 * </p>
-	 * 
+	 *
 	 * @throws IllegalStateException if the module is active.
 	 */
 	public void start() throws IllegalStateException {
@@ -275,17 +262,15 @@ public abstract class Module {
 		this.modules.stream().filter(module -> !module.isActive()).forEach(module -> module.start());
 		this.beans.stream().forEach(bean -> bean.create());
 		this.logger.info("Module {} started in {}ms", () -> this.name, () -> ((System.nanoTime() - t0) / 1000000));
-//		this.logger.info(this.beansStack.stream().map(bean -> bean.name.toString()).collect(Collectors.joining(", "))); // TEST
 	}
 
 	/**
 	 * <p>
 	 * Stops the module.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This methods basically destroy the beans created during startup in the
-	 * reverse order.
+	 * This methods basically destroy the beans created during startup in the reverse order.
 	 * </p>
 	 */
 	public void stop() {
@@ -320,7 +305,7 @@ public abstract class Module {
 	 */
 	protected static class BeanAggregator<E> {
 
-		private List<E> aggregate;
+		private final List<E> aggregate;
 
 		/**
 		 * Creates an aggregator.
@@ -452,15 +437,13 @@ public abstract class Module {
 	 * <p>
 	 * The Module Linker base class.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * A Module linker is used within modules implementations to link a dependent
-	 * modules into the current module. A linker is only used within a module and
-	 * shall never be used directly.
+	 * A Module linker is used within modules implementations to link a dependent modules into the current module. A linker is only used within a module and shall never be used directly.
 	 * </p>
-	 * 
+	 *
 	 * @param <T> the module type to link.
-	 * 
+	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 */
@@ -512,10 +495,9 @@ public abstract class Module {
 		 * <p>
 		 * Creates a new Module Builder.
 		 * </p>
-		 * 
-		 * @param nonOptionalSockets an even list of non-optional sockets pairs (name,
-		 *                           value) required to build the module
-		 * 
+		 *
+		 * @param nonOptionalSockets an even list of non-optional sockets pairs (name, value) required to build the module
+		 *
 		 * @throws IllegalArgumentException if one or more non-optional sockets are null
 		 */
 		public ModuleBuilder(Object... nonOptionalSockets) throws IllegalArgumentException {
@@ -528,7 +510,7 @@ public abstract class Module {
 					nullSockets.add(nonOptionalSockets[i].toString());
 				}
 			}
-			if (nullSockets.size() > 0) {
+			if (!nullSockets.isEmpty()) {
 				throw new IllegalArgumentException("Following non-optional sockets are null: "
 						+ nullSockets.stream().collect(Collectors.joining(", ")));
 			}
@@ -538,12 +520,11 @@ public abstract class Module {
 		 * <p>
 		 * Builds the module.
 		 * </p>
-		 * 
+		 *
 		 * <p>
-		 * This method actually delegates the actual module creation to the
-		 * {@link #doBuild()} method.
+		 * This method actually delegates the actual module creation to the {@link #doBuild()} method.
 		 * </p>
-		 * 
+		 *
 		 * @return a new module instance
 		 */
 		public final T build() {
@@ -553,10 +534,9 @@ public abstract class Module {
 
 		/**
 		 * <p>
-		 * This method should be implemented by concrete implementation to return the
-		 * actual module instance.
+		 * This method should be implemented by concrete implementation to return the actual module instance.
 		 * </p>
-		 * 
+		 *
 		 * @return a new module instance
 		 */
 		protected abstract T doBuild();
@@ -566,18 +546,16 @@ public abstract class Module {
 	 * <p>
 	 * Interface representing the lifecycle of a bean in a module.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * {@link Bean} instances are used within modules during initialization to
-	 * perform dependency injection in order to defer the actual beans instantiation
-	 * beans at module startup. Dependency cycles, missing dependencies and other
-	 * issues related to dependency injection are normally raised at compile time.
+	 * {@link Bean} instances are used within modules during initialization to perform dependency injection in order to defer the actual beans instantiation beans at module startup. Dependency cycles,
+	 * missing dependencies and other issues related to dependency injection are normally raised at compile time.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * A bean has to be registered in a module before it can be used.
 	 * </p>
-	 * 
+	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 * @see BeanBuilder
@@ -609,20 +587,15 @@ public abstract class Module {
 
 		/**
 		 * <p>
-		 * Returns the requested bean instance while making sure the enclosing module is
-		 * active.
+		 * Returns the requested bean instance while making sure the enclosing module is active.
 		 * </p>
-		 * 
+		 *
 		 * <p>
-		 * In case the enclosing module is not active but one of its ancestors is
-		 * active, this method starts the enclosing module in order to start modules in
-		 * their natural order. If no ancestor is active (ie. the enclosing module is
-		 * not part of a module initialization process), an
-		 * {@link IllegalStateException} is thrown.
+		 * In case the enclosing module is not active but one of its ancestors is active, this method starts the enclosing module in order to start modules in their natural order. If no ancestor is
+		 * active (ie. the enclosing module is not part of a module initialization process), an {@link IllegalStateException} is thrown.
 		 * </p>
-		 * 
-		 * @throws IllegalStateException if the enclosing module is inactive and not
-		 *                               part of a module initialization process.
+		 *
+		 * @throws IllegalStateException if the enclosing module is inactive and not part of a module initialization process.
 		 */
 		@Override
 		public final T get() throws IllegalStateException {
@@ -665,28 +638,28 @@ public abstract class Module {
 	 * <p>
 	 * A BeanBuilder is used within a module class to create {@link Bean} instances.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * A BeanBuilder is always created for a specific module instance.
 	 * </p>
-	 * 
+	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0
+	 * 
 	 * @see Bean
 	 * @see ModuleBeanBuilder
 	 * @see WrapperBeanBuilder
-	 * 
+	 *
 	 * @param <T> the actual type of the bean to build
 	 * @param <B> the bean builder type to support method chaining
 	 */
-	protected interface BeanBuilder<T, B extends BeanBuilder<T,B>> {
+	protected interface BeanBuilder<T, B extends BeanBuilder<T, B>> {
 		
 		/**
 		 * <p>
-		 * Fallible consumer used to designates init and destroy methods which might
-		 * throw checked exception.
+		 * Fallible consumer used to designates init and destroy methods which might throw checked exception.
 		 * </p>
-		 * 
+		 *
 		 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 		 *
 		 * @param <T> the type of the input to the operation
@@ -698,8 +671,9 @@ public abstract class Module {
 			 * <p>
 			 * Performs this operation on the given argument.
 			 * </p>
-			 * 
+			 *
 			 * @param t the input argument
+			 *
 			 * @throws Exception if something goes wrong processing the argument
 			 */
 			void accept(T t) throws Exception;
@@ -732,16 +706,14 @@ public abstract class Module {
 	 * <p>
 	 * A BeanBuilder for creating module {@link Bean} instances.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * A module {@link Bean} instance is built from a {@link Supplier} which is used
-	 * to defer the actual instantiation of the bean. Initialization and destruction
-	 * operations are invoked once the bean instance has been created (after
-	 * dependency injection) and before its destruction respectively.
+	 * A module {@link Bean} instance is built from a {@link Supplier} which is used to defer the actual instantiation of the bean. Initialization and destruction operations are invoked once the bean
+	 * instance has been created (after dependency injection) and before its destruction respectively.
 	 * </p>
-	 * 
+	 *
 	 * <blockquote>
-	 * 
+	 *
 	 * <pre>
 	 * this.bean = ModuleBeanBuilder
 	 *     .singleton("bean", () -&gt; {
@@ -752,55 +724,54 @@ public abstract class Module {
 	 *      .destroy(BeanA::destroy)
 	 *      .build(this);
 	 * </pre>
-	 * 
+	 *
 	 * </blockquote>
-	 * 
-	 * @param <T> the actual type of the bean to build
-	 * 
+	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 * @see Bean
+	 *
+	 * @param <P> the type provided by the bean to build
+	 * @param <T> the actual type of the bean to build
 	 */
-	protected interface ModuleBeanBuilder<T> extends BeanBuilder<T, ModuleBeanBuilder<T>> {
+	protected interface ModuleBeanBuilder<P, T> extends BeanBuilder<T, ModuleBeanBuilder<P, T>> {
 
 		/**
 		 * <p>
 		 * Returns a singleton module bean builder.
 		 * </p>
-		 * 
+		 *
 		 * <p>
-		 * Singleton {@link Bean}s are useful when one single instance of a bean should
-		 * be injected through the application.
+		 * Singleton {@link Bean}s are useful when one single instance of a bean should be injected through the application.
 		 * </p>
-		 * 
+		 *
 		 * @param <T>         the type of the bean to build
 		 * @param beanName    the bean name
 		 * @param constructor the bean instance supplier
-		 * 
+		 *
 		 * @return a singleton Bean Builder
 		 */
-		static <T> ModuleBeanBuilder<T> singleton(String beanName, Supplier<T> constructor) {
-			return new SingletonModuleBeanBuilder<T>(beanName, constructor);
+		static <T> ModuleBeanBuilder<T, T> singleton(String beanName, Supplier<T> constructor) {
+			return new SingletonModuleBeanBuilder<>(beanName, constructor);
 		}
 		
 		/**
 		 * <p>
 		 * Returns a prototype module bean builder.
 		 * </p>
-		 * 
+		 *
 		 * <p>
-		 * Prototype {@link Bean}s are useful when distinct instances of a bean should
-		 * be injected though the application.
+		 * Prototype {@link Bean}s are useful when distinct instances of a bean should be injected though the application.
 		 * </p>
-		 * 
+		 *
 		 * @param <T>         the type of the bean to build
 		 * @param beanName    the bean name
 		 * @param constructor the bean instance supplier
-		 * 
+		 *
 		 * @return a prototype Bean Builder
 		 */
-		static <T> ModuleBeanBuilder<T> prototype(String beanName, Supplier<T> constructor) {
-			return new PrototypeModuleBeanBuilder<T>(beanName, constructor);
+		static <T> ModuleBeanBuilder<T, T> prototype(String beanName, Supplier<T> constructor) {
+			return new PrototypeModuleBeanBuilder<>(beanName, constructor);
 		}
 		
 		/**
@@ -810,42 +781,38 @@ public abstract class Module {
 		 * 
 		 * @return a bean
 		 */
-		Bean<T> build();
+		Bean<P> build();
 		
 		/**
 		 * <p>
 		 * Specifies an override that, when present, provides bean instances instead of the builder.
 		 * </p>
 		 * 
-		 * @param override An optional override
+		 * @param <P>      the type provided by the bean to build
+		 * @param override an optional override
+		 * 
 		 * @return this builder
 		 */
-		ModuleBeanBuilder<T> override(Optional<Supplier<T>> override);
+		<P> ModuleBeanBuilder<P, T> override(Optional<Supplier<P>> override);
 	}
 	
 	/**
 	 * <p>
 	 * A BeanBuilder for creating wrapper {@link Bean} instances.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * A wrapper {@link Bean} instance is built from a {@link Supplier} used to
-	 * obtain a wrapper instance which wraps the actual bean instance creation,
-	 * initialization and destruction logic and defer the actual instantiation of
-	 * the bean. Initialization and destruction operations are invoked on the
-	 * wrapper instance (after dependency injection) and before its destruction
-	 * respectively.
+	 * A wrapper {@link Bean} instance is built from a {@link Supplier} used to obtain a wrapper instance which wraps the actual bean instance creation, initialization and destruction logic and defer
+	 * the actual instantiation of the bean. Initialization and destruction operations are invoked on the wrapper instance (after dependency injection) and before its destruction respectively.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * Particular care must be taken when a prototype wrapper bean is created as the
-	 * wrapper bean instance must not hold any strong reference to the actual bean
-	 * instance in order to prevent memory leaks. In that case, using a
-	 * {@link WeakReference} is strongly advised.
+	 * Particular care must be taken when a prototype wrapper bean is created as the wrapper bean instance must not hold any strong reference to the actual bean instance in order to prevent memory
+	 * leaks. In that case, using a {@link WeakReference} is strongly advised.
 	 * </p>
-	 * 
+	 *
 	 * <blockquote>
-	 * 
+	 *
 	 * <pre>
 	 * this.bean = WrapperBeanBuilder
 	 *     .singleton("bean", () -&gt; {
@@ -856,36 +823,36 @@ public abstract class Module {
 	 *      .destroy(BeanA::destroy)
 	 *      .build(this);
 	 * </pre>
-	 * 
+	 *
 	 * </blockquote>
-	 * 
-	 * @param <T> the actual type of the bean to build
-	 * @param <W> the bean wrapper which supplies the bean instance
-	 * 
+	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 * @see Bean
+	 * 
+	 * @param <P> the type provided by the bean to build
+	 * @param <T> the actual type of the bean to build
+	 * @param <W> the bean wrapper which supplies the bean instance
 	 */
-	protected interface WrapperBeanBuilder<W extends Supplier<T>, T> extends BeanBuilder<W, WrapperBeanBuilder<W, T>> {
+	protected interface WrapperBeanBuilder<P, T, W extends Supplier<T>> extends BeanBuilder<W, WrapperBeanBuilder<P, T, W>> {
 
 		/**
 		 * <p>
 		 * Returns a singleton wrapper bean builder.
 		 * </p>
-		 * 
+		 *
 		 * <p>
-		 * Singleton {@link Bean}s are useful when one single instance of a bean should
-		 * be injected through the application.
+		 * Singleton {@link Bean}s are useful when one single instance of a bean should be injected through the application.
 		 * </p>
-		 * 
+		 *
 		 * @param <T>         the type of the bean to build
 		 * @param <W>         the bean wrapper which supplies the bean instance
 		 * @param beanName    the bean name
 		 * @param constructor the bean instance supplier
-		 * 
+		 *
 		 * @return a singleton Bean Builder
 		 */
-		static <W extends Supplier<T>, T> WrapperBeanBuilder<W, T> singleton(String beanName, Supplier<W> constructor) {
+		static <T, W extends Supplier<T>> WrapperBeanBuilder<T, T, W> singleton(String beanName, Supplier<W> constructor) {
 			return new SingletonWrapperBeanBuilder<>(beanName, constructor);
 		}
 
@@ -893,20 +860,19 @@ public abstract class Module {
 		 * <p>
 		 * Returns a prototype wrapper bean builder.
 		 * </p>
-		 * 
+		 *
 		 * <p>
-		 * Prototype {@link Bean}s are useful when distinct instances of a bean should
-		 * be injected though the application.
+		 * Prototype {@link Bean}s are useful when distinct instances of a bean should be injected though the application.
 		 * </p>
-		 * 
+		 *
 		 * @param <T>         the type of the bean to build
 		 * @param <W>         the bean wrapper which supplies the bean instance
 		 * @param beanName    the bean name
 		 * @param constructor the bean instance supplier
-		 * 
+		 *
 		 * @return a prototype Bean Builder
 		 */
-		static <W extends Supplier<T>, T> WrapperBeanBuilder<W, T> prototype(String beanName, Supplier<W> constructor) {
+		static <T, W extends Supplier<T>> WrapperBeanBuilder<T, T, W> prototype(String beanName, Supplier<W> constructor) {
 			return new PrototypeWrapperBeanBuilder<>(beanName, constructor);
 		}
 		
@@ -917,30 +883,30 @@ public abstract class Module {
 		 * 
 		 * @return a bean
 		 */
-		public Bean<T> build();
+		public Bean<P> build();
 		
 		/**
 		 * <p>
 		 * Specifies an override that, when present, provides bean instances instead of the builder.
 		 * </p>
-		 * 
+		 *
+		 * @param <P>      the type provided by the override and therefore the bean to build
 		 * @param override An optional override
+		 *
 		 * @return this builder
 		 */
-		WrapperBeanBuilder<W, T> override(Optional<Supplier<T>> override);
+		<P> WrapperBeanBuilder<P, T, W> override(Optional<Supplier<P>> override);
 	}
 	
 	/**
 	 * <p>
 	 * Provides socket information to the Inverno compiler.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * These information are necessary for the compiler to be able to load component
-	 * modules in a module while preserving socket names and preventing dependency
-	 * cycles.
+	 * These information are necessary for the compiler to be able to load component modules in a module while preserving socket names and preventing dependency cycles.
 	 * </p>
-	 * 
+	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 *
 	 */

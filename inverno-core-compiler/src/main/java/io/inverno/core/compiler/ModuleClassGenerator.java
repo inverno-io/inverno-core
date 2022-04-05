@@ -15,15 +15,6 @@
  */
 package io.inverno.core.compiler;
 
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.WildcardType;
-
 import io.inverno.core.annotation.Bean;
 import io.inverno.core.compiler.ModuleClassGenerationContext.GenerationMode;
 import io.inverno.core.compiler.spi.BeanInfo;
@@ -43,6 +34,13 @@ import io.inverno.core.compiler.spi.SingleSocketInfo;
 import io.inverno.core.compiler.spi.SocketBeanInfo;
 import io.inverno.core.compiler.spi.SocketInfo;
 import io.inverno.core.compiler.spi.WrapperBeanInfo;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
 
 /**
  * <p>
@@ -315,7 +313,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 	@Override
 	public StringBuilder visit(ModuleBeanInfo moduleBeanInfo, ModuleClassGenerationContext context) {
 		if(context.getMode() == GenerationMode.BEAN_FIELD) {
-			TypeMirror moduleBeanType = context.getTypeUtils().getDeclaredType(context.getElementUtils().getTypeElement(INVERNO_CORE_MODULE_BEAN_CLASS), moduleBeanInfo.getType());
+			TypeMirror moduleBeanType = context.getTypeUtils().getDeclaredType(context.getElementUtils().getTypeElement(INVERNO_CORE_MODULE_BEAN_CLASS), moduleBeanInfo instanceof OverridableBeanInfo && moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType());
 			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(moduleBeanType)).append(" ").append(context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/).append(";");
 		}
 		else if(context.getMode() == GenerationMode.BEAN_ACCESSOR) {
@@ -329,8 +327,6 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 		}
 		else if(context.getMode() == GenerationMode.BEAN_NEW) {
 			if(moduleBeanInfo instanceof OverridableBeanInfo) {
-				((OverridableBeanInfo)moduleBeanInfo).getOverridableBean();
-				((OverridableBeanInfo)moduleBeanInfo).getOverridingSocket();
 				StringBuilder beanNew = this.visit(((OverridableBeanInfo)moduleBeanInfo).getOverridableBean(), context);
 				beanNew = beanNew.delete(beanNew.length() - 2, beanNew.length());
 				
@@ -384,10 +380,8 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				else {
 					beanNew.append(");").append(System.lineSeparator());
 				}
-				// TODO: optionalSocket.ifPresent(bean::setXxx)
 				beanNew.append(Arrays.stream(moduleBeanInfo.getOptionalSockets())
 					.filter(socketInfo -> socketInfo.isResolved())
-//					.map(socketInfo -> new StringBuilder().append(context.indent(4)).append(variable).append(".").append(socketInfo.getSocketElement().get().getSimpleName().toString()).append("(").append((socketInfo.isLazy() ? "() -> " : "")).append(this.visit(socketInfo, context.withMode(GenerationMode.BEAN_REFERENCE).withIndentDepth(4))).append(");"))
 					.map(socketInfo -> {
 						StringBuilder optSocket = new StringBuilder().append(context.indent(4));
 						if(socketInfo.isLazy()) {
@@ -413,8 +407,8 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 					beanNew.append(Arrays.stream(moduleBeanInfo.getDestroyElements())
 						.map(element -> new StringBuilder().append(context.indent(3)).append(".destroy(").append(context.getTypeName(beanType)).append("::").append(element.getSimpleName().toString()).append(")"))
 						.collect(context.joining(System.lineSeparator()))).append(System.lineSeparator());
-				}	
-	
+				}
+				
 				beanNew.append(context.indent(2)).append(");");
 				
 				return beanNew;

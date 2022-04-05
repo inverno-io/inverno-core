@@ -17,17 +17,15 @@ package io.inverno.core.annotation;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.MODULE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
 import java.lang.annotation.Retention;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 import java.lang.annotation.Target;
 
 /**
  * <p>
- * Indicates a method that must be executed after a bean has been instantiated
- * and dependency injection is done.
+ * Indicates a method that must be executed after a bean has been instantiated and dependency injection is done.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  */

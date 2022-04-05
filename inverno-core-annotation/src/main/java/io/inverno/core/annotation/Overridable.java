@@ -24,16 +24,14 @@ import java.lang.annotation.Target;
  * <p>
  * Used in conjunction with {@link Bean @Bean} to indicate an overridable bean.
  * </p>
- * 
+ *
  * <p>
- * An overridable bean is a regular bean that can be overridden within a module
- * by an instance provided in a corresponding optional socket bean automatically
- * exposed on the module
+ * An overridable bean is a regular bean that can be overridden within a module by an instance provided in a corresponding optional socket bean automatically exposed on the module
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.1
- * 
+ *
  * @see Bean
  */
 @Retention(RetentionPolicy.CLASS)

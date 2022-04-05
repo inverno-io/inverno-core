@@ -15,49 +15,35 @@
  */
 package io.inverno.core.v1;
 
+import io.inverno.core.v1.Module.Bean;
 import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import io.inverno.core.v1.Module.Bean;
 
 /**
  * <p>
  * A prototype wrapper {@link Bean} implementation.
  * </p>
- * 
+ *
  * <p>
- * A Prototype bean is instantiated each time it is requested, a distinct
- * instance is injected into each dependent bean.
+ * A Prototype bean is instantiated each time it is requested, a distinct instance is injected into each dependent bean.
  * </p>
- * 
+ *
  * <p>
- * Unlike {@link PrototypeWeakWrapperBean}, this implementation doesn't keep
- * track of the instances it creates which makes it faster and consumes less
- * resources, in return instances must always be destroyed explicitly. This
- * implementation should be used for beans that do not define any destroy
- * method.
+ * Unlike {@link PrototypeWeakWrapperBean}, this implementation doesn't keep track of the instances it creates which makes it faster and consumes less resources, in return instances must always be
+ * destroyed explicitly. This implementation should be used for beans that do not define any destroy method.
  * </p>
- * 
+ *
  * <p>
- * The actual bean instance of a wrapper bean is provided by a wrapper instance
- * to which instantiation, initialization and destruction operations are
- * delegated. To each bean instance corresponds a wrapper instance. There is no
- * requirement that a new or distinct result be returned each time the wrapper
- * is invoked, however when initialization and destruction operations are
- * specified, the wrapper, as indicated by its name, will usually wrap a single
- * instance so that destruction operations can be invoked at later stage when
- * the bean is destroyed. In that case, particular care must be taken to make
- * sure the wrapper instance does not hold a strong reference to the actual
- * instance, otherwise bean instances created outside the module might not be
- * reclaimed by the garbage collector leading to memory leaks. A
- * {@link WeakReference} should be then used in such situations. Note that this
- * issue does not exist for singleton wrapper beans.
+ * The actual bean instance of a wrapper bean is provided by a wrapper instance to which instantiation, initialization and destruction operations are delegated. To each bean instance corresponds a
+ * wrapper instance. There is no requirement that a new or distinct result be returned each time the wrapper is invoked, however when initialization and destruction operations are specified, the
+ * wrapper, as indicated by its name, will usually wrap a single instance so that destruction operations can be invoked at later stage when the bean is destroyed. In that case, particular care must be
+ * taken to make sure the wrapper instance does not hold a strong reference to the actual instance, otherwise bean instances created outside the module might not be reclaimed by the garbage collector
+ * leading to memory leaks. A {@link WeakReference} should be then used in such situations. Note that this issue does not exist for singleton wrapper beans.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  * @see Bean
@@ -78,8 +64,8 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * <p>
 	 * Creates a prototype wrapper bean with the specified name.
 	 * </p>
-	 * 
-	 * @param name the bean name
+	 *
+	 * @param name     the bean name
 	 * @param override An optional override
 	 */
 	public PrototypeWrapperBean(String name, Optional<Supplier<T>> override) {
@@ -90,11 +76,9 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * <p>
 	 * Creates the prototype bean.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * Since a new bean instance must be created each time the bean is requested,
-	 * this method basically does nothing, instances being created in the
-	 * {@link #get()} method.
+	 * Since a new bean instance must be created each time the bean is requested, this method basically does nothing, instances being created in the {@link #get()} method.
 	 * </p>
 	 */
 	@Override
@@ -112,12 +96,11 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * <p>
 	 * Returns a new bean instance.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This method delegates bean instance creation to a wrapper instance returned
-	 * by {@link #createWrapper()} method.
+	 * This method delegates bean instance creation to a wrapper instance returned by {@link #createWrapper()} method.
 	 * </p>
-	 * 
+	 *
 	 * @return a bean instance
 	 */
 	@Override
@@ -136,10 +119,9 @@ abstract class PrototypeWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * <p>
 	 * Destroys the prototype bean.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * Since no references to the instances created by this bean have been kept,
-	 * this method basically does nothing.
+	 * Since no references to the instances created by this bean have been kept, this method basically does nothing.
 	 * </p>
 	 */
 	@Override

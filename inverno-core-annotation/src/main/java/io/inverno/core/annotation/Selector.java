@@ -24,9 +24,9 @@ import java.lang.annotation.Target;
  * <p>
  * The Selector annotation is used to identify selector annotations.
  * </p>
- * 
+ *
  * <blockquote>
- * 
+ *
  * <pre>
  * &#64;Retention(RetentionPolicy.CLASS)
  * &#64;Target({ ElementType.TYPE, ElementType.METHOD, ElementType.PARAMETER })
@@ -35,16 +35,14 @@ import java.lang.annotation.Target;
  *    ...
  * }
  * </pre>
- * 
+ *
  * </blockquote>
- * 
+ *
  * <p>
- * Selectors are particular types of annotations used to annotate bean socket or
- * socket bean in order to filter beans during dependency injection (eg. beans
- * annotated with a particular annotation, beans whose name matches a particular
- * regular expression...).
+ * Selectors are particular types of annotations used to annotate bean socket or socket bean in order to filter beans during dependency injection (eg. beans annotated with a particular annotation,
+ * beans whose name matches a particular regular expression...).
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  */

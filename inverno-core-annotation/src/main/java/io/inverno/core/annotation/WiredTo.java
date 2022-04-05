@@ -16,25 +16,21 @@
 package io.inverno.core.annotation;
 
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
 import java.lang.annotation.Retention;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 import java.lang.annotation.Target;
 
 /**
  * <p>
- * Used on a module builder class to specify how the socket beans of a module
- * are wired to module beans and/or imported module beans. This is actually
- * necessary to be able to import required modules beans in a module while
- * preventing dependency cycles.
+ * Used on a module builder class to specify how the socket beans of a module are wired to module beans and/or imported module beans. This is actually necessary to be able to import required modules
+ * beans in a module while preventing dependency cycles.
  * </p>
- * 
+ *
  * <p>
- * This annotation has to be exposed in the API for the module to compile but it
- * is only useful to the Inverno compiler in generate module classes and as a
- * result should never be used in the development of a module.
+ * This annotation has to be exposed in the API for the module to compile but it is only useful to the Inverno compiler when generating module classes and as a result should never be used in the
+ * development of a module.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  */
@@ -44,7 +40,7 @@ public @interface WiredTo {
 
 	/**
 	 * Indicates the name of the module beans a socket bean is wired to.
-	 * 
+	 *
 	 * @return A list of beans
 	 */
 	String[] value();

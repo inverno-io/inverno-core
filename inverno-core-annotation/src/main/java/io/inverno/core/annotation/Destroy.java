@@ -17,39 +17,32 @@ package io.inverno.core.annotation;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.MODULE;
-import static java.lang.annotation.RetentionPolicy.CLASS;
-
 import java.lang.annotation.Retention;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 import java.lang.annotation.Target;
 
 /**
  * <p>
- * Indicates a method that must be executed before a bean instance is destroyed
- * when a module is stopped.
+ * Indicates a method that must be executed before a bean instance is destroyed when a module is stopped.
  * </p>
- * 
+ *
  * <p>
- * Unlike Beans with scope {@link Bean.Strategy#SINGLETON}, beans with scope
- * {@link Bean.Strategy#PROTOTYPE} might not be destroyed and therefore destroy
- * methods not invoked when they are created outside of a module and
- * dereferenced before the module is stopped. As a result you should generally
- * avoid defining destroy methods on beans with scope prototype. If you have
- * this kind of use case, consider creating prototype beans that implement
- * {@link AutoCloseable}, define the <code>close()</code> as destroy method,
- * make sure it can be invoked twice, and create new instances as follows to
+ * Unlike Beans with scope {@link Bean.Strategy#SINGLETON}, beans with scope {@link Bean.Strategy#PROTOTYPE} might not be destroyed and therefore destroy methods not invoked when they are created
+ * outside of a module and dereferenced before the module is stopped. As a result you should generally avoid defining destroy methods on beans with scope prototype. If you have this kind of use case,
+ * consider creating prototype beans that implement {@link AutoCloseable}, define the <code>close()</code> as destroy method, make sure it can be invoked twice, and create new instances as follows to
  * make sure instance are properly destroyed:
  * </p>
- * 
+ *
  * <blockquote>
- * 
+ *
  * <pre>
  * try (MyPrototype instance = myModuleInstance.myPrototype()) {
  *     ...
  * }
  * </pre>
- * 
+ *
  * </blockquote>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  */

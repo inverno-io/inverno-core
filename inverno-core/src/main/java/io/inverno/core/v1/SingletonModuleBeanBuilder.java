@@ -15,44 +15,59 @@
  */
 package io.inverno.core.v1;
 
-import java.util.function.Supplier;
-
 import io.inverno.core.v1.Module.Bean;
 import io.inverno.core.v1.Module.BeanBuilder;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * <p>
  * Singleton module {@link BeanBuilder} implementation.
  * </p>
- * 
+ *
  * <p>
- * A {@link SingletonModuleBeanBuilder} must be used to create singleton beans, when
- * the same bean instance must be injected into all dependent beans through the
- * application.
+ * A {@link SingletonModuleBeanBuilder} must be used to create singleton beans, when the same bean instance must be injected into all dependent beans through the application.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
+ *
  * @see BeanBuilder
  * @see Bean
  * @see SingletonModuleBean
- * 
+ *
+ * @param <P> the type provided by the bean
  * @param <T> the actual type of the bean
  */
-class SingletonModuleBeanBuilder<T> extends AbstractModuleBeanBuilder<T> {
+class SingletonModuleBeanBuilder<P, T> extends AbstractModuleBeanBuilder<P, T> {
 
 	/**
 	 * <p>
-	 * Creates a singleton module bean builder with the specified bean name and
-	 * constructor.
+	 * Creates a singleton module bean builder with the specified bean name and constructor.
 	 * </p>
-	 * 
+	 *
 	 * @param beanName    the bean name
 	 * @param constructor the bean constructor
 	 */
 	public SingletonModuleBeanBuilder(String beanName, Supplier<T> constructor) {
 		super(beanName, constructor);
+	}
+	
+	/**
+	 * <p>
+	 * Creates an overridable singleton module bean builder.
+	 * </p>
+	 *
+	 * @param overriddenBuilder the overridden singleton module bean builder
+	 * @param override          the override
+	 */
+	public SingletonModuleBeanBuilder(SingletonModuleBeanBuilder<?, T> overriddenBuilder, Optional<Supplier<P>> override) {
+		super(overriddenBuilder, override);
+	}
+
+	@Override
+	public <P> Module.ModuleBeanBuilder<P, T> override(Optional<Supplier<P>> override) {
+		return new SingletonModuleBeanBuilder<>(this, override);
 	}
 	
 	/**
@@ -63,32 +78,38 @@ class SingletonModuleBeanBuilder<T> extends AbstractModuleBeanBuilder<T> {
 	 * @return a singleton bean
 	 */
 	@Override
-	public Bean<T> build() {
-		return new SingletonModuleBean<T>(this.beanName, this.override) {
+	public Bean<P> build() {
+		return new SingletonModuleBean<P>(this.beanName, this.override) {
 
 			@Override
-			protected T createInstance() {
+			@SuppressWarnings("unchecked")
+			protected P createInstance() {
 				T instance = constructor.get();
-				inits.stream().forEach(init -> {
-					try {
-						init.accept(instance);
-					} catch (Exception e) {
-						LOGGER.fatal(() -> "Error initializing bean " + name, e);
-						throw new RuntimeException("Error initializing bean " + name, e);
-					}
-				});
-				return instance;
+				if(inits != null) {
+					inits.stream().forEach(init -> {
+						try {
+							init.accept(instance);
+						} catch (Exception e) {
+							LOGGER.fatal(() -> "Error initializing bean " + name, e);
+							throw new RuntimeException("Error initializing bean " + name, e);
+						}
+					});
+				}
+				return (P)instance;
 			}
 
 			@Override
-			protected void destroyInstance(T instance) {
-				destroys.stream().forEach(destroy -> {
-					try {
-						destroy.accept(instance);
-					} catch (Exception e) {
-						LOGGER.warn(() -> "Error destroying bean " + name, e);
-					}
-				});
+			@SuppressWarnings("unchecked")
+			protected void destroyInstance(P instance) {
+				if(destroys != null) {
+					destroys.stream().forEach(destroy -> {
+						try {
+							destroy.accept((T)instance);
+						} catch (Exception e) {
+							LOGGER.warn(() -> "Error destroying bean " + name, e);
+						}
+					});
+				}
 			}
 		};
 	}

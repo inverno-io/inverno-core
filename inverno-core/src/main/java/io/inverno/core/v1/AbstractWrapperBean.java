@@ -15,38 +15,33 @@
  */
 package io.inverno.core.v1;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import io.inverno.core.v1.Module.Bean;
 import io.inverno.core.v1.Module.WrapperBeanBuilder;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * <p>
  * Base class for {@link Bean} implementations designating wrapper beans.
  * </p>
- * 
+ *
  * <p>
- * This class basically specifies {@link #createWrapper()} and
- * {@link #destroyWrapper(Object)} methods that respectively create and destroy
- * bean wrappers instances which wraps the actual instance creation logic. These
- * methods can then be used in {@link #create()}, {@link #doGet()} and
- * {@link #destroy()} methods which provide higher logic (singleton,
- * prototype...).
+ * This class basically specifies {@link #createWrapper()} and {@link #destroyWrapper(Object)} methods that respectively create and destroy bean wrappers instances which wraps the actual instance
+ * creation logic. These methods can then be used in {@link #create()}, {@link #doGet()} and {@link #destroy()} methods which provide higher logic (singleton, prototype...).
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
+ *
  * @see Bean
  * @see WrapperBeanBuilder
- * 
+ *
  * @param <W> the type of the wrapper bean
  * @param <T> the actual type of the bean
  */
 abstract class AbstractWrapperBean<W extends Supplier<T>, T> extends Bean<T> {
 
-	protected Optional<Supplier<T>> override;
+	protected final Optional<Supplier<T>> override;
 	
 	/**
 	 * <p>

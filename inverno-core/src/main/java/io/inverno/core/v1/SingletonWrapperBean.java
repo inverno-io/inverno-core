@@ -15,28 +15,25 @@
  */
 package io.inverno.core.v1;
 
+import io.inverno.core.v1.Module.Bean;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import io.inverno.core.v1.Module.Bean;
 
 /**
  * <p>
  * A singleton wrapper {@link Bean} implementation.
  * </p>
- * 
+ *
  * <p>
- * A Singleton bean is instantiated once for the whole application, every
- * dependent beans receive the same instance.
+ * A Singleton bean is instantiated once for the whole application, every dependent beans receive the same instance.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  * @see Bean
- * 
+ *
  * @param <W> the type of the wrapper bean
  * @param <T> the actual type of the bean
  */
@@ -61,8 +58,8 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * <p>
 	 * Creates a singleton wrapper bean with the specified name.
 	 * </p>
-	 * 
-	 * @param name the bean name
+	 *
+	 * @param name     the bean name
 	 * @param override An optional override
 	 */
 	public SingletonWrapperBean(String name, Optional<Supplier<T>> override) {
@@ -73,10 +70,9 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * <p>
 	 * Creates the singleton bean.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This method delegates bean instantiation to the wrapper instance returned by
-	 * {@link #createWrapper()} method and implement the singleton pattern.
+	 * This method delegates bean instantiation to the wrapper instance returned by {@link #createWrapper()} method and implement the singleton pattern.
 	 * </p>
 	 */
 	public final void create() {
@@ -106,13 +102,11 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 
 	/**
 	 * <p>
-	 * Destroys the singleton bean and as a result the enclosed wrapper instance
-	 * which eventually destroy the bean instance.
+	 * Destroys the singleton bean and as a result the enclosed wrapper instance which eventually destroy the bean instance.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This method delegates bean wrapper instance destruction to the
-	 * {@link #destroyWrapper(Object)} method.
+	 * This method delegates bean wrapper instance destruction to the {@link #destroyWrapper(Object)} method.
 	 * </p>
 	 */
 	public final void destroy() {

@@ -17,7 +17,7 @@ package io.inverno.core.compiler.spi;
 
 /**
  * <p>
- * An overriding socket bean info is an single socket bean info used as an
+ * An overriding socket bean info is a single socket bean info used as an
  * override for an {@link OverridableBeanInfo}.
  * </p>
  * 

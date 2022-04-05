@@ -15,38 +15,32 @@
  */
 package io.inverno.core.v1;
 
+import io.inverno.core.v1.Module.Bean;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import io.inverno.core.v1.Module.Bean;
 
 /**
  * <p>
  * A prototype module {@link Bean} implementation.
  * </p>
- * 
+ *
  * <p>
- * A Prototype bean is instantiated each time it is requested, a distinct
- * instance is injected into each dependent bean.
+ * A Prototype bean is instantiated each time it is requested, a distinct instance is injected into each dependent bean.
  * </p>
- * 
+ *
  * <p>
- * Unlike {@link PrototypeWeakModuleBean}, this implementation doesn't keep
- * track of the instances it creates which makes it faster and consumes less
- * resources, in return instances must always be destroyed explicitly. This
- * implementation should be used for beans that do not define any destroy
- * method.
+ * Unlike {@link PrototypeWeakModuleBean}, this implementation doesn't keep track of the instances it creates which makes it faster and consumes less resources, in return instances must always be
+ * destroyed explicitly. This implementation should be used for beans that do not define any destroy method.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  * @see Bean
  * @see PrototypeWeakModuleBean
  * @see PrototypeModuleBeanBuilder
- * 
+ *
  * @param <T> the actual type of the bean
  */
 abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
@@ -74,11 +68,9 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Creates the prototype bean.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * Since a new bean instance must be created each time the bean is requested,
-	 * this method basically does nothing, instances being created in the
-	 * {@link #get()} method.
+	 * Since a new bean instance must be created each time the bean is requested, this method basically does nothing, instances being created in the {@link #get()} method.
 	 * </p>
 	 */
 	@Override
@@ -96,12 +88,11 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Returns a new bean instance.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This method delegates bean instance creation to the {@link #createInstance()}
-	 * method.
+	 * This method delegates bean instance creation to the {@link #createInstance()} method.
 	 * </p>
-	 * 
+	 *
 	 * @return a bean instance
 	 */
 	@Override
@@ -118,10 +109,9 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Destroys the prototype bean.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * Since no references to the instances created by this bean have been kept,
-	 * this method basically does nothing.
+	 * Since no references to the instances created by this bean have been kept, this method basically does nothing.
 	 * </p>
 	 */
 	@Override

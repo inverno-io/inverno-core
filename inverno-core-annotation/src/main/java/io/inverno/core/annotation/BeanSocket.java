@@ -22,24 +22,18 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * A bean socket represents a bean dependency, a bean required or desirable by a
- * bean to operate properly. Sockets are basically defined to connect beans
- * together through dependency injection. By convention, constructor arguments
- * and setter methods are implicit bean sockets. This annotation must be used on
- * a constructor or a method to make it explicit in case of ambiguities.
+ * A bean socket represents a bean dependency, a bean required or desirable by a bean to operate properly. Sockets are basically defined to connect beans together through dependency injection. By
+ * convention, constructor arguments and setter methods are implicit bean sockets. This annotation must be used on a constructor or a method to make it explicit in case of ambiguities.
  * </p>
- * 
+ *
  * <p>
- * An ambiguity arises when a bean defines more than one constructor which can
- * be removed by annotating the right constructor.
+ * An ambiguity arises when a bean defines more than one constructor which can be removed by annotating the right constructor.
  * </p>
- * 
+ *
  * <p>
- * Ambiguities can also arise when some setter methods must not be considered as
- * bean sockets. In that case, you must explicitly annotate the setter methods
- * to consider.
+ * Ambiguities can also arise when some setter methods must not be considered as bean sockets. In that case, you must explicitly annotate the setter methods to consider.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  */

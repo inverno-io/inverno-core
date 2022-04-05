@@ -15,46 +15,61 @@
  */
 package io.inverno.core.v1;
 
-import java.util.function.Supplier;
-
 import io.inverno.core.v1.Module.Bean;
 import io.inverno.core.v1.Module.BeanBuilder;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * <p>
  * Prototype module {@link BeanBuilder} implementation.
  * </p>
- * 
+ *
  * <p>
- * A {@link PrototypeModuleBeanBuilder} must be used to create prototype beans, when
- * distinct bean instances must be injected into all dependent beans through the
- * application.
+ * A {@link PrototypeModuleBeanBuilder} must be used to create prototype beans, when distinct bean instances must be injected into all dependent beans through the application.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
- * @param <T> the actual type of the bean.
- * 
+ *
  * @see BeanBuilder
  * @see Bean
  * @see PrototypeModuleBean
+ *
+ * @param <P> the type provided by the bean.
+ * @param <T> the actual type of the bean.
  */
-class PrototypeModuleBeanBuilder<T> extends AbstractModuleBeanBuilder<T> {
+class PrototypeModuleBeanBuilder<P, T> extends AbstractModuleBeanBuilder<P, T> {
 	
 	/**
 	 * <p>
-	 * Creates a prototype module bean builder with the specified bean name and
-	 * constructor.
+	 * Creates a prototype module bean builder with the specified bean name and constructor.
 	 * </p>
-	 * 
+	 *
 	 * @param beanName    the bean name
 	 * @param constructor the bean constructor
 	 */
 	public PrototypeModuleBeanBuilder(String beanName, Supplier<T> constructor) {
 		super(beanName, constructor);
 	}
-	
+
+	/**
+	 * <p>
+	 * Creates an overridable prototype module bean builder.
+	 * </p>
+	 *
+	 * @param overridenBuilder the overridden prototype module bean builder
+	 * @param override         the override
+	 */
+	public PrototypeModuleBeanBuilder(PrototypeModuleBeanBuilder<?, T> overridenBuilder, Optional<Supplier<P>> override) {
+		super(overridenBuilder, override);
+	}
+
+	@Override
+	public <P> Module.ModuleBeanBuilder<P, T> override(Optional<Supplier<P>> override) {
+		return new PrototypeModuleBeanBuilder<>(this, override);
+	}
+
 	/**
 	 * <p>
 	 * Builds the bean.
@@ -63,51 +78,60 @@ class PrototypeModuleBeanBuilder<T> extends AbstractModuleBeanBuilder<T> {
 	 * @return a prototype bean
 	 */
 	@Override
-	public Bean<T> build() {
-		if(this.destroys.isEmpty()) {
-			return new PrototypeModuleBean<T>(this.beanName, this.override) {
+	public Bean<P> build() {
+		if(this.destroys == null || this.destroys.isEmpty()) {
+			return new PrototypeModuleBean<P>(this.beanName, this.override) {
 
 				@Override
-				protected T createInstance() {
+				@SuppressWarnings("unchecked")
+				protected P createInstance() {
 					T instance = constructor.get();
-					inits.stream().forEach(init -> {
-						try {
-							init.accept(instance);
-						} catch (Exception e) {
-							LOGGER.fatal(() -> "Error initializing bean " + name, e);
-							throw new RuntimeException("Error initializing bean " + name, e);
-						}
-					});
-					return instance;
+					if(inits != null) {
+						inits.stream().forEach(init -> {
+							try {
+								init.accept(instance);
+							} catch (Exception e) {
+								LOGGER.fatal(() -> "Error initializing bean " + name, e);
+								throw new RuntimeException("Error initializing bean " + name, e);
+							}
+						});
+					}
+					return (P)instance;
 				}
 			};
 		}
 		else {
-			return new PrototypeWeakModuleBean<T>(this.beanName, this.override) {
+			return new PrototypeWeakModuleBean<P>(this.beanName, this.override) {
 
 				@Override
-				protected T createInstance() {
+				@SuppressWarnings("unchecked")
+				protected P createInstance() {
 					T instance = constructor.get();
-					inits.stream().forEach(init -> {
-						try {
-							init.accept(instance);
-						} catch (Exception e) {
-							LOGGER.fatal(() -> "Error initializing bean " + name, e);
-							throw new RuntimeException("Error initializing bean " + name, e);
-						}
-					});
-					return instance;
+					if(inits != null) {
+						inits.stream().forEach(init -> {
+							try {
+								init.accept(instance);
+							} catch (Exception e) {
+								LOGGER.fatal(() -> "Error initializing bean " + name, e);
+								throw new RuntimeException("Error initializing bean " + name, e);
+							}
+						});
+					}
+					return (P)instance;
 				}
 
 				@Override
-				protected void destroyInstance(T instance) {
-					destroys.stream().forEach(destroy -> {
-						try {
-							destroy.accept(instance);
-						} catch (Exception e) {
-							LOGGER.warn(() -> "Error destroying bean " + name, e);
-						}
-					});
+				@SuppressWarnings("unchecked")
+				protected void destroyInstance(P instance) {
+					if(destroys != null) {
+						destroys.stream().forEach(destroy -> {
+							try {
+								destroy.accept((T)instance);
+							} catch (Exception e) {
+								LOGGER.warn(() -> "Error destroying bean " + name, e);
+							}
+						});
+					}
 				}
 			};
 		}

@@ -22,13 +22,12 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * An AnnotationSelector is used to filter beans annotated with a particular
- * annotation during dependency injection.
+ * An AnnotationSelector is used to filter beans annotated with a particular annotation during dependency injection.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
+ *
  * @see Selector
  */
 @Retention(RetentionPolicy.CLASS)
@@ -38,10 +37,9 @@ public @interface AnnotationSelector {
 
 	/**
 	 * <p>
-	 * Designates the annotation that must be present on a bean to be wired to the
-	 * annotated socket.
+	 * Designates the annotation that must be present on a bean to be wired to the annotated socket.
 	 * </p>
-	 * 
+	 *
 	 * @return An annotation type
 	 */
 	Class<?> value();

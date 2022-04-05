@@ -15,28 +15,25 @@
  */
 package io.inverno.core.v1;
 
+import io.inverno.core.v1.Module.Bean;
 import java.util.Optional;
 import java.util.function.Supplier;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import io.inverno.core.v1.Module.Bean;
 
 /**
  * <p>
  * A singleton module {@link Bean} implementation.
  * </p>
- * 
+ *
  * <p>
- * A Singleton module bean is instantiated once for the whole application, every
- * dependent beans receive the same instance.
+ * A Singleton module bean is instantiated once for the whole application, every dependent beans receive the same instance.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  * @see Bean
- * 
+ *
  * @param <T> the actual type of the bean
  */
 abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
@@ -55,8 +52,8 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Creates a singleton module bean with the specified name.
 	 * </p>
-	 * 
-	 * @param name the bean name
+	 *
+	 * @param name     the bean name
 	 * @param override An optional override
 	 */
 	public SingletonModuleBean(String name, Optional<Supplier<T>> override) {
@@ -67,12 +64,12 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Creates the singleton bean.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This method delegates bean instantiation to the {@link #createInstance()}
-	 * method and implement the singleton pattern.
+	 * This method delegates bean instantiation to the {@link #createInstance()} method and implement the singleton pattern.
 	 * </p>
 	 */
+	@Override
 	public final void create() {
 		if (this.instance == null) {
 			synchronized(this) {
@@ -87,9 +84,10 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Returns the bean singleton.
 	 * </p>
-	 * 
+	 *
 	 * @return the bean singleton
 	 */
+	@Override
 	public final T doGet() {
 		this.create();
 		return this.instance;
@@ -99,12 +97,12 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 	 * <p>
 	 * Destroys the singleton bean and as a result the enclosed instance.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This method delegates bean instance destruction to the
-	 * {@link #destroyInstance(Object)} method.
+	 * This method delegates bean instance destruction to the {@link #destroyInstance(Object)} method.
 	 * </p>
 	 */
+	@Override
 	public final void destroy() {
 		if (this.instance != null) {
 			synchronized(this) {

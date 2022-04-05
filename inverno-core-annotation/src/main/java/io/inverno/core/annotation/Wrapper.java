@@ -26,31 +26,23 @@ import java.util.function.Supplier;
  * <p>
  * Used in conjunction with {@link Bean @Bean} to indicate a wrapper bean.
  * </p>
- * 
+ *
  * <p>
- * A wrapper bean should be used to create beans using legacy code which can't
- * be annotated with {@link Bean @Bean}, it allows to delegate the actual
- * instantiation, initialization and destruction to a wrapper class. As a result
- * a wrapper implementing the {@link Supplier} interface.
+ * A wrapper bean should be used to create beans using legacy code which can't be annotated with {@link Bean @Bean}, it allows to delegate the actual instantiation, initialization and destruction to a
+ * wrapper class. As a result a wrapper implementing the {@link Supplier} interface.
  * </p>
- * 
+ *
  * <p>
- * A wrapper bean follows the same rules as regular beans: dependencies are
- * injected into sockets defined on the wrapper class, initialization methods
- * are invoked after dependency injection and destroy methods before bean
- * removal on the wrapper instance. However the instance actually exposed is
- * returned by the {@link Supplier#get()} method. There is no requirement that a
- * new or distinct result be returned each time the wrapper is invoked but when
- * initialization or destruction methods are specified, the wrapper must
- * naturally create and always return a single wrapped instance which can then
- * be initialized and destroyed by the wrapper. In that particular case,
- * {@link WeakReference} should be used in the wrapper to hold the actual bean
- * instance to prevent memory leaks that might arise in certain situations.
+ * A wrapper bean follows the same rules as regular beans: dependencies are injected into sockets defined on the wrapper class, initialization methods are invoked after dependency injection and
+ * destroy methods before bean removal on the wrapper instance. However the instance actually exposed is returned by the {@link Supplier#get()} method. There is no requirement that a new or distinct
+ * result be returned each time the wrapper is invoked but when initialization or destruction methods are specified, the wrapper must naturally create and always return a single wrapped instance which
+ * can then be initialized and destroyed by the wrapper. In that particular case, {@link WeakReference} should be used in the wrapper to hold the actual bean instance to prevent memory leaks that
+ * might arise in certain situations.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
+ *
  * @see Bean
  */
 @Retention(RetentionPolicy.CLASS)

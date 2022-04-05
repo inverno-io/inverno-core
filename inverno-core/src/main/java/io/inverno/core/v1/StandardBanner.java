@@ -20,20 +20,19 @@ import java.util.Optional;
 
 /**
  * <p>
- * A standard {@link Banner} implementation that displays basic useful
- * information about the module and the runtime environment.
+ * A standard {@link Banner} implementation that displays basic useful information about the module and the runtime environment.
  * </p>
- * 
+ *
  * <p>
  * It outputs the following information:
  * </p>
- * 
+ *
  * <ul>
  * <li>Java runtime, version and home.</li>
  * <li>Name of the root module, version and class.</li>
  * <li>The list of modules in the application module layer.</li>
  * </ul>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
  */

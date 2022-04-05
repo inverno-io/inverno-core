@@ -15,6 +15,7 @@
  */
 package io.inverno.core.v1;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import io.inverno.core.v1.Module.Bean;
@@ -24,36 +25,51 @@ import io.inverno.core.v1.Module.BeanBuilder;
  * <p>
  * Singleton wrapper {@link BeanBuilder} implementation.
  * </p>
- * 
+ *
  * <p>
- * A {@link SingletonWrapperBeanBuilder} must be used to create singleton beans
- * using a wrapper, when the same bean instance must be injected into all
- * dependent beans through the application.
+ * A {@link SingletonWrapperBeanBuilder} must be used to create singleton beans using a wrapper, when the same bean instance must be injected into all dependent beans through the application.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
+ *
  * @see BeanBuilder
  * @see Bean
  * @see SingletonWrapperBean
- * 
+ *
+ * @param <P> the type provided by the bean
  * @param <W> the type of the wrapper bean
  * @param <T> the actual type of the bean
  */
-class SingletonWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractWrapperBeanBuilder<T, W> {
+class SingletonWrapperBeanBuilder<P, T, W extends Supplier<T>> extends AbstractWrapperBeanBuilder<P, T, W> {
 
 	/**
 	 * <p>
-	 * Creates a singleton wrapper bean builder with the specified bean name and
-	 * constructor.
+	 * Creates a singleton wrapper bean builder with the specified bean name and constructor.
 	 * </p>
-	 * 
+	 *
 	 * @param beanName    the bean name
 	 * @param constructor the bean constructor
 	 */
 	public SingletonWrapperBeanBuilder(String beanName, Supplier<W> constructor) {
 		super(beanName, constructor);
+	}
+	
+	/**
+	 * <p>
+	 * Creates an overridable singleton wrapper bean builder.
+	 * </p>
+	 *
+	 * @param overriddenBuilder the overridden singleton wrapper bean builder
+	 * @param override          the override
+	 */
+	public SingletonWrapperBeanBuilder(SingletonWrapperBeanBuilder<?, T, W> overriddenBuilder, Optional<Supplier<P>> override) {
+		super(overriddenBuilder, override);
+	}
+
+	@Override
+	public <P> Module.WrapperBeanBuilder<P, T, W> override(Optional<Supplier<P>> override) {
+		return new SingletonWrapperBeanBuilder<>(this, override);
 	}
 	
 	/**
@@ -64,33 +80,37 @@ class SingletonWrapperBeanBuilder<T, W extends Supplier<T>> extends AbstractWrap
 	 * @return a singleton bean
 	 */
 	@Override
-	public Bean<T> build() {
-		return new SingletonWrapperBean<W, T>(this.beanName, this.override) {
+	public Bean<P> build() {
+		return new SingletonWrapperBean<ProvidingWrapper, P>(this.beanName, this.override) {
 
 			@Override
-			protected W createWrapper() {
+			protected ProvidingWrapper createWrapper() {
 				W wrapper =	constructor.get();
-				inits.stream().forEach(init -> {
-					try {
-						init.accept(wrapper);
-					} 
-					catch (Exception e) {
-						LOGGER.fatal(() -> "Error initializing bean " + name, e);
-						throw new RuntimeException("Error initializing bean " + name, e);
-					}
-				});
-				return wrapper;
+				if(inits != null) {
+					inits.stream().forEach(init -> {
+						try {
+							init.accept(wrapper);
+						} 
+						catch (Exception e) {
+							LOGGER.fatal(() -> "Error initializing bean " + name, e);
+							throw new RuntimeException("Error initializing bean " + name, e);
+						}
+					});
+				}
+				return new ProvidingWrapper(wrapper);
 			}
 
 			@Override
-			protected void destroyWrapper(W wrapper) {
-				destroys.stream().forEach(destroy -> {
-					try {
-						destroy.accept(wrapper);
-					} catch (Exception e) {
-						LOGGER.warn(() -> "Error destroying bean " + name, e);
-					}
-				});
+			protected void destroyWrapper(ProvidingWrapper wrapper) {
+				if(destroys != null) {
+					destroys.stream().forEach(destroy -> {
+						try {
+							destroy.accept(wrapper.wrapper);
+						} catch (Exception e) {
+							LOGGER.warn(() -> "Error destroying bean " + name, e);
+						}
+					});
+				}
 			}
 		};
 	}

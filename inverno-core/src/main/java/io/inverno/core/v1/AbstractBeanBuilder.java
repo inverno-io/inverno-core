@@ -15,48 +15,45 @@
  */
 package io.inverno.core.v1;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-
 import io.inverno.core.v1.Module.Bean;
 import io.inverno.core.v1.Module.BeanBuilder;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * <p>
  * Base class for {@link BeanBuilder} implementations.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
+ *
  * @see Bean
  * @see BeanBuilder
- * 
+ *
  * @param <T> the actual type of the bean built by this builder
  * @param <B> the bean builder type to support method chaining
  */
-abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T,B>> implements BeanBuilder<T, B> {
+abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T, B>> implements BeanBuilder<T, B> {
 
 	/**
 	 * The bean name.
 	 */
-	protected String beanName;
+	protected final String beanName;
 
 	/**
 	 * The bean constructor.
 	 */
-	protected Supplier<T> constructor;
+	protected final Supplier<T> constructor;
 
 	/**
-	 * The list of bean initialization operations that must be executed after bean
-	 * instance creation and dependency injection.
+	 * The list of bean initialization operations that must be executed after bean instance creation and dependency injection.
 	 */
 	protected List<FallibleConsumer<T>> inits;
 
 	/**
-	 * The list of bean destructions operations that must be executed after a bean
-	 * instance creation and dependency injection.
+	 * The list of bean destructions operations that must be executed after a bean instance creation and dependency injection.
 	 */
 	protected List<FallibleConsumer<T>> destroys;
 	
@@ -64,16 +61,13 @@ abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T,B>> implements Bea
 	 * <p>
 	 * Creates a bean builder with the specified bean name and constructor.
 	 * </p>
-	 * 
+	 *
 	 * @param beanName    the bean name
 	 * @param constructor the bean constructor
 	 */
 	protected AbstractBeanBuilder(String beanName, Supplier<T> constructor) {
 		this.beanName = beanName;
 		this.constructor = constructor;
-
-		this.inits = new ArrayList<>();
-		this.destroys = new ArrayList<>();
 	}
 
 	/**
@@ -82,6 +76,9 @@ abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T,B>> implements Bea
 	@SuppressWarnings("unchecked")
 	@Override
 	public B init(FallibleConsumer<T> init) {
+		if(this.inits == null) {
+			this.inits = new LinkedList<>();
+		}
 		this.inits.add(init);
 		return (B)this;
 	}
@@ -92,6 +89,9 @@ abstract class AbstractBeanBuilder<T, B extends BeanBuilder<T,B>> implements Bea
 	@SuppressWarnings("unchecked")
 	@Override
 	public B destroy(FallibleConsumer<T> destroy) {
+		if(this.destroys == null) {
+			this.destroys = new LinkedList<>();
+		}
 		this.destroys.add(destroy);
 		return (B)this;
 	}

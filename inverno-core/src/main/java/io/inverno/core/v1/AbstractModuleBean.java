@@ -15,36 +15,32 @@
  */
 package io.inverno.core.v1;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
 import io.inverno.core.v1.Module.Bean;
 import io.inverno.core.v1.Module.ModuleBeanBuilder;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * <p>
  * Base class for {@link Bean} implementations designating module beans.
  * </p>
- * 
+ *
  * <p>
- * This class basically specifies {@link #createInstance()} and
- * {@link #destroyInstance(Object)} methods that respectively create and destroy
- * module bean instances. These methods can then be used in {@link #create()},
- * {@link #doGet()}and {@link #destroy()} methods which provide higher logic
- * (singleton, prototype...).
+ * This class basically specifies {@link #createInstance()} and {@link #destroyInstance(Object)} methods that respectively create and destroy module bean instances. These methods can then be used in {@link #create()},
+ * {@link #doGet()}and {@link #destroy()} methods which provide higher logic (singleton, prototype...).
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
- * 
+ *
  * @see Bean
  * @see ModuleBeanBuilder
- * 
+ *
  * @param <T> the actual type of the bean built by this builder
  */
 abstract class AbstractModuleBean<T> extends Bean<T> {
 
-	protected Optional<Supplier<T>> override;
+	protected final Optional<Supplier<T>> override;
 	
 	/**
 	 * <p>
