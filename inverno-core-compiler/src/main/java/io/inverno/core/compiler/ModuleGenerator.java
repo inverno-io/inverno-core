@@ -227,13 +227,17 @@ class ModuleGenerator {
 					// Previous rounds
 					ModuleInfo componentModule = this.generatedModules.get(componentModuleName);
 					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
-					componentModules.add(componentModule);
+					if(!componentModule.isEmpty()) {
+						componentModules.add(componentModule);
+					}
 				}
 				else if(this.componentModules.containsKey(componentModuleName)) {
 					// compiled module
 					ModuleInfo componentModule = this.componentModules.get(componentModuleName);
 					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
-					componentModules.add(componentModule);
+					if(!componentModule.isEmpty()) {
+						componentModules.add(componentModule);
+					}
 				} 
 				else if(this.faultyModules.contains(componentModuleName)) {
 					// Faulty module
@@ -252,7 +256,9 @@ class ModuleGenerator {
 					
 					if(componentModule != null) {
 						Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
-						componentModules.add(componentModule);
+						if(!componentModule.isEmpty()) {
+							componentModules.add(componentModule);
+						}
 					}
 				}
 				else {
@@ -260,7 +266,9 @@ class ModuleGenerator {
 					ModuleInfo componentModule = componentModuleBuilder.build();
 					this.componentModules.put(componentModuleName, componentModule);
 					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
-					componentModules.add(componentModule);
+					if(!componentModule.isEmpty()) {
+						componentModules.add(componentModule);
+					}
 				}
 			}
 			if(generate) {
@@ -318,22 +326,25 @@ class ModuleGenerator {
 					}
 				}
 				
-				try {
-					JavaFileObject moduleSourceFile = this.processingEnvironment.getFiler().createSourceFile(moduleInfo.getQualifiedName().getClassName(), this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
-					try (Writer writer = moduleSourceFile.openWriter()) {
-						writer.write(moduleInfo.accept(this.moduleClassGenerator, new ModuleClassGenerationContext(this.processingEnvironment.getTypeUtils(), this.processingEnvironment.getElementUtils(), GenerationMode.MODULE_CLASS)).toString());
-						writer.flush();
-					}
-					
-					if(this.options.isVerbose()) {
-						System.out.println("Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri() + "\n");
-					}
-					//this.processingEnv.getMessager().printMessage(Kind.NOTE, "Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri());
-				} 
-				catch (IOException e) {
-					this.processingEnvironment.getMessager().printMessage(Kind.ERROR, "Error generating Module " + moduleInfo.getQualifiedName() + ": " + e.getMessage());
-					if(this.options.isDebug()) {
-						e.printStackTrace();
+				if(moduleInfo.getBeans().length > 0 || moduleInfo.getModules().length > 0) {
+					// only generate module class when it defines beans or modules
+					try {
+						JavaFileObject moduleSourceFile = this.processingEnvironment.getFiler().createSourceFile(moduleInfo.getQualifiedName().getClassName(), this.moduleOriginatingElements.get(moduleName).stream().toArray(Element[]::new));
+						try (Writer writer = moduleSourceFile.openWriter()) {
+							writer.write(moduleInfo.accept(this.moduleClassGenerator, new ModuleClassGenerationContext(this.processingEnvironment.getTypeUtils(), this.processingEnvironment.getElementUtils(), GenerationMode.MODULE_CLASS)).toString());
+							writer.flush();
+						}
+
+						if(this.options.isVerbose()) {
+							System.out.println("Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri() + "\n");
+						}
+						//this.processingEnv.getMessager().printMessage(Kind.NOTE, "Module " + moduleInfo.getQualifiedName() + " generated to " + moduleSourceFile.toUri());
+					} 
+					catch (IOException e) {
+						this.processingEnvironment.getMessager().printMessage(Kind.ERROR, "Error generating Module " + moduleInfo.getQualifiedName() + ": " + e.getMessage());
+						if(this.options.isDebug()) {
+							e.printStackTrace();
+						}
 					}
 				}
 				roundGeneratedModules.put(moduleName, moduleInfo);

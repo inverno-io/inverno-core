@@ -42,6 +42,8 @@ public class TestMultiModule extends AbstractCoreInvernoTest {
 	private static final String MODULEF = "io.inverno.core.test.multi.moduleF";
 	private static final String MODULEG = "io.inverno.core.test.multi.moduleG";
 	private static final String MODULEH = "io.inverno.core.test.multi.moduleH";
+	private static final String MODULEI = "io.inverno.core.test.multi.moduleI";
+	private static final String MODULEJ = "io.inverno.core.test.multi.moduleJ";
 
 	@Test
 	public void testMultiModuleSimple() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
@@ -128,5 +130,25 @@ public class TestMultiModule extends AbstractCoreInvernoTest {
 	public void testComponentModuleBeanExclusionWiring() throws IOException, InvernoCompilationException {
 		InvernoModuleLoader moduleLoader = this.getInvernoCompiler().compile(MODULEG, MODULEH);
 		moduleLoader.load(MODULEH).build();
+	}
+	
+	@Test
+	public void testEmptyComponentModule() throws IOException, InvernoCompilationException {
+		InvernoModuleLoader moduleLoader = this.getInvernoCompiler().compile(MODULEI, MODULEJ);
+		
+		InvernoModuleProxy moduleI = moduleLoader.load(MODULEI).build();
+		moduleI.start();
+		moduleI.stop();
+		
+		this.clearModuleTarget(MODULEI, MODULEJ);
+		
+		this.getInvernoCompiler().compile(MODULEJ);
+		
+		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(List.of(new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEJ)));
+		moduleLoader = extraCompiler.compile(MODULEI);
+		
+		moduleI = moduleLoader.load(MODULEI).build();
+		moduleI.start();
+		moduleI.stop();
 	}
 }

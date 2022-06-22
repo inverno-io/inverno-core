@@ -77,6 +77,14 @@ public abstract class AbstractInvernoTest {
 	
 	protected void clearModuleTarget() {
 		this.deleteDir(new File(MODULE_TARGET));
+		this.deleteDir(new File(MODULE_SOURCE_TARGET));
+	}
+	
+	protected void clearModuleTarget(String... modules) {
+		for(String module : modules) {
+			this.deleteDir(new File(MODULE_TARGET, module));
+			this.deleteDir(new File(MODULE_SOURCE_TARGET, module));
+		}
 	}
 	
 	private void deleteDir(File file) {

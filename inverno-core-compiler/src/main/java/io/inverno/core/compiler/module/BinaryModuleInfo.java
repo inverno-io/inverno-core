@@ -119,4 +119,15 @@ class BinaryModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Modu
 	public ModuleElement getElement() {
 		return (ModuleElement)super.getElement();
 	}
+
+	/**
+	 * <p>
+	 * A binary module is never empty since a binary module is created from a module class which is only generated when the module has beans or component modules.
+	 * </p>
+	 */
+	@Override
+	public boolean isEmpty() {
+		
+		return false;
+	}
 }

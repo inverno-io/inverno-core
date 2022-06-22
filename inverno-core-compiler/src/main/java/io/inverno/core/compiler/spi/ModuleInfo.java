@@ -45,6 +45,7 @@ public interface ModuleInfo extends Info {
 	 * 
 	 * @return a module qualified name
 	 */
+	@Override
 	ModuleQualifiedName getQualifiedName();
 
 	/**
@@ -154,4 +155,17 @@ public interface ModuleInfo extends Info {
 	 * @return true if the module is faulty, false otherwise
 	 */
 	boolean isFaulty();
+	
+	/**
+	 * <p>
+	 * Determines whether the module is empty.
+	 * </p>
+	 * 
+	 * <p>
+	 * An module is empty when it does not define any bean, nor component module. No module class should be generated for an empty module.
+	 * </p>
+	 * 
+	 * @return true if the module is empty, false otherwise
+	 */
+	boolean isEmpty();
 }

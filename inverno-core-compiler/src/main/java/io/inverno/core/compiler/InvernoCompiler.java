@@ -220,29 +220,25 @@ public class InvernoCompiler extends AbstractProcessor {
 						}
 						
 						return moduleElement.getDirectives().stream()
-							.filter(directive -> {
-								if(!directive.getKind().equals(ModuleElement.DirectiveKind.REQUIRES)) {
+							.filter(directive -> directive.getKind().equals(ModuleElement.DirectiveKind.REQUIRES))
+							.map(directive -> ((ModuleElement.RequiresDirective)directive).getDependency())
+							.filter(componentModuleElement -> {
+								if( (!excludes.isEmpty() && excludes.contains(componentModuleElement.getQualifiedName().toString())) || (!includes.isEmpty() && !includes.contains(componentModuleElement.getQualifiedName().toString()))) {
 									return false;
 								}
-								
-								ModuleElement componentModuleElement = ((ModuleElement.RequiresDirective)directive).getDependency();
-
-								if( (excludes.size() > 0 && excludes.contains(componentModuleElement.getQualifiedName().toString())) || (includes.size() > 0 && !includes.contains(componentModuleElement.getQualifiedName().toString()))) {
-									return false;
-								}
-								
 								Optional<? extends AnnotationMirror> componentModuleAnnotation = this.processingEnv.getElementUtils().getAllAnnotationMirrors(componentModuleElement).stream().filter(a -> this.processingEnv.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst();
 								return componentModuleAnnotation.isPresent();
 							})
-							.map(directive -> {
-								ModuleElement componentModuleElement = ((ModuleElement.RequiresDirective)directive).getDependency();
+							.map(componentModuleElement -> {
 								String componentModuleName = componentModuleElement.getQualifiedName().toString();
-								if(this.moduleGenerator.modules().containsKey(componentModuleName)) {
-									return this.moduleGenerator.modules().get(componentModuleName);
+								
+								ModuleInfoBuilder componentModuleBuiler = this.moduleGenerator.modules().get(componentModuleName);
+								if(componentModuleBuiler != null) {
+									return componentModuleBuiler;
 								}
-							
 								return this.processComponentModule(moduleElement, componentModuleElement);
 							})
+							.filter(Objects::nonNull)
 							.collect(Collectors.toList());
 					}))
 			)
@@ -266,6 +262,10 @@ public class InvernoCompiler extends AbstractProcessor {
 	}
 	
 	private ModuleInfoBuilder processComponentModuleV1(ModuleElement moduleElement, ModuleElement componentModuleElement, TypeElement moduleType) {
+		if(moduleType == null) {
+			// the component module must be an empty module since there is no module class
+			return null;
+		}
 		ModuleInfoBuilder componentModuleBuilder = ModuleInfoBuilderFactory.createModuleBuilder(this.processingEnv, moduleElement, componentModuleElement, 1);
 		
 		SocketBeanInfoFactory componentModuleSocketFactory = SocketBeanInfoFactory.create(this.processingEnv, moduleElement, componentModuleElement, 1);

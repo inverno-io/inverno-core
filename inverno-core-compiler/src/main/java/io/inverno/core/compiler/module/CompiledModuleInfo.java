@@ -123,4 +123,9 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 	public ModuleElement getElement() {
 		return (ModuleElement)super.getElement();
 	}
+
+	@Override
+	public boolean isEmpty() {
+		return this.beanInfos.isEmpty() && this.moduleInfos.isEmpty();
+	}
 }
