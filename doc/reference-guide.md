@@ -949,7 +949,7 @@ We can differentiate two kinds of bean socket: single socket and multiple socket
 
 #### Lazy
 
-A socket can be annotated with the `@Lazy` to indicate that a bean instance supplier should be provided instead of an actual bean instance. A lazy socket must then necessarily be of type `Supplier<E>` which specifies the actual type of the socket as formal parameter. 
+A socket can be annotated with the `@Lazy` to indicate that a bean instance supplier should be provided instead of an actual bean instance. A lazy socket must then be of type `Supplier<E>` which specifies the actual type of the socket as formal parameter. In order to lazily inject a list of beans, the socket must be of type `List<Supplier<E>>`.
 
 A lazy socket allows a dependent bean to lazily retrieve a bean instance. This presents several advantages when prototype beans are wired into a lazy socket, it is then possible to create fully wired bean instances on demand during the operation of a module and use them when processing a request for instance.  
 
@@ -1167,7 +1167,7 @@ The `CoffeeMakerImpl` class can implement several types but it will be exposed a
 
 > The `@Provide` annotation is only useful on module bean, for w beans the implementation type is already hidden in the `Supplier#get()` method and the provided type is the formal parameter specified in the `Supplier<E>` interface.
 
-The provided type is only considered outside the module when used in a composite module or in an application. Inside the module, the actual bean type is always used for dependency injection.
+The provided type is only considered outside the module when used in a composite module or in an application. Inside the module, the actual bean type is used for dependency injection unless the bean is also overridable in which case the provided type is also used internally.
 
 Hiding implementation and only expose public API is very convenient when you developed a component module and it is a best practice in general if you want to enforce modularity inside an application. Most of the time modules should always depend on public API so from a dependency injection perspective it doesn't really matters whether a module expose implementation classes but you can't guarantee that nobody will ever create a dependency on an implementation class if that class is accessible which would be quite bad for maintainability. Being able to control the types actually exposed in a module enforces a proper isolation.
 
