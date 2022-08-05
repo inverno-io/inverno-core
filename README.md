@@ -2,6 +2,7 @@
 
 [inverno-core-root-doc]: https://github.com/inverno-io/inverno-core/tree/master/doc/reference-guide.md
 
+[jdk]: https://jdk.java.net/
 [graal-vm]: https://www.graalvm.org/
 [maven]: https://maven.apache.org/
 [apache-license]: https://www.apache.org/licenses/LICENSE-2.0
@@ -128,7 +129,7 @@ In this simple example, we created an Inverno module which exposes one bean and 
 
 ## Building Inverno core framework
 
-The Inverno core framework can be built using Maven and a JDK 11+ with the following command:
+The Inverno core framework can be built using Maven and a [JDK][jdk] 15+ with the following command:
 
 ```plaintext
 $ mvn install
