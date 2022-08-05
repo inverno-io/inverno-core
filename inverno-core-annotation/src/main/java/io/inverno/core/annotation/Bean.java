@@ -37,10 +37,8 @@ import java.util.function.Supplier;
  * specify explicit bean sockets.
  * </p>
  *
- * <blockquote>
- *
- * <pre>
- * &#64;Bean
+ * <pre>{@code
+ * @Bean
  * public class ModuleBean implements SomeService {
  *
  *     public ModuleBean(RequiredDependency requiredDependency) {
@@ -51,31 +49,27 @@ import java.util.function.Supplier;
  *         ...
  *     }
  *
- *     &#64;Init
+ *     @Init
  *     public void init() {
  *         ...
  *     }
  *
- *     &#64;Destroy
+ *     @Destroy
  *     public void destroy() {
  *         ...
  *     }
  * }
- * </pre>
- *
- * </blockquote>
+ * }</pre>
  *
  * <p>
  * A wrapper bean is used to expose legacy code that can't be instrumented. A wrapper bean must be a class annotated with {@link Bean @Bean} and {@link Wrapper @Wrapper} and implements
  * {@link Supplier}.
  * </p>
  *
- * <blockquote>
- *
- * <pre>
- * &#64;Bean
- * &#64;Wrapper
- * public class WrapperBean implements Supplier&lt;SomeService&gt; {
+ * <pre>{@code
+ * @Bean
+ * @Wrapper
+ * public class WrapperBean implements Supplier<SomeService> {
  *
  *     private WeakReference{@literal <SomeService>} instance;
  *
@@ -93,21 +87,19 @@ import java.util.function.Supplier;
  *         return this.instance.get();
  *     }
  *
- *     &#64;Init
+ *     @Init
  *     public void init() {
  *         // Init the instance
  *         this.instance.get().init();
  *     }
  *
- *     &#64;Destroy
+ *     @Destroy
  *     public void destroy() {
  *         // Destroy the instance
  *         this.instance.get().destroy();
  *     }
  * }
- * </pre>
- *
- * </blockquote>
+ * }</pre>
  *
  * <p>
  * A socket bean is a particular type of bean which is used to declare a module dependency that is a bean required or desirable by the beans in the module to operate properly. As for bean socket, it
@@ -116,16 +108,12 @@ import java.util.function.Supplier;
  * with a {@link Visibility#PUBLIC} visibility and extends {@link Supplier}.
  * </p>
  *
- * <blockquote>
- *
- * <pre>
- * &#64;Bean
- * public interface SocketBean implements Supplier&lt;SomeService&gt; {
+ * <pre>{@code
+ * @Bean
+ * public interface SocketBean implements Supplier<SomeService> {
  *
  * }
- * </pre>
- *
- * </blockquote>
+ * }</pre>
  *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0

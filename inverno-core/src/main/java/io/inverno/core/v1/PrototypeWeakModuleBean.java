@@ -49,15 +49,11 @@ import org.apache.logging.log4j.Logger;
  * method, make sure it can be invoked twice because it might, and get new instances as follows:
  * </p>
  *
- * <blockquote>
- *
- * <pre>
+ * <pre>{@code
  * try (MyPrototype instance = myModuleInstance.myPrototype()) {
  *     ...
  * }
- * </pre>
- *
- * </blockquote>
+ * }</pre>
  *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0

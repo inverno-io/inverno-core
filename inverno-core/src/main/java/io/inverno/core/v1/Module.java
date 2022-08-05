@@ -712,20 +712,16 @@ public abstract class Module {
 	 * instance has been created (after dependency injection) and before its destruction respectively.
 	 * </p>
 	 *
-	 * <blockquote>
-	 *
-	 * <pre>
+	 * <pre>{@code
 	 * this.bean = ModuleBeanBuilder
-	 *     .singleton("bean", () -&gt; {
+	 *     .singleton("bean", () -> {
 	 *          BeanA beanA = new BeanA(serviceSocket.get());
 	 *          return beanA;
 	 *      })
 	 *      .init(BeanA::init)
 	 *      .destroy(BeanA::destroy)
 	 *      .build(this);
-	 * </pre>
-	 *
-	 * </blockquote>
+	 * }</pre>
 	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0
@@ -811,20 +807,16 @@ public abstract class Module {
 	 * leaks. In that case, using a {@link WeakReference} is strongly advised.
 	 * </p>
 	 *
-	 * <blockquote>
-	 *
-	 * <pre>
+	 * <pre>{@code
 	 * this.bean = WrapperBeanBuilder
-	 *     .singleton("bean", () -&gt; {
+	 *     .singleton("bean", () -> {
 	 *          BeanA beanA = new BeanA(serviceSocket.get());
 	 *          return beanA;
 	 *      })
 	 *      .init(BeanA::init)
 	 *      .destroy(BeanA::destroy)
 	 *      .build(this);
-	 * </pre>
-	 *
-	 * </blockquote>
+	 * }</pre>
 	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0

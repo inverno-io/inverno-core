@@ -21,9 +21,7 @@ package io.inverno.core.compiler.spi;
  * </p>
  * 
  * <p>
- * A qualified name is of the form <code>&lt;part&gt;(:&lt;part&gt;)+</code>
- * where <code>&lt;part&gt;</code> is a valid Java name of the form
- * <code>&lt;identifier&gt;(.&lt;identifier&gt;)+</code>.
+ * A qualified name is of the form {@code <part>(:<part>)+} where {@code <part>} is a valid Java name of the form {@code <identifier>(.<identifier>)+}.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

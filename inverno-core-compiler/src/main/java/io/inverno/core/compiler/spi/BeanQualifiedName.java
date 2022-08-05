@@ -21,10 +21,7 @@ package io.inverno.core.compiler.spi;
  * </p>
  * 
  * <p>
- * The raw representation of a bean qualified name is of the form
- * <code>ModuleQualifiedName():&lt;beanName&gt;</code> where
- * <code>&lt;beanName&gt;</code> is a valid Java name (eg.
- * <code>com.example.myModule:myBean</code>).
+ * The raw representation of a bean qualified name is of the form {@code ModuleQualifiedName():<beanName>} where {@code <beanName>} is a valid Java name (eg. {@code com.example.myModule:myBean}).
  * </p>
  * 
  * <p>
@@ -100,9 +97,7 @@ public class BeanQualifiedName extends QualifiedName {
 
 	/**
 	 * <p>
-	 * Creates a bean qualified name from the specified raw value of the form
-	 * <code>ModuleQualifiedName():&lt;beanName&gt;</code> where
-	 * <code>&lt;beanName&gt;</code> is a valid Java name.
+	 * Creates a bean qualified name from the specified raw value of the form {@code ModuleQualifiedName():<beanName>} where {@code <beanName>} is a valid Java name.
 	 * </p>
 	 * 
 	 * @param qname a raw qualified name

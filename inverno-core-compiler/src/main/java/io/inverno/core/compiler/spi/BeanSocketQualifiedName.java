@@ -22,8 +22,8 @@ package io.inverno.core.compiler.spi;
  * 
  * <p>
  * The raw representation of a bean socket qualified name is of the form
- * <code>BeanQualifiedName():&lt;socketName&gt;</code> where
- * <code>&lt;socketName&gt;</code> is a valid Java name corresponding to the
+ * {@code BeanQualifiedName():<socketName>} where
+ * {@code <socketName>} is a valid Java name corresponding to the
  * name a constructor or setter method argument (eg.
  * <code>com.example.myModule:myBean:param</code>).
  * </p>
@@ -97,8 +97,8 @@ public class BeanSocketQualifiedName extends QualifiedName {
 	/**
 	 * <p>
 	 * Creates a bean socket qualified name from the specified raw value of the form
-	 * <code>BeanQualifiedName():&lt;socketName&gt;</code> where
-	 * <code>&lt;socketName&gt;</code> is a valid Java name.
+	 * {@code BeanQualifiedName():<socketName>} where
+	 * {@code <socketName>} is a valid Java name.
 	 * </p>
 	 * 
 	 * @param qname a raw qualified name
@@ -121,8 +121,8 @@ public class BeanSocketQualifiedName extends QualifiedName {
 	 * <p>
 	 * Creates a bean socket qualified name from the specified module qualified name
 	 * and the specified raw value of the form
-	 * <code>&lt;beanName&gt;:&lt;socketName&gt;</code> where
-	 * <code>&lt;beanName&gt;</code> and <code>&lt;socketName&gt;</code> are valid
+	 * {@code <beanName>:<socketName>} where
+	 * {@code <beanName>} and {@code <socketName>} are valid
 	 * Java names.
 	 * </p>
 	 * 

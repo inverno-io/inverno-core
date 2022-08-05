@@ -40,32 +40,24 @@ import java.lang.annotation.Target;
  * For example, the following bean will be exposed as <code>SomeService</code> outside the module. A bean can only provide one single type.
  * </p>
  *
- * <blockquote>
- *
- * <pre>
- * &#64;Bean
- * &#64;Provide(SomeService.class)
+ * <pre>{@code
+ * @Bean
+ * @Provide(SomeService.class)
  * public class ModuleBean implements SomeService, SomeOtherService {
  *
  * }
- * </pre>
- *
- * </blockquote>
+ * }</pre>
  *
  * <p>
  * which is equivalent to:
  * </p>
  *
- * <blockquote>
- *
- * <pre>
- * &#64;Bean
- * public class ModuleBean implements &#64;Provide SomeService, SomeOtherService {
+ * <pre>{@code
+ * @Bean
+ * public class ModuleBean implements @Provide SomeService, SomeOtherService {
  *
  * }
- * </pre>
- *
- * </blockquote>
+ * }</pre>
  *
  * <p>
  * Note that this also has an impact on bean wiring. From within the module the bean provides its actual visible type which can then be wired to any assignable socket. From outside the module, wiring

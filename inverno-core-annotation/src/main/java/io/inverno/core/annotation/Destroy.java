@@ -33,15 +33,11 @@ import java.lang.annotation.Target;
  * make sure instance are properly destroyed:
  * </p>
  *
- * <blockquote>
- *
- * <pre>
+ * <pre>{@code
  * try (MyPrototype instance = myModuleInstance.myPrototype()) {
  *     ...
  * }
- * </pre>
- *
- * </blockquote>
+ * }</pre>
  *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.0
