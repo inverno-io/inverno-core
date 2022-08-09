@@ -21,7 +21,6 @@ import java.lang.module.ModuleFinder;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
@@ -47,7 +46,7 @@ public class InvernoModuleLoader {
 		finder = ModuleFinder.of(finder.findAll().stream()
 			.filter(ref -> !parentNames.contains(ref.descriptor().name()))
 			.filter(ref -> ref.location().isPresent())
-			.map(ref -> Paths.get(ref.location().get()))
+			.map(ref -> Path.of(ref.location().get()))
 			.toArray(Path[]::new));
 		
 		Configuration cf = parent.configuration().resolve(finder, ModuleFinder.of(), modules);

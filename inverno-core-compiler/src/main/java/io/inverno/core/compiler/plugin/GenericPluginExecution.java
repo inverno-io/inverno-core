@@ -15,17 +15,21 @@
  */
 package io.inverno.core.compiler.plugin;
 
+import io.inverno.core.compiler.common.GenericReporterInfo;
+import io.inverno.core.compiler.spi.BeanInfo;
+import io.inverno.core.compiler.spi.ModuleInfo;
+import io.inverno.core.compiler.spi.ModuleQualifiedName;
+import io.inverno.core.compiler.spi.ReporterInfo;
+import io.inverno.core.compiler.spi.plugin.PluginExecution;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
 import javax.annotation.processing.FilerException;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -37,13 +41,6 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-
-import io.inverno.core.compiler.common.GenericReporterInfo;
-import io.inverno.core.compiler.spi.BeanInfo;
-import io.inverno.core.compiler.spi.ModuleInfo;
-import io.inverno.core.compiler.spi.ModuleQualifiedName;
-import io.inverno.core.compiler.spi.ReporterInfo;
-import io.inverno.core.compiler.spi.plugin.PluginExecution;
 
 /**
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -203,6 +200,6 @@ class GenericPluginExecution implements PluginExecution {
 		}
 		// If there's no module-info.java file in the source path this method throws a FileNotFoundException
 		// This should actually never happen since if we get there it means we are compiling an Inverno module
-		return Paths.get(dummy.toUri()).normalize().getParent();
+		return Path.of(dummy.toUri()).normalize().getParent();
 	}
 }

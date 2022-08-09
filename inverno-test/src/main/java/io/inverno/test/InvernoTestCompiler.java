@@ -18,14 +18,13 @@ package io.inverno.test;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.tools.Diagnostic;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
@@ -90,7 +89,7 @@ public class InvernoTestCompiler {
 		Collection<String> modulesWithLibs = new HashSet<>();
 		modulesWithLibs.addAll(Arrays.asList(modules));
 		
-		return new InvernoModuleLoader(Stream.concat(Stream.of(Paths.get(this.moduleOutputPath.toURI())), this.modulePaths.stream().map(File::toURI).map(Paths::get)).collect(Collectors.toList()), modulesWithLibs);
+		return new InvernoModuleLoader(Stream.concat(Stream.of(Path.of(this.moduleOutputPath.toURI())), this.modulePaths.stream().map(File::toURI).map(Path::of)).collect(Collectors.toList()), modulesWithLibs);
 	}
 	
 	public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {

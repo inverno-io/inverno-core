@@ -21,7 +21,6 @@ import java.io.PrintStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
@@ -90,7 +89,7 @@ public class Application<T extends Module> {
 	protected Application(Module.ModuleBuilder<T> moduleBuilder) {
 		this.moduleBuilder = moduleBuilder;
 		this.banner = new StandardBanner();
-		this.pidfile = Optional.ofNullable(System.getProperty(PROPERTY_PID_FILE)).map(Paths::get);
+		this.pidfile = Optional.ofNullable(System.getProperty(PROPERTY_PID_FILE)).map(Path::of);
 	}
 
 	/**
