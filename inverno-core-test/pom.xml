@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>io.inverno</groupId>
 		<artifactId>inverno-core-root</artifactId>
-		<version>1.5.1</version>
+		<version>1.5.2</version>
 	</parent>
 
 	<artifactId>inverno-core-test</artifactId>
