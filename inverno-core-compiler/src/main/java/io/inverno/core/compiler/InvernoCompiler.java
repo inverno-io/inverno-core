@@ -15,6 +15,18 @@
  */
 package io.inverno.core.compiler;
 
+import io.inverno.core.annotation.Bean;
+import io.inverno.core.annotation.Module;
+import io.inverno.core.annotation.NestedBean;
+import io.inverno.core.compiler.bean.BeanCompilationException;
+import io.inverno.core.compiler.bean.ModuleBeanInfoFactory;
+import io.inverno.core.compiler.module.ModuleInfoBuilderFactory;
+import io.inverno.core.compiler.module.ModuleMetadataExtractor;
+import io.inverno.core.compiler.socket.SocketBeanInfoFactory;
+import io.inverno.core.compiler.socket.SocketCompilationException;
+import io.inverno.core.compiler.spi.ModuleBeanInfo;
+import io.inverno.core.compiler.spi.ModuleInfoBuilder;
+import io.inverno.core.compiler.spi.SocketBeanInfo;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +40,6 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -46,19 +57,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic.Kind;
 
-import io.inverno.core.annotation.Bean;
-import io.inverno.core.annotation.Module;
-import io.inverno.core.annotation.NestedBean;
-import io.inverno.core.compiler.bean.BeanCompilationException;
-import io.inverno.core.compiler.bean.ModuleBeanInfoFactory;
-import io.inverno.core.compiler.module.ModuleInfoBuilderFactory;
-import io.inverno.core.compiler.module.ModuleMetadataExtractor;
-import io.inverno.core.compiler.socket.SocketBeanInfoFactory;
-import io.inverno.core.compiler.socket.SocketCompilationException;
-import io.inverno.core.compiler.spi.ModuleBeanInfo;
-import io.inverno.core.compiler.spi.ModuleInfoBuilder;
-import io.inverno.core.compiler.spi.SocketBeanInfo;
-
 /**
  * <p>
  * Inverno compiler annotation processor which processes {@link Module} and
@@ -75,6 +73,7 @@ public class InvernoCompiler extends AbstractProcessor {
 
 	public static final int VERSION = 1;
 	
+	private GenericCompilerOptions compilerOptions;
 	private ModuleGenerator moduleGenerator;
 	
 	private Map<String, SocketBeanInfoFactory> socketFactories = new TreeMap<>(Collections.reverseOrder());
@@ -83,7 +82,8 @@ public class InvernoCompiler extends AbstractProcessor {
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
-		this.moduleGenerator = new ModuleGenerator(processingEnv, new GenericCompilerOptions(processingEnv.getOptions()));
+		this.compilerOptions = new GenericCompilerOptions(processingEnv.getOptions());
+		this.moduleGenerator = new ModuleGenerator(processingEnv, this.compilerOptions);
 		
 		this.socketFactories = new TreeMap<>(Collections.reverseOrder());
 		this.beanFactories = new TreeMap<>(Collections.reverseOrder());
@@ -152,7 +152,10 @@ public class InvernoCompiler extends AbstractProcessor {
 						return null;
 					}
 					catch (Exception e) {
-						this.processingEnv.getMessager().printMessage(Kind.WARNING, "Unable to create bean: " + e.getMessage(), element, beanAnnotation);
+						this.processingEnv.getMessager().printMessage(Kind.ERROR, "Error compiling bean: " + e.getMessage(), element, beanAnnotation);
+						if(this.compilerOptions.isDebug()) {
+							e.printStackTrace();
+						}
 						return null;
 					}
 					
@@ -287,12 +290,19 @@ public class InvernoCompiler extends AbstractProcessor {
 
 		ModuleBeanInfoFactory componentModuleBeanFactory = ModuleBeanInfoFactory.create(this.processingEnv, moduleElement, componentModuleElement, () -> componentModuleSockets, 1);
 		List<? extends ModuleBeanInfo> componentModuleBeans = moduleType.getEnclosedElements().stream()
-			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getModifiers().contains(Modifier.PUBLIC) && !e.getModifiers().contains(Modifier.STATIC) && ((ExecutableElement)e).getParameters().size() == 0)
-			.map(e -> {
+			.filter(element -> element.getKind().equals(ElementKind.METHOD) && element.getModifiers().contains(Modifier.PUBLIC) && !element.getModifiers().contains(Modifier.STATIC) && ((ExecutableElement)element).getParameters().size() == 0)
+			.map(element -> {
 				try {
-					return componentModuleBeanFactory.createBean(e);
+					return componentModuleBeanFactory.createBean(element);
 				} 
-				catch (BeanCompilationException e1) {
+				catch (BeanCompilationException e) {
+					return null;
+				}
+				catch (Exception e) {
+					this.processingEnv.getMessager().printMessage(Kind.ERROR, "Error compiling bean: " + e.getMessage(), element);
+					if(this.compilerOptions.isDebug()) {
+						e.printStackTrace();
+					}
 					return null;
 				}
 			})
