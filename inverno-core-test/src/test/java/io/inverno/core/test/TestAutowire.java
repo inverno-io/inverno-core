@@ -36,15 +36,18 @@ import io.inverno.test.InvernoModuleProxy;
  */
 public class TestAutowire extends AbstractCoreInvernoTest {
 
-	private static final String MODULE = "io.inverno.core.test.autowire";
+	private static final String MODULEA = "io.inverno.core.test.autowire.moduleA";
+	
+	private static final String MODULEB = "io.inverno.core.test.autowire.moduleB";
 	
 	private InvernoModuleProxy moduleProxy;
 	
 	@BeforeEach
 	public void init() throws IOException, InvernoCompilationException {
+		this.clearModuleTarget();
 		try {
 			if(this.moduleProxy == null) {
-				this.moduleProxy = this.getInvernoCompiler().compile(MODULE).load(MODULE).build();
+				this.moduleProxy = this.getInvernoCompiler().compile(MODULEA).load(MODULEA).build();
 			}
 		} catch (InvernoModuleException e) {
 			// TODO Auto-generated catch block
@@ -238,5 +241,75 @@ public class TestAutowire extends AbstractCoreInvernoTest {
 		Assertions.assertEquals(beanD, serviceB2.getClass().getField("beanD").get(serviceB2));
 		
 		this.moduleProxy.stop();
+	}
+	
+	@Test
+	public void testNotAnOptionalSocket() throws InvernoModuleException, IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		InvernoModuleProxy moduleOptsock = this.getInvernoCompiler().compile(MODULEB).load(MODULEB).build();
+		
+		moduleOptsock.start();
+		try {
+			Object beanA = moduleOptsock.getBean("beanA");
+			Object someRunnable = moduleOptsock.getBean("someRunnable");
+			
+			Assertions.assertNotNull(beanA);
+			Assertions.assertNotNull(someRunnable);
+			Assertions.assertEquals(someRunnable, beanA.getClass().getField("optionalRunnable").get(beanA));
+		}
+		finally {
+			moduleOptsock.stop();
+		}
+	}
+	
+	@Test
+	public void testDisabledOptionalSocket() throws InvernoModuleException, IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		InvernoModuleProxy moduleOptsock = this.getInvernoCompiler().compile(MODULEB).load(MODULEB).build();
+		
+		moduleOptsock.start();
+		try {
+			Object beanB = moduleOptsock.getBean("beanB");
+			Object someRunnable = moduleOptsock.getBean("someRunnable");
+			
+			Assertions.assertNotNull(beanB);
+			Assertions.assertNotNull(someRunnable);
+			Assertions.assertNull(beanB.getClass().getField("disabledImplicit").get(beanB));
+			Assertions.assertNull(beanB.getClass().getField("disabledExplicit").get(beanB));
+			Assertions.assertEquals(someRunnable, beanB.getClass().getField("enabledExplicit").get(beanB));
+		}
+		finally {
+			moduleOptsock.stop();
+		}
+	}
+	
+	@Test
+	public void testSingleDisabledOptionalSocket() throws InvernoModuleException, IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		InvernoModuleProxy moduleOptsock = this.getInvernoCompiler().compile(MODULEB).load(MODULEB).build();
+		
+		moduleOptsock.start();
+		try {
+			Object beanC = moduleOptsock.getBean("beanC");
+			
+			Assertions.assertNotNull(beanC);
+			Assertions.assertNull(beanC.getClass().getField("disabledExplicit").get(beanC));
+		}
+		finally {
+			moduleOptsock.stop();
+		}
+	}
+	
+	@Test
+	public void testDisabledRequiredSocket() throws InvernoModuleException, IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
+		InvernoModuleProxy moduleOptsock = this.getInvernoCompiler().compile(MODULEB).load(MODULEB).build();
+		
+		moduleOptsock.start();
+		try {
+			Object beanD = moduleOptsock.getBean("beanD");
+			
+			Assertions.assertNotNull(beanD);
+			Assertions.assertNull(beanD.getClass().getField("disabledExplicit").get(beanD));
+		}
+		finally {
+			moduleOptsock.stop();
+		}
 	}
 }

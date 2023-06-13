@@ -922,7 +922,7 @@ public class CoffeMakerImpl implements CoffeMaker {
 
 The `io.inverno.sample.coffeeMakerModule:coffeeMakerImpl` bean now specifies one optional socket: `io.inverno.sample.coffeeMakerModule:coffeeMakerImpl:milkFrother`.
 
-By convention, every setter method on a bean is considered an optional socket, this enforces proper bean design. However in some situations you might need to explicitly specify which setter methods are sockets. In order to do that, you need to annotate every socket setter method of the bean with the `@BeanSocket` annotation.
+By convention, every setter method on a bean is considered an optional socket, this enforces proper bean design. However in some situations you might need to explicitly specify which setter methods are sockets. In order to do that, you need to annotate every socket setter methods of the bean with the `@BeanSocket` annotation. Any setter method which is not annotated is then ignored by the compiler but it is also possible to explicitly ignore a setter method by setting the `enabled` attribute to `false`. 
 
 ```java
 @Bean
@@ -935,9 +935,16 @@ public class CoffeMakerImpl implements CoffeMaker {
     }
 
     ...
+    // Implicitly Ignored
     public void setSomethingElse() {
         ...
-    }    
+    }
+
+    // Explicitly Ignored
+    @BeanSocket(enabled = false)
+    public void setSomethingElseAgain() {
+        ...
+    }
 }
 ```
 

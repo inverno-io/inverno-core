@@ -15,20 +15,6 @@
  */
 package io.inverno.core.compiler.bean;
 
-import java.util.Optional;
-import java.util.function.Supplier;
-
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.ModuleElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
-import javax.tools.Diagnostic.Kind;
-
 import io.inverno.core.annotation.Lazy;
 import io.inverno.core.annotation.Selector;
 import io.inverno.core.compiler.TypeErrorException;
@@ -38,6 +24,17 @@ import io.inverno.core.compiler.spi.BeanSocketQualifiedName;
 import io.inverno.core.compiler.spi.ModuleBeanSocketInfo;
 import io.inverno.core.compiler.spi.MultiSocketType;
 import io.inverno.core.compiler.spi.SocketBeanInfo;
+import java.util.Optional;
+import java.util.function.Supplier;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.ModuleElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeMirror;
+import javax.tools.Diagnostic.Kind;
 
 /**
  * <p>
@@ -82,11 +79,6 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 			selectors = variableElement.getAnnotationMirrors().stream().filter(a -> a.getAnnotationType().asElement().getAnnotation(Selector.class) != null).toArray(AnnotationMirror[]::new);
 		}
 		else {
-			if(!socketElement.getModifiers().contains(Modifier.PUBLIC) || !socketElement.getSimpleName().toString().startsWith("set") || socketElement.getParameters().size() != 1) {
-				this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid socket method which should be a single-argument setter method, socket will be ignored", socketElement);
-				return Optional.empty();
-			}
-			
 			selectors = socketElement.getAnnotationMirrors().stream().filter(a -> a.getAnnotationType().asElement().getAnnotation(Selector.class) != null).toArray(AnnotationMirror[]::new);
 			
 			socketName = socketElement.getSimpleName().toString().substring(3);

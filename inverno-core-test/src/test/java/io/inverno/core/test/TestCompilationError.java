@@ -44,6 +44,7 @@ public class TestCompilationError extends AbstractCoreInvernoTest {
 	private static final String MODULEI = "io.inverno.core.test.error.moduleI";
 	private static final String MODULEJ = "io.inverno.core.test.error.moduleJ";
 	private static final String MODULEK = "io.inverno.core.test.error.moduleK";
+	private static final String MODULEL = "io.inverno.core.test.error.moduleL";
 	
 	@Test
 	public void testBeanConcreteClass() throws IOException {
@@ -107,7 +108,7 @@ public class TestCompilationError extends AbstractCoreInvernoTest {
 	}
 	
 	@Test
-	public void testMultipleSocketConstructors() throws IOException {
+	public void testMultipleEnabledSocketConstructors() throws IOException {
 		try {
 			this.getInvernoCompiler().compile(MODULEE);
 			Assertions.fail("Should throw an InvernoCompilationException");
@@ -115,7 +116,7 @@ public class TestCompilationError extends AbstractCoreInvernoTest {
 		catch(InvernoCompilationException e) {
 			Assertions.assertEquals(1, e.getDiagnostics().size());
 			
-			String multipleSocketConstructorsError = "Multiple constructors annotated with BeanSocket are defined in module bean io.inverno.core.test.error.moduleE:beanA which is not permitted";
+			String multipleSocketConstructorsError = "Multiple constructors annotated with BeanSocket are enabled in module bean io.inverno.core.test.error.moduleE:beanA, consider keeping only one enabled constructor";
 			
 			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleSocketConstructorsError)));
 		}
@@ -201,6 +202,21 @@ public class TestCompilationError extends AbstractCoreInvernoTest {
 			String invalidLazySocket = "Invalid lazy socket which should be of type java.util.function.Supplier";
 			
 			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(invalidLazySocket)));
+		}
+	}
+	
+	@Test
+	public void testNoEnabledSocketConstructors() throws IOException {
+		try {
+			this.getInvernoCompiler().compile(MODULEL);
+			Assertions.fail("Should throw an InvernoCompilationException");
+		}
+		catch(InvernoCompilationException e) {
+			Assertions.assertEquals(1, e.getDiagnostics().size());
+			
+			String multipleSocketConstructorsError = "No constructor annotated with BeanSocket is enabled in module bean io.inverno.core.test.error.moduleL:beanA, consider enabling one constructor";
+			
+			Assertions.assertTrue(e.getDiagnostics().stream().map(d -> d.getMessage(Locale.getDefault())).collect(Collectors.toList()).containsAll(List.of(multipleSocketConstructorsError)));
 		}
 	}
 }
