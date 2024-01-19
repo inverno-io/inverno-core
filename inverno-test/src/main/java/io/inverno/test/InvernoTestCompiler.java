@@ -79,7 +79,7 @@ public class InvernoTestCompiler {
 	}
 	
 	public InvernoModuleLoader compile(String... modules) throws IOException, InvernoCompilationException {
-		CompilationTask task = this.compiler.getTask(new PrintWriter(System.out), this.fileManager, this.diagnosticListener, Arrays.asList("--module", Arrays.stream(modules).collect(Collectors.joining(",")), "-Ainverno.debug=true", "-Ainverno.verbose=true", "-Ainverno.generateDescriptor=true"), null, null);
+		CompilationTask task = this.compiler.getTask(new PrintWriter(System.out), this.fileManager, this.diagnosticListener, Arrays.asList("-Xlint:-options", "--module", Arrays.stream(modules).collect(Collectors.joining(",")), "-Ainverno.debug=true", "-Ainverno.verbose=true", "-Ainverno.generateDescriptor=true"), null, null);
 		if(!task.call()) {
 			for(Diagnostic<? extends JavaFileObject> d : this.diagnosticListener.getDiagnotics()) {
 				System.err.println(d.toString());
