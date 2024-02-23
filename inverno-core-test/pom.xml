@@ -94,6 +94,7 @@
 						<inherited>false</inherited>
 						<configuration>
 							<includeScope>runtime</includeScope>
+							<outputDirectory>${project.build.directory}/inverno-test-compiler/dependencies</outputDirectory>
 						</configuration>
 					</execution>
 				</executions>

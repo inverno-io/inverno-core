@@ -190,12 +190,7 @@ public class TestSocketBean extends AbstractCoreInvernoTest {
 			.optionalDependency("extHttpHandlerSet", this.extHttpHandlerSet)
 			.dependencies(this.extCallableArray, this.extCallableCollection, this.extCallableList, this.extCallableSet, this.extDataSource).build();
 		
-		try {
-			moduleProxy.start();
-		}
-		catch (Throwable t) {
-			t.printStackTrace();
-		}
+		moduleProxy.start();
 		try {
 			Object beanA = moduleProxy.getBean("beanA");
 			Assertions.assertNotNull(beanA);

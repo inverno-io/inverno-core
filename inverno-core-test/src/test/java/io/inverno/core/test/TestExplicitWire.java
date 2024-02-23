@@ -154,7 +154,7 @@ public class TestExplicitWire extends AbstractCoreInvernoTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void testMultiModuleWire() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		InvernoModuleProxy moduleProxy = this.getInvernoCompiler().compile(MODULEC, MODULED).load(MODULEC).build();
 		
 		moduleProxy.start();

@@ -15,7 +15,6 @@
  */
 package io.inverno.core.test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,6 +25,7 @@ import io.inverno.test.InvernoCompilationException;
 import io.inverno.test.InvernoTestCompiler;
 import io.inverno.test.InvernoModuleLoader;
 import io.inverno.test.InvernoModuleProxy;
+import java.util.Set;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class TestMultiSocketBean extends AbstractCoreInvernoTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testMultiSocketBean() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		InvernoModuleLoader moduleLoader = this.getInvernoCompiler().compile(MODULEB, MODULEC);
 		
 		InvernoModuleProxy moduleC = moduleLoader.load(MODULEC).build();
@@ -70,10 +70,10 @@ public class TestMultiSocketBean extends AbstractCoreInvernoTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testMultiSocketBeanComponent() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		this.getInvernoCompiler().compile(MODULEB);
 		
-		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(List.of(new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEC)));
+		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(Set.of(this.getInvernoCompiler().getModuleOutputPath().resolve(MODULEC)));
 		InvernoModuleLoader moduleLoader = extraCompiler.compile(MODULEC);
 		InvernoModuleProxy moduleC = moduleLoader.load(MODULEC).build();
 		moduleC.start();

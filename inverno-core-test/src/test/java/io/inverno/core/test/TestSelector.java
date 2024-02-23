@@ -15,9 +15,7 @@
  */
 package io.inverno.core.test;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +25,7 @@ import io.inverno.test.InvernoCompilationException;
 import io.inverno.test.InvernoTestCompiler;
 import io.inverno.test.InvernoModuleLoader;
 import io.inverno.test.InvernoModuleProxy;
+import java.util.Set;
 
 /**
  * 
@@ -42,7 +41,7 @@ public class TestSelector extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testSelectorBeanSocket() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		InvernoModuleLoader moduleLoader = this.getInvernoCompiler().compile(MODULEA);
 		
 		InvernoModuleProxy moduleA = moduleLoader.load(MODULEA).build();
@@ -69,7 +68,7 @@ public class TestSelector extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testSelectorSocketBean() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		InvernoModuleLoader moduleLoader = this.getInvernoCompiler().compile(MODULEB, MODULEC);
 		
 		InvernoModuleProxy moduleC = moduleLoader.load(MODULEC).build();
@@ -98,10 +97,10 @@ public class TestSelector extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testSelectorSocketBeanComponent() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		this.getInvernoCompiler().compile(MODULEB);
 		
-		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(List.of(new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEC)));
+		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(Set.of(this.getInvernoCompiler().getModuleOutputPath().resolve(MODULEC)));
 		InvernoModuleLoader moduleLoader = extraCompiler.compile(MODULEC);
 		InvernoModuleProxy moduleC = moduleLoader.load(MODULEC).build();
 		moduleC.start();
@@ -129,7 +128,7 @@ public class TestSelector extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testSelectorSocketBeanBadExplicit() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		try {
 			this.getInvernoCompiler().compile(MODULEB, MODULED);
 			Assertions.fail("Should throw an InvernoCompilationException");

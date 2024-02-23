@@ -88,9 +88,6 @@ public class TestLifecycle extends AbstractCoreInvernoTest {
 			Assertions.assertEquals(1, prototypeBean2.getClass().getField("initCount").get(prototypeBean2));
 			Assertions.assertEquals(3, prototypeBean2.getClass().getField("globalInitCount").get(prototypeBean2));
 		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
 		finally {
 			moduleA.stop();
 			Assertions.assertEquals(1, singletonBean.getClass().getField("destroyCount").get(singletonBean));

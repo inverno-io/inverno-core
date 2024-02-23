@@ -15,9 +15,7 @@
  */
 package io.inverno.core.test;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,6 +24,7 @@ import io.inverno.test.InvernoCompilationException;
 import io.inverno.test.InvernoTestCompiler;
 import io.inverno.test.InvernoModuleLoader;
 import io.inverno.test.InvernoModuleProxy;
+import java.util.Set;
 
 /**
  * 
@@ -77,7 +76,7 @@ public class TestMultiModule extends AbstractCoreInvernoTest {
 	public void testMultiModuleImport() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
 		this.getInvernoCompiler().compile(MODULEA, MODULEB);
 		
-		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(List.of(new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEA), new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEB)));
+		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(Set.of(this.getInvernoCompiler().getModuleOutputPath().resolve(MODULEA), this.getInvernoCompiler().getModuleOutputPath().resolve(MODULEB)));
 		InvernoModuleLoader moduleLoader = extraCompiler.compile(MODULEC);
 		InvernoModuleProxy moduleC = moduleLoader.load(MODULEC).build();
 		moduleC.start();
@@ -140,11 +139,11 @@ public class TestMultiModule extends AbstractCoreInvernoTest {
 		moduleI.start();
 		moduleI.stop();
 		
-		this.clearModuleTarget(MODULEI, MODULEJ);
+		this.getInvernoCompiler().cleanModuleTarget(MODULEI, MODULEJ);
 		
 		this.getInvernoCompiler().compile(MODULEJ);
 		
-		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(List.of(new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEJ)));
+		InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(Set.of(this.getInvernoCompiler().getModuleOutputPath().resolve(MODULEJ)));
 		moduleLoader = extraCompiler.compile(MODULEI);
 		
 		moduleI = moduleLoader.load(MODULEI).build();

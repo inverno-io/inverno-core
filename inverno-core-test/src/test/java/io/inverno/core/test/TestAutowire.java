@@ -44,20 +44,9 @@ public class TestAutowire extends AbstractCoreInvernoTest {
 	
 	@BeforeEach
 	public void init() throws IOException, InvernoCompilationException {
-		this.clearModuleTarget();
-		try {
-			if(this.moduleProxy == null) {
-				this.moduleProxy = this.getInvernoCompiler().compile(MODULEA).load(MODULEA).build();
-			}
-		} catch (InvernoModuleException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvernoCompilationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		this.getInvernoCompiler().cleanModuleTarget();
+		if(this.moduleProxy == null) {
+			this.moduleProxy = this.getInvernoCompiler().compile(MODULEA).load(MODULEA).build();
 		}
 	}
 	

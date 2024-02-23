@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Jeremy KUHN
+ * Copyright 2024 Jeremy Kuhn
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.inverno.test;
+
+import java.nio.file.Path;
+import java.util.function.Function;
 
 /**
- * <p>
- * Inverno unit test utility module.
- * </p>
- * 
- * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
- *
+ * @author <a href="jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  */
-module io.inverno.test {
-	requires transitive java.compiler;
+public interface InvernoCompilerTest {
+
+	default Function<Path, Path> getModuleOverride() {
+		return null;
+	}
 	
-	requires io.inverno.core;
-	requires static io.inverno.core.annotation; // for javadoc...
+	default Function<Path, Path> getAnnotationProcessorModuleOverride() {
+		return null;
+	}
 	
-	requires org.junit.jupiter.api;
-	
-	exports io.inverno.test;
+	void setInvernoCompiler(InvernoTestCompiler invernoCompiler);
 }

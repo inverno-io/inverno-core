@@ -15,9 +15,7 @@
  */
 package io.inverno.core.test;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 import org.junit.jupiter.api.Assertions;
@@ -25,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import io.inverno.test.InvernoCompilationException;
 import io.inverno.test.InvernoTestCompiler;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -50,7 +49,7 @@ public class TestMultiCycle extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testMultiCycleSimple() throws IOException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		try {
 			this.getInvernoCompiler().compile(MODULEA, MODULEB);
 			Assertions.fail("Should throw an InvernoCompilationException");
@@ -82,7 +81,7 @@ public class TestMultiCycle extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testMultiCycleComplex() throws IOException, InvernoCompilationException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		try {
 			this.getInvernoCompiler().compile(MODULEAPI, MODULEF, MODULED, MODULEE, MODULEC);
 			Assertions.fail("Should throw an InvernoCompilationException");
@@ -137,11 +136,11 @@ public class TestMultiCycle extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testMultiCycleSimpleBinary() throws IOException, InvernoCompilationException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		try {
 			this.getInvernoCompiler().compile(MODULEB);
 		
-			InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(List.of(new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEA)));
+			InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(Set.of(this.getInvernoCompiler().getModuleOutputPath().resolve(MODULEA)));
 			
 			extraCompiler.compile(MODULEA);
 			Assertions.fail("Should throw an InvernoCompilationException");
@@ -169,7 +168,7 @@ public class TestMultiCycle extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testMultiCycleWithNested() throws IOException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		try {
 			this.getInvernoCompiler().compile(MODULEG, MODULEH);
 			Assertions.fail("Should throw an InvernoCompilationException");
@@ -231,11 +230,11 @@ public class TestMultiCycle extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testMultiCycleWithNestedBinary() throws IOException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		try {
 			this.getInvernoCompiler().compile(MODULEG);
 		
-			InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(List.of(new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEH)));
+			InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(Set.of(this.getInvernoCompiler().getModuleOutputPath().resolve(MODULEH)));
 			extraCompiler.compile(MODULEH);
 			Assertions.fail("Should throw an InvernoCompilationException");
 		}
@@ -288,7 +287,7 @@ public class TestMultiCycle extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testMultiCycleWithOverridable() throws IOException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		try {
 			this.getInvernoCompiler().compile(MODULEI, MODULEJ);
 			Assertions.fail("Should throw an InvernoCompilationException");
@@ -320,11 +319,11 @@ public class TestMultiCycle extends AbstractCoreInvernoTest {
 	
 	@Test
 	public void testMultiCycleWithOverridableBinary() throws IOException {
-		this.clearModuleTarget();
+		this.getInvernoCompiler().cleanModuleTarget();
 		try {
 			this.getInvernoCompiler().compile(MODULEI);
 			
-			InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(List.of(new File(this.getInvernoCompiler().getModuleOutputPath(), MODULEJ)));
+			InvernoTestCompiler extraCompiler = this.getInvernoCompiler().withModulePaths(Set.of(this.getInvernoCompiler().getModuleOutputPath().resolve(MODULEJ)));
 			extraCompiler.compile(MODULEJ);
 			Assertions.fail("Should throw an InvernoCompilationException");
 		}
