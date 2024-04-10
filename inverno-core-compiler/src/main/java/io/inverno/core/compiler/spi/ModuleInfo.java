@@ -52,17 +52,15 @@ public interface ModuleInfo extends Info {
 	 * <p>
 	 * Returns the module's version.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * In case of a binary module, it must correspond to the version of the compiler
-	 * that were used to generate the module.
+	 * In case of a binary module, it must correspond to the version of the compiler that were used to generate the module.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * In case of a compiled module, it must correspond to the version of the
-	 * current compiler.
+	 * In case of a compiled module, it must correspond to the version of the current compiler.
 	 * </p>
-	 * 
+	 *
 	 * @return A version
 	 */
 	int getVersion();
@@ -91,10 +89,9 @@ public interface ModuleInfo extends Info {
 
 	/**
 	 * <p>
-	 * Returns an optional containing the bean identified by the specified name if
-	 * it exists in the module.
+	 * Returns an optional containing the bean identified by the specified name if it exists in the module.
 	 * </p>
-	 * 
+	 *
 	 * @param name the name of the bean in the module to return
 	 * 
 	 * @return an optional
@@ -148,10 +145,9 @@ public interface ModuleInfo extends Info {
 	 * </p>
 	 * 
 	 * <p>
-	 * A module can be faulty for several reasons: name conflicts, cycles detected
-	 * in the dependency graph, unresolved dependencies...
+	 * A module can be faulty for several reasons: name conflicts, cycles detected in the dependency graph, unresolved dependencies...
 	 * </p>
-	 * 
+	 *
 	 * @return true if the module is faulty, false otherwise
 	 */
 	boolean isFaulty();

@@ -52,12 +52,12 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
  */
 class BinarySocketBeanInfoFactory extends SocketBeanInfoFactory {
 
-	private ModuleElement compiledModuleElement;
+	private final ModuleElement compiledModuleElement;
 	
-	private TypeMirror supplierType;
-	private TypeMirror optionalType;
+	private final TypeMirror supplierType;
+	private final TypeMirror optionalType;
 	
-	private TypeMirror socketAnnotationType;
+	private final TypeMirror socketAnnotationType;
 	
 	/**
 	 * @param processingEnvironment
@@ -114,9 +114,9 @@ class BinarySocketBeanInfoFactory extends SocketBeanInfoFactory {
 			}
 		}
 		
-		DeclaredType supplierType;
+		DeclaredType beanSupplierType;
 		if(this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(socketType), this.supplierType)) {
-			supplierType = (DeclaredType)socketType;
+			beanSupplierType = (DeclaredType)socketType;
 			if(socketName == null || socketName.equals("")) {
 				throw new IllegalArgumentException("A socket bean specified as a " + Supplier.class.getCanonicalName() + " must provide an explicit name");
 			}
@@ -126,15 +126,15 @@ class BinarySocketBeanInfoFactory extends SocketBeanInfoFactory {
 			if(!supplierTypeInterface.isPresent()) {
 				throw new IllegalArgumentException("A socket bean must be a " + Supplier.class.getCanonicalName() + " or directly extend " + Supplier.class.getCanonicalName());
 			}
-			supplierType = (DeclaredType)supplierTypeInterface.get();
+			beanSupplierType = (DeclaredType)supplierTypeInterface.get();
 		}
 		
-		TypeMirror beanType = null;
-		if(supplierType.getTypeArguments().size() == 0) {
+		TypeMirror beanType;
+		if(beanSupplierType.getTypeArguments().isEmpty()) {
 			beanType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
 		}
 		else {
-			beanType = supplierType.getTypeArguments().get(0);
+			beanType = beanSupplierType.getTypeArguments().get(0);
 		}
 		
 		// Socket name

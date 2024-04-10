@@ -29,9 +29,7 @@ import io.inverno.core.compiler.spi.OverridingSocketBeanInfo;
 
 /**
  * <p>
- * Represents wrapper bean info. A wrapper bean is necessarily compiled because
- * a binary module only exposes module beans, the wrapper bean being hidden in
- * the module implementation.
+ * Represents wrapper bean info. A wrapper bean is necessarily compiled because a binary module only exposes module beans, the wrapper bean being hidden in the module implementation.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

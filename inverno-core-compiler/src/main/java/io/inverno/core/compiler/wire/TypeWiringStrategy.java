@@ -32,8 +32,7 @@ import javax.lang.model.type.WildcardType;
 
 /**
  * <p>
- * {@link WiringStrategy} implementation used to determine if a bean is wirable
- * to a socket based on its type.
+ * {@link WiringStrategy} implementation used to determine if a bean is wirable to a socket based on its type.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -41,9 +40,9 @@ import javax.lang.model.type.WildcardType;
  */
 public class TypeWiringStrategy implements WiringStrategy {
 
-	private ProcessingEnvironment processingEnvironment;
+	private final ProcessingEnvironment processingEnvironment;
 	
-	private ModuleQualifiedName moduleQName;
+	private final ModuleQualifiedName moduleQName;
 	
 	public TypeWiringStrategy(ProcessingEnvironment processingEnvironment, ModuleQualifiedName moduleQName) {
 		this.processingEnvironment = processingEnvironment;

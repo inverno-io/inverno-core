@@ -19,13 +19,12 @@ package io.inverno.core.compiler.spi;
  * <p>
  * Base info interface specifying data and services common to all info.
  * </p>
- * 
+ *
  * <p>
- * An info represents meta data for an Inverno element which can be a module, a
- * bean or a socket. Errors or warnings can be reported on an info to indicate
- * inconsistencies preventing a further processing of the element.
+ * An info represents meta data for an Inverno element which can be a module, a bean or a socket. Errors or warnings can be reported on an info to indicate inconsistencies preventing a further
+ * processing of the element.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */

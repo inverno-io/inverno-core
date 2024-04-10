@@ -36,8 +36,7 @@ import io.inverno.core.compiler.spi.QualifiedName;
 
 /**
  * <p>
- * Represents a source class generation context which provides utilities aimed
- * to simplify the generation of Java source classes.
+ * Represents a source class generation context which provides utilities aimed to simplify the generation of Java source classes.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

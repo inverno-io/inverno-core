@@ -19,8 +19,7 @@ import javax.lang.model.element.ModuleElement;
 
 /**
  * <p>
- * A module info builder is used to create Module info from beans, sockets and
- * required modules.
+ * A module info builder is used to create Module info from beans, sockets and required modules.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -61,8 +60,9 @@ public interface ModuleInfoBuilder {
 	 * <p>
 	 * Sets the sockets that should be part of the module.
 	 * </p>
-	 * 
+	 *
 	 * @param sockets an array of socket info
+	 *
 	 * @return the module info builder
 	 */
 	ModuleInfoBuilder sockets(SocketBeanInfo[] sockets);

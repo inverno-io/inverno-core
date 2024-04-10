@@ -40,7 +40,7 @@ import io.inverno.core.compiler.spi.OverridingSocketBeanInfo;
  */
 public class CompiledOverridingSocketBeanInfo extends AbstractBeanInfo implements OverridingSocketBeanInfo, MutableSingleSocketInfo, WirableSocketBeanInfo {
 
-	private TypeMirror socketType;
+	private final TypeMirror socketType;
 	
 	private BeanInfo beanInfo;
 	

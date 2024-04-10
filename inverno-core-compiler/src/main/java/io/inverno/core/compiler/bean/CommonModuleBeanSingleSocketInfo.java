@@ -35,8 +35,7 @@ import io.inverno.core.compiler.spi.ModuleBeanSingleSocketInfo;
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
-class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo
-		implements ModuleBeanSingleSocketInfo, MutableSingleSocketInfo {
+class CommonModuleBeanSingleSocketInfo extends AbstractModuleBeanSocketInfo implements ModuleBeanSingleSocketInfo, MutableSingleSocketInfo {
 
 	private BeanInfo beanInfo;
 	

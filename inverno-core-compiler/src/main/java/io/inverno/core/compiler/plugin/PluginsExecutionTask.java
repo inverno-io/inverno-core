@@ -83,12 +83,12 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 				if(pluginAnnotationTypeElement != null) {
 					entry.getValue().addAll(roundEnv.getElementsAnnotatedWith(pluginAnnotationTypeElement).stream()
 						.map(element -> {
-							ModuleElement moduleElement = this.processingEnvironment.getElementUtils().getModuleOf(element);
-							if(moduleElement == null) {
+							ModuleElement currentModuleElement = this.processingEnvironment.getElementUtils().getModuleOf(element);
+							if(currentModuleElement == null) {
 								// We exclude elements coming from the unnamed module 
 								return null;
 							}
-							if(!moduleElement.getQualifiedName().toString().equals(this.moduleQualifiedName.toString())) {
+							if(!currentModuleElement.getQualifiedName().toString().equals(this.moduleQualifiedName.toString())) {
 								// We only consider elements from the module we are trying to generate
 								return null;
 							}
@@ -102,6 +102,7 @@ public class PluginsExecutionTask implements Callable<PluginsExecutionResult> {
 		});
 	}
 	
+	@Override
 	public PluginsExecutionResult call() {
 		if(this.options.isVerbose()) {
 			System.out.println("Executing plugins for module " + this.moduleQualifiedName + "...");

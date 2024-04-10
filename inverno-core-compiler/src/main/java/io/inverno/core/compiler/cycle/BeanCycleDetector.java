@@ -43,9 +43,9 @@ import io.inverno.core.compiler.spi.SocketInfo;
  */
 public class BeanCycleDetector {
 
-	private ModuleQualifiedName moduleQName;
+	private final ModuleQualifiedName moduleQName;
 	
-	private List<BeanInfo> beans;
+	private final List<BeanInfo> beans;
 	
 	public BeanCycleDetector(ModuleQualifiedName moduleQName, List<BeanInfo> beans) {
 		this.moduleQName = moduleQName;
@@ -120,9 +120,9 @@ public class BeanCycleDetector {
 	 */
 	public class CycleInfo {
 		
-		private BeanInfo beanInfo;
+		private final BeanInfo beanInfo;
 		
-		private SocketInfo socketInfo;
+		private final SocketInfo socketInfo;
 
 		private CycleInfo(BeanInfo beanInfo, SocketInfo socketInfo) {
 			this.beanInfo = beanInfo;
@@ -139,12 +139,13 @@ public class BeanCycleDetector {
 	}
 	
 	private class CycleDetectionContext {
-		private LinkedList<BeanInfo> beanStack = new LinkedList<>();
-		private LinkedList<SocketInfo> socketStack = new LinkedList<>();
 		
-		private List<List<CycleInfo>> cycles = new ArrayList<>();
+		private final LinkedList<BeanInfo> beanStack = new LinkedList<>();
+		private final LinkedList<SocketInfo> socketStack = new LinkedList<>();
 		
-		private Map<BeanInfo, List<BeanInfo>> visitedBeans = new HashMap<>();
+		private final List<List<CycleInfo>> cycles = new ArrayList<>();
+		
+		private final Map<BeanInfo, List<BeanInfo>> visitedBeans = new HashMap<>();
 		
 		public void addCycle(BeanInfo bean) {
 			LinkedList<CycleInfo> cycle = new LinkedList<>();

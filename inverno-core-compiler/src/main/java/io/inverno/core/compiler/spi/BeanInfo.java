@@ -34,6 +34,7 @@ public interface BeanInfo extends Info {
 	 * 
 	 * @return a bean qualified name
 	 */
+	@Override
 	BeanQualifiedName getQualifiedName();
 
 	/**

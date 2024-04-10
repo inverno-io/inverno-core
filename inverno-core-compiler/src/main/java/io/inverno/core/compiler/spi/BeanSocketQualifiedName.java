@@ -19,15 +19,12 @@ package io.inverno.core.compiler.spi;
  * <p>
  * A qualified name identifying a bean socket.
  * </p>
- * 
+ *
  * <p>
- * The raw representation of a bean socket qualified name is of the form
- * {@code BeanQualifiedName():<socketName>} where
- * {@code <socketName>} is a valid Java name corresponding to the
- * name a constructor or setter method argument (eg.
- * <code>com.example.myModule:myBean:param</code>).
+ * The raw representation of a bean socket qualified name is of the form {@code BeanQualifiedName():<socketName>} where {@code <socketName>} is a valid Java name corresponding to the name a
+ * constructor or setter method argument (eg. <code>com.example.myModule:myBean:param</code>).
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
@@ -49,13 +46,12 @@ public class BeanSocketQualifiedName extends QualifiedName {
 
 	/**
 	 * <p>
-	 * Creates a bean socket qualified name from the specified bean qualified name
-	 * and socket name.
+	 * Creates a bean socket qualified name from the specified bean qualified name and socket name.
 	 * </p>
-	 * 
+	 *
 	 * @param beanQName the qualified name of the bean defining the socket
 	 * @param name      the name of the socket
-	 * 
+	 *
 	 * @throws QualifiedNameFormatException if the specified socket name is invalid
 	 */
 	public BeanSocketQualifiedName(BeanQualifiedName beanQName, String name) throws QualifiedNameFormatException {
@@ -96,16 +92,14 @@ public class BeanSocketQualifiedName extends QualifiedName {
 
 	/**
 	 * <p>
-	 * Creates a bean socket qualified name from the specified raw value of the form
-	 * {@code BeanQualifiedName():<socketName>} where
-	 * {@code <socketName>} is a valid Java name.
+	 * Creates a bean socket qualified name from the specified raw value of the form {@code BeanQualifiedName():<socketName>} where {@code <socketName>} is a valid Java name.
 	 * </p>
-	 * 
+	 *
 	 * @param qname a raw qualified name
-	 * 
+	 *
 	 * @return a bean socket qualified name
-	 * @throws QualifiedNameFormatException if the specified value is not a bean
-	 *                                      socket qualified name
+	 *
+	 * @throws QualifiedNameFormatException if the specified value is not a bean socket qualified name
 	 */
 	public static BeanSocketQualifiedName valueOf(String qname) throws QualifiedNameFormatException {
 		int lastSeparatorIndex = qname.lastIndexOf(SEPARATOR);
@@ -119,19 +113,16 @@ public class BeanSocketQualifiedName extends QualifiedName {
 
 	/**
 	 * <p>
-	 * Creates a bean socket qualified name from the specified module qualified name
-	 * and the specified raw value of the form
-	 * {@code <beanName>:<socketName>} where
-	 * {@code <beanName>} and {@code <socketName>} are valid
-	 * Java names.
+	 * Creates a bean socket qualified name from the specified module qualified name and the specified raw value of the form {@code <beanName>:<socketName>} where {@code <beanName>} and
+	 * {@code <socketName>} are valid Java names.
 	 * </p>
-	 * 
+	 *
 	 * @param moduleQName a module qualified name
 	 * @param qname       a raw qualified name
-	 * 
+	 *
 	 * @return a bean socket qualified name
-	 * @throws QualifiedNameFormatException if the specified value is not a bean
-	 *                                      socket qualified name
+	 *
+	 * @throws QualifiedNameFormatException if the specified value is not a bean socket qualified name
 	 */
 	public static BeanSocketQualifiedName valueOf(ModuleQualifiedName moduleQName, String qname)
 			throws QualifiedNameFormatException {

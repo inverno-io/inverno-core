@@ -32,9 +32,9 @@ import io.inverno.core.compiler.spi.QualifiedNameFormatException;
  */
 public abstract class WireInfo<T extends QualifiedName> extends GenericReporterInfo {
 
-	private BeanQualifiedName[] beanQNames;
+	private final BeanQualifiedName[] beanQNames;
 	
-	private T socketQName;
+	private final T socketQName;
 	
 	public WireInfo(ProcessingEnvironment processingEnvironment, ModuleElement element, AnnotationMirror annotation, BeanQualifiedName[] beanQNames, T socketQName) throws QualifiedNameFormatException {
 		super(processingEnvironment, element, annotation);

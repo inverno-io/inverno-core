@@ -44,8 +44,7 @@ import javax.lang.model.type.WildcardType;
 
 /**
  * <p>
- * A {@link ModuleInfoVisitor} implementation used to generates an Inverno module
- * class.
+ * A {@link ModuleInfoVisitor} implementation used to generates an Inverno module class.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

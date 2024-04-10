@@ -16,10 +16,8 @@
 package io.inverno.core.compiler.spi;
 
 /**
- * 
  * <p>
- * A reporter info is used to report and track info, warning and error on
- * module's elements and annotations during compilation.
+ * A reporter info is used to report and track info, warning and error on module's elements and annotations during compilation.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

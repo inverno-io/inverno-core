@@ -36,9 +36,7 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * Represents module info of a compiled module. A compiled module is a module
- * that is currently compiled by the Java compiler and processed by the
- * {@link InvernoCompiler}.
+ * Represents module info of a compiled module. A compiled module is a module that is currently compiled by the Java compiler and processed by the {@link InvernoCompiler}.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -46,15 +44,15 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
  */
 class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements ModuleInfo {
 
-	private int version;
+	private final int version;
+	
+	private final List<ModuleBeanInfo> beanInfos;
+	
+	private final List<SocketBeanInfo> socketInfos;
+	
+	private final List<ModuleInfo> moduleInfos;
 	
 	private boolean faulty;
-	
-	private List<ModuleBeanInfo> beanInfos;
-	
-	private List<SocketBeanInfo> socketInfos;
-	
-	private List<ModuleInfo> moduleInfos;
 	
 	public CompiledModuleInfo(ProcessingEnvironment processingEnvironment, ModuleElement element, AnnotationMirror annotation, ModuleQualifiedName qname, int version, List<ModuleBeanInfo> beanInfos, List<SocketBeanInfo> socketInfos, List<ModuleInfo> moduleInfos) {
 		super(processingEnvironment, element, annotation, qname);

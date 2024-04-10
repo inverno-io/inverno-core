@@ -31,8 +31,8 @@ import io.inverno.core.compiler.spi.plugin.PluginContext;
  */
 class GenericPluginContext implements PluginContext {
 
-	private ProcessingEnvironment processingEnvironment;
-	private GenericCompilerOptions options;
+	private final ProcessingEnvironment processingEnvironment;
+	private final GenericCompilerOptions options;
 	
 	private DocTrees docTrees;
 	

@@ -28,6 +28,7 @@ import io.inverno.core.compiler.spi.BeanInfo;
 import io.inverno.core.compiler.spi.BeanQualifiedName;
 import io.inverno.core.compiler.spi.ModuleBeanSocketInfo;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
+import io.inverno.core.compiler.spi.MultiSocketBeanInfo;
 import io.inverno.core.compiler.spi.MultiSocketInfo;
 import io.inverno.core.compiler.spi.SingleSocketInfo;
 import io.inverno.core.compiler.spi.SocketInfo;
@@ -35,8 +36,7 @@ import io.inverno.core.compiler.spi.WiringStrategy;
 
 /**
  * <p>
- * Resolves single and multiple sockets in a list of beans. The socket resolver
- * is at the heart of Inverno dependency injection mechanism.
+ * Resolves single and multiple sockets in a list of beans. The socket resolver is at the heart of Inverno dependency injection mechanism.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -44,15 +44,15 @@ import io.inverno.core.compiler.spi.WiringStrategy;
  */
 public class SocketResolver {
 
-	private ProcessingEnvironment processingEnvironment;
+	private final ProcessingEnvironment processingEnvironment;
 	
-	private ModuleQualifiedName moduleQName;
+	private final ModuleQualifiedName moduleQName;
 
-	private List<? extends BeanInfo> beans;
+	private final List<? extends BeanInfo> beans;
 	
-	private Map<BeanQualifiedName, List<BeanInfo>> beansByQName;
+	private final Map<BeanQualifiedName, List<BeanInfo>> beansByQName;
 	
-	private List<WiringStrategy> selectorWiringStrategies;
+	private final List<WiringStrategy> selectorWiringStrategies;
 	
 	public SocketResolver(ProcessingEnvironment processingEnvironment, ModuleQualifiedName moduleQName, List<? extends BeanInfo> beans) {
 		this.processingEnvironment = processingEnvironment;
@@ -74,13 +74,13 @@ public class SocketResolver {
 		List<BeanInfo> result = new ArrayList<>();
 		for(BeanQualifiedName wiredBeanQName : wire.getBeans()) {
 			if(this.beansByQName.containsKey(wiredBeanQName)) {
-				List<BeanInfo> beans = this.beansByQName.get(wiredBeanQName);
-				if(beans.size() > 1) {
+				List<BeanInfo> currentBeans = this.beansByQName.get(wiredBeanQName);
+				if(currentBeans.size() > 1) {
 					// Can't wire: multiple beans exist with name...
 					wire.error("Can't wire different beans with same name " + wiredBeanQName + " into " + socket.getQualifiedName());
 				}
 				else {
-					BeanInfo bean = beans.get(0);
+					BeanInfo bean = currentBeans.get(0);
 					if(this.isWirable(bean, socket)) {
 						// OK
 						result.add(bean);
@@ -126,11 +126,11 @@ public class SocketResolver {
 		
 		if(result == null) {
 			// Autowiring for a multi socket
-			List<BeanInfo> matchingBeans = beans.stream()
+			List<BeanInfo> matchingBeans = this.beans.stream()
 				.filter(beanInfo -> this.isWirable(beanInfo, socket))
 				.collect(Collectors.toList());
 			
-			if(matchingBeans.size() == 0) {
+			if(matchingBeans.isEmpty()) {
 				if(!socket.isOptional()) {
 					socket.error("No bean was found matching required socket " + socket.getQualifiedName() + " of type " + socket.getType() + ", consider defining a bean or socket bean matching the socket in module " + this.moduleQName);
 				}
@@ -140,7 +140,43 @@ public class SocketResolver {
 				return null;
 			}
 			else {
-				result = matchingBeans.stream().toArray(BeanInfo[]::new);
+				// 1. module sockets
+				// 2. module beans
+				// 3. sub module beans
+				
+				result = matchingBeans.stream()
+					.sorted((b1, b2) -> {
+						if(b1 instanceof MultiSocketBeanInfo) {
+							if(b2 instanceof MultiSocketBeanInfo) {
+								return 0;
+							}
+							if(b2.getQualifiedName().getModuleQName().equals(this.moduleQName)) {
+								return -1;
+							}
+							return -2;
+						}
+						
+						if(b2 instanceof MultiSocketBeanInfo) {
+							if(b1.getQualifiedName().getModuleQName().equals(this.moduleQName)) {
+								return 1;
+							}
+							return 2;
+						}
+						
+						if(b1.getQualifiedName().getModuleQName().equals(this.moduleQName)) {
+							if(b2.getQualifiedName().getModuleQName().equals(this.moduleQName)) {
+								return 0;
+							}
+							return -1;
+						}
+						else {
+							if(b2.getQualifiedName().getModuleQName().equals(this.moduleQName)) {
+								return 1;
+							}
+							return 0;
+						}
+					})
+					.toArray(BeanInfo[]::new);
 			}
 		}
 		
@@ -196,7 +232,7 @@ public class SocketResolver {
 				.filter(beanInfo -> this.isWirable(beanInfo, socket) && (!(socket instanceof ModuleBeanSocketInfo) ||  !beanInfo.getQualifiedName().equals(((ModuleBeanSocketInfo)socket).getQualifiedName().getBeanQName())))
 				.collect(Collectors.toList());
 		
-			if(matchingBeans.size() == 0) {
+			if(matchingBeans.isEmpty()) {
 				if(!socket.isOptional()) {
 					socket.error("No bean was found matching required socket " + socket.getQualifiedName() + " of type " + socket.getType() + ", consider defining a bean or a socket bean matching the socket in module " + this.moduleQName);
 				}
@@ -207,9 +243,9 @@ public class SocketResolver {
 			}
 			else if(matchingBeans.size() > 1) {
 				StringBuilder message = new StringBuilder();
-				message.append("Multiple beans matching socket " + socket.getQualifiedName() + " were found\n");
+				message.append("Multiple beans matching socket ").append(socket.getQualifiedName()).append(" were found\n");
 				message.append(matchingBeans.stream().map(matchingBean -> "- " + matchingBean.getQualifiedName() + " of type " + matchingBean.getType() + "\n").collect(Collectors.joining()));
-				message.append("\nConsider specifying an explicit wiring in module " + this.moduleQName + " (eg. @"+ Wire.class.getCanonicalName() + "(beans=\""+ matchingBeans.get(0).getQualifiedName() + "\", into=\"" + socket.getQualifiedName() +"\") )\n ");
+				message.append("\nConsider specifying an explicit wiring in module ").append(this.moduleQName).append(" (eg. @").append(Wire.class.getCanonicalName()).append("(beans=\"").append(matchingBeans.get(0).getQualifiedName()).append("\", into=\"").append(socket.getQualifiedName()).append("\") )\n ");
 				socket.error(message.toString());
 				
 				return null;
@@ -218,7 +254,6 @@ public class SocketResolver {
 				result = matchingBeans.get(0);
 			}
 		}
-		
 		return result;
 	}
 }

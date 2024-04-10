@@ -17,8 +17,7 @@ package io.inverno.core.compiler.spi;
 
 /**
  * <p>
- * A single socket info represents a one-to-one relationship with a bean. It
- * defines an injection point for one single bean.
+ * A single socket info represents a one-to-one relationship with a bean. It defines an injection point for one single bean.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

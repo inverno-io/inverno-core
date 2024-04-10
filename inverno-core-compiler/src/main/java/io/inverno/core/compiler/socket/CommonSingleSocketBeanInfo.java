@@ -71,9 +71,6 @@ class CommonSingleSocketBeanInfo extends AbstractSocketBeanInfo implements Singl
 		this.nestedBeans = Collections.emptyList();
 	}
 
-	/* (non-Javadoc)
-	 * @see io.inverno.core.compiler.spi.ModuleSocketInfo#isResolved()
-	 */
 	@Override
 	public boolean isResolved() {
 		return this.beanInfo != null;
@@ -84,9 +81,6 @@ class CommonSingleSocketBeanInfo extends AbstractSocketBeanInfo implements Singl
 		this.beanInfo = beanInfo;
 	}
 	
-	/* (non-Javadoc)
-	 * @see io.inverno.core.compiler.spi.ModuleSingleSocketInfo#getBean()
-	 */
 	@Override
 	public BeanInfo getBean() {
 		return this.beanInfo;

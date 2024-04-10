@@ -47,21 +47,23 @@ import io.inverno.core.compiler.spi.ReporterInfo;
 import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
- * <p>Used when building a compiled module to create wire info from the compiled module element.</p>
+ * <p>
+ * Used when building a compiled module to create wire info from the compiled module element.
+ * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
 public class WireInfoFactory extends AbstractInfoFactory {
 
-	private Map<BeanQualifiedName, ? extends BeanInfo> beans;
+	private final Map<BeanQualifiedName, ? extends BeanInfo> beans;
 	
-	private Set<BeanSocketQualifiedName> beanSockets;
+	private final Set<BeanSocketQualifiedName> beanSockets;
 	
-	private Map<BeanQualifiedName, ? extends SocketBeanInfo> requiredModuleSockets;
+	private final Map<BeanQualifiedName, ? extends SocketBeanInfo> requiredModuleSockets;
 	
-	private TypeMirror wireAnnotationType;
-	private TypeMirror wiresAnnotationType;
+	private final TypeMirror wireAnnotationType;
+	private final TypeMirror wiresAnnotationType;
 	
 	protected WireInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, List<? extends BeanInfo> beans, List<? extends ModuleBeanSocketInfo> beanSockets, List<? extends SocketBeanInfo> requiredModuleSockets) {
 		super(processingEnvironment, moduleElement);

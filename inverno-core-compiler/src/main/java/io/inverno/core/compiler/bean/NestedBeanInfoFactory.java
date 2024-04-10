@@ -38,7 +38,7 @@ import io.inverno.core.compiler.spi.NestedBeanInfo;
  */
 public class NestedBeanInfoFactory {
 
-	private ProcessingEnvironment processingEnvironment;
+	private final ProcessingEnvironment processingEnvironment;
 	
 	public NestedBeanInfoFactory(ProcessingEnvironment processingEnvironment) {
 		this.processingEnvironment = processingEnvironment;
@@ -51,13 +51,12 @@ public class NestedBeanInfoFactory {
 		
 		DeclaredType type = (DeclaredType)providingBean.getType();
 		
-//		return type.asElement().getEnclosedElements().stream()
 		return this.processingEnvironment.getElementUtils().getAllMembers((TypeElement)type.asElement()).stream()
 			.filter(e -> e.getAnnotation(NestedBean.class) != null)
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {
 				boolean valid = true;
-				if(e.getParameters().size() > 0) {
+				if(!e.getParameters().isEmpty()) {
 					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Ignoring invalid " + NestedBean.class.getSimpleName() + " which should be defined as a no-argument method", e);
 					valid = false;
 				}

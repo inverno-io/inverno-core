@@ -19,14 +19,13 @@ package io.inverno.core.compiler.spi;
  * <p>
  * A qualified name identifying a module.
  * </p>
- * 
+ *
  * <p>
  * The raw representation of a module qualified name is a valid Java name.
  * </p>
- * 
+ *
  * <p>
- * The name of a module is tightly linked to the name of the corresponding Java
- * module.
+ * The name of a module is tightly linked to the name of the corresponding Java module.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -36,8 +35,7 @@ public class ModuleQualifiedName extends QualifiedName {
 
 	/**
 	 * <p>
-	 * The simple name of the module which corresponds to the last part of the Java
-	 * module name.
+	 * The simple name of the module which corresponds to the last part of the Java module name.
 	 * </p>
 	 */
 	private String moduleName;
@@ -76,17 +74,16 @@ public class ModuleQualifiedName extends QualifiedName {
 	public ModuleQualifiedName(String packageName, String moduleName) throws QualifiedNameFormatException {
 		this(packageName, moduleName, null, null);
 	}
-	
+
 	/**
 	 * <p>
-	 * Creates a module qualified name from the specified package and module names
-	 * with the specified class name.
+	 * Creates a module qualified name from the specified package and module names with the specified class name.
 	 * </p>
-	 * 
+	 *
 	 * @param packageName the package name
 	 * @param moduleName  the module simple name
 	 * @param className   the module class name
-	 * 
+	 *
 	 * @throws QualifiedNameFormatException if one of the specified names is invalid
 	 */
 	public ModuleQualifiedName(String packageName, String moduleName, String className)
@@ -96,8 +93,7 @@ public class ModuleQualifiedName extends QualifiedName {
 
 	/**
 	 * <p>
-	 * Creates a module qualified name from the specified package and module names
-	 * with the specified class name and source package name.
+	 * Creates a module qualified name from the specified package and module names with the specified class name and source package name.
 	 * </p>
 	 * 
 	 * @param packageName       the package name
@@ -156,15 +152,12 @@ public class ModuleQualifiedName extends QualifiedName {
 	 * <p>
 	 * Returns the module class name.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * If not explicitly specified, the class name derives from the module package
-	 * name and the module simple name for the package and uses the module simple
-	 * name for the simple class name (eg. the class name of module
-	 * <code>com.example.someModule</code> is
-	 * <code>com.example.someModule.SomeModule</code>.
+	 * If not explicitly specified, the class name derives from the module package name and the module simple name for the package and uses the module simple name for the simple class name (eg. the
+	 * class name of module <code>com.example.someModule</code> is <code>com.example.someModule.SomeModule</code>.
 	 * </p>
-	 * 
+	 *
 	 * @return a canonical class name
 	 */
 	public String getClassName() {
@@ -222,15 +215,14 @@ public class ModuleQualifiedName extends QualifiedName {
 
 	/**
 	 * <p>
-	 * Creates a module qualified name from the specified raw value which should be
-	 * a valid Java name.
+	 * Creates a module qualified name from the specified raw value which should be a valid Java name.
 	 * </p>
-	 * 
+	 *
 	 * @param qname a raw qualified name
-	 * 
+	 *
 	 * @return a module qualified name
-	 * @throws QualifiedNameFormatException if the specified value is not a module
-	 *                                      qualified name
+	 *
+	 * @throws QualifiedNameFormatException if the specified value is not a module qualified name
 	 */
 	public static ModuleQualifiedName valueOf(String qname) throws QualifiedNameFormatException {
 		return valueOf(qname, null);
@@ -238,16 +230,15 @@ public class ModuleQualifiedName extends QualifiedName {
 
 	/**
 	 * <p>
-	 * Creates a module qualified name from the specified raw value which should be
-	 * a valid Java name and with the specified class name.
+	 * Creates a module qualified name from the specified raw value which should be a valid Java name and with the specified class name.
 	 * </p>
-	 * 
+	 *
 	 * @param qname     a raw qualified name
 	 * @param className a module class name
-	 * 
+	 *
 	 * @return a module qualified name
-	 * @throws QualifiedNameFormatException if the specified value is not a module
-	 *                                      qualified name
+	 *
+	 * @throws QualifiedNameFormatException if the specified value is not a module qualified name
 	 */
 	public static ModuleQualifiedName valueOf(String qname, String className) throws QualifiedNameFormatException {
 		return valueOf(qname, className, null);
@@ -255,17 +246,16 @@ public class ModuleQualifiedName extends QualifiedName {
 	
 	/**
 	 * <p>
-	 * Creates a module qualified name from the specified raw value which should be
-	 * a valid Java name and with the specified class name.
+	 * Creates a module qualified name from the specified raw value which should be a valid Java name and with the specified class name.
 	 * </p>
-	 * 
+	 *
 	 * @param qname             a raw qualified name
 	 * @param className         a module class name
 	 * @param sourcePackageName a module source package name
-	 * 
+	 *
 	 * @return a module qualified name
-	 * @throws QualifiedNameFormatException if the specified value is not a module
-	 *                                      qualified name
+	 *
+	 * @throws QualifiedNameFormatException if the specified value is not a module qualified name
 	 */
 	public static ModuleQualifiedName valueOf(String qname, String className, String sourcePackageName) throws QualifiedNameFormatException {
 		int lastDotIndex = qname.lastIndexOf(".");

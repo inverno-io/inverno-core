@@ -39,7 +39,7 @@ import io.inverno.core.compiler.spi.NestedBeanInfo;
  */
 class CommonMultiSocketBeanInfo extends AbstractSocketBeanInfo implements MultiSocketBeanInfo, MutableMultiSocketInfo {
 
-	private MultiSocketType multiType;
+	private final MultiSocketType multiType;
 	
 	private BeanInfo[] beanInfos;
 

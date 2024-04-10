@@ -59,10 +59,10 @@ public interface CompilerOptions {
 	 * <p>
 	 * Returns the value of the specified option.
 	 * </p>
-	 * 
+	 *
 	 * @param name an option name
-	 * @return an optional returning the value or an empty optional if the options
-	 *         has not been set
+	 *
+	 * @return an optional returning the value or an empty optional if the options has not been set
 	 */
 	Optional<String> getOption(String name);
 	
@@ -70,15 +70,14 @@ public interface CompilerOptions {
 	 * <p>
 	 * Determines whether the specified option is activated.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * An option can be a flag option (ie. with no value) in which case it is
-	 * considered activated if it has been declared.
+	 * An option can be a flag option (ie. with no value) in which case it is considered activated if it has been declared.
 	 * </p>
-	 * 
+	 *
 	 * @param name              an option name
 	 * @param defaultActivation whether the option is activated by default
-	 * 
+	 *
 	 * @return true if the option is activated, false otherwise
 	 */
 	boolean isOptionActivated(String name, boolean defaultActivation);

@@ -58,15 +58,14 @@ public abstract class QualifiedName {
 	 * <p>
 	 * Validates that the specified qualified name part is valid.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * A Java name is a valid qualified name part.
 	 * </p>
-	 * 
+	 *
 	 * @param qnamePart the qualified name part to validate
-	 * 
-	 * @throws QualifiedNameFormatException if the specified qualified name part is
-	 *                                      invalid
+	 *
+	 * @throws QualifiedNameFormatException if the specified qualified name part is invalid
 	 */
 	protected void validateQualifiedNamePart(String qnamePart) throws QualifiedNameFormatException {
 		boolean start = true;
@@ -116,13 +115,11 @@ public abstract class QualifiedName {
 	 * <p>
 	 * Returns a normalized representation of the qualified name.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * This methods basically converts the simple value to a camel case Java
-	 * identifier by removing possible dots. As for the simple value the normalized
-	 * representation is not "qualified".
+	 * This methods basically converts the simple value to a camel case Java identifier by removing possible dots. As for the simple value the normalized representation is not "qualified".
 	 * </p>
-	 * 
+	 *
 	 * @return a normalized representation
 	 */
 	public String normalize() {

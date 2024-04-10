@@ -49,38 +49,36 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * A Module generator is used to generate Inverno module classes in the correct
- * order taking compilation round into account.
+ * A Module generator is used to generate Inverno module classes in the correct order taking compilation round into account.
  * </p>
- * 
+ *
  * <p>
- * A module can't be generated if one or more of the modules it requires are not
- * compiled and generated yet.
+ * A module can't be generated if one or more of the modules it requires are not compiled and generated yet.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  */
 class ModuleGenerator {
 
-	private GenericCompilerOptions options;
+	private final GenericCompilerOptions options;
 	
-	private Map<String, ModuleInfo> generatedModules;
-	private Map<String, ModuleInfo> componentModules;
-	private Set<String> faultyModules;
-	private Map<String, PluginsExecutionResult> pluginsExecutedModules;
+	private final Map<String, ModuleInfo> generatedModules;
+	private final Map<String, ModuleInfo> componentModules;
+	private final Set<String> faultyModules;
+	private final Map<String, PluginsExecutionResult> pluginsExecutedModules;
 	
-	private ProcessingEnvironment processingEnvironment;
+	private final ProcessingEnvironment processingEnvironment;
 	
-	private ModuleClassGenerator moduleClassGenerator;
-	private ModuleDescriptorGenerator moduleDescriptorGenerator;
+	private final ModuleClassGenerator moduleClassGenerator;
+	private final ModuleDescriptorGenerator moduleDescriptorGenerator;
 	
-	private Map<String, ModuleInfoBuilder> moduleBuilders;
-	private Map<String, Set<Element>> moduleOriginatingElements;
-	private Map<String, List<ModuleBeanInfo>> moduleBeans;
-	private Map<String, List<SocketBeanInfo>> moduleSockets;
-	private Map<String, List<ModuleInfoBuilder>> componentModuleBuilders;
+	private final Map<String, ModuleInfoBuilder> moduleBuilders;
+	private final Map<String, Set<Element>> moduleOriginatingElements;
+	private final Map<String, List<ModuleBeanInfo>> moduleBeans;
+	private final Map<String, List<SocketBeanInfo>> moduleSockets;
+	private final Map<String, List<ModuleInfoBuilder>> componentModuleBuilders;
 	
-	private PluginsExecutor pluginsExecutor;
+	private final PluginsExecutor pluginsExecutor;
 	
 	public ModuleGenerator(ProcessingEnvironment processingEnv, GenericCompilerOptions options) {
 		this.processingEnvironment = processingEnv;
@@ -197,7 +195,7 @@ class ModuleGenerator {
 				this.generateModule(moduleBuilder, roundEnv, roundModules, roundGeneratedModules, roundFaultyModules, roundPluginExecutedModules);
 			}
 		}
-		if(roundGeneratedModules.size() == 0 && roundFaultyModules.size() == 0 && roundPluginExecutedModules.size() == 0) {
+		if(roundGeneratedModules.isEmpty() && roundFaultyModules.isEmpty() && roundPluginExecutedModules.isEmpty()) {
 			throw new IllegalStateException("Module generator round resulted in no module generation and no plugin execution. Unable to generate modules: " + this.moduleBuilders.keySet().stream().filter(moduleName -> !this.generatedModules.containsKey(moduleName)).collect(Collectors.joining(", ")));
 		}
 		this.generatedModules.putAll(roundGeneratedModules);
@@ -219,7 +217,7 @@ class ModuleGenerator {
 			moduleInjectableBeans.addAll(this.moduleSockets.get(moduleName));
 			moduleBuilder.sockets(this.moduleSockets.get(moduleName).stream().toArray(SocketBeanInfo[]::new));					
 		}
-		List<ModuleInfo> componentModules = new ArrayList<>();
+		List<ModuleInfo> currentComponentModules = new ArrayList<>();
 		if(this.componentModuleBuilders.containsKey(moduleName)) {
 			for(ModuleInfoBuilder componentModuleBuilder : this.componentModuleBuilders.get(moduleName)) {
 				String componentModuleName = componentModuleBuilder.getQualifiedName().toString();
@@ -228,7 +226,7 @@ class ModuleGenerator {
 					ModuleInfo componentModule = this.generatedModules.get(componentModuleName);
 					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
 					if(!componentModule.isEmpty()) {
-						componentModules.add(componentModule);
+						currentComponentModules.add(componentModule);
 					}
 				}
 				else if(this.componentModules.containsKey(componentModuleName)) {
@@ -236,7 +234,7 @@ class ModuleGenerator {
 					ModuleInfo componentModule = this.componentModules.get(componentModuleName);
 					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
 					if(!componentModule.isEmpty()) {
-						componentModules.add(componentModule);
+						currentComponentModules.add(componentModule);
 					}
 				} 
 				else if(this.faultyModules.contains(componentModuleName)) {
@@ -257,7 +255,7 @@ class ModuleGenerator {
 					if(componentModule != null) {
 						Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
 						if(!componentModule.isEmpty()) {
-							componentModules.add(componentModule);
+							currentComponentModules.add(componentModule);
 						}
 					}
 				}
@@ -267,18 +265,18 @@ class ModuleGenerator {
 					this.componentModules.put(componentModuleName, componentModule);
 					Arrays.stream(componentModule.getPublicBeans()).forEach(moduleInjectableBeans::add);
 					if(!componentModule.isEmpty()) {
-						componentModules.add(componentModule);
+						currentComponentModules.add(componentModule);
 					}
 				}
 			}
 			if(generate) {
-				moduleBuilder.modules(componentModules.toArray(new ModuleInfo[componentModules.size()]));
+				moduleBuilder.modules(currentComponentModules.toArray(ModuleInfo[]::new));
 			}
 		}
 		
 		PluginsExecutionResult pluginsExecutionResult = this.getPreviousPluginsExecution(moduleBuilder, roundPluginExecutedModules);
 		if(pluginsExecutionResult == null) {
-			PluginsExecutionTask pluginExecutionTask = this.pluginsExecutor.getTask(moduleBuilder.getElement(), moduleBuilder.getQualifiedName(), moduleInjectableBeans, componentModules);
+			PluginsExecutionTask pluginExecutionTask = this.pluginsExecutor.getTask(moduleBuilder.getElement(), moduleBuilder.getQualifiedName(), moduleInjectableBeans, currentComponentModules);
 			pluginExecutionTask.addRound(roundEnv);
 			if(generate) {
 				pluginsExecutionResult = pluginExecutionTask.call();
@@ -355,10 +353,7 @@ class ModuleGenerator {
 	}
 	
 	private PluginsExecutionResult getPreviousPluginsExecution(ModuleInfoBuilder moduleBuilder, Map<String, PluginsExecutionResult> roundPluginExecutedModules) {
-		PluginsExecutionResult executionResult = null;
-		
-		executionResult = this.pluginsExecutedModules.get(moduleBuilder.getQualifiedName().toString());
-		
+		PluginsExecutionResult executionResult = this.pluginsExecutedModules.get(moduleBuilder.getQualifiedName().toString());
 		if(executionResult == null) {
 			executionResult = roundPluginExecutedModules.get(moduleBuilder.getQualifiedName().toString());
 		}

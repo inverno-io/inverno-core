@@ -28,9 +28,9 @@ import io.inverno.core.compiler.spi.ReporterInfo;
  */
 public abstract class AbstractInfo<E extends QualifiedName> implements Info {
 	
-	private E name;
+	private final E name;
 	
-	private ReporterInfo reporter;
+	private final ReporterInfo reporter;
 	
 	/**
 	 * <p>

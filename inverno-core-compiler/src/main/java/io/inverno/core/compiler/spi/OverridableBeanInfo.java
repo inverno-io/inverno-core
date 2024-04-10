@@ -17,10 +17,9 @@ package io.inverno.core.compiler.spi;
 
 /**
  * <p>
- * An overridable bean info holds the data required to process an overridable bean in a
- * module.
+ * An overridable bean info holds the data required to process an overridable bean in a module.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * 
  */

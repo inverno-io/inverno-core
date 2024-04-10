@@ -29,9 +29,7 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * A module info builder used to build binary Inverno module info from module
- * elements annotated with {@link Module}, required and included in other
- * modules (possibly compiled modules).
+ * A module info builder used to build binary Inverno module info from module elements annotated with {@link Module}, required and included in other modules (possibly compiled modules).
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

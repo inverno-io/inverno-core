@@ -27,9 +27,8 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * Extracts qualified name and version of a module element. The version
- * corresponds to the current {@link InvernoCompiler#VERSION} of the
- * version of a binary module determined by the version of its Module class.
+ * Extracts qualified name and version of a module element. The version corresponds to the current {@link InvernoCompiler#VERSION} of the version of a binary module determined by the version of its
+ * Module class.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -37,7 +36,7 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
  */
 public class ModuleMetadataExtractor {
 
-	private MetadataModuleInfoBuilder versionModuleInfoBuilder;
+	private final MetadataModuleInfoBuilder versionModuleInfoBuilder;
 	
 	private class MetadataModuleInfoBuilder extends AbstractModuleInfoBuilder {
 

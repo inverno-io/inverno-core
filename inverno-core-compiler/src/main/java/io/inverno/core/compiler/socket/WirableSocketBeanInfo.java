@@ -22,9 +22,7 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * Wirable socket beans should be created when building a compiled module info
- * so that module info builder can resolve and set the wired beans in the socket
- * bean info.
+ * Wirable socket beans should be created when building a compiled module info so that module info builder can resolve and set the wired beans in the socket bean info.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

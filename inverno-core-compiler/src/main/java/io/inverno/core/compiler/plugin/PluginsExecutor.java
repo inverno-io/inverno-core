@@ -39,9 +39,9 @@ import io.inverno.core.compiler.spi.plugin.CompilerPlugin;
  */
 public class PluginsExecutor {
 
-	private ProcessingEnvironment processingEnvironment;
+	private final ProcessingEnvironment processingEnvironment;
 	
-	private GenericCompilerOptions options;
+	private final GenericCompilerOptions options;
 	
 	private Set<CompilerPlugin> plugins;
 	

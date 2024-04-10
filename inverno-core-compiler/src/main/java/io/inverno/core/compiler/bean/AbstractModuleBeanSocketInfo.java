@@ -28,7 +28,9 @@ import io.inverno.core.compiler.spi.BeanSocketQualifiedName;
 import io.inverno.core.compiler.spi.ModuleBeanSocketInfo;
 
 /**
- * <p>Base class for {@link ModuleBeanSocketInfo} implementations.</p>
+ * <p>
+ * Base class for {@link ModuleBeanSocketInfo} implementations.
+ * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *

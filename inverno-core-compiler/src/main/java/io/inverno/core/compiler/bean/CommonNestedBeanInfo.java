@@ -40,11 +40,11 @@ import io.inverno.core.compiler.spi.NestedBeanInfo;
  */
 public class CommonNestedBeanInfo extends AbstractBeanInfo implements NestedBeanInfo {
 
+	private final List<? extends NestedBeanInfo> nestedBeans;
+	
 	private ExecutableElement accessorelement;
 	
 	private BeanInfo providingBean;
-	
-	private List<? extends NestedBeanInfo> nestedBeans;
 	
 	/**
 	 * @param processingEnvironment
@@ -63,7 +63,7 @@ public class CommonNestedBeanInfo extends AbstractBeanInfo implements NestedBean
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {
 				boolean valid = true;
-				if(e.getParameters().size() > 0) {
+				if(!e.getParameters().isEmpty()) {
 					this.warning("Ignoring invalid " + NestedBean.class.getSimpleName() + " " + this.qname.getBeanName() + ", " + e.getEnclosingElement().toString() + "#" + e + " should be a no-argument method");
 					valid = false;
 				}

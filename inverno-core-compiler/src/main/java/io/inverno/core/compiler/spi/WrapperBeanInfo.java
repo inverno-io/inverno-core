@@ -19,8 +19,7 @@ import javax.lang.model.type.TypeMirror;
 
 /**
  * <p>
- * A wrapper bean info holds the data required to process a wrapper bean in a
- * module.
+ * A wrapper bean info holds the data required to process a wrapper bean in a module.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -30,8 +29,7 @@ public interface WrapperBeanInfo extends ModuleBeanInfo {
 
 	/**
 	 * <p>
-	 * Returns the wrapper type which is the type of the class supplying the actual
-	 * bean whose type is given by {@link BeanInfo#getType()}.
+	 * Returns the wrapper type which is the type of the class supplying the actual bean whose type is given by {@link BeanInfo#getType()}.
 	 * </p>
 	 * 
 	 * @return a type

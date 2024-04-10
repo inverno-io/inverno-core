@@ -32,8 +32,7 @@ import java.util.Set;
 
 /**
  * <p>
- * Represents a generation context used by the {@link ModuleClassGenerator}
- * during the generation of an Inverno module class.
+ * Represents a generation context used by the {@link ModuleClassGenerator} during the generation of an Inverno module class.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -98,17 +97,17 @@ class ModuleClassGenerationContext extends AbstractSourceGenerationContext<Modul
 	}
 	
 	public String getMultiTypeName(TypeMirror type, MultiSocketType multiType) {
-		if(multiType.equals(MultiSocketType.ARRAY)) {
-			return this.getTypeName(this.getTypeUtils().getArrayType(type));
-		}
-		else if(multiType.equals(MultiSocketType.COLLECTION)) {
-			return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Collection"), type));
-		}
-		else if(multiType.equals(MultiSocketType.LIST)) {
-			return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.List"), type));
-		}
-		else if(multiType.equals(MultiSocketType.SET)) {
-			return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Set"), type));
+		switch (multiType) {
+			case ARRAY:
+				return this.getTypeName(this.getTypeUtils().getArrayType(type));
+			case COLLECTION:
+				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Collection"), type));
+			case LIST:
+				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.List"), type));
+			case SET:
+				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Set"), type));
+			default:
+				break;
 		}
 		throw new IllegalArgumentException("Unexpected multi type: " + multiType);
 	}

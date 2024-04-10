@@ -43,9 +43,8 @@ import io.inverno.core.compiler.spi.WrapperBeanInfo;
 
 /**
  * <p>
- * Traverses the bean graph of a module and populates module's socket bean info
- * with the direct and indirect beans they are wired to in order to detect
- * dependency cycles when a module is used as a component module
+ * Traverses the bean graph of a module and populates module's socket bean info with the direct and indirect beans they are wired to in order to detect dependency cycles when a module is used as a
+ * component module
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

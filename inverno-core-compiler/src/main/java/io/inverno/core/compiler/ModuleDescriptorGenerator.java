@@ -38,7 +38,9 @@ import io.inverno.core.compiler.spi.SocketInfo;
 import io.inverno.core.compiler.spi.WrapperBeanInfo;
 
 /**
- * <p>A {@link ModuleInfoVisitor} used to generate module descriptor in a readable YAML format.</p>
+ * <p>
+ * A {@link ModuleInfoVisitor} used to generate module descriptor in a readable YAML format.
+ * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *

@@ -31,19 +31,19 @@ public class GenericCompilerOptions implements CompilerOptions {
 	public static final String VERBOSE = "inverno.verbose";
 	public static final String GENERATE_DESCRIPTOR = "inverno.generateDescriptor";
 	
-	private Predicate<String> nameFilter;
-	private Map<String, String> processingEnvOptions;
+	private final Predicate<String> nameFilter;
+	private final Map<String, String> processingEnvOptions;
 	
-	private boolean debug;
-	private boolean verbose;
-	private boolean generateModuleDescriptor;
+	private final boolean debug;
+	private final boolean verbose;
+	private final boolean generateModuleDescriptor;
 	
 	public GenericCompilerOptions(Map<String, String> processingEnvOptions) {
 		this.processingEnvOptions = processingEnvOptions;
 		this.nameFilter = name -> true;
-		this.debug = processingEnvOptions.containsKey(DEBUG) && (processingEnvOptions.get(DEBUG) == null || Boolean.valueOf(processingEnvOptions.get(DEBUG)));
-		this.verbose = processingEnvOptions.containsKey(VERBOSE) && (processingEnvOptions.get(VERBOSE) == null || Boolean.valueOf(processingEnvOptions.get(VERBOSE)));
-		this.generateModuleDescriptor = processingEnvOptions.containsKey(GENERATE_DESCRIPTOR) && (processingEnvOptions.get(GENERATE_DESCRIPTOR) == null || Boolean.valueOf(processingEnvOptions.get(GENERATE_DESCRIPTOR)));
+		this.debug = processingEnvOptions.containsKey(DEBUG) && (processingEnvOptions.get(DEBUG) == null || Boolean.parseBoolean(processingEnvOptions.get(DEBUG)));
+		this.verbose = processingEnvOptions.containsKey(VERBOSE) && (processingEnvOptions.get(VERBOSE) == null || Boolean.parseBoolean(processingEnvOptions.get(VERBOSE)));
+		this.generateModuleDescriptor = processingEnvOptions.containsKey(GENERATE_DESCRIPTOR) && (processingEnvOptions.get(GENERATE_DESCRIPTOR) == null || Boolean.parseBoolean(processingEnvOptions.get(GENERATE_DESCRIPTOR)));
 	}
 	
 	private GenericCompilerOptions(GenericCompilerOptions parentOptions, Predicate<String> nameFilter) {
@@ -58,10 +58,12 @@ public class GenericCompilerOptions implements CompilerOptions {
 		return new GenericCompilerOptions(this, namefilter);
 	}
 
+	@Override
 	public boolean isDebug() {
 		return debug;
 	}
 
+	@Override
 	public boolean isVerbose() {
 		return verbose;
 	}

@@ -31,19 +31,17 @@ import io.inverno.core.compiler.spi.WiringStrategy;
 
 /**
  * <p>
- * {@link WiringStrategy} implementation used to determine if a bean is wirable
- * to a socket based on the value of {@link AnnotationSelector} annotation
- * specified on the socket.
+ * {@link WiringStrategy} implementation used to determine if a bean is wirable to a socket based on the value of {@link AnnotationSelector} annotation specified on the socket.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
 public class AnnotationSelectorWiringStrategy implements WiringStrategy {
 
-	private ProcessingEnvironment processingEnvironment;
+	private final ProcessingEnvironment processingEnvironment;
 	
-	private TypeMirror annotationSelectorAnnotationType;
+	private final TypeMirror annotationSelectorAnnotationType;
 	
 	public AnnotationSelectorWiringStrategy(ProcessingEnvironment processingEnvironment) {
 		this.processingEnvironment = processingEnvironment;

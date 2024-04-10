@@ -39,10 +39,8 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * A {@link ModuleBeanInfoFactory} implementation used by the
- * {@link InvernoCompiler} to create {@link ModuleBeanInfo} for binary
- * modules (ie. already compiled) required as component modules in other modules
- * (possibly compiled modules).
+ * A {@link ModuleBeanInfoFactory} implementation used by the {@link InvernoCompiler} to create {@link ModuleBeanInfo} for binary modules (ie. already compiled) required as component modules in other
+ * modules (possibly compiled modules).
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -50,7 +48,7 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
  */
 class BinaryModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 
-	private ModuleElement compiledModuleElement;
+	private final ModuleElement compiledModuleElement;
 	
 	private Map<BeanQualifiedName, List<SocketBeanInfo>> moduleSocketInfosByWiredBeanQName;
 	
@@ -87,7 +85,7 @@ class BinaryModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		if(!((TypeElement)executableElement.getEnclosingElement()).getQualifiedName().toString().equals(this.moduleQName.getClassName())) {
 			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 		}
-		if(!executableElement.getModifiers().contains(Modifier.PUBLIC) || executableElement.getParameters().size() != 0) {
+		if(!executableElement.getModifiers().contains(Modifier.PUBLIC) || !executableElement.getParameters().isEmpty()) {
 			throw new IllegalArgumentException("Module bean " + new BeanQualifiedName(this.moduleQName, executableElement.getSimpleName().toString()) + " must be referenced as a public no-argument method");
 		}
 		

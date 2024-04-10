@@ -17,8 +17,7 @@ package io.inverno.core.compiler.socket;
 
 /**
  * <p>
- * Thrown when compilation errors have been reported on a socket bean excluding
- * the bean from corresponding compiled module info.
+ * Thrown when compilation errors have been reported on a socket bean excluding the bean from corresponding compiled module info.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

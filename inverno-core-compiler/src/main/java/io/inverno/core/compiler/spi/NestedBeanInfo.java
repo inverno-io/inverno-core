@@ -19,16 +19,13 @@ import javax.lang.model.element.ExecutableElement;
 
 /**
  * <p>
- * A nested bean info holds the data required to process a nested bean in a
- * module.
+ * A nested bean info holds the data required to process a nested bean in a module.
  * </p>
- * 
+ *
  * <p>
- * Nested beans are exposed and provided by a bean (module or socket bean) in a
- * module. They follow the same lifecycle as their providing bean as such they
- * are not directly exposed on a module.
+ * Nested beans are exposed and provided by a bean (module or socket bean) in a module. They follow the same lifecycle as their providing bean as such they are not directly exposed on a module.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */

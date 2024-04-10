@@ -24,11 +24,9 @@ import io.inverno.core.compiler.common.AbstractSocketInfoFactory;
 
 /**
  * <p>
- * Used by the {@link InvernoCompiler} to create
- * {@link SocketBeanInfoFactory} corresponding to a particular context (compiled
- * and binary).
+ * Used by the {@link InvernoCompiler} to create {@link SocketBeanInfoFactory} corresponding to a particular context (compiled and binary).
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */

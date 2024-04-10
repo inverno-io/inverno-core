@@ -38,9 +38,9 @@ import io.inverno.core.compiler.spi.MultiSocketType;
  */
 class CommonModuleBeanMultiSocketInfo extends AbstractModuleBeanSocketInfo implements ModuleBeanMultiSocketInfo, MutableMultiSocketInfo {
 
-	private BeanInfo[] beanInfos;
+	private final MultiSocketType multiType;
 	
-	private MultiSocketType multiType;
+	private BeanInfo[] beanInfos;
 	
 	public CommonModuleBeanMultiSocketInfo(ProcessingEnvironment processingEnvironment, 
 			ModuleElement element, 

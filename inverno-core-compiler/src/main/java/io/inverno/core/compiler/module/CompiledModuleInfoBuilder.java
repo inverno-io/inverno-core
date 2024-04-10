@@ -59,22 +59,21 @@ import io.inverno.core.compiler.wire.WireInfoFactory;
 
 /**
  * <p>
- * A module info builder used to build compiled module info from module elements
- * annotated with {@link Module} and currently compiled by the Java compiler.
+ * A module info builder used to build compiled module info from module elements annotated with {@link Module} and currently compiled by the Java compiler.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
 class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 
+	private final ModuleBeanSocketWireResolver moduleSocketWiredBeansResolver;
+	
 	private ModuleBeanInfo[] beans;
 	
 	private SocketBeanInfo[] sockets;
 	
 	private ModuleInfo[] modules;
-	
-	private ModuleBeanSocketWireResolver moduleSocketWiredBeansResolver;
 	
 	public CompiledModuleInfoBuilder(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 		super(processingEnvironment, moduleElement);
@@ -390,8 +389,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 				})
 				.forEach(cycleInfo -> cycleInfo.getBeanInfo().error("Bean " + cycleInfo.getBeanInfo().getQualifiedName() + " forms a cycle in module " + this.moduleQName + "\n" + message));
 		}
-		
-		return beanCycles.size() > 0;
+		return !beanCycles.isEmpty();
 	}
 	
 	private Stream<NestedBeanInfo> extractNestedBeans(BeanInfo beanInfo) {

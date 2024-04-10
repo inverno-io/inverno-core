@@ -32,10 +32,9 @@ public interface ModuleBeanInfo extends BeanInfo {
 
 	/**
 	 * <p>
-	 * Returns the type provided by the bean which is the type that will be exposed
-	 * outside the module.
+	 * Returns the type provided by the bean which is the type that will be exposed outside the module.
 	 * </p>
-	 * 
+	 *
 	 * @return a type
 	 */
 	TypeMirror getProvidedType();
@@ -55,8 +54,7 @@ public interface ModuleBeanInfo extends BeanInfo {
 	 * </p>
 	 * 
 	 * <p>
-	 * A public bean is exposed to other modules whereas a private bean is only
-	 * visible from inside the module.
+	 * A public bean is exposed to other modules whereas a private bean is only visible from inside the module.
 	 * </p>
 	 * 
 	 * @return a visibility
@@ -98,12 +96,11 @@ public interface ModuleBeanInfo extends BeanInfo {
 	 * <p>
 	 * Returns the list of required sockets specified by the bean.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * A required socket must be resolved during dependency injection in order to
-	 * instantiate the bean.
+	 * A required socket must be resolved during dependency injection in order to instantiate the bean.
 	 * </p>
-	 * 
+	 *
 	 * @return an array of bean socket info
 	 */
 	ModuleBeanSocketInfo[] getRequiredSockets();

@@ -55,11 +55,9 @@ import javax.tools.Diagnostic.Kind;
 
 /**
  * <p>
- * A {@link ModuleBeanInfoFactory} implementation used by the
- * {@link InvernoCompiler} to create {@link ModuleBeanInfo} for
- * modules being compiled.
+ * A {@link ModuleBeanInfoFactory} implementation used by the {@link InvernoCompiler} to create {@link ModuleBeanInfo} for modules being compiled.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
@@ -102,8 +100,8 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		
 		TypeElement typeElement = (TypeElement)element;
 		
-		for(Element moduleElement = typeElement; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
-			if(moduleElement instanceof ModuleElement && !moduleElement.equals(this.moduleElement)) {
+		for(Element currentModuleElement = typeElement; currentModuleElement != null;currentModuleElement = currentModuleElement.getEnclosingElement()) {
+			if(currentModuleElement instanceof ModuleElement && !currentModuleElement.equals(this.moduleElement)) {
 				throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 			}
 		}
@@ -168,7 +166,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		beanSocketInfos.addAll(requiredBeanSocketInfos);
 		
 		// ... from setters
-		List<ModuleBeanSocketInfo> optionalBeanSocketInfos = this.getOptionalBeanSocketInfos(typeElement, beanReporter, beanSocketFactory, beanQName, requiredBeanSocketInfos);
+		List<ModuleBeanSocketInfo> optionalBeanSocketInfos = this.getOptionalBeanSocketInfos(typeElement, beanSocketFactory, requiredBeanSocketInfos);
 		beanSocketInfos.addAll(optionalBeanSocketInfos);
 		
 		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
@@ -177,13 +175,13 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		CommonModuleBeanInfo moduleBeanInfo;
 		if(wrapperAnnotation.isPresent()) {
 			TypeMirror wrapperType = beanType;
-			Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
-			if(supplierType.isPresent()) {
-				if(((DeclaredType)supplierType.get()).getTypeArguments().size() == 0) {
+			Optional<? extends TypeMirror> beanSupplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
+			if(beanSupplierType.isPresent()) {
+				if(((DeclaredType)beanSupplierType.get()).getTypeArguments().isEmpty()) {
 					beanType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
 				}
 				else {
-					beanType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
+					beanType = ((DeclaredType)beanSupplierType.get()).getTypeArguments().get(0);
 				}
 			}
 			else {
@@ -254,7 +252,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			.filter(e -> e.getAnnotation(Init.class) != null)
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {
-				if(((ExecutableElement)e).getParameters().size() > 0) {
+				if(!((ExecutableElement)e).getParameters().isEmpty()) {
 					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid " + Init.class.getSimpleName() + " method which should be a no-argument method, it will be ignored", e);
 					return false;
 				}
@@ -267,7 +265,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			.filter(e -> e.getAnnotation(Destroy.class) != null)
 			.map(e -> (ExecutableElement)e)
 			.filter(e -> {
-				if(e.getParameters().size() > 0) {
+				if(!e.getParameters().isEmpty()) {
 					this.processingEnvironment.getMessager().printMessage(Kind.MANDATORY_WARNING, "Invalid " + Destroy.class.getSimpleName() + " method which should be a no-argument method, it will be ignored", e);
 					return false;
 				}
@@ -302,7 +300,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 				)
 				.collect(Collectors.toList());
 			
-			if(constructorSocketElements.size() == 0) {
+			if(constructorSocketElements.isEmpty()) {
 				beanReporter.error("No constructor annotated with " + BeanSocket.class.getSimpleName() + " is enabled in module bean " + beanQName + ", consider enabling one constructor");
 			}
 			else if(constructorSocketElements.size() == 1) {
@@ -314,7 +312,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		}
 		else {
 			// Implicit sockets
-			if(constructorSocketElements.size() == 0) {
+			if(constructorSocketElements.isEmpty()) {
 				// This should never happen
 				beanReporter.error("No public constructor defined in bean " + beanQName);
 			}
@@ -344,7 +342,7 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		return List.of();
 	}
 	
-	private List<ModuleBeanSocketInfo> getOptionalBeanSocketInfos(TypeElement typeElement, ReporterInfo beanReporter, ModuleBeanSocketInfoFactory beanSocketFactory, BeanQualifiedName beanQName, List<ModuleBeanSocketInfo> requiredBeanSocketInfos) {
+	private List<ModuleBeanSocketInfo> getOptionalBeanSocketInfos(TypeElement typeElement, ModuleBeanSocketInfoFactory beanSocketFactory, List<ModuleBeanSocketInfo> requiredBeanSocketInfos) {
 		List<ExecutableElement> optionalSocketElements = (List<ExecutableElement>)typeElement.getEnclosedElements().stream()
 			.filter(e -> e.getKind().equals(ElementKind.METHOD) && e.getSimpleName().toString().startsWith("set"))
 			.filter(e -> e.getModifiers().stream().anyMatch(m -> m.equals(Modifier.PUBLIC)))

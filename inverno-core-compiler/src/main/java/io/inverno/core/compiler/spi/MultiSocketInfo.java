@@ -17,9 +17,7 @@ package io.inverno.core.compiler.spi;
 
 /**
  * <p>
- * A multi socket info represents a one-to-many relationship with multiple
- * beans. It defines an injection point for an array, a set, a collection or a
- * list of beans.
+ * A multi socket info represents a one-to-many relationship with multiple beans. It defines an injection point for an array, a set, a collection or a list of beans.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

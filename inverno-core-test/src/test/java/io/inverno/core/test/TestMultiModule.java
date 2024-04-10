@@ -24,7 +24,10 @@ import io.inverno.test.InvernoCompilationException;
 import io.inverno.test.InvernoTestCompiler;
 import io.inverno.test.InvernoModuleLoader;
 import io.inverno.test.InvernoModuleProxy;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 
@@ -43,6 +46,8 @@ public class TestMultiModule extends AbstractCoreInvernoTest {
 	private static final String MODULEH = "io.inverno.core.test.multi.moduleH";
 	private static final String MODULEI = "io.inverno.core.test.multi.moduleI";
 	private static final String MODULEJ = "io.inverno.core.test.multi.moduleJ";
+	private static final String MODULEK = "io.inverno.core.test.multi.moduleK";
+	private static final String MODULEL = "io.inverno.core.test.multi.moduleL";
 
 	@Test
 	public void testMultiModuleSimple() throws IOException, InvernoCompilationException, IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException {
@@ -149,5 +154,48 @@ public class TestMultiModule extends AbstractCoreInvernoTest {
 		moduleI = moduleLoader.load(MODULEI).build();
 		moduleI.start();
 		moduleI.stop();
+	}
+	
+	@Test
+	public void testMultiSocketOrdering() throws IOException, InvernoCompilationException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		InvernoModuleLoader moduleLoader = this.getInvernoCompiler().compile(MODULEK, MODULEL);
+		
+		List<Runnable> extRunnables = List.of(new ExtRunnable1(), new ExtRunnable2());
+		
+		InvernoModuleProxy moduleK = moduleLoader.load(MODULEK).dependencies(extRunnables).build();
+		moduleK.start();
+		try {
+			Object runnableService = moduleK.getBean("runnableService");
+			Assertions.assertNotNull(runnableService);
+			
+			Object runnableService_runnablesList = runnableService.getClass().getField("runnables").get(runnableService);
+			
+			Assertions.assertNotNull(runnableService_runnablesList);
+			Assertions.assertEquals(6, ((List)runnableService_runnablesList).size());
+			
+			List<String> runnableClassNames = ((List<Object>)runnableService_runnablesList).stream().map(o -> o.getClass().getSimpleName()).collect(Collectors.toList());
+
+			// 1. Socket beans
+			Assertions.assertEquals(Set.of("ExtRunnable1", "ExtRunnable2"), runnableClassNames.subList(0, 2).stream().collect(Collectors.toSet()));
+			// 2. module beans
+			Assertions.assertEquals(Set.of("ModKRunnable1", "ModKRunnable2"), runnableClassNames.subList(2, 4).stream().collect(Collectors.toSet()));
+			// 3. nested module beans
+			Assertions.assertEquals(Set.of("ModLRunnable1", "ModLRunnable2"), runnableClassNames.subList(4, 6).stream().collect(Collectors.toSet()));
+		}
+		finally {
+			moduleK.stop();
+		}
+	}
+	
+	private static class ExtRunnable1 implements Runnable {
+
+		@Override
+		public void run() {}
+	}
+	
+	private static class ExtRunnable2 implements Runnable {
+
+		@Override
+		public void run() {}
 	}
 }

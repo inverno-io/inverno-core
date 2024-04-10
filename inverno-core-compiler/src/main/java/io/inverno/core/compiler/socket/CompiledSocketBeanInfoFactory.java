@@ -44,20 +44,18 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * A {@link SocketBeanInfoFactory} implementation used by the
- * {@link InvernoCompiler} to create {@link SocketBeanInfo} for
- * modules being compiled.
+ * A {@link SocketBeanInfoFactory} implementation used by the {@link InvernoCompiler} to create {@link SocketBeanInfo} for modules being compiled.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
 class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 
-	private TypeMirror beanAnnotationType;
-	private TypeMirror supplierType;
+	private final TypeMirror beanAnnotationType;
+	private final TypeMirror supplierType;
 	
-	private NestedBeanInfoFactory nestedBeanFactory;
+	private final NestedBeanInfoFactory nestedBeanFactory;
 	
 	public CompiledSocketBeanInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 		super(processingEnvironment, moduleElement);
@@ -76,8 +74,8 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 		
 		TypeElement typeElement = (TypeElement)element;
 		
-		for(Element moduleElement = element; moduleElement != null;moduleElement = moduleElement.getEnclosingElement()) {
-			if(moduleElement instanceof ModuleElement && !moduleElement.equals(this.moduleElement)) {
+		for(Element currentModuleElement = element; currentModuleElement != null;currentModuleElement = currentModuleElement.getEnclosingElement()) {
+			if(currentModuleElement instanceof ModuleElement && !currentModuleElement.equals(this.moduleElement)) {
 				throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
 			}
 		}
@@ -99,8 +97,8 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			throw new SocketCompilationException();
 		}
 		
-		Optional<? extends TypeMirror> supplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
-		if(!supplierType.isPresent()) {
+		Optional<? extends TypeMirror> beanSupplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
+		if(!beanSupplierType.isPresent()) {
 			beanReporter.error("A socket bean must extend " + Supplier.class.getCanonicalName());
 			throw new SocketCompilationException();
 		}
@@ -121,12 +119,12 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			throw new SocketCompilationException();
 		}
 		
-		TypeMirror socketType = null;
-		if(((DeclaredType)supplierType.get()).getTypeArguments().size() == 0) {
+		TypeMirror socketType;
+		if(((DeclaredType)beanSupplierType.get()).getTypeArguments().isEmpty()) {
 			socketType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
 		}
 		else {
-			socketType = ((DeclaredType)supplierType.get()).getTypeArguments().get(0);
+			socketType = ((DeclaredType)beanSupplierType.get()).getTypeArguments().get(0);
 		}
 		
 		try {

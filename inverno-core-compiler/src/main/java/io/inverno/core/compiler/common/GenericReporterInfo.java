@@ -25,8 +25,7 @@ import io.inverno.core.compiler.spi.ReporterInfo;
 
 /**
  * <p>
- * A reporter info is used to report and track info, warning and error on
- * module's elements and annotations during compilation.
+ * A reporter info is used to report and track info, warning and error on module's elements and annotations during compilation.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -62,14 +61,17 @@ public class GenericReporterInfo implements ReporterInfo {
 		return annotation;
 	}
 	
+	@Override
 	public boolean hasError() {
 		return this.errorCount > 0;
 	}
 	
+	@Override
 	public boolean hasWarning() {
 		return this.warningCount > 0;
 	}
 	
+	@Override
 	public void error(String message) {
 		if(this.element.getKind().equals(ElementKind.MODULE)) {
 			// JDK bug
@@ -81,6 +83,7 @@ public class GenericReporterInfo implements ReporterInfo {
 		this.errorCount++;
 	}
 	
+	@Override
 	public void warning(String message) {
 		if(this.element.getKind().equals(ElementKind.MODULE)) {
 			// JDK bug

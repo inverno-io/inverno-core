@@ -21,12 +21,11 @@ import javax.lang.model.type.TypeMirror;
  * <p>
  * Exception thrown when a type is missing or could not be found.
  * </p>
- * 
+ *
  * <p>
- * This can typically indicates compilation errors on a class referenced in a
- * class processed by the Inverno compiler.
+ * This can typically indicates compilation errors on a class referenced in a class processed by the Inverno compiler.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */

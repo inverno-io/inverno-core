@@ -40,11 +40,11 @@ import io.inverno.core.compiler.spi.MultiSocketType;
  */
 public abstract class AbstractSocketInfoFactory extends AbstractInfoFactory {
 
-	private TypeMirror collectionType;
+	private final TypeMirror collectionType;
 	
-	private TypeMirror setType;
+	private final TypeMirror setType;
 	
-	private TypeMirror listType;
+	private final TypeMirror listType;
 	
 	public AbstractSocketInfoFactory(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement) {
 		super(processingEnvironment, moduleElement);

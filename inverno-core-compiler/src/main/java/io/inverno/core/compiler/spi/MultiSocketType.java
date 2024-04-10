@@ -19,12 +19,11 @@ package io.inverno.core.compiler.spi;
  * <p>
  * The multiple socket type used in {@link MultiSocketInfo} as injection types.
  * </p>
- * 
+ *
  * <p>
- * Multiple beans can be plugged in a multi socket info as an array, a
- * collection, a set or a list.
+ * Multiple beans can be plugged in a multi socket info as an array, a collection, a set or a list.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */

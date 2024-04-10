@@ -17,9 +17,7 @@ package io.inverno.core.compiler.spi;
 
 /**
  * <p>
- * A multiple bean socket info represents a multiple dependency injection point
- * on a bean or a one-to-many relationship between the bean and an array or
- * collection of other beans.
+ * A multiple bean socket info represents a multiple dependency injection point on a bean or a one-to-many relationship between the bean and an array or collection of other beans.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

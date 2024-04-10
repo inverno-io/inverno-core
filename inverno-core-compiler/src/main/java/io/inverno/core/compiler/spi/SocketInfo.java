@@ -29,10 +29,9 @@ import io.inverno.core.annotation.Selector;
  * </p>
  * 
  * <p>
- * A socket represents an injection point for a single bean or multiple beans on
- * modules or beans.
+ * A socket represents an injection point for a single bean or multiple beans on modules or beans.
  * </p>
- * 
+ *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
@@ -51,13 +50,12 @@ public interface SocketInfo extends Info {
 	 * <p>
 	 * Returns the executable element to use to plug beans into the socket.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * Note that this is not applicable to socket beans in a module being generated.
 	 * </p>
-	 * 
-	 * @return an optional providing the executable element or an empty optional if
-	 *         not applicable
+	 *
+	 * @return an optional providing the executable element or an empty optional if not applicable
 	 */
 	Optional<ExecutableElement> getSocketElement();
 
@@ -74,12 +72,11 @@ public interface SocketInfo extends Info {
 	 * <p>
 	 * Determines whether the socket is optional.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * An optional socket is not required to be resolved for a module to operate
-	 * properly.
+	 * An optional socket is not required to be resolved for a module to operate properly.
 	 * </p>
-	 * 
+	 *
 	 * @return true if the socket is optional, false otherwise
 	 */
 	boolean isOptional();
@@ -88,12 +85,11 @@ public interface SocketInfo extends Info {
 	 * <p>
 	 * Determines whether the socket is resolved.
 	 * </p>
-	 * 
+	 *
 	 * <p>
-	 * A socket is resolved if the dependency it represents has been resolved (ie. a
-	 * bean has been plugged into the socket).
+	 * A socket is resolved if the dependency it represents has been resolved (ie. a bean has been plugged into the socket).
 	 * </p>
-	 * 
+	 *
 	 * @return true if the socket is resolved, false otherwise
 	 */
 	boolean isResolved();

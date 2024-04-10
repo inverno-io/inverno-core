@@ -17,8 +17,7 @@ package io.inverno.core.compiler.spi.plugin;
 
 /**
  * <p>
- * Thrown during the execution of a {@link CompilerPlugin} to indicate an
- * unrecoverable error.
+ * Thrown during the execution of a {@link CompilerPlugin} to indicate an unrecoverable error.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -72,10 +71,9 @@ public class PluginExecutionException extends Exception {
 
 	/**
 	 * <p>
-	 * Creates a plugin execution exception with the specified message, cause,
-	 * suppression enabled or disabled and writable stack trace enabled or disabled.
+	 * Creates a plugin execution exception with the specified message, cause, suppression enabled or disabled and writable stack trace enabled or disabled.
 	 * </p>
-	 * 
+	 *
 	 * @param message            the message
 	 * @param cause              the cause
 	 * @param enableSuppression  true to enable suppression, false otherwise

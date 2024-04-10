@@ -59,8 +59,7 @@ import javax.tools.Diagnostic.Kind;
 
 /**
  * <p>
- * Inverno compiler annotation processor which processes {@link Module} and
- * {@link Bean} annotations and generate an Inverno module class.
+ * Inverno compiler annotation processor which processes {@link Module} and {@link Bean} annotations and generate an Inverno module class.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -290,7 +289,7 @@ public class InvernoCompiler extends AbstractProcessor {
 
 		ModuleBeanInfoFactory componentModuleBeanFactory = ModuleBeanInfoFactory.create(this.processingEnv, moduleElement, componentModuleElement, () -> componentModuleSockets, 1);
 		List<? extends ModuleBeanInfo> componentModuleBeans = moduleType.getEnclosedElements().stream()
-			.filter(element -> element.getKind().equals(ElementKind.METHOD) && element.getModifiers().contains(Modifier.PUBLIC) && !element.getModifiers().contains(Modifier.STATIC) && ((ExecutableElement)element).getParameters().size() == 0)
+			.filter(element -> element.getKind().equals(ElementKind.METHOD) && element.getModifiers().contains(Modifier.PUBLIC) && !element.getModifiers().contains(Modifier.STATIC) && ((ExecutableElement)element).getParameters().isEmpty())
 			.map(element -> {
 				try {
 					return componentModuleBeanFactory.createBean(element);

@@ -17,8 +17,7 @@ package io.inverno.core.compiler.spi;
 
 /**
  * <p>
- * A wiring strategy is used to determine whether a bean can be plugged into a
- * socket.
+ * A wiring strategy is used to determine whether a bean can be plugged into a socket.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -28,8 +27,7 @@ public interface WiringStrategy {
 
 	/**
 	 * <p>
-	 * Determines whether the specified bean can be plugged into the specified
-	 * socket.
+	 * Determines whether the specified bean can be plugged into the specified socket.
 	 * </p>
 	 * 
 	 * @param bean   a bean

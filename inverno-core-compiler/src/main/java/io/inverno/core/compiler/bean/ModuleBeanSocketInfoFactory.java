@@ -38,8 +38,7 @@ import javax.tools.Diagnostic.Kind;
 
 /**
  * <p>
- * Factory used by {@link ModuleBeanInfoFactory} to create
- * {@link ModuleBeanSocketInfo}.
+ * Factory used by {@link ModuleBeanInfoFactory} to create {@link ModuleBeanSocketInfo}.
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -47,9 +46,9 @@ import javax.tools.Diagnostic.Kind;
  */
 class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 
-	private BeanQualifiedName beanQName;
+	private final BeanQualifiedName beanQName;
 	
-	private TypeMirror supplierType;
+	private final TypeMirror supplierType;
 	
 	/**
 	 * 

@@ -56,12 +56,12 @@ abstract class AbstractModuleInfoBuilder implements ModuleInfoBuilder {
 		this.moduleElement = moduleElement;
 		
 		TypeMirror moduleAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Module.class.getCanonicalName()).asType();
-		Optional<? extends AnnotationMirror> moduleAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(moduleElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst();
-		if(!moduleAnnotation.isPresent()) {
+		Optional<? extends AnnotationMirror> moduleAnnotationOpt = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(moduleElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), moduleAnnotationType)).findFirst();
+		if(!moduleAnnotationOpt.isPresent()) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Module.class.getSimpleName());
 		}
 		
-		this.moduleAnnotation = moduleAnnotation.get();
+		this.moduleAnnotation = moduleAnnotationOpt.get();
 		
 		String packageName = "";
 		String moduleName = "";

@@ -26,7 +26,7 @@ import javax.tools.JavaFileObject;
  */
 public class PluginsExecutionResult {
 
-	private List<GenericPluginExecution> pluginExecutions;
+	private final List<GenericPluginExecution> pluginExecutions;
 	
 	public PluginsExecutionResult(List<GenericPluginExecution> pluginExecutions) {
 		this.pluginExecutions = pluginExecutions;
@@ -37,7 +37,7 @@ public class PluginsExecutionResult {
 	}
 	
 	public boolean hasGeneratedSourceFiles() {
-		return this.pluginExecutions.stream().anyMatch(execution -> execution.getGeneratedSourceFiles().size() > 0);
+		return this.pluginExecutions.stream().anyMatch(execution -> !execution.getGeneratedSourceFiles().isEmpty());
 	}
 	
 	public List<JavaFileObject> getGeneratedSourceFiles() {

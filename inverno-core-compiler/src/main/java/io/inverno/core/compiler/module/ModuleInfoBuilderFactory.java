@@ -22,8 +22,7 @@ import io.inverno.core.compiler.spi.ModuleInfoBuilder;
 
 /**
  * <p>
- * A factory of module info builder used to create {@link ModuleInfoBuilder}
- * based on the context (eg. compiled vs binary).
+ * A factory of module info builder used to create {@link ModuleInfoBuilder} based on the context (eg. compiled vs binary).
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

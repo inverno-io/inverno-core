@@ -29,9 +29,7 @@ import io.inverno.core.compiler.spi.SocketBeanInfo;
 
 /**
  * <p>
- * Used by the {@link InvernoCompiler} to create
- * {@link ModuleBeanInfoFactory} corresponding to a particular context (compiled
- * and binary).
+ * Used by the {@link InvernoCompiler} to create {@link ModuleBeanInfoFactory} corresponding to a particular context (compiled and binary).
  * </p>
  * 
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
