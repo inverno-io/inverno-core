@@ -26,6 +26,7 @@ import io.inverno.core.compiler.spi.ModuleInfo;
 import io.inverno.core.compiler.spi.ModuleInfoVisitor;
 import io.inverno.core.compiler.spi.MultiSocketBeanInfo;
 import io.inverno.core.compiler.spi.MultiSocketInfo;
+import io.inverno.core.compiler.spi.MutatorBeanInfo;
 import io.inverno.core.compiler.spi.NestedBeanInfo;
 import io.inverno.core.compiler.spi.OverridableBeanInfo;
 import io.inverno.core.compiler.spi.OverridingSocketBeanInfo;
@@ -37,6 +38,7 @@ import io.inverno.core.compiler.spi.WrapperBeanInfo;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -77,6 +79,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			
 			// Fields
 			StringBuilder module_field_beans = Arrays.stream(moduleInfo.getBeans())
+				.filter(moduleBeanInfo -> !(moduleBeanInfo instanceof MutatorBeanInfo) || ((MutatorBeanInfo)moduleBeanInfo).getMutatingSocket().isWired())
 				.map(moduleBeanInfo -> this.visit(moduleBeanInfo, context.withModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.BEAN_FIELD)))
 				.collect(context.joining(System.lineSeparator()));
 			StringBuilder module_field_modules = Arrays.stream(moduleInfo.getModules())
@@ -93,10 +96,12 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				.collect(context.joining(System.lineSeparator()));
 			
 			StringBuilder module_constructor_beans = Arrays.stream(moduleInfo.getBeans())
+				.filter(moduleBeanInfo -> !(moduleBeanInfo instanceof MutatorBeanInfo) || ((MutatorBeanInfo)moduleBeanInfo).getMutatingSocket().isWired())
 				.map(moduleBeanInfo -> this.visit(moduleBeanInfo, context.withModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.BEAN_NEW)))
 				.collect(context.joining(System.lineSeparator()));
 			
 			StringBuilder module_method_beans = Arrays.stream(moduleInfo.getBeans())
+				.filter(moduleBeanInfo -> !(moduleBeanInfo instanceof MutatorBeanInfo) || ((MutatorBeanInfo)moduleBeanInfo).getMutatingSocket().isWired())
 				.map(moduleBeanInfo -> this.visit(moduleBeanInfo, context.withModule(moduleInfo.getQualifiedName()).withMode(GenerationMode.BEAN_ACCESSOR)))
 				.collect(context.joining(System.lineSeparator()));
 			
@@ -122,7 +127,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			context.getTypeName(generatedType);
 			context.getTypeName(moduleType);
 			
-			moduleClass.append(context.getImports().stream().sorted().filter(i -> i.lastIndexOf(".") > 0 && !i.substring(0, i.lastIndexOf(".")).equals(packageName)).map(i -> new StringBuilder().append("import ").append(i).append(";")).collect(context.joining(System.lineSeparator()))).append(System.lineSeparator()).append(System.lineSeparator());
+			moduleClass.append(context.getImports().stream().sorted().filter(i -> !i.startsWith("java.lang") && i.lastIndexOf(".") > 0 && !i.substring(0, i.lastIndexOf(".")).equals(packageName)).map(i -> new StringBuilder().append("import ").append(i).append(";")).collect(context.joining(System.lineSeparator()))).append(System.lineSeparator()).append(System.lineSeparator());
 
 			moduleClass.append("@").append(context.getTypeName(generatedType)).append("(value= {\"").append(InvernoCompiler.class.getCanonicalName()).append("\", \"").append(moduleInfo.getVersion()).append("\"}, date = \"").append(ZonedDateTime.now().toString()).append("\")").append(System.lineSeparator());
 			moduleClass.append("public final class ").append(className).append(" extends ").append(context.getTypeName(moduleType)).append(" {").append(System.lineSeparator()).append(System.lineSeparator());
@@ -225,10 +230,10 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				.map(socketInfo -> {
 					StringBuilder result = new StringBuilder().append(context.indent(4));
 					if(socketInfo.isOptional()) {
-						result.append("(").append(context.getOptionalTypeName()).append("<").append(context.getTypeName(context.getSupplierSocketType(socketInfo.getSocketType()))).append(">)");
+						result.append("(").append(context.getOptionalTypeName()).append("<").append(this.visit(socketInfo, context.withMode(GenerationMode.SOCKET_SUPPLIER))).append(">").append(")");
 					}
 					else {
-						result.append("(").append(context.getTypeName(context.getSupplierSocketType(socketInfo.getSocketType()))).append(")");
+						result.append("(").append(this.visit(socketInfo, context.withMode(GenerationMode.SOCKET_SUPPLIER))).append(")");
 					}
 					result.append("this.sockets.get(\"").append(socketInfo.getQualifiedName().normalize()).append("\")");
 
@@ -267,7 +272,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				})
 				.collect(context.joining("," + System.lineSeparator()));
 			
-			StringBuilder moduleNew = new StringBuilder().append(context.indent(2)).append("this.").append(context.getFieldName(moduleInfo.getQualifiedName())/*moduleInfo.getQualifiedName().normalize()*/).append(" = this.with(new ").append(context.getTypeName(componentModuleType)).append(".Linker(");
+			StringBuilder moduleNew = new StringBuilder().append(context.indent(2)).append("this.").append(context.getFieldName(moduleInfo.getQualifiedName())).append(" = this.with(new ").append(context.getTypeName(componentModuleType)).append(".Linker(");
 			if(component_module_arguments.length() > 0) {
 				moduleNew.append(context.getMapTypeName()).append(".ofEntries(").append(System.lineSeparator());
 				moduleNew.append(component_module_arguments);
@@ -282,7 +287,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 		}
 		else if(context.getMode() == GenerationMode.COMPONENT_MODULE_FIELD) {
 			TypeMirror componentModuleType = context.getElementUtils().getTypeElement(moduleInfo.getQualifiedName().getClassName()).asType();
-			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(componentModuleType)).append(" ").append(context.getFieldName(moduleInfo.getQualifiedName())/*moduleInfo.getQualifiedName().normalize()*/).append(";");
+			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(componentModuleType)).append(" ").append(context.getFieldName(moduleInfo.getQualifiedName())).append(";");
 		}
 		return null;
 	}
@@ -312,14 +317,21 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 	@Override
 	public StringBuilder visit(ModuleBeanInfo moduleBeanInfo, ModuleClassGenerationContext context) {
 		if(context.getMode() == GenerationMode.BEAN_FIELD) {
-			TypeMirror moduleBeanType = context.getTypeUtils().getDeclaredType(context.getElementUtils().getTypeElement(INVERNO_CORE_MODULE_BEAN_CLASS), moduleBeanInfo instanceof OverridableBeanInfo && moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType());
-			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(moduleBeanType)).append(" ").append(context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/).append(";");
+			TypeMirror beanType = moduleBeanInfo instanceof OverridableBeanInfo && moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType();
+			if(moduleBeanInfo instanceof MutatorBeanInfo && ((MutatorBeanInfo)moduleBeanInfo).getMutatingSocket().isOptional()) {
+				beanType = context.getTypeUtils().getDeclaredType(context.getElementUtils().getTypeElement(Optional.class.getCanonicalName()), beanType);
+			}
+			TypeMirror moduleBeanType = context.getTypeUtils().getDeclaredType(context.getElementUtils().getTypeElement(INVERNO_CORE_MODULE_BEAN_CLASS), beanType);
+			return new StringBuilder().append(context.indent(1)).append("private ").append(context.getTypeName(moduleBeanType)).append(" ").append(context.getFieldName(moduleBeanInfo.getQualifiedName())).append(";");
 		}
 		else if(context.getMode() == GenerationMode.BEAN_ACCESSOR) {
 			StringBuilder beanAccessor = new StringBuilder();
-			TypeMirror type = moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType(); 
-			beanAccessor.append(context.indent(1)).append(moduleBeanInfo.getVisibility().equals(Bean.Visibility.PUBLIC) ? "public " : "private ").append(context.getTypeName(type)).append(" ").append(moduleBeanInfo.getQualifiedName().normalize()).append("() {").append(System.lineSeparator());
-			beanAccessor.append(context.indent(2)).append("return this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/).append(".get()").append(";").append(System.lineSeparator());
+			TypeMirror beanType = moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType();
+			if(moduleBeanInfo instanceof MutatorBeanInfo && ((MutatorBeanInfo)moduleBeanInfo).getMutatingSocket().isOptional()) {
+				beanType = context.getTypeUtils().getDeclaredType(context.getElementUtils().getTypeElement(Optional.class.getCanonicalName()), beanType);
+			}
+			beanAccessor.append(context.indent(1)).append(moduleBeanInfo.getVisibility().equals(Bean.Visibility.PUBLIC) ? "public " : "private ").append(context.getTypeName(beanType)).append(" ").append(moduleBeanInfo.getQualifiedName().normalize()).append("() {").append(System.lineSeparator());
+			beanAccessor.append(context.indent(2)).append("return this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName())).append(".get()").append(";").append(System.lineSeparator());
 			beanAccessor.append(context.indent(1)).append("}").append(System.lineSeparator());
 			
 			return beanAccessor;
@@ -329,13 +341,13 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				StringBuilder beanNew = this.visit(((OverridableBeanInfo)moduleBeanInfo).getOverridableBean(), context);
 				beanNew = beanNew.delete(beanNew.length() - 2, beanNew.length());
 				
-				beanNew.append(context.indent(1)).append(".override(").append(((OverridableBeanInfo)moduleBeanInfo).getOverridingSocket().getQualifiedName().normalize()).append("Override)").append(System.lineSeparator());
+				beanNew.append(context.indent(1)).append(".override(").append(((OverridableBeanInfo)moduleBeanInfo).getOverridingSocket().getQualifiedName().normalize()).append("_override)").append(System.lineSeparator());
 				beanNew.append(context.indent(2)).append(");");
 				
 				return beanNew;
 			}
 			else {
-				String variable = context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/;
+				StringBuilder variable = new StringBuilder(context.getFieldName(moduleBeanInfo.getQualifiedName()));
 				
 				TypeMirror beanType;
 				TypeMirror beanBuilderType;
@@ -343,12 +355,17 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 					beanType = ((WrapperBeanInfo)moduleBeanInfo).getWrapperType();
 					beanBuilderType = context.getTypeUtils().erasure(context.getElementUtils().getTypeElement(INVERNO_CORE_MODULE_WRAPPERBEANBUILDER_CLASS).asType());
 				}
+				else if(moduleBeanInfo instanceof MutatorBeanInfo) {
+					variable.append("_mutator");
+					beanType = ((MutatorBeanInfo)moduleBeanInfo).getMutatorType();
+					beanBuilderType = context.getTypeUtils().erasure(context.getElementUtils().getTypeElement(INVERNO_CORE_MODULE_MODULEBEANBUILDER_CLASS).asType());
+				}
 				else {
 					beanType = moduleBeanInfo.getType();
 					beanBuilderType = context.getTypeUtils().erasure(context.getElementUtils().getTypeElement(INVERNO_CORE_MODULE_MODULEBEANBUILDER_CLASS).asType());
 				}
 				
-				StringBuilder beanNew = new StringBuilder().append(context.indent(2)).append("this.").append(variable).append(" = this.with(").append(context.getTypeName(beanBuilderType)).append(System.lineSeparator());
+				StringBuilder beanNew = new StringBuilder().append(context.indent(2)).append("this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName())).append(" = this.with(").append(context.getTypeName(beanBuilderType)).append(System.lineSeparator());
 				
 				switch (moduleBeanInfo.getStrategy()) {
 					case SINGLETON:
@@ -393,7 +410,19 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 					})
 					.collect(context.joining(System.lineSeparator()))).append(System.lineSeparator());
 	
-				beanNew.append(context.indent(4)).append("return ").append(variable).append(";").append(System.lineSeparator());
+				beanNew.append(context.indent(4)).append("return ");
+				if(moduleBeanInfo instanceof MutatorBeanInfo) {
+					if(((MutatorBeanInfo) moduleBeanInfo).getMutatingSocket().isOptional()) {
+						beanNew.append(this.visit(((MutatorBeanInfo) moduleBeanInfo).getMutatingSocket(), context.withMode(GenerationMode.BEAN_OPTIONAL_REFERENCE))).append(".map(").append(variable).append("::apply)");
+					}
+					else {
+						beanNew.append(variable).append(".apply(").append(this.visit(((MutatorBeanInfo) moduleBeanInfo).getMutatingSocket(), context.withMode(GenerationMode.BEAN_REFERENCE))).append(")");
+					}
+				}
+				else {
+					beanNew.append(variable);
+				}
+				beanNew.append(";").append(System.lineSeparator());
 				beanNew.append(context.indent(3)).append("})").append(System.lineSeparator());
 	
 				if(moduleBeanInfo.getInitElements().length > 0) {
@@ -416,14 +445,19 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 		else if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
 			if(moduleBeanInfo.getQualifiedName().getModuleQName().equals(context.getModule())) {
 				// We can't use bean accessor for internal beans since provided types are ignored inside a module
-				return new StringBuilder().append("this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName())/*moduleBeanInfo.getQualifiedName().normalize()*/).append(".get()");
+				return new StringBuilder().append("this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName())).append(".get()");
 			}
 			else {
-				return new StringBuilder().append("this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName().getModuleQName())/*moduleBeanInfo.getQualifiedName().getModuleQName().normalize()*/).append(".").append(moduleBeanInfo.getQualifiedName().normalize()).append("()");
+				return new StringBuilder().append("this.").append(context.getFieldName(moduleBeanInfo.getQualifiedName().getModuleQName())).append(".").append(moduleBeanInfo.getQualifiedName().normalize()).append("()");
 			}
 		}
 		else if(context.getMode() == GenerationMode.BEAN_OPTIONAL_REFERENCE) {
-			return new StringBuilder(context.getOptionalTypeName()).append(".of(").append(this.visit(moduleBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE))).append(")");
+			if(moduleBeanInfo instanceof MutatorBeanInfo && ((MutatorBeanInfo)moduleBeanInfo).getMutatingSocket().isOptional()) {
+				return this.visit(moduleBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE));
+			}
+			else {
+				return new StringBuilder(context.getOptionalTypeName()).append(".ofNullable(").append(this.visit(moduleBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE))).append(")");
+			}
 		}
 		return new StringBuilder();
 	}
@@ -441,6 +475,11 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 	@Override
 	public StringBuilder visit(OverridingSocketBeanInfo overridingSocketBeanInfo, ModuleClassGenerationContext context) {
 		return this.visit((SingleSocketBeanInfo)overridingSocketBeanInfo, context);
+	}
+
+	@Override
+	public StringBuilder visit(MutatorBeanInfo mutatorBeanInfo, ModuleClassGenerationContext context) {
+		return this.visit((ModuleBeanInfo)mutatorBeanInfo, context);
 	}
 
 	@Override
@@ -474,8 +513,9 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 					unwildDependencyType = ((WildcardType)multiSocketInfo.getType()).getExtendsBound();
 				}
 				else if(((WildcardType)multiSocketInfo.getType()).getSuperBound() != null) {
-					// TODO test it I don't know precisely what will happen here
-					unwildDependencyType = ((WildcardType)multiSocketInfo.getType()).getSuperBound();
+					// TODO if we want to be strict here we should resolve the upper most type based on the beans injected in the socket
+					// but we can simply use Object here, it's not ideal but it works
+					unwildDependencyType = context.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
 				}
 				else {
 					unwildDependencyType = context.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
@@ -607,25 +647,25 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			}
 			
 			if(socketBeanInfo.isOptional()) {
-				socketParameter.append(context.getOptionalTypeName()).append("<").append(context.getTypeName(context.getSupplierSocketType(socketBeanInfo.getSocketType()))).append(">");
+				socketParameter.append(context.getOptionalTypeName()).append("<").append(this.visit(socketBeanInfo, context.withMode(GenerationMode.SOCKET_SUPPLIER))).append(">");
 			}
 			else {
-				socketParameter.append(context.getTypeName(context.getSupplierSocketType(socketBeanInfo.getSocketType())));
+				socketParameter.append(this.visit(socketBeanInfo, context.withMode(GenerationMode.SOCKET_SUPPLIER)));
 			}
 			
 			socketParameter.append(" ").append(socketBeanInfo.getQualifiedName().normalize());
 			if(socketBeanInfo instanceof OverridingSocketBeanInfo) {
-				socketParameter.append("Override");
+				socketParameter.append("_override");
 			}
 			
 			return socketParameter;
 		}
 		else if(context.getMode() == GenerationMode.SOCKET_FIELD) {
 			if(socketBeanInfo.isOptional()) {
-				return new StringBuilder().append(context.indent(2)).append("private ").append(context.getOptionalTypeName()).append("<").append(context.getTypeName(context.getSupplierSocketType(socketBeanInfo.getSocketType()))).append("> ").append(socketBeanInfo.getQualifiedName().normalize()).append(" = ").append(context.getOptionalTypeName()).append(".empty();");
+				return new StringBuilder().append(context.indent(2)).append("private ").append(context.getOptionalTypeName()).append("<").append(this.visit(socketBeanInfo, context.withMode(GenerationMode.SOCKET_SUPPLIER))).append("> ").append(socketBeanInfo.getQualifiedName().normalize()).append(" = ").append(context.getOptionalTypeName()).append(".empty();");
 			}
 			else {
-				return new StringBuilder().append(context.indent(2)).append("private ").append(context.getTypeName(context.getSupplierSocketType(socketBeanInfo.getSocketType()))).append(" ").append(socketBeanInfo.getQualifiedName().normalize()).append(";");
+				return new StringBuilder().append(context.indent(2)).append("private ").append(this.visit(socketBeanInfo, context.withMode(GenerationMode.SOCKET_SUPPLIER))).append(" ").append(socketBeanInfo.getQualifiedName().normalize()).append(";");
 			}
 		}
 		else if(context.getMode() == GenerationMode.SOCKET_ASSIGNMENT) {
@@ -646,6 +686,14 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			
 			return result;
 		}
+		else if(context.getMode() == GenerationMode.SOCKET_SUPPLIER) {
+			if(socketBeanInfo instanceof SingleSocketBeanInfo) {
+				return this.visit((SingleSocketBeanInfo)socketBeanInfo, context);
+			}
+			else if(socketBeanInfo instanceof MultiSocketBeanInfo) {
+				return this.visit((MultiSocketBeanInfo)socketBeanInfo, context);
+			}
+		}
 		else if(context.getMode() == GenerationMode.BEAN_REFERENCE) {
 			if(socketBeanInfo.isOptional()) {
 				return new StringBuilder().append(socketBeanInfo.getQualifiedName().normalize()).append(".orElse(() -> null).get()");
@@ -659,7 +707,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				return new StringBuilder().append(socketBeanInfo.getQualifiedName().normalize()).append(".map(").append(context.getSupplierTypeName()).append("::get)");
 			}
 			else {
-				return new StringBuilder().append(context.getOptionalTypeName()).append(".of(").append(socketBeanInfo.getQualifiedName().normalize()).append(".get())");
+				return new StringBuilder().append(context.getOptionalTypeName()).append(".ofNullable(").append(socketBeanInfo.getQualifiedName().normalize()).append(".get())");
 			}
 		}
 		else if(context.getMode() == GenerationMode.COMPONENT_MODULE_BEAN_REFERENCE) {
@@ -673,7 +721,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 				}
 				
 				if(socketBeanInfo.isOptional()) {
-					return new StringBuilder().append(context.getOptionalTypeName()).append(".of(").append(result).append(")");
+					return new StringBuilder().append(context.getOptionalTypeName()).append(".ofNullable(").append(result).append(")");
 				}
 				return result;
 			}
@@ -687,7 +735,7 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 	@Override
 	public StringBuilder visit(SingleSocketBeanInfo singleSocketBeanInfo, ModuleClassGenerationContext context) {
 		if(context.getMode() == GenerationMode.COMPONENT_MODULE_BEAN_REFERENCE) {
-			StringBuilder result = new StringBuilder().append("(").append(context.getTypeName(context.getSupplierSocketType(singleSocketBeanInfo.getSocketType()))).append(")");
+			StringBuilder result = new StringBuilder().append("(").append(this.visit(singleSocketBeanInfo, context.withMode(GenerationMode.SOCKET_SUPPLIER))).append(")");
 			if(singleSocketBeanInfo.isResolved()) {
 				result.append("() -> ").append(this.visit((SingleSocketInfo)singleSocketBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE)));
 			}
@@ -696,19 +744,46 @@ class ModuleClassGenerator implements ModuleInfoVisitor<StringBuilder, ModuleCla
 			}
 			return result;
 		}
+		else if(context.getMode() == GenerationMode.SOCKET_SUPPLIER) {
+			StringBuilder result = new StringBuilder();
+			result.append(context.getSupplierTypeName()).append("<").append(context.getTypeName(singleSocketBeanInfo.getType())).append(">");
+			return result;
+		}
 		return new StringBuilder();
 	}
 
 	@Override
 	public StringBuilder visit(MultiSocketBeanInfo multiSocketBeanInfo, ModuleClassGenerationContext context) {
 		if(context.getMode() == GenerationMode.COMPONENT_MODULE_BEAN_REFERENCE) {
-			StringBuilder result = new StringBuilder().append("(").append(context.getTypeName(context.getSupplierSocketType(multiSocketBeanInfo.getSocketType()))).append(")");
+			StringBuilder result = new StringBuilder().append("(").append(this.visit(multiSocketBeanInfo, context.withMode(GenerationMode.SOCKET_SUPPLIER))).append(")");			
 			if(multiSocketBeanInfo.isResolved()) {
 				result.append("() -> ").append(this.visit((MultiSocketInfo)multiSocketBeanInfo, context.withMode(GenerationMode.BEAN_REFERENCE)));
 			}
 			else {
 				result.append("null");
 			}
+			return result;
+		}
+		else if(context.getMode() == GenerationMode.SOCKET_SUPPLIER) {
+			StringBuilder result = new StringBuilder();
+			result.append(context.getSupplierTypeName()).append("<");
+			switch (multiSocketBeanInfo.getMultiType()) {
+				case ARRAY:
+					result.append(context.getTypeName(multiSocketBeanInfo.getType())).append("[]");
+					break;
+				case COLLECTION:
+					result.append(context.getCollectionTypeName()).append("<").append(context.getTypeName(multiSocketBeanInfo.getType())).append(">");
+					break;
+				case LIST:
+					result.append(context.getListTypeName()).append("<").append(context.getTypeName(multiSocketBeanInfo.getType())).append(">");
+					break;
+				case SET:
+					result.append(context.getSetTypeName()).append("<").append(context.getTypeName(multiSocketBeanInfo.getType())).append(">");
+					break;
+				default:
+					break;
+			}
+			result.append(">");
 			return result;
 		}
 		return new StringBuilder();

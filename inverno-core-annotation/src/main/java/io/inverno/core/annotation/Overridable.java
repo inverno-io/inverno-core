@@ -24,10 +24,17 @@ import java.lang.annotation.Target;
  * <p>
  * Used in conjunction with {@link Bean @Bean} to indicate an overridable bean.
  * </p>
- *
+ * 
  * <p>
- * An overridable bean is a regular bean that can be overridden within a module by an instance provided in a corresponding optional socket bean automatically exposed on the module
+ * An overridable bean is a regular module or wrapper bean that can be overridden within a module by an instance provided in a corresponding optional socket bean automatically exposed on the module. 
+ * When the socket is resolved and an instance is provided, it will replace the instance that would have normally be instantiated.
  * </p>
+ * 
+ * <pre>{@code
+ * @Overridable @Bean
+ * public class OverridableBean implements @Provide Runanble {
+ *     ...
+ * }</pre>
  *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  * @since 1.1

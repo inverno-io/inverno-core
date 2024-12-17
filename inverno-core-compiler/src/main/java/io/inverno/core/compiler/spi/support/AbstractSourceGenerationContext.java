@@ -25,8 +25,10 @@ import java.util.stream.Collectors;
 import javax.lang.model.element.Element;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.IntersectionType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -47,7 +49,7 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 	/**
 	 * The parent generation context.
 	 */
-	protected A parentGeneration;
+	protected final A parentGeneration;
 	
 	/**
 	 * The types utility.
@@ -118,6 +120,7 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 	 * @param indent       the indent
 	 */
 	public AbstractSourceGenerationContext(Types typeUtils, Elements elementUtils, B mode, String indent) {
+		this.parentGeneration = null;
 		this.imports = new HashMap<>();
 		this.typeUtils = typeUtils;
 		this.elementUtils = elementUtils;
@@ -360,6 +363,9 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 				this.addImport(((WildcardType)type).getSuperBound());
 			}
 		}
+		else if(type.getKind().equals(TypeKind.INTERSECTION)) {
+			((IntersectionType)type).getBounds().forEach(this::addImport);
+		}
 	}
 	
 	/**
@@ -414,8 +420,8 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 		else if(type.getKind().equals(TypeKind.DECLARED)) {
 			Element erasedElement = this.typeUtils.asElement(this.typeUtils.erasure(type));
 			String typeName = this.isImported(type) ? erasedElement.getSimpleName().toString() : erasedElement.toString(); 
-			if(((DeclaredType)type).getTypeArguments().size() > 0) {
-				return typeName + "<" + ((DeclaredType)type).getTypeArguments().stream().map(t -> this.getTypeName(t)).collect(Collectors.joining(", ")) + ">";
+			if(!((DeclaredType) type).getTypeArguments().isEmpty()) {
+				return typeName + "<" + ((DeclaredType)type).getTypeArguments().stream().map(this::getTypeName).collect(Collectors.joining(", ")) + ">";
 			}
 			else {
 				return typeName;
@@ -432,11 +438,35 @@ public abstract class AbstractSourceGenerationContext<A extends AbstractSourceGe
 				return "?";
 			}
 		}
+		else if(type.getKind().equals(TypeKind.INTERSECTION)) {
+			return ((IntersectionType)type).getBounds().stream().map(this::getTypeName).collect(Collectors.joining(" & "));
+		}
 		else {
 			return type.toString();
 		}
 	}
-	
+
+	/**
+	 * <p>
+	 * Adds {@link TypeVariable} bounds types to the list of imports and returns the simple type variable name.
+	 * </p>
+	 *
+	 * @param typeVariable a type variable
+	 *
+	 * @return the simple type variable name
+	 */
+	public String getTypeVariableName(TypeVariable typeVariable) {
+		if(typeVariable.getLowerBound() != null && !typeVariable.getLowerBound().getKind().equals(TypeKind.NULL)) {
+			return typeVariable + " super " + this.getTypeName(typeVariable.getLowerBound());
+		}
+		else if(typeVariable.getUpperBound() != null && !typeVariable.getUpperBound().getKind().equals(TypeKind.NULL)) {
+			return typeVariable + " extends " + this.getTypeName(typeVariable.getUpperBound());
+		}
+		else {
+			return typeVariable.toString();
+		}
+	}
+
 	/**
 	 * <p>
 	 * Returns a unique field name corresponding to the specified qualified name.

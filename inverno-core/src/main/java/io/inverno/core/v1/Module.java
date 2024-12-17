@@ -341,7 +341,7 @@ public abstract class Module {
 		 * 
 		 * @return the aggregator instance.
 		 */
-		public BeanAggregator<E> add(Collection<E> beans) {
+		public BeanAggregator<E> add(Collection<? extends E> beans) {
 			if(beans != null) {
 				this.aggregate.addAll(beans);
 			}

@@ -28,6 +28,7 @@ import io.inverno.core.compiler.spi.ModuleInfoVisitor;
 import io.inverno.core.compiler.spi.MultiSocketBeanInfo;
 import io.inverno.core.compiler.spi.MultiSocketInfo;
 import io.inverno.core.compiler.spi.MultiSocketType;
+import io.inverno.core.compiler.spi.MutatorBeanInfo;
 import io.inverno.core.compiler.spi.NestedBeanInfo;
 import io.inverno.core.compiler.spi.OverridableBeanInfo;
 import io.inverno.core.compiler.spi.OverridingSocketBeanInfo;
@@ -170,6 +171,11 @@ class ModuleDescriptorGenerator implements ModuleInfoVisitor<String, String> {
 	@Override
 	public String visit(OverridingSocketBeanInfo overridingSocketBeanInfo, String pad) {
 		return this.visit((SingleSocketBeanInfo)overridingSocketBeanInfo, pad);
+	}
+
+	@Override
+	public String visit(MutatorBeanInfo mutatorBeanInfo, String pad) {
+		return "";
 	}
 	
 	@Override

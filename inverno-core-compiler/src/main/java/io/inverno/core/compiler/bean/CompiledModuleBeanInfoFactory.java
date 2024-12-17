@@ -19,6 +19,7 @@ import io.inverno.core.annotation.Bean;
 import io.inverno.core.annotation.BeanSocket;
 import io.inverno.core.annotation.Destroy;
 import io.inverno.core.annotation.Init;
+import io.inverno.core.annotation.Mutator;
 import io.inverno.core.annotation.Overridable;
 import io.inverno.core.annotation.Provide;
 import io.inverno.core.annotation.Wrapper;
@@ -68,7 +69,9 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 	private final TypeMirror provideAnnotationType;
 	private final TypeMirror wrapperAnnotationType;
 	private final TypeMirror overridableAnnotationType;
+	private final TypeMirror mutatorAnnotationType;
 	private final TypeMirror supplierType;
+	private final TypeMirror functionType;
 	
 	private final NestedBeanInfoFactory nestedBeanFactory;
 	
@@ -84,7 +87,9 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		this.provideAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Provide.class.getCanonicalName()).asType();
 		this.wrapperAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Wrapper.class.getCanonicalName()).asType();
 		this.overridableAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Overridable.class.getCanonicalName()).asType();
+		this.mutatorAnnotationType = this.processingEnvironment.getElementUtils().getTypeElement(Mutator.class.getCanonicalName()).asType();
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
+		this.functionType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Function.class.getCanonicalName()).asType());
 		
 		this.nestedBeanFactory = new NestedBeanInfoFactory(this.processingEnvironment);
 	}
@@ -121,6 +126,10 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			throw new BeanCompilationException();
 		}
 		
+		Optional<? extends AnnotationMirror> mutatorAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.mutatorAnnotationType)).findFirst();
+		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
+		Optional<? extends AnnotationMirror> overridableAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.overridableAnnotationType)).findFirst();
+		
 		// Get Bean metadata
 		String name = null;
 		Bean.Visibility visibility = null;
@@ -133,6 +142,26 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 					break;
 				case "strategy" : strategy = Bean.Strategy.valueOf(value.getValue().getValue().toString());
 					break;
+			}
+		}
+		
+		if(mutatorAnnotation.isPresent()) {
+			boolean error = false;
+			if(wrapperAnnotation.isPresent()) {
+				beanReporter.error("A mutator socket bean can't be a wrapper bean");
+				error = true;
+			}
+			if(overridableAnnotation.isPresent()) {
+				beanReporter.error("A mutator socket bean can't be an overridable bean");
+				error = true;
+			}
+			
+			if(!visibility.equals(Bean.Visibility.PUBLIC)) {
+				beanReporter.error("A mutator socket bean must be public");
+			}
+			
+			if(error) {
+				throw new BeanCompilationException();
 			}
 		}
 		
@@ -169,12 +198,41 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 		List<ModuleBeanSocketInfo> optionalBeanSocketInfos = this.getOptionalBeanSocketInfos(typeElement, beanSocketFactory, requiredBeanSocketInfos);
 		beanSocketInfos.addAll(optionalBeanSocketInfos);
 		
-		Optional<? extends AnnotationMirror> wrapperAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.wrapperAnnotationType)).findFirst();
-
-		TypeMirror beanType = typeElement.asType();
 		CommonModuleBeanInfo moduleBeanInfo;
-		if(wrapperAnnotation.isPresent()) {
-			TypeMirror wrapperType = beanType;
+		if(mutatorAnnotation.isPresent()) {
+			boolean required = false;
+			for(Entry<? extends ExecutableElement, ? extends AnnotationValue> value : this.processingEnvironment.getElementUtils().getElementValuesWithDefaults(mutatorAnnotation.get()).entrySet()) {
+				switch(value.getKey().getSimpleName().toString()) {
+					case "required" : required = (boolean)value.getValue().getValue();
+						break;
+				}
+			}
+			TypeMirror mutatorType = typeElement.asType();
+			TypeMirror socketType = mutatorType;
+			TypeMirror beanType = mutatorType;
+			Optional<? extends TypeMirror> beanFunctionType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.functionType)).findFirst();
+			if(beanFunctionType.isPresent()) {
+				if(((DeclaredType)beanFunctionType.get()).getTypeArguments().isEmpty()) {
+					socketType = beanType = this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
+				}
+				else {
+					socketType = ((DeclaredType)beanFunctionType.get()).getTypeArguments().get(0);
+					beanType = ((DeclaredType)beanFunctionType.get()).getTypeArguments().get(1);
+				}
+			}
+			else {
+				beanReporter.error("A mutator socket bean element must extend " + Function.class.getCanonicalName());
+			}
+
+			TypeMirror providedType = this.getProvidedType(typeElement, beanReporter, beanQName, beanType);
+			CompiledMutatorBeanInfo mutatorBeanInfo = new CompiledMutatorBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, mutatorType, beanType, providedType, Bean.Visibility.PRIVATE, strategy, initElements, destroyElements, beanSocketInfos, required);
+			mutatorBeanInfo.setMutatingSocket(beanSocketFactory.createMutatingSocketBean(beanQName, mutatorBeanInfo, socketType));
+			
+			moduleBeanInfo = mutatorBeanInfo;
+		}
+		else if(wrapperAnnotation.isPresent()) {
+			TypeMirror wrapperType = typeElement.asType();
+			TypeMirror beanType = wrapperType;
 			Optional<? extends TypeMirror> beanSupplierType = typeElement.getInterfaces().stream().filter(t -> this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(t), this.supplierType)).findFirst();
 			if(beanSupplierType.isPresent()) {
 				if(((DeclaredType)beanSupplierType.get()).getTypeArguments().isEmpty()) {
@@ -187,23 +245,22 @@ class CompiledModuleBeanInfoFactory extends ModuleBeanInfoFactory {
 			else {
 				beanReporter.error("A wrapper bean element must extend " + Supplier.class.getCanonicalName());
 			}
-			
+
 			TypeMirror providedType = this.getProvidedType(typeElement, beanReporter, beanQName, beanType);
 			moduleBeanInfo = new CompiledWrapperBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, wrapperType, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 		else {
-			TypeMirror providedType = this.getProvidedType(typeElement, beanReporter, beanQName, beanType);
-			moduleBeanInfo = new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, beanType, providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
+			TypeMirror providedType = this.getProvidedType(typeElement, beanReporter, beanQName, typeElement.asType());
+			moduleBeanInfo = new CommonModuleBeanInfo(this.processingEnvironment, typeElement, beanAnnotation.get(), beanQName, typeElement.asType(), providedType, visibility, strategy, initElements, destroyElements, beanSocketInfos);
 		}
 		
 		ModuleBeanInfo resultModuleBeanInfo = moduleBeanInfo;
-		
-		Optional<? extends AnnotationMirror> overridableAnnotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(typeElement).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.overridableAnnotationType)).findFirst();
+
 		if(overridableAnnotation.isPresent()) {
 			CompiledOverridingSocketBeanInfo socketInfo = new CompiledOverridingSocketBeanInfo(this.processingEnvironment, typeElement, overridableAnnotation.get(), moduleBeanInfo.getQualifiedName(), moduleBeanInfo.getProvidedType() != null ? moduleBeanInfo.getProvidedType() : moduleBeanInfo.getType());
 			resultModuleBeanInfo = new CompiledOverridableBeanInfo(moduleBeanInfo, socketInfo);
 		}
-		
+
 		// Get Nested Beans
 		moduleBeanInfo.setNestedBeanInfos(this.nestedBeanFactory.create(resultModuleBeanInfo));
 		

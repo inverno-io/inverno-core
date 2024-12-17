@@ -31,8 +31,10 @@ import io.inverno.core.compiler.spi.ModuleBeanInfo;
 import io.inverno.core.compiler.spi.ModuleInfo;
 import io.inverno.core.compiler.spi.ModuleInfoVisitor;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
+import io.inverno.core.compiler.spi.MutatorBeanInfo;
 import io.inverno.core.compiler.spi.OverridableBeanInfo;
 import io.inverno.core.compiler.spi.SocketBeanInfo;
+import java.util.function.Function;
 
 /**
  * <p>
@@ -89,7 +91,15 @@ class CompiledModuleInfo extends AbstractInfo<ModuleQualifiedName> implements Mo
 
 	@Override
 	public SocketBeanInfo[] getSockets() {
-		return Stream.concat(this.socketInfos.stream(), this.beanInfos.stream().filter(beanInfo -> beanInfo instanceof OverridableBeanInfo).map(beanInfo -> ((OverridableBeanInfo)beanInfo).getOverridingSocket())).toArray(SocketBeanInfo[]::new);
+		return Stream.of(
+			this.socketInfos.stream(),
+			this.beanInfos.stream().filter(beanInfo -> beanInfo instanceof OverridableBeanInfo).map(beanInfo -> ((OverridableBeanInfo)beanInfo).getOverridingSocket()),
+			this.beanInfos.stream().filter(beanInfo -> beanInfo instanceof MutatorBeanInfo).map(beanInfo -> ((MutatorBeanInfo)beanInfo).getMutatingSocket())
+		)
+		.flatMap(Function.identity())
+		.toArray(SocketBeanInfo[]::new);
+		
+//		return Stream.concat(this.socketInfos.stream(), this.beanInfos.stream().filter(beanInfo -> beanInfo instanceof OverridableBeanInfo).map(beanInfo -> ((OverridableBeanInfo)beanInfo).getOverridingSocket())).toArray(SocketBeanInfo[]::new);
 	}
 
 	@Override

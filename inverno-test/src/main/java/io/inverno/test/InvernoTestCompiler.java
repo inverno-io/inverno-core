@@ -101,7 +101,7 @@ public class InvernoTestCompiler {
 		Collection<String> modulesWithLibs = new HashSet<>();
 		modulesWithLibs.addAll(Arrays.asList(modules));
 		
-		return new InvernoModuleLoader(Stream.concat(Stream.of(this.moduleTargetPath), this.modulePaths.stream()).collect(Collectors.toList()), modulesWithLibs);
+		return new InvernoModuleLoader(Stream.concat(Stream.of(this.moduleTargetPath), this.modulePaths.stream()).collect(Collectors.toList()), modulesWithLibs, this.diagnosticListener.getDiagnotics());
 	}
 	
 	public List<Diagnostic<? extends JavaFileObject>> getDiagnostics() {

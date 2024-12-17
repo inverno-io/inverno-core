@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.inverno.core.compiler.socket;
+package io.inverno.core.compiler.common;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -25,8 +25,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeMirror;
 
-import io.inverno.core.compiler.common.AbstractBeanInfo;
-import io.inverno.core.compiler.common.MutableSocketBeanInfo;
+import io.inverno.core.compiler.socket.WirableSocketBeanInfo;
 import io.inverno.core.compiler.spi.BeanQualifiedName;
 
 /**
@@ -37,7 +36,7 @@ import io.inverno.core.compiler.spi.BeanQualifiedName;
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
  *
  */
-abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements MutableSocketBeanInfo, WirableSocketBeanInfo {
+public abstract class AbstractSocketBeanInfo extends AbstractBeanInfo implements MutableSocketBeanInfo, WirableSocketBeanInfo {
 
 	protected TypeMirror socketType;
 

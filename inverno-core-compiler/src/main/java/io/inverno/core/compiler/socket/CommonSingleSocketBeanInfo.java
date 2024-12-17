@@ -15,6 +15,7 @@
  */
 package io.inverno.core.compiler.socket;
 
+import io.inverno.core.compiler.common.AbstractSocketBeanInfo;
 import java.util.Collections;
 import java.util.List;
 

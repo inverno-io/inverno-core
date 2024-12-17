@@ -80,10 +80,6 @@ class CompiledSocketBeanInfoFactory extends SocketBeanInfoFactory {
 			}
 		}
 		
-		/*if(!typeElement.getEnclosingElement().getEnclosingElement().equals(this.moduleElement)) {
-			throw new IllegalArgumentException("The specified element doesn't belong to module " + this.moduleQName);
-		}*/
-		
 		Optional<? extends AnnotationMirror> annotation = this.processingEnvironment.getElementUtils().getAllAnnotationMirrors(element).stream().filter(a -> this.processingEnvironment.getTypeUtils().isSameType(a.getAnnotationType(), this.beanAnnotationType)).findFirst();
 		if(!annotation.isPresent()) {
 			throw new IllegalArgumentException("The specified element is not annotated with " + Bean.class.getSimpleName());

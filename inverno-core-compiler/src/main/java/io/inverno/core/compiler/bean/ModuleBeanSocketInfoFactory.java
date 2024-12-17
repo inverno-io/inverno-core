@@ -47,8 +47,8 @@ import javax.tools.Diagnostic.Kind;
 class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 
 	private final BeanQualifiedName beanQName;
-	
 	private final TypeMirror supplierType;
+	private final NestedBeanInfoFactory nestedBeanFactory;
 	
 	/**
 	 * 
@@ -58,10 +58,24 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 		
 		this.beanQName = beanQName;
 		this.supplierType = this.processingEnvironment.getTypeUtils().erasure(this.processingEnvironment.getElementUtils().getTypeElement(Supplier.class.getCanonicalName()).asType());
+		this.nestedBeanFactory = new NestedBeanInfoFactory(this.processingEnvironment);
 	}
 
 	public static ModuleBeanSocketInfoFactory create(ProcessingEnvironment processingEnvironment, ModuleElement moduleElement, BeanQualifiedName beanQName) {
 		return new ModuleBeanSocketInfoFactory(processingEnvironment, moduleElement, beanQName);
+	}
+	
+	private TypeMirror getLazyType(TypeMirror type) throws IllegalArgumentException {
+		if(!this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(type), this.supplierType)) {
+			throw new IllegalArgumentException("Invalid lazy socket which should be of type " + Supplier.class.getCanonicalName());
+		}
+
+		if(((DeclaredType)type).getTypeArguments().isEmpty()) {
+			return this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
+		}
+		else {
+			return ((DeclaredType)type).getTypeArguments().get(0);
+		}
 	}
 	
 	// Compiled
@@ -131,24 +145,25 @@ class ModuleBeanSocketInfoFactory extends AbstractSocketInfoFactory {
 		}
 	}
 	
-	private TypeMirror getLazyType(TypeMirror type) throws IllegalArgumentException {
-		if(!this.processingEnvironment.getTypeUtils().isSameType(this.processingEnvironment.getTypeUtils().erasure(type), this.supplierType)) {
-			throw new IllegalArgumentException("Invalid lazy socket which should be of type " + Supplier.class.getCanonicalName());
-		}
-
-		if(((DeclaredType)type).getTypeArguments().isEmpty()) {
-			return this.processingEnvironment.getElementUtils().getTypeElement(Object.class.getCanonicalName()).asType();
-		}
-		else {
-			return ((DeclaredType)type).getTypeArguments().get(0);
-		}
-	}
-	
 	// Binary
 	public ModuleBeanSocketInfo createBeanSocket(BeanQualifiedName beanQName, SocketBeanInfo moduleSocketInfo) {
 		// TODO it would be better to use the actual beanQName but this broke cycle reporting 
 //		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(beanQName, moduleSocketInfo.getQualifiedName().getSimpleValue());
 		BeanSocketQualifiedName socketQName = new BeanSocketQualifiedName(moduleSocketInfo.getQualifiedName(), moduleSocketInfo.getQualifiedName().getSimpleValue());
 		return new CommonModuleBeanSingleSocketInfo(this.processingEnvironment, this.moduleElement, socketQName, moduleSocketInfo.getType(), null, null, moduleSocketInfo.isOptional(), false);
+	}
+	
+	public SocketBeanInfo createMutatingSocketBean(BeanQualifiedName beanQName, CompiledMutatorBeanInfo mutatorBean, TypeMirror socketType) {
+		AnnotationMirror[] selectors = mutatorBean.getElement().getAnnotationMirrors().stream().filter(a -> a.getAnnotationType().asElement().getAnnotation(Selector.class) != null).toArray(AnnotationMirror[]::new);
+		
+		MultiSocketType multiType = this.getMultiType(socketType);
+		if(multiType != null) {
+			return new CompiledMutatingMultiSocketInfo(this.processingEnvironment, mutatorBean.getElement(), mutatorBean.getAnnotation(), mutatorBean.getQualifiedName(), this.getComponentType(socketType), mutatorBean.getMutatorType(), selectors, mutatorBean.isRequired(), true, multiType);
+		}
+		else {
+			CompiledMutatingSingleSocketInfo socketBeanInfo = new CompiledMutatingSingleSocketInfo(this.processingEnvironment, mutatorBean.getElement(), mutatorBean.getAnnotation(), mutatorBean.getQualifiedName(), socketType, mutatorBean.getMutatorType(), selectors, mutatorBean.isRequired(), true);
+			socketBeanInfo.setNestedBeans(this.nestedBeanFactory.create(socketBeanInfo));
+			return socketBeanInfo;
+		}
 	}
 }

@@ -48,6 +48,7 @@ import io.inverno.core.compiler.spi.ModuleInfo;
 import io.inverno.core.compiler.spi.ModuleInfoBuilder;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
 import io.inverno.core.compiler.spi.MultiSocketInfo;
+import io.inverno.core.compiler.spi.MutatorBeanInfo;
 import io.inverno.core.compiler.spi.NestedBeanInfo;
 import io.inverno.core.compiler.spi.QualifiedName;
 import io.inverno.core.compiler.spi.SingleSocketInfo;
@@ -124,7 +125,7 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		if(!hasBeanCycles) {
 			moduleInfo.accept(this.moduleSocketWiredBeansResolver, null);
 		}
-		this.checkUnwiredSockets();
+		this.reportUnwiredSockets();
 		
 		return moduleInfo;
 	}
@@ -228,8 +229,16 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 					actualBeanInfo = ((NestedBeanInfo)actualBeanInfo).getProvidingBean();
 				}
 				
-				if(actualBeanInfo instanceof SocketBeanInfo) {
-					((MutableSocketBeanInfo)actualBeanInfo).setOptional(socketInfo.isOptional());
+				if(actualBeanInfo instanceof MutatorBeanInfo) {
+					if(!socketInfo.isOptional()) {
+						((MutableSocketBeanInfo)((MutatorBeanInfo)actualBeanInfo).getMutatingSocket()).setOptional(false);
+					}
+					((WirableSocketBeanInfo)((MutatorBeanInfo)actualBeanInfo).getMutatingSocket()).setWired(true);
+				}
+				else if(actualBeanInfo instanceof SocketBeanInfo) {
+					if(!socketInfo.isOptional()) {
+						((MutableSocketBeanInfo)actualBeanInfo).setOptional(false);
+					}
 					((WirableSocketBeanInfo)actualBeanInfo).setWired(true);
 				}
 			}
@@ -294,9 +303,12 @@ class CompiledModuleInfoBuilder extends AbstractModuleInfoBuilder {
 		return resolved;
 	}
 	
-	private void checkUnwiredSockets() {
-		Arrays.stream(this.sockets)
-			.filter(socketBean -> !socketBean.isWired())
+	private void reportUnwiredSockets() {
+		Stream.concat(
+			Arrays.stream(this.sockets),
+			Arrays.stream(this.beans).filter(bean -> bean instanceof MutatorBeanInfo && !((MutatorBeanInfo)bean).isRequired()).map(bean -> ((MutatorBeanInfo)bean).getMutatingSocket())
+		)
+		.filter(socketBean -> !socketBean.isWired())
 			.forEach(socketBean -> {
 				socketBean.warning("Ignoring socket bean which is not wired");
 			});

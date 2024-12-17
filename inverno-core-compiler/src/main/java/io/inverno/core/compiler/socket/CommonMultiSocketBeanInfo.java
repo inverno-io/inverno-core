@@ -15,6 +15,7 @@
  */
 package io.inverno.core.compiler.socket;
 
+import io.inverno.core.compiler.common.AbstractSocketBeanInfo;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.ExecutableElement;

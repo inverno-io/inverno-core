@@ -17,7 +17,6 @@ package io.inverno.core.compiler;
 
 import java.util.function.Supplier;
 
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -25,6 +24,7 @@ import javax.lang.model.util.Types;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
 import io.inverno.core.compiler.spi.MultiSocketType;
 import io.inverno.core.compiler.spi.support.AbstractSourceGenerationContext;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,11 +39,10 @@ import java.util.Set;
  */
 class ModuleClassGenerationContext extends AbstractSourceGenerationContext<ModuleClassGenerationContext, ModuleClassGenerationContext.GenerationMode> {
 
-	public static enum GenerationMode {
+	public enum GenerationMode {
 		MODULE_CLASS,
 		MODULE_BUILDER_CLASS,
 		MODULE_LINKER_CLASS,
-		MODULE_IMPORT,
 		BEAN_FIELD,
 		BEAN_NEW,
 		BEAN_ACCESSOR,
@@ -53,26 +52,45 @@ class ModuleClassGenerationContext extends AbstractSourceGenerationContext<Modul
 		SOCKET_FIELD,
 		SOCKET_ASSIGNMENT,
 		SOCKET_INJECTOR,
+		SOCKET_SUPPLIER,
 		COMPONENT_MODULE_FIELD,
 		COMPONENT_MODULE_NEW,
 		COMPONENT_MODULE_BEAN_REFERENCE
 	}
 	
-	private TypeMirror supplierType;
-	
-	private String optionalTypeName;
-	private String supplierTypeName;
-	private String mapTypeName;
-	private String listTypeName;
-	private String setTypeName;
-	private String npeTypeName;
+	private final TypeMirror supplierType;
+	private final String optionalTypeName;
+	private final String supplierTypeName;
+	private final String mapTypeName;
+	private final String collectionTypeName;
+	private final String listTypeName;
+	private final String setTypeName;
+	private final String npeTypeName;
 	
 	public ModuleClassGenerationContext(Types typeUtils, Elements elementUtils, GenerationMode mode) {
 		super(typeUtils, elementUtils, mode);
+
+		this.supplierType = this.typeUtils.erasure(this.elementUtils.getTypeElement(Supplier.class.getCanonicalName()).asType());
+		this.optionalTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Optional.class.getCanonicalName()).asType()));
+		this.supplierTypeName = this.getTypeName(this.supplierType);
+		this.mapTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Map.class.getCanonicalName()).asType()));
+		this.collectionTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Collection.class.getCanonicalName()).asType()));
+		this.listTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(List.class.getCanonicalName()).asType()));
+		this.setTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Set.class.getCanonicalName()).asType()));
+		this.npeTypeName = this.getTypeName(this.elementUtils.getTypeElement(NullPointerException.class.getCanonicalName()).asType());
 	}
 	
 	private ModuleClassGenerationContext(ModuleClassGenerationContext parentGeneration) {
 		super(parentGeneration);
+
+		this.supplierType = parentGeneration.supplierType;
+		this.optionalTypeName = parentGeneration.optionalTypeName;
+		this.supplierTypeName = parentGeneration.supplierTypeName;
+		this.mapTypeName = parentGeneration.mapTypeName;
+		this.collectionTypeName = parentGeneration.collectionTypeName;
+		this.listTypeName = parentGeneration.listTypeName;
+		this.setTypeName = parentGeneration.setTypeName;
+		this.npeTypeName = parentGeneration.npeTypeName;
 	}
 	
 	@Override
@@ -101,93 +119,46 @@ class ModuleClassGenerationContext extends AbstractSourceGenerationContext<Modul
 			case ARRAY:
 				return this.getTypeName(this.getTypeUtils().getArrayType(type));
 			case COLLECTION:
-				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Collection"), type));
+				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement(Collection.class.getCanonicalName()), type));
 			case LIST:
-				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.List"), type));
+				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement(List.class.getCanonicalName()), type));
 			case SET:
-				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement("java.util.Set"), type));
+				return this.getTypeName(this.getTypeUtils().getDeclaredType(this.getElementUtils().getTypeElement(Set.class.getCanonicalName()), type));
 			default:
 				break;
 		}
 		throw new IllegalArgumentException("Unexpected multi type: " + multiType);
 	}
 	
-	public TypeMirror getSupplierSocketType(TypeMirror socketType) {
-		if(this.typeUtils.isSameType(this.typeUtils.erasure(socketType), this.getSupplierType())) {
-			return socketType;
-		}
-		else {
-			return ((TypeElement)this.typeUtils.asElement(socketType)).getInterfaces().stream().filter(type -> this.typeUtils.isSameType(this.typeUtils.erasure(type), this.getSupplierType())).findFirst().orElseThrow(() -> new IllegalStateException("Socket type does not extend " + Supplier.class.getCanonicalName()));
-		}
-	}
-	
 	private TypeMirror getSupplierType() {
-		if(this.supplierType == null) {
-			if(this.parentGeneration != null) {
-				return this.parentGeneration.getSupplierType();
-			}
-			this.supplierType = this.typeUtils.erasure(this.elementUtils.getTypeElement(Supplier.class.getCanonicalName()).asType());
-		}
 		return this.supplierType;
 	}
 	
 	public String getOptionalTypeName() {
-		if(this.optionalTypeName == null) {
-			if(this.parentGeneration != null) {
-				return this.parentGeneration.getOptionalTypeName();
-			}
-			this.optionalTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Optional.class.getCanonicalName()).asType()));
-		}
 		return this.optionalTypeName;
 	}
 	
 	public String getSupplierTypeName() {
-		if(this.supplierTypeName == null) {
-			if(this.parentGeneration != null) {
-				return this.parentGeneration.getSupplierTypeName();
-			}
-			this.supplierTypeName = this.getTypeName(this.getSupplierType());
-		}
 		return this.supplierTypeName;
 	}
 	
 	public String getMapTypeName() {
-		if(this.mapTypeName == null) {
-			if(this.parentGeneration != null) {
-				return this.parentGeneration.getMapTypeName();
-			}
-			this.mapTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Map.class.getCanonicalName()).asType()));
-		}
 		return this.mapTypeName;
 	}
 	
+	public String getCollectionTypeName() {
+		return this.collectionTypeName;
+	}
+	
 	public String getListTypeName() {
-		if(this.listTypeName == null) {
-			if(this.parentGeneration != null) {
-				return this.parentGeneration.getListTypeName();
-			}
-			this.listTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(List.class.getCanonicalName()).asType()));
-		}
 		return this.listTypeName;
 	}
 	
 	public String getSetTypeName() {
-		if(this.setTypeName == null) {
-			if(this.parentGeneration != null) {
-				return this.parentGeneration.getSetTypeName();
-			}
-			this.setTypeName = this.getTypeName(this.typeUtils.erasure(this.elementUtils.getTypeElement(Set.class.getCanonicalName()).asType()));
-		}
 		return this.setTypeName;
 	}
 	
 	public String getNpeTypeName() {
-		if(this.npeTypeName == null) {
-			if(this.parentGeneration != null) {
-				return this.parentGeneration.getNpeTypeName();
-			}
-			this.npeTypeName = this.getTypeName(this.elementUtils.getTypeElement(NullPointerException.class.getCanonicalName()).asType());
-		}
 		return this.npeTypeName;
 	}
 }

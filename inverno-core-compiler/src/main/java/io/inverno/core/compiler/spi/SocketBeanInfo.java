@@ -37,8 +37,8 @@ public interface SocketBeanInfo extends BeanInfo, SocketInfo {
 	 * </p>
 	 *
 	 * <p>
-	 * This type should not be confused with the type returned by {@link SocketInfo#getType()}: the socket type is the type of the interface in a module defining the socket whereas the type is the
-	 * type of bean that can be plugged into the socket.
+	 * This type should not be confused with the type returned by {@link SocketInfo#getType()}: the socket type is the type of the class or interface in a module defining the socket whereas the type 
+	 * is the type of bean that can be plugged into the socket.
 	 * </p>
 	 *
 	 * @return a type

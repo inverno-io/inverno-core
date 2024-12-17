@@ -101,6 +101,18 @@ public interface ModuleInfoVisitor<R, P> {
 	
 	/**
 	 * <p>
+	 * Visits mutator bean info.
+	 * </p>
+	 * 
+	 * @param mutatorBeanInfo the info to visit
+	 * @param p               a visitor parameter
+	 * 
+	 * @return a visitor result
+	 */
+	R visit(MutatorBeanInfo mutatorBeanInfo, P p);
+	
+	/**
+	 * <p>
 	 * Visits overriding socket bean info.
 	 * </p>
 	 * 

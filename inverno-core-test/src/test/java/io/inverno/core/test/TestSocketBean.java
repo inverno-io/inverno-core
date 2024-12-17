@@ -48,6 +48,7 @@ public class TestSocketBean extends AbstractCoreInvernoTest {
 	private static final String MODULEE = "io.inverno.core.test.socketbean.moduleE";
 	private static final String MODULEF = "io.inverno.core.test.socketbean.moduleF";
 	private static final String MODULEH = "io.inverno.core.test.socketbean.moduleH";
+	private static final String MODULEI = "io.inverno.core.test.socketbean.moduleI";
 
 	private InvernoModuleProxyBuilder moduleProxyBuilder;
 	
@@ -264,6 +265,32 @@ public class TestSocketBean extends AbstractCoreInvernoTest {
 		} 
 		catch (IllegalArgumentException e) {
 			Assertions.assertEquals("No dependency unwiredSocket exists on module io.inverno.core.test.socketbean.moduleH", e.getMessage());
+		}
+	}
+
+	@Test
+	public void testRequiredAndOptionalInjection() throws IOException, InvernoCompilationException, NoSuchFieldException, IllegalAccessException {
+		InvernoModuleLoader moduleLoader = this.getInvernoCompiler().compile(MODULEI);
+
+		Runnable runnable = () -> {};
+		InvernoModuleProxy moduleProxy = moduleLoader.load(MODULEI).dependencies(runnable).build();
+
+		moduleProxy.start();
+		try {
+			Object beanA = moduleProxy.getBean("beanA");
+			Assertions.assertNotNull(beanA);
+
+			Object beanA_runnable = beanA.getClass().getField("runnable").get(beanA);
+			Assertions.assertEquals(runnable, beanA_runnable);
+
+			Object beanB = moduleProxy.getBean("beanB");
+			Assertions.assertNotNull(beanB);
+
+			Object beanB_runnable = beanB.getClass().getField("runnable").get(beanB);
+			Assertions.assertEquals(runnable, beanB_runnable);
+		}
+		finally {
+			moduleProxy.stop();
 		}
 	}
 }

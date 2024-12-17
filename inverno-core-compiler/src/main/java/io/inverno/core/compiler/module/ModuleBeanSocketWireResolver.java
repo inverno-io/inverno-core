@@ -32,6 +32,7 @@ import io.inverno.core.compiler.spi.ModuleInfoVisitor;
 import io.inverno.core.compiler.spi.ModuleQualifiedName;
 import io.inverno.core.compiler.spi.MultiSocketBeanInfo;
 import io.inverno.core.compiler.spi.MultiSocketInfo;
+import io.inverno.core.compiler.spi.MutatorBeanInfo;
 import io.inverno.core.compiler.spi.NestedBeanInfo;
 import io.inverno.core.compiler.spi.OverridableBeanInfo;
 import io.inverno.core.compiler.spi.OverridingSocketBeanInfo;
@@ -75,6 +76,9 @@ class ModuleBeanSocketWireResolver implements ModuleInfoVisitor<Void, Set<BeanQu
 		else if(OverridableBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
 			return this.visit((OverridableBeanInfo)beanInfo, wiredBeans);
 		}
+		else if(MutatorBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
+			return this.visit((MutatorBeanInfo)beanInfo, wiredBeans);
+		}
 		else if(ModuleBeanInfo.class.isAssignableFrom(beanInfo.getClass())) {
 			return this.visit((ModuleBeanInfo)beanInfo, wiredBeans);
 		}
@@ -108,7 +112,14 @@ class ModuleBeanSocketWireResolver implements ModuleInfoVisitor<Void, Set<BeanQu
 		this.visit((ModuleBeanInfo)overridableBeanInfo, wiredBeans);
 		return null;
 	}
-	
+
+	@Override
+	public Void visit(MutatorBeanInfo mutatorBeanInfo, Set<BeanQualifiedName> wiredBeans) {
+		this.visit(mutatorBeanInfo.getMutatingSocket(), wiredBeans);
+		this.visit((ModuleBeanInfo)mutatorBeanInfo, wiredBeans);
+		return null;
+	}
+
 	@Override
 	public Void visit(ModuleBeanSocketInfo beanSocketInfo, Set<BeanQualifiedName> wiredBeans) {
 		if(ModuleBeanSingleSocketInfo.class.isAssignableFrom(beanSocketInfo.getClass())) {
@@ -181,7 +192,7 @@ class ModuleBeanSocketWireResolver implements ModuleInfoVisitor<Void, Set<BeanQu
 	public Void visit(OverridingSocketBeanInfo overridingSocketBeanInfo, Set<BeanQualifiedName> wiredBeans) {
 		return this.visit((SocketBeanInfo)overridingSocketBeanInfo, wiredBeans);
 	}
-
+	
 	@Override
 	public Void visit(SocketInfo socketInfo, Set<BeanQualifiedName> wiredBeans) {
 		return null;

@@ -9,11 +9,11 @@
 
 ## Motivation
 
-[Inversion of Control][inversion-of-control] and [Dependency Injection][dependency-injection] principles are not new and many Java applications have been developed following these principles over the past two decades using frameworks such as Spring, CDI, Guice... However these recognized solutions might have some issues in practice especially with the way Java has evolved and how applications should be developed nowadays.
+[Inversion of Control][inversion-of-control] and [Dependency Injection][dependency-injection] principles are not new and many Java applications have been developed following these principles over the past two decades using frameworks such as Spring, CDI, Guice... however these recognized solutions might have some issues in practice especially with the way Java has evolved and how applications should be developed nowadays.
 
 Dependency injection errors like a missing dependency or a cycle in the dependency graph are often reported at runtime when the application is started. Most of the time these issues are easy to fix but when considering big applications split into multiple modules developed by different people, it might become more complex. In any case you can't tell for sure if an application will start before you actually start it.
 
-Most IoC/DI frameworks are black boxes, often considered as magical because one gets beans instantiated and wired altogether without understanding what just happened and it is indeed quite hard to figure out how it actually works. This is not a problem as long as everything works as expected but it can become one when you actually need to troubleshoot a failing application.
+Most IoC/DI frameworks are black boxes, often considered as magical because one gets beans instantiated and wired altogether without understanding what just happened, and it is indeed quite hard to figure out how it actually works. This is not a problem as long as everything works as expected, but it can become one when you actually need to troubleshoot a failing application.
 
 Beans instantiation and wiring are done at runtime using Java reflection which offers all the advantages of Java dynamic linking at the expense of some performance overhead. Classpath scanning, instantiation and wiring process indeed takes some time and prevents just-in-time compilation optimization making application startup quite slow.
 
@@ -23,7 +23,7 @@ These points are very high level, please have a look at this [article](https://i
 
 ## Prerequisites
 
-In this documentation, we’ll assume that you have a working knowledge of [Inversion of Control][inversion-of-control] and [Dependency Injection][dependency-injection] principles as well as [Object Oriented Programming][object-oriented-programming].
+In this documentation, we’ll assume that you have a working knowledge of [Inversion of Control][inversion-of-control] and [Dependency Injection][dependency-injection] principles as well as [Object-Oriented Programming][object-oriented-programming].
 
 ## Overview
 
@@ -33,15 +33,15 @@ Since beans and their dependencies are determined at compile time, errors can be
 
 There is also no need for complex runtime libraries since the complexity is handled by the compiler which generates a readable class providing only what is required at runtime. This presents two advantages, first applications have a small footprint and start fast since most of the processing is already done and no reflection is involved. Secondly you will be able to actually debug all parts of your application since nothing is hidden behind a complex library, you can actually see when the beans are instantiated with the `new` operator opening rooms to other compile and runtime optimization as well.
 
-The framework also fully embraces the modular system introduced in Java 9 which basically imposes to develop with modularity in mind. An Inverno module only exposes the beans that must be exposed to other modules and it clearly indicates the beans it requires to operate. All this makes modular development safer, clearer and more natural.
+The framework also fully embraces the modular system introduced in Java 9 which basically imposes to develop with modularity in mind. An Inverno module only exposes the beans that must be exposed to other modules, and it clearly indicates the beans it requires to operate. All this makes modular development safer, clearer and more natural.
 
 ### Modules and Beans
 
-Inversion of control and dependency injection principles have proven to be an elegant and efficient way to create applications in an Object Oriented Programming language. A Java application basically consists in a set of interconnected objects.
+Inversion of control and dependency injection principles have proven to be an elegant and efficient way to create applications in an Object-Oriented Programming language. A Java application basically consists in a set of interconnected objects.
 
 An Inverno application adds a modular dimension to these principles, the objects or the **beans** composing the application are created and connected in one or more isolated **modules** which are themselves composed in the **application**.
 
-A **module** encapsulates several beans and possibly other modules. It specifies the dependencies it needs to operate and only exposes the beans that need to be exposed from the module perspective. As a result it is isolated from the rest of the application, it is unaware of how and where it is used and it actually doesn't care as long as its requirements are met. It really resembles a class which makes it very familiar to use.
+A **module** encapsulates several beans and possibly other modules. It specifies the dependencies it needs to operate and only exposes the beans that need to be exposed from the module perspective. As a result it is isolated from the rest of the application, it is unaware of how and where it is used, and it actually doesn't care as long as its requirements are met. It really resembles a class which makes it very familiar to use.
 
 A **bean** is a component of a module and more widely an application. It has required and optional dependencies provided by the module when a bean instance is created.
 
@@ -53,7 +53,7 @@ Before you can create your first Inverno module, you must first understand what 
 
 The Java module system has been introduced in Java 9 mostly to modularize the overgrowing Java runtime library which is now split into multiple interdependent modules loaded when you need them at runtime or compile time. This basically means that the size of the Java runtime you need to compile and/or run your application now depends on your application's needs which is a pretty big improvement.
 
-If you know OSGI or Maven already, you might say that modules have existed in Java for a long time but now they are fully integrated into the language, the compiler and the runtime. You can create a Java module, specify what packages are exposed and what dependencies are required and the good part is that both the compiler and JVM tell you when you do something wrong being as close as possible to the code, there’s no more xml or manifest files to care about.
+If you know OSGI or Maven already, you might say that modules have existed in Java for a long time, but now they are fully integrated into the language, the compiler and the runtime. You can create a Java module, specify what packages are exposed and what dependencies are required and the good part is that both the compiler and JVM tell you when you do something wrong being as close as possible to the code, there’s no more xml or manifest files to care about.
 
 So how do you create a Java module? There is plenty of documentation you can read to have a complete and deep understanding of the Java module system, here we will only explain what you need to know to develop regular Inverno modules.
 
@@ -121,13 +121,13 @@ If we consider previous modules, they are compiled and run as follows:
 
 There are other subtleties like transitive dependencies, service providers or opened modules and cool features like jmod packaging and the `jlink` tool but for now that's pretty much all you need to know to develop Inverno modules which are basically instrumented Java modules.
 
-You should now have a basic understanding of how an Inverno application is built and what Java technologies are involved. An Inverno application results from the composition of multiple isolated modules which create and wire the beans making up the application. Almost everything is done at compile time where module classes are generated.
+You should now have a basic understanding of how an Inverno application is built and what Java technologies are involved. An Inverno application results from the composition of multiple isolated modules which create and wire the beans making up the application. Almost everything is done at compile time when module classes are generated.
 
 ## Project Setup
 
 ### Maven
 
-The easiest way to setup an Inverno module project is to start by creating a regular Java Maven project which inherits from `io.inverno.dist:inverno-parent` project and depends on `io.inverno:inverno-core`:
+The easiest way to set up an Inverno module project is to start by creating a regular Java Maven project which inherits from `io.inverno.dist:inverno-parent` project and depends on `io.inverno:inverno-core`:
 
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -265,7 +265,7 @@ As you already know, a Java application can be reduced to the composition of obj
 
 A bean and a bean instance are two different things that should not be confused. A bean can result in multiple bean instances in the application whereas a bean instance always refers to exactly one bean. A bean is like a plan used to create instances.
 
-A bean is fully identified by its name and the module in which it resides. The following notation is used to represent a bean qualified name: `[MODULE]:[BEAN]`. As a consequence, two beans with the same name cannot exist in the same module but it is safe to have multiple beans with the same name in different modules.
+A bean is fully identified by its name and the module in which it resides. The following notation is used to represent a bean qualified name: `[MODULE]:[BEAN]`. As a consequence, two beans with the same name cannot exist in the same module, but it is safe to have multiple beans with the same name in different modules.
 
 ### Module Bean
 
@@ -282,7 +282,7 @@ public class SomeBean {
 
 In the previous code we created a bean of type `SomeBean`. At compile time, the Inverno compiler will include it in the generated module class that you'll eventually use at runtime to obtain `SomeBean` instances.
 
-By default, a bean is named after the simple name of the class starting with a lower case (eg. `someBean` in our previous example). This can be specified in the annotation using the name attribute:
+By default, a bean is named after the simple name of the class starting with a lower case (e.g. `someBean` in our previous example). This can be specified in the annotation using the name attribute:
 
 ```java
 @Bean(name="customSomeBean")
@@ -298,8 +298,8 @@ A wrapper bean is a particular form of bean used to define beans whose code cann
 A wrapper bean is defined by a concrete class annotated with both `@Bean` and `@Wrapper` annotations which basically wraps the actual bean instance and include the instantiation, initialization and destruction logic. It must implement the `Supplier<E>` interface which specifies the actual type of the bean as formal parameter.
 
 ```java
-@Bean
 @Wrapper
+@Bean
 public class SomeWrapperBean implements Supplier<SomeLegacyBean> {
 
     private SomeLegacyBean instance;
@@ -317,11 +317,11 @@ public class SomeWrapperBean implements Supplier<SomeLegacyBean> {
 }
 ```
 
-In the previous code we created a bean of type `SomeLegacyBean`. One instance of the wrapper class is used to create exactly one bean instance and it lives as long as the bean instance is referenced.
+In the previous code we created a bean of type `SomeLegacyBean`. One instance of the wrapper class is used to create exactly one bean instance, and it lives as long as the bean instance is referenced.
 
 Since a wrapper bean is annotated with `@Bean` annotation, it can be configured in the exact same way as a module bean except that it only applies to the wrapper instance which is responsible to configure the actual bean instance. The wrapper instance is never exposed, only the actual bean instance wrapped in it is exposed. As for module beans, `SomeLegacyBean` instances can be obtained using the generated Module class.
 
-> Note that since a new wrapper instance is created every time a new bean instance is requested, a wrapper class is not required to return a new or distinct result in the `get()` method. Nonetheless a wrapper instance is used to create, initialize and destroy exactly one instance of the supplied type and as a result it is good practice to have the wrapper instance always return the same bean instance. This is especially true and done naturally when initialization or destruction methods are specified.
+> Note that since a new wrapper instance is created every time a new bean instance is requested, a wrapper class is not required to return a new or distinct result in the `get()` method, nonetheless a wrapper instance is used to create, initialize and destroy exactly one instance of the supplied type and as a result it is good practice to have the wrapper instance always return the same bean instance. This is especially true and done naturally when initialization or destruction methods are specified.
 
 > When designing a prototype wrapper bean, particular care must be taken to make sure the wrapper does not hold a strong reference to the wrapped instance in order to prevent memory leak when a prototype bean instance is requested by the application. It is strongly advised to rely on `WeakReference<>` in that particular use case.
 
@@ -346,6 +346,38 @@ public class SomeBean {
 
 It is also possible to *cascade* nested beans.
 
+### Mutator Bean
+
+A mutator bean allows to mutate a bean instance injected through a socket bean generated by the Inverno compiler. It is essentially a mutating socket bean with the ability to operate or even replace the injected instance before it is actually wired to the module beans. It is typically used for setting up, instrumenting, decorating or completely transforming an external dependency in order to make it usable by the module beans.
+
+A mutator bean must be defined as class implementing `Function<T, R>` where `<T>` represents the socket type, basically the type of the instance to inject in the module, and `<R>` represents the type of the bean exposed in the module.
+
+```java
+@Mutator
+@Bean
+public class SomeMutatorBean implements Function<ExternalType, InternalType> {
+
+    @Override
+    public InternalType apply(ExternalType instance) {...}
+}
+```
+
+In above example, the compiled module exposes a socket for injecting a `ExternalType` instance which is transformed to `InternalType` by the mutator bean when the module is started. Beans inside the module can then define sockets for injecting the resulting `InternalType` instance.
+
+By default, the Inverno compiler creates a regular socket bean which is simply ignored when it is not wired and made optional when it is only wired to optional sockets. This behaviour can be changed with the `required` attribute in order to force the creation of a required socket bean and make sure an instance is always injected and the mutator invoked.
+
+```java
+@Mutator( required = true )
+@Bean
+public class SomeMutatorBean implements Function<ExternalType, InternalType> {
+
+    @Override
+    public InternalType apply(ExternalType instance) {...}
+}
+```
+
+> Being able to force the creation of a required socket bean and the execution of the mutator allows to modify an external object using beans or resources from inside the module which can be particularly useful in some applications composing multiple modules, each of which populates a global object.
+
 ### Overridable
 
 A module bean or a wrapper bean can be declared as overridable which allows to override the bean inside the module by a socket bean of the same type.
@@ -353,8 +385,8 @@ A module bean or a wrapper bean can be declared as overridable which allows to o
 An overridable bean is defined as a module bean or a wrapper bean whose class has been annotated with `@Overridable`. This basically tells the Inverno compiler to create an extra optional socket bean with the particular feature of being able to take over the bean when an instance is provided on module instantiation.
 
 ```java
-@Bean
 @Overridable
+@Bean
 public class SomeBean {
 
 }
@@ -386,7 +418,7 @@ public class SomeBean {
 }
 ```
 
-You can specify multiple initialization methods but the order in which they are invoked is undetermined. Inheritance is not considered here, only the methods annotated on the bean class are considered. Bean initialization is useful when you want to execute some code after dependency injection to make the bean instance fully functional (eg. initialize a connection pool, start a server socket...).
+You can specify multiple initialization methods but the order in which they are invoked is undetermined. Inheritance is not considered here, only the methods annotated on the bean class are considered. Bean initialization is useful when you want to execute some code after dependency injection to make the bean instance fully functional (e.g. initialize a connection pool, start a server socket...).
 
 After that, the bean instance is active and can be used either directly by accessing it from the module or indirectly through another bean instance where it has been injected.
 
@@ -403,7 +435,7 @@ public class SomeBean {
 }
 ```
 
-As for initialization methods, you can specify multiple destruction methods but the order in which they are invoked is undetermined and inheritance is also not considered. Bean destruction is useful when you need to free resources that have been allocated by the bean instance during application operation (eg. shutdown a connection pool, close a server socket...).
+As for initialization methods, you can specify multiple destruction methods but the order in which they are invoked is undetermined and inheritance is also not considered. Bean destruction is useful when you need to free resources that have been allocated by the bean instance during application operation (e.g. shutdown a connection pool, close a server socket...).
 
 In case of wrapper beans, the initialization and destruction of a bean instance is delegated to the initialization and destruction methods specified on the wrapper bean which respectively initialize and destroy the actual bean instance wrapped in the wrapper bean.
 
@@ -510,13 +542,13 @@ try(SomeBean bean = module.someBean()) {
 }
 ```
 
-As soon as the program exits the try-with-resources block the bean instance is properly destroyed, then dereferenced and eventually reclaimed by the garbage collector and finally removed from the module instance. However you should make sure that the `close()` method can be called twice since it actually might.
+As soon as the program exits the try-with-resources block the bean instance is properly destroyed, then dereferenced and eventually reclaimed by the garbage collector and finally removed from the module instance. However, you should make sure that the `close()` method can be called twice since it actually might.
 
 Prototype beans should be used whenever there is a need to hold a state in a particular context. An HTTP client is a typical example of a stateful instance, different instances should be created and injected in singleton beans so they can deal with concurrency independently to make sure requests are sent only after a response to the previous request has been received.
 
-> That might not be the smartest way to use HTTP clients in an application but it gives you the idea.
+> That might not be the smartest way to use HTTP clients in an application, but it gives you the idea.
 
-Prototype beans can also be used to implement the factory pattern, just like a factory, you can request new bean instances on a module. Inverno framework makes this actually very powerful since there's no runtime overhead, modules can be created and used anywhere and you never have to worry about the boiler plate code that instantiates the bean since it is generated for you by the framework.
+Prototype beans can also be used to implement the factory pattern, just like a factory, you can request new bean instances on a module. Inverno framework makes this actually very powerful since there's no runtime overhead, modules can be created and used anywhere, and you never have to worry about the boilerplate code that instantiates the bean since it is generated for you by the framework.
 
 ## Module
 
@@ -544,7 +576,7 @@ Java modules annotated with `@Module` will be processed by the Inverno compiler 
 This class is the entry point of a module and serve several purposes:
 
 - encapsulate beans instances creation and wiring logic
-- implement bean instance lifecyle
+- implement bean instance lifecycle
 - specify required or optional module dependencies
 - expose public beans
 - hide private beans
@@ -568,7 +600,7 @@ module.stop();                                            // 4
 3. The `SomeBean` instance is retrieved
 4. Eventually the module is stopped
 
-There are two important things to notice here, first you control when, where and how many times you want to instantiate a module, which brings great flexibility in the way modules are used in your application. For instance integrating an Inverno module in an existing code is pretty straightforward as it is plain old Java, it is also possible to create and use a module instance during application operation (eg. when processing a request). Secondly beans are exposed with their actual types through named methods which eventually produces more secure code because static type checking can (finally) be performed by the compiler.
+There are two important things to notice here, first you control when, where and how many times you want to instantiate a module, which brings great flexibility in the way modules are used in your application. For instance integrating an Inverno module in an existing code is pretty straightforward as it is plain old Java, it is also possible to create and use a module instance during application operation (e.g. when processing a request). Secondly beans are exposed with their actual types through named methods which eventually produces more secure code because static type checking can (finally) be performed by the compiler.
 
 Module classes provide dedicated builders to facilitate the creation of complex modules instances with multiple required and optional dependencies.
 
@@ -590,7 +622,7 @@ Module io.inverno.sample.sampleModule {
 }
 ```
 
-Most of the time this is something you’ll do especially if you want to create [composite modules](#modular-application), however if you only use the module class from within the module, typically in a main method or embedded in some other class, you won’t have to do it.
+Most of the time this is something you’ll do especially if you want to create [composite modules](#modular-application). However, if you only use the module class from within the module, typically in a main method or embedded in some other class, you won’t have to do it.
 
 > Note that the Java compiler fails if you try to export a package which is empty before compilation, since the module class is generated this might actually happen, so you need to make sure the class will be generated in a package containing some code. This is not an ideal situation however a module usually defines and exports a package named after its name so this should solve the issue.
 
@@ -607,7 +639,7 @@ Let's examine each of these steps in details.
 
 A module instance can be created directly in the application or indirectly inside a composite module. A module defines a dedicated `Builder` class that must be used to build the module instance. Relying on a builder is very helpful when considering complex modules with many required and optional dependencies.
 
-The instance must then be started to make it operational. During this phase, all Inverno modules composed in the module are instantiated and started and all the beans defined in the module are created and initialized. Dependency injection is performed naturally as beans are created. Since everything has been validated at compile time, we know for sure that everything will work properly.
+The instance must then be started to make it operational. During this phase, all Inverno modules composed in the module are instantiated and started, and all beans defined in the module are created and initialized. Dependency injection is performed naturally during bean creation. Since everything has been validated upfront at compile time, we know for sure that everything will work properly.
 
 > A module is actually composed by the beans it defines and the beans defined in the modules it composes. This is discussed in details in the [Modular application](#modular-application) section.
 
@@ -673,7 +705,7 @@ public interface CoffeeMaker {
 }
 ```
 
-Inside a coffee shop application, you might instantiate several coffee maker modules used in the following way:
+Inside a coffee shop application, you might instantiate multiple coffee maker modules used in the following way:
 
 ```java
 PowerSupply powerSupply = ...                                                        // Get some power supply
@@ -681,7 +713,7 @@ PowerSupply powerSupply = ...                                                   
 CoffeeMakerModule coffeeMakerModule = new CoffeeMakerModule.Builder(powerSupply).build();
 coffeeMakerModule.start();
 
-ArabicaCoffeeBeans[] coffeeBeans = ...                                               // Get some tasty coffee beans
+ArabicaCoffeeBeans[] coffeeBeans = ...                                               // Get some tasty coffee beans
 coffeeMakerModule.coffeeBeansContainer().fill(coffeeBeans);                          // fill the coffee beans container
 coffeeMakerModule.waterReservoir().fill(1.5);                                        // fill the water reservoir with 1.5 Liters
 
@@ -696,7 +728,7 @@ coffeeMakerModule.stop();
 
 The goal of this example was to show the benefits of using Inverno modules as standalone components in an application. As you can see:
 
-- implementation details are completely hidden: you don't know and you don't have to know how the beans container, the water reservoir and the coffee maker are working together.
+- implementation details are completely hidden: you don't know, and you don't have to know how the beans container, the water reservoir and the coffee maker are working together.
 - dependencies are clearly exposed: you must provide some power supply to instantiate the module.
 - only significant functionalities are exposed.
 - if you look closely, you'll see that no particular technical framework is visible: from a code perspective, the application doesn't see and don't need to know it is using an Inverno module, everything is also statically typed and self-describing.
@@ -723,7 +755,7 @@ public interface CoffeeMaker {
 
     void fillWithCoffeeBeans(CoffeeBeans[] beans);
 
-    void filleWithWater();
+    void fillWithWater();
 
     Coffee makeCoffee();
 }
@@ -750,7 +782,7 @@ Dependency Injection is mostly about interconnecting objects to form an applicat
 
 Let's say we have created a highly customizable coffee maker, capable of producing a coffee based on many parameters: steam pressure, temperature, grinding size... These parameters have to be used in various components of the coffee maker. These data have to be provided each time a customer orders a coffee
 
-Propagating the right data to the right coffee maker component can be a tedious task. An Inverno module can be created to inject data where they are needed based on the dependencies of each beans composing the coffee maker module and eventually process the request.
+Propagating the right data to the right coffee maker component can be a tedious task. An Inverno module can be created to inject data where they are needed based on the dependencies of each bean composing the coffee maker module and eventually process the request.
 
 ```java
 public Coffee orderCoffee(Param_1 p1, Param_2 p2, ... Param_n pn) {
@@ -768,7 +800,7 @@ public Coffee orderCoffee(Param_1 p1, Param_2 p2, ... Param_n pn) {
 }
 ```
 
-You can then benefit from dependency injection inside the business logic, performance shouldn't be impacted by bean instantiation or dependency injection logic because the creation of a module instance is no different than creating some objects with the `new` operator and invoking some setter methods. This is especially interesting when you have to process very complex requests with a lot of input data.
+You can then benefit from dependency injection inside the business logic, performance shouldn't be impacted by bean instantiation or dependency injection logic because the creation of a module instance is no different from creating some objects with the `new` operator and invoking some setter methods. This is especially interesting when you have to process very complex requests with a lot of input data.
 
 ### Module as application
 
@@ -820,7 +852,7 @@ mars 04, 2020 1:14:27 PM io.inverno.core.v1.Module start
 ...
 ```
 
-The `StandardBanner` is displayed by default but you can specify custom implementations as well:
+The `StandardBanner` is displayed by default, but you can specify custom implementations as well:
 
 ```java
 public static void main(String[] args) {
@@ -836,7 +868,7 @@ public static void main(String[] args) {
 
 In order to understand how this works, you could imagine that each bean exposes multiple sockets and that multiple wires leave the bean, as many as necessary. After creating and initializing bean instances, the module has to plug these wires into compatible sockets. The type of the wire, which is the type of the bean, must match the type of the socket, which is the type of the dependency defined in the bean.
 
-The result is modeled in a graph of beans built at compile time by the Inverno compiler which checks that it is a directed acyclic graph (ie. there's no cycles in the graph) and that there is a plug in each required socket. If everything is correct, a module class implementing the graph is created.
+The result is modeled in a graph of beans built at compile time by the Inverno compiler which checks that it is a directed acyclic graph (i.e. there's no cycles in the graph) and that there is a plug in each required socket. If everything is correct, a module class implementing the graph is created.
 
 > Dependency injection is validated and fully determined at compile time, the module class just instantiates and injects beans in a predetermined order without having to worry about missing dependencies or dependency cycles amongst others.
 
@@ -854,7 +886,7 @@ Let's go back to our coffee maker example and define the dependencies of the `Co
 
 ```java
 @Bean
-public class CoffeMakerImpl implements CoffeMaker {
+public class CoffeeMakerImpl implements CoffeeMaker {
 
     private PowerSupply powerSupply;
 
@@ -879,11 +911,11 @@ The `io.inverno.sample.coffeeMakerModule:coffeeMakerImpl` bean then specifies th
 - `io.inverno.sample.coffeeMakerModule:coffeeMakerImpl:waterReservoir`
 - `io.inverno.sample.coffeeMakerModule:coffeeMakerImpl:coffeeBeansContainer`
 
-There should be only one public constructor defined in a bean class, this is actually proper bean design. Defining multiple constructors means that there are probably some dependencies not really required by the bean to work properly. Only required dependencies should be specified in a single bean constructor and optional dependencies in multiple setter methods. However if for some reasons multiple public constructors are defined on a bean class, you can explicitly specify which constructor to consider using the `@BeanSocket` annotation.
+There should be only one public constructor defined in a bean class, this is actually proper bean design. Defining multiple constructors means that there are probably some dependencies not really required by the bean to work properly. Only required dependencies should be specified in a single bean constructor and optional dependencies in multiple setter methods. However, if for some reason multiple public constructors are defined on a bean class, you can explicitly specify which constructor to consider using the `@BeanSocket` annotation.
 
 ```java
 @Bean
-public class CoffeMakerImpl implements CoffeMaker {
+public class CoffeeMakerImpl implements CoffeeMaker {
 
     @BeanSocket
     public CoffeeMakerImpl(PowerSupply powerSupply, WaterReservoir waterReservoir, CoffeeBeansContainer coffeeBeansContainer) {
@@ -896,11 +928,11 @@ public class CoffeMakerImpl implements CoffeMaker {
 }
 ```
 
-The coffee maker should now have everything it needs to make coffee but let's say we want the coffee maker to be able to make cappuccinos, it will then need a `MilkFrother`. The coffee maker can use a `MilkFrother` when available but it doesn't require a `MilkFrother` to make coffee, only to make cappuccinos, as a result it should be declared in an optional socket.
+The coffee maker should now have everything it needs to make coffee but let's say we want the coffee maker to be able to make cappuccinos, it will then need a `MilkFrother`. The coffee maker can use a `MilkFrother` when available, but it doesn't require a `MilkFrother` to make coffee, only to make cappuccinos, as a result it should be declared in an optional socket.
 
 ```java
 @Bean
-public class CoffeMakerImpl implements CoffeMaker {
+public class CoffeeMakerImpl implements CoffeeMaker {
 
     ...
     private MilkFrother milkFrother
@@ -922,11 +954,11 @@ public class CoffeMakerImpl implements CoffeMaker {
 
 The `io.inverno.sample.coffeeMakerModule:coffeeMakerImpl` bean now specifies one optional socket: `io.inverno.sample.coffeeMakerModule:coffeeMakerImpl:milkFrother`.
 
-By convention, every setter method on a bean is considered an optional socket, this enforces proper bean design. However in some situations you might need to explicitly specify which setter methods are sockets. In order to do that, you need to annotate every socket setter methods of the bean with the `@BeanSocket` annotation. Any setter method which is not annotated is then ignored by the compiler but it is also possible to explicitly ignore a setter method by setting the `enabled` attribute to `false`.
+By convention, every setter method on a bean is considered an optional socket, this enforces proper bean design. However, in some situations you might need to explicitly specify which setter methods are sockets. In order to do that, you need to annotate every socket setter methods of the bean with the `@BeanSocket` annotation. Any setter method which is not annotated is then ignored by the compiler, but it is also possible to explicitly ignore a setter method by setting the `enabled` attribute to `false`.
 
 ```java
 @Bean
-public class CoffeMakerImpl implements CoffeMaker {
+public class CoffeeMakerImpl implements CoffeeMaker {
 
     ...
     @BeanSocket
@@ -948,11 +980,11 @@ public class CoffeMakerImpl implements CoffeMaker {
 }
 ```
 
-> Note that Inverno annotation are not inherited from ancestor class, the Inverno compiler only considers the bean class annotated with `@Bean` so you must explicitly override setter methods to specify optional sockets defined in a class ancestor. This might not be obvious but it is actually the safer way that gives a perfect control on the sockets you want to expose in your beans.
+> Note that Inverno annotation are not inherited from ancestor class, the Inverno compiler only considers the bean class annotated with `@Bean` so you must explicitly override setter methods to specify optional sockets defined in a class ancestor. This might not be obvious, but it is actually the safer way that gives a perfect control on the sockets you want to expose in your beans.
 
 #### Single and multiple
 
-We can differentiate two kinds of bean socket: single socket and multiple socket. A single socket can be of any type except arrays, `java.util.List`, `java.util.Set` and `java.util.Collection` whereas the type of a multiple socket is necessarily an array, a `java.util.List`, a `java.util.Set` or a `java.util.Collection`. Multiple beans can be wired to a multiple socket whereas only one bean is wired to a single socket.
+We can differentiate two kinds of bean socket: single socket and multiple socket. A single socket can be of any type except arrays, `java.util.List`, `java.util.Set` and `java.util.Collection` whereas a multiple socket is necessarily an array, a `java.util.List`, a `java.util.Set` or a `java.util.Collection`. Multiple beans can be wired to a multiple socket whereas only one bean is wired to a single socket.
 
 #### Lazy
 
@@ -968,7 +1000,7 @@ From inside a module, a socket bean is considered as any regular beans as it tak
 
 Unlike other type of beans, a socket bean is not a concrete class, it must be an interface annotated with `@Bean` extending the `Supplier<E>` interface. The supplier's formal parameter designates the type of the dependency to provide.
 
-Let's say the coffee maker module does not provide any `PowerSupply` bean internally, this makes sense since a power supply might be required to make coffee but it is clearly unrelated. We must then find a way to provide a `PowerSupply` inside the module to make it work. We can then create a `PowerSupplySocket` socket bean inside the coffee maker module.
+Let's say the coffee maker module does not provide any `PowerSupply` bean internally, this makes sense since a power supply might be required to make coffee, but it is clearly unrelated. We must then find a way to provide a `PowerSupply` inside the module to make it work. We can then create a `PowerSupplySocket` socket bean inside the coffee maker module.
 
 ```java
 @Bean
@@ -995,7 +1027,7 @@ CoffeeMakerModule coffeeMakerModule = new CoffeeMakerModule.Builder(powerSupply)
 ...
 ```
 
-> It is interesting to notice here that a Inverno module explicitly specifies its dependencies which is extremely valuable to create complex modular applications involving multiple people working together, one can easily understand how to use another one's module without mentioning the fact that the compiler can actually check that everything fits together since beans, modules and modules builder arguments are all statically typed.
+> It is interesting to notice here that an Inverno module explicitly specifies its dependencies which is extremely valuable to create complex modular applications involving multiple people working together, one can easily understand how to use another one's module without mentioning the fact that the compiler can actually check that everything fits together since beans, modules and modules builder arguments are all statically typed.
 
 ### Wiring
 
@@ -1056,7 +1088,7 @@ The `into` attribute is a bean socket qualified name of the form `([MODULE]|([MO
 
 Obviously, multiple `@Wire` annotations can be specified on a module definition. If a specified bean does not exist, if the specified socket does not exist, if the specified beans does not match the specified socket or if multiple beans were specified for a single socket, the Inverno compiler will raise compilation errors.
 
-Resolving conflicts is one way of using explicit wiring, but in the case of a multiple socket, you can also use a wire to explicitly select which beans you want to inject using the `@Wire` annotation. For instance, let's say we have a module with four beans of type `SomeType`: `beanA`, `beanB`, `beanC`, `beanD` and another bean which defines a multiple socket of the same type (eg. `List<SomeType>`), if you do nothing, by default the Inverno compiler will automatically wire all four into the multiple socket, if you want to inject only `beanA` and `beanB` you can specify the following on the module definition:
+Resolving conflicts is one way of using explicit wiring, but in the case of a multiple socket, you can also use a wire to explicitly select which beans you want to inject using the `@Wire` annotation. For instance, let's say we have a module with four beans of type `SomeType`: `beanA`, `beanB`, `beanC`, `beanD` and another bean which defines a multiple socket of the same type (e.g. `List<SomeType>`), if you do nothing, by default the Inverno compiler will automatically wire all four into the multiple socket, if you want to inject only `beanA` and `beanB` you can specify the following on the module definition:
 
 ```java
 @Module
@@ -1066,7 +1098,7 @@ Module someModule {
 }
 ```
 
-> It's interesting to see that it is not on the socket that the conflict is resolved but on the module that actually created that conflict. This is quite different than other DI frameworks that use qualifiers specified on the conflicting injection point. With these approaches, In order to properly separate the concerns a bean should not know the name of the actual bean that will be injected, as a result it is up to the bean to define the qualifiers and up to the other beans to be named or aliased after these qualifiers but this means the bean still know that a conflict exist otherwise it wouldn't need to specify any qualifier. The Inverno framework eliminates this issue to enforce proper separation of concerns.
+> It's interesting to see that it is not on the socket that the conflict is resolved but on the module that actually created that conflict. This is quite different from other DI frameworks that use qualifiers specified on the conflicting injection point. With such approach, in order to properly separate the concerns a bean should not know the name of the actual bean that will be injected, as a result it is up to the bean to define the qualifiers and up to the other beans to be named or aliased after these qualifiers but this means the bean still know that a conflict exist otherwise it wouldn't need to specify any qualifier. The Inverno framework eliminates this issue to enforce proper separation of concerns.
 
 #### Selector
 
@@ -1082,7 +1114,7 @@ public @interface SuperSteam {}
 
 ```java
 @Bean
-public class CoffeMakerImpl implements CoffeMaker {
+public class CoffeeMakerImpl implements CoffeeMaker {
 
     ...
     public void setMilkFrother(@AnnotationSelector(SuperSteam.class) MilkFrother milkFrother) {
@@ -1094,7 +1126,7 @@ public class CoffeMakerImpl implements CoffeMaker {
 
 If no bean of type `MilkForther` annotated with `@SuperSteam` exists, a compilation error is raised.
 
-> It's important to understand here that the Inverno compiler considers the declared type of a bean which is not necessarily the actual type of the runtime instance. This is especially true when defining a [provided type](#provided-type) in a bean class, the selector annotation must then be specified on the provided type and not the actual bean class.
+> It's important to understand here that the Inverno compiler considers the declared type of the bean which is not necessarily the actual type of the runtime instance. This is especially true when defining a [provided type](#provided-type) in a bean class, the selector annotation must then be specified on the provided type and not the actual bean class.
 
 ## Modular application
 
@@ -1106,7 +1138,7 @@ So far, we explored how to define and compose beans inside a module to implement
 
 A **composite module** is literally a module composed of multiple Inverno modules. Concretely, all public beans exposed in a component module are considered for dependency injection in the composite module. In the same way, socket beans defined in a component module are resolved with the beans available in the composite module.
 
-By default, any Inverno module required in the module descriptor of a Inverno module are composed by the Inverno compiler inside the module class. Component modules public beans are encapsulated in the composite module class and then only accessible from within that module. At runtime, component modules are instantiated and started along with the composite module which wires their public beans into the module's beans sockets or into other component modules socket beans.
+By default, any Inverno module required in the module descriptor of an Inverno module are composed by the Inverno compiler inside the module class. Component modules public beans are encapsulated in the composite module class and then only accessible from within that module. At runtime, component modules are instantiated and started along with the composite module which wires their public beans into the module's beans sockets or into other component modules socket beans.
 
 Let's assume module `io.inverno.sample.milkFrotherModule` provides a `MilkFrother` bean compatible with the coffee maker. You can simply declare it as required in the module descriptor of the `io.inverno.sample.coffeeMakerModule` module to get the milk frother module created and started along with the coffee maker module and eventually wire the milk frother into the coffee maker.
 
@@ -1151,7 +1183,7 @@ Module someModule {
 }
 ```
 
-Module composition offers greater flexibility when using or designing modules. A typical Inverno application module would be a simple composition of multiple Inverno modules implementing different aspects. Multiple modules inside an application can depend on the same module but with different instances which limits the possibility of collisions and increases reusability. Indeed when developing a module you don't have to worry about the context in which it will be used or executed, you can focus on the feature it provides, external dependencies can be provided internally through module composition or externally through socket beans.
+Module composition offers greater flexibility when using or designing modules. A typical Inverno application module would be a simple composition of multiple Inverno modules implementing different aspects. Multiple modules inside an application can depend on the same module but with different instances which limits the possibility of collisions and increases reusability, indeed when developing a module you don't have to worry about the context in which it will be used or executed, you can focus on the feature it provides, external dependencies can be provided internally through module composition or externally through socket beans.
 
 ### Provided type
 
@@ -1165,18 +1197,18 @@ Let's see how it works for the `io.inverno.sample.coffeeMakerModule:coffeeMakerI
 
 ```java
 @Bean
-public class CoffeMakerImpl implements @Provide CoffeMaker {
+public class CoffeeMakerImpl implements @Provide CoffeeMaker {
     ...
 }
 ```
 
-The `CoffeeMakerImpl` class can implement several types but it will be exposed as a `CoffeeMaker` in the module class.
+The `CoffeeMakerImpl` class can implement several types, but it will be exposed as a `CoffeeMaker` in the module class.
 
 > The `@Provide` annotation is only useful on module bean, for w beans the implementation type is already hidden in the `Supplier#get()` method and the provided type is the formal parameter specified in the `Supplier<E>` interface.
 
 The provided type is only considered outside the module when used in a composite module or in an application. Inside the module, the actual bean type is used for dependency injection unless the bean is also overridable in which case the provided type is also used internally.
 
-Hiding implementation and only expose public API is very convenient when you developed a component module and it is a best practice in general if you want to enforce modularity inside an application. Most of the time modules should always depend on public API so from a dependency injection perspective it doesn't really matters whether a module expose implementation classes but you can't guarantee that nobody will ever create a dependency on an implementation class if that class is accessible which would be quite bad for maintainability. Being able to control the types actually exposed in a module enforces a proper isolation.
+Hiding implementation and only expose public API is very convenient when you developed a component module, and it is a best practice in general if you want to enforce modularity inside an application. Most of the time modules should always depend on public API so from a dependency injection perspective it does not really matter whether a module expose implementation classes, but you can't guarantee that nobody will ever create a dependency on an implementation class if that class is accessible which would be quite bad for maintainability. Being able to control the types actually exposed in a module enforces a proper isolation.
 
 > Particular care must be taken when using [selectors](#selector) in a composite module, the type of component modules beans considered by the Inverno compiler will be the provided types, so if you want to specify properties matching selectors, you have to specify them on the provided types and not the actual beans types.
 

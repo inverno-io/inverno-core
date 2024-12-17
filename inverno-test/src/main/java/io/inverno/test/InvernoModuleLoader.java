@@ -23,9 +23,12 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
 
 /**
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -33,9 +36,11 @@ import java.util.stream.Collectors;
  */
 public class InvernoModuleLoader {
 	
-	private ModuleLayer layer;
+	private final ModuleLayer layer;
 	
-	public InvernoModuleLoader(Collection<Path> modulePaths, Collection<String> modules) throws MalformedURLException {
+	private final List<Diagnostic<? extends JavaFileObject>> diagnotics;
+	
+	public InvernoModuleLoader(Collection<Path> modulePaths, Collection<String> modules, List<Diagnostic<? extends JavaFileObject>> diagnotics) throws MalformedURLException {
 		ModuleFinder finder = ModuleFinder.of(modulePaths.toArray(new Path[modulePaths.size()]));
 		ModuleLayer parent = ModuleLayer.boot();
 		
@@ -52,6 +57,7 @@ public class InvernoModuleLoader {
 		Configuration cf = parent.configuration().resolve(finder, ModuleFinder.of(), modules);
 		
 		this.layer = parent.defineModulesWithOneLoader(cf, ClassLoader.getPlatformClassLoader());
+		this.diagnotics = diagnotics;
 	}
 	
 	public Class<?> loadClass(String moduleName, String className) throws ClassNotFoundException {
@@ -94,5 +100,9 @@ public class InvernoModuleLoader {
 		else {
 			throw new RuntimeException("Unkown module " + moduleName);
 		}
+	}
+
+	public List<Diagnostic<? extends JavaFileObject>> getDiagnotics() {
+		return this.diagnotics;
 	}
 }

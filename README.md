@@ -15,7 +15,7 @@ The [Inverno core framework][inverno-io] project provides an Inversion of Contro
 
 This approach has many advantages over other IoC/DI solutions starting with the static checking of the bean dependency graph at compile time which guarantees that a program is correct and will run properly. Debugging is also made easier since you can actually access the source code where beans are instantiated and wired together. Finally, the startup time of a program is greatly reduced since everything is known in advance, such program can even be further optimized with ahead of time compilation solutions like [GraalVM][graal-vm]...
 
-The framework has been designed to build highly modular applications using standard Java modules. An Inverno module supports encapsulation, it only exposes the beans that need to be exposed and it clearly specifies the dependencies it requires to operate properly. This greatly improves program stability over time and simplifies the use of a module. Since an Inverno module has a very small runtime footprint it can also be easily integrated in any application.
+The framework has been designed to build highly modular applications using standard Java modules. An Inverno module supports encapsulation, it only exposes the beans that need to be exposed, and it clearly specifies the dependencies it requires to operate properly. This greatly improves program stability over time and simplifies the use of a module. Since an Inverno module has a very small runtime footprint it can also be easily integrated in any application.
 
 ## Creating an Inverno module
 

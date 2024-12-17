@@ -77,16 +77,38 @@ public class TypeWiringStrategy implements WiringStrategy {
 			}
 		}
 		if(MultiSocketInfo.class.isAssignableFrom(socket.getClass())) {
+			if(this.processingEnvironment.getTypeUtils().isAssignable(type, socket.getType())) {
+				return true;
+			}
+
 			DeclaredType socketCollectionType = this.processingEnvironment.getTypeUtils().getDeclaredType(this.processingEnvironment.getElementUtils().getTypeElement(Collection.class.getCanonicalName()), socket.getType());
-			ArrayType socketArrayType;
-			if(!socket.getType().getKind().equals(TypeKind.WILDCARD)) {
-				socketArrayType = this.processingEnvironment.getTypeUtils().getArrayType(socket.getType());
+			if(this.processingEnvironment.getTypeUtils().isAssignable(type, socketCollectionType)) {
+				return true;
+			}
+
+			if(socket.getType().getKind().equals(TypeKind.WILDCARD)) {
+				WildcardType socketWildcardType = (WildcardType)socket.getType();
+				if(socketWildcardType.getSuperBound() != null) {
+					if(this.processingEnvironment.getTypeUtils().isAssignable(socketWildcardType.getSuperBound(), type.getKind().equals(TypeKind.ARRAY) ? ((ArrayType)type).getComponentType() : type)) {
+						return true;
+					}
+					return false;
+				}
+				else if(socketWildcardType.getExtendsBound() != null) {
+					if(this.processingEnvironment.getTypeUtils().isAssignable(type, socketWildcardType.getExtendsBound())) {
+						return true;
+					}
+					ArrayType socketArrayType = this.processingEnvironment.getTypeUtils().getArrayType(socketWildcardType.getExtendsBound());
+					return socketArrayType != null && this.processingEnvironment.getTypeUtils().isAssignable(type, socketArrayType);
+				}
+				else {
+					return false;
+				}
 			}
 			else {
-				WildcardType socketWildcardType = (WildcardType)socket.getType();
-				socketArrayType = this.processingEnvironment.getTypeUtils().getArrayType(socketWildcardType.getExtendsBound() != null ? socketWildcardType.getExtendsBound() : socketWildcardType.getSuperBound());
+				ArrayType socketArrayType = this.processingEnvironment.getTypeUtils().getArrayType(socket.getType());
+				return socketArrayType != null && this.processingEnvironment.getTypeUtils().isAssignable(type, socketArrayType);
 			}
-			return this.processingEnvironment.getTypeUtils().isAssignable(type, socket.getType()) || (socketArrayType != null && this.processingEnvironment.getTypeUtils().isAssignable(type, socketArrayType)) || this.processingEnvironment.getTypeUtils().isAssignable(type, socketCollectionType);
 		}
 		else {
 			if(!socket.getType().getKind().equals(TypeKind.WILDCARD)) {

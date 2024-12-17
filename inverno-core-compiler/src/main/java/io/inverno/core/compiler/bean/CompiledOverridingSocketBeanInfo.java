@@ -58,7 +58,7 @@ public class CompiledOverridingSocketBeanInfo extends AbstractBeanInfo implement
 	}
 
 	/*
-	 * Does nothing since an overriding socket bean is always wired one overridable bean.
+	 * Does nothing since an overriding socket bean is always wired to the overridable bean.
 	 */
 	@Override
 	public void setWired(boolean wired) {
