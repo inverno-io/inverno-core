@@ -82,7 +82,7 @@ public class InvernoTestCompiler {
 		
 		this.fileManager.setLocation(StandardLocation.CLASS_PATH, this.classPaths.stream().map(Path::toFile).collect(Collectors.toSet()));
 		this.fileManager.setLocation(StandardLocation.MODULE_PATH, Stream.concat(this.modulePaths.stream(), this.annotationProcessorModulePaths.stream()).map(Path::toFile).collect(Collectors.toList()));
-//		this.fileManager.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, this.annotationProcessorModulePaths);
+		this.fileManager.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, this.annotationProcessorModulePaths.stream().map(Path::toFile).collect(Collectors.toList()));
 		this.fileManager.setLocation(StandardLocation.MODULE_SOURCE_PATH, List.of(this.moduleSourcePath.toFile()));
 		Files.createDirectories(this.generatedSourcePath);
 		this.fileManager.setLocation(StandardLocation.SOURCE_OUTPUT, List.of(this.generatedSourcePath.toFile()));
@@ -140,7 +140,7 @@ public class InvernoTestCompiler {
 		this.deleteDir(this.generatedSourcePath);
 		this.deleteDir(this.moduleTargetPath);
 	}
-	
+
 	public void cleanModuleTarget(String... modules) {
 		for(String module : modules) {
 			this.deleteDir(this.generatedSourcePath.resolve(module));
