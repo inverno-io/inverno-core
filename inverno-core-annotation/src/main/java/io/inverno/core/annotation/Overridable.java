@@ -27,13 +27,14 @@ import java.lang.annotation.Target;
  * 
  * <p>
  * An overridable bean is a regular module or wrapper bean that can be overridden within a module by an instance provided in a corresponding optional socket bean automatically exposed on the module. 
- * When the socket is resolved and an instance is provided, it will replace the instance that would have normally be instantiated.
+ * When the socket is resolved and an instance is provided, it will replace the instance that would have normally been instantiated.
  * </p>
  * 
  * <pre>{@code
  * @Overridable @Bean
- * public class OverridableBean implements @Provide Runanble {
+ * public class OverridableBean implements @Provide Runnable {
  *     ...
+ * }
  * }</pre>
  *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

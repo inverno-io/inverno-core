@@ -58,15 +58,15 @@ class PrototypeModuleBeanBuilder<P, T> extends AbstractModuleBeanBuilder<P, T> {
 	 * Creates an overridable prototype module bean builder.
 	 * </p>
 	 *
-	 * @param overridenBuilder the overridden prototype module bean builder
-	 * @param override         the override
+	 * @param overriddenBuilder the overridden prototype module bean builder
+	 * @param override          the override
 	 */
-	public PrototypeModuleBeanBuilder(PrototypeModuleBeanBuilder<?, T> overridenBuilder, Optional<Supplier<P>> override) {
-		super(overridenBuilder, override);
+	public PrototypeModuleBeanBuilder(PrototypeModuleBeanBuilder<?, T> overriddenBuilder, Optional<Supplier<P>> override) {
+		super(overriddenBuilder, override);
 	}
 
 	@Override
-	public <P> Module.ModuleBeanBuilder<P, T> override(Optional<Supplier<P>> override) {
+	public <U> Module.ModuleBeanBuilder<U, T> override(Optional<Supplier<U>> override) {
 		return new PrototypeModuleBeanBuilder<>(this, override);
 	}
 
@@ -80,14 +80,14 @@ class PrototypeModuleBeanBuilder<P, T> extends AbstractModuleBeanBuilder<P, T> {
 	@Override
 	public Bean<P> build() {
 		if(this.destroys == null || this.destroys.isEmpty()) {
-			return new PrototypeModuleBean<P>(this.beanName, this.override) {
+			return new PrototypeModuleBean<>(this.beanName, this.override) {
 
 				@Override
 				@SuppressWarnings("unchecked")
 				protected P createInstance() {
 					T instance = constructor.get();
 					if(inits != null) {
-						inits.stream().forEach(init -> {
+						inits.forEach(init -> {
 							try {
 								init.accept(instance);
 							} catch (Exception e) {
@@ -101,14 +101,14 @@ class PrototypeModuleBeanBuilder<P, T> extends AbstractModuleBeanBuilder<P, T> {
 			};
 		}
 		else {
-			return new PrototypeWeakModuleBean<P>(this.beanName, this.override) {
+			return new PrototypeWeakModuleBean<>(this.beanName, this.override) {
 
 				@Override
 				@SuppressWarnings("unchecked")
 				protected P createInstance() {
 					T instance = constructor.get();
 					if(inits != null) {
-						inits.stream().forEach(init -> {
+						inits.forEach(init -> {
 							try {
 								init.accept(instance);
 							} catch (Exception e) {
@@ -124,7 +124,7 @@ class PrototypeModuleBeanBuilder<P, T> extends AbstractModuleBeanBuilder<P, T> {
 				@SuppressWarnings("unchecked")
 				protected void destroyInstance(P instance) {
 					if(destroys != null) {
-						destroys.stream().forEach(destroy -> {
+						destroys.forEach(destroy -> {
 							try {
 								destroy.accept((T)instance);
 							} catch (Exception e) {

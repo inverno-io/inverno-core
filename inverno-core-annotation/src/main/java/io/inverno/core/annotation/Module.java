@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Indicates that a module is a Inverno module that must be processed during compilation in order to generate a module class.
+ * Indicates that a module is an Inverno module that must be processed during compilation in order to generate a module class.
  * </p>
  *
  * <p>

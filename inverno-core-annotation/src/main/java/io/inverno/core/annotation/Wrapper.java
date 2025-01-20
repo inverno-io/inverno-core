@@ -34,8 +34,8 @@ import java.util.function.Supplier;
  *
  * <p>
  * A wrapper bean follows the same rules as regular beans: dependencies are injected into sockets defined on the wrapper class, initialization methods are invoked after dependency injection and
- * destroy methods before bean removal on the wrapper instance. However the instance actually exposed is returned by the {@link Supplier#get()} method. There is no requirement that a new or distinct
- * result be returned each time the wrapper is invoked but when initialization or destruction methods are specified, the wrapper must naturally create and always return a single wrapped instance which
+ * destroy methods before bean removal on the wrapper instance, however the instance actually exposed is returned by the {@link Supplier#get()} method. There is no requirement that a new or distinct
+ * result be returned each time the wrapper is invoked, but when specifying initialization or destruction methods, the wrapper must naturally create and always return a single wrapped instance which
  * can then be initialized and destroyed by the wrapper. In that particular case, {@link WeakReference} should be used in the wrapper to hold the actual bean instance to prevent memory leaks that
  * might arise in certain situations.
  * </p>

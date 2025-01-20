@@ -28,7 +28,7 @@ import java.lang.annotation.Target;
  *
  * <p>
  * Unlike Beans with scope {@link Bean.Strategy#SINGLETON}, beans with scope {@link Bean.Strategy#PROTOTYPE} might not be destroyed and therefore destroy methods not invoked when they are created
- * outside of a module and dereferenced before the module is stopped. As a result you should generally avoid defining destroy methods on beans with scope prototype. If you have this kind of use case,
+ * outside a module and dereferenced before the module is stopped. As a result you should generally avoid defining destroy methods on beans with scope prototype. If you have this kind of use case,
  * consider creating prototype beans that implement {@link AutoCloseable}, define the <code>close()</code> as destroy method, make sure it can be invoked twice, and create new instances as follows to
  * make sure instance are properly destroyed:
  * </p>

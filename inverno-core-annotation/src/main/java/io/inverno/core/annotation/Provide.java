@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>
- * This annotation can be either specified on the {@link Bean} annotated type or on one of its a super type. In the first case, the provided type is specified by the annotation value, in the second
+ * This annotation can be either specified on the {@link Bean} annotated type or on one of its super type. In the first case, the provided type is specified by the annotation value, in the second
  * case, the provided type is the annotated direct super type, the annotation value being ignored. Defining a type incompatible with the actual bean type or Specifying the annotation multiple times
  * will result in a compilation errors.
  * </p>

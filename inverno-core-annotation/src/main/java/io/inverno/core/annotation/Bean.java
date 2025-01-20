@@ -27,7 +27,7 @@ import java.util.function.Supplier;
  * </p>
  *
  * <p>
- * A bean is fully identified by its name (which defaults to the name of the class) and the name of the module exposing the bean (eg. [MODULE_NAME]:[BEAN_NAME]). We can differentiate three kinds of
+ * A bean is fully identified by its name (which defaults to the name of the class) and the name of the module exposing the bean (e.g. [MODULE_NAME]:[BEAN_NAME]). We can differentiate three kinds of
  * beans: module bean, wrapper bean and socket bean.
  * </p>
  *
@@ -140,7 +140,7 @@ public @interface Bean {
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 */
-	public static enum Visibility {
+	enum Visibility {
 		/**
 		 * A private bean is only accessible inside the module.
 		 */
@@ -186,7 +186,7 @@ public @interface Bean {
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
 	 * @since 1.0
 	 */
-	public static enum Strategy {
+	enum Strategy {
 		/**
 		 * Singleton strategy results in one single instance being created.
 		 */

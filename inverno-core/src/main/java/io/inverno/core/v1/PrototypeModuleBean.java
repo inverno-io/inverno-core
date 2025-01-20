@@ -100,9 +100,7 @@ abstract class PrototypeModuleBean<T> extends AbstractModuleBean<T> {
 		this.create();
 		return this.override
 			.map(Supplier::get)
-			.orElseGet(() -> {
-				return this.createInstance();
-			});
+			.orElseGet(this::createInstance);
 	}
 
 	/**

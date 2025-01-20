@@ -32,16 +32,16 @@ import org.apache.logging.log4j.Logger;
  * </p>
  *
  * <p>
- * As for {@link PrototypeModuleBean}, particular care must be taken when creating prototype beans instances outside of a module (eg. moduleInstance.prototypeBean()), see {@link PrototypeModuleBean}
+ * As for {@link PrototypeModuleBean}, particular care must be taken when creating prototype beans instances outside a module (e.g. moduleInstance.prototypeBean()), see {@link PrototypeModuleBean}
  * documentation for more information.
  * </p>
  *
  * <p>
  * The actual bean instance of a wrapper bean is provided by a wrapper instance to which instantiation, initialization and destruction operations are delegated. To each bean instance corresponds a
- * wrapper instance. There is no requirement that a new or distinct result be returned each time the wrapper is invoked, however when initialization and destruction operations are specified, the
- * wrapper, as indicated by its name, will usually wrap a single instance so that destruction operations can be invoked at later stage when the bean is destroyed. In that case, particular care must be
- * taken to make sure the wrapper instance does not hold a strong reference to the actual instance, otherwise bean instances created outside the module might not be reclaimed by the garbage collector
- * leading to memory leaks. A {@link WeakReference} should be then used in such situations. Note that this issue does not exist for singleton wrapper beans.
+ * wrapper instance. There is no requirement that a new or distinct result be returned each time the wrapper is invoked, however when specifying initialization or destruction operations, the wrapper,
+ * as indicated by its name, will usually wrap a single instance so that destruction operations can be invoked at later stage when destroying the bean. In that case, particular care must be taken to
+ * make sure the wrapper instance does not hold a strong reference to the actual instance, otherwise bean instances created outside the module might not be reclaimed by the garbage collector leading
+ * to memory leaks. A {@link java.lang.ref.WeakReference} should be then used in such situations. Note that this issue does not exist for singleton wrapper beans.
  * </p>
  *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>
@@ -131,7 +131,7 @@ abstract class PrototypeWeakWrapperBean<W extends Supplier<T>, T> extends Abstra
 	 * </p>
 	 *
 	 * <p>
-	 * This method delegates bean instance destruction to the {@link #destroyWrapper(Object)} method.
+	 * This method delegates bean instance destruction to the {@link #destroyWrapper(Supplier)} method.
 	 * </p>
 	 */
 	@Override
@@ -139,8 +139,8 @@ abstract class PrototypeWeakWrapperBean<W extends Supplier<T>, T> extends Abstra
 		if (this.instances != null) {
 			synchronized(this) {
 				LOGGER.debug("Destroying prototype bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-				if(!this.override.isPresent()) {
-					this.instances.values().stream().forEach(wrapper -> this.destroyWrapper(wrapper));
+				if(this.override.isEmpty()) {
+					this.instances.values().forEach(this::destroyWrapper);
 					this.instances.clear();
 				}
 				this.instances = null;

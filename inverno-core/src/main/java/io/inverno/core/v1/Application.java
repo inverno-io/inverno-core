@@ -42,7 +42,7 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>
  * A pidfile can also be created after the application has started and removed after the application has shutdown gracefully. by specifying the path to the pidfile in the
- * {@value Application#PROPERTY_PID_FILE} system property. By default no pidfile is created. An application will fail to start if a pidfile designating a valid process already exists.
+ * {@value Application#PROPERTY_PID_FILE} system property. By default, no pidfile is created. An application will fail to start if a pidfile designating a valid process already exists.
  * </p>
  *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

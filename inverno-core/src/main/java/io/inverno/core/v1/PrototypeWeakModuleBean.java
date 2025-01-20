@@ -36,11 +36,11 @@ import org.apache.logging.log4j.Logger;
  * </p>
  *
  * <p>
- * Particular care must be taken when creating prototype beans instances outside of a module (eg. moduleInstance.prototypeBean()). Modules keep weak references on the prototype beans instances it
+ * Particular care must be taken when creating prototype beans instances outside a module (e.g. moduleInstance.prototypeBean()). Modules keep weak references on the prototype beans instances it
  * creates to be able to properly destroy them. The use of weak references prevent memory leaks. This works properly for prototype beans instances injected into singleton instances, but it is not
- * possible to do so with a prototype bean instance referenced outside of a module as it is not possible to access the instance once it has been dereferenced and processed by the garbage collector.
+ * possible to do so with a prototype bean instance referenced outside a module as it is not possible to access the instance once it has been dereferenced and processed by the garbage collector.
  * When a module is stopped the behavior is then unpredictable and depends on whether the bean instance is still referenced or the garbage collector has yet enqueued its reference. To sum up when a
- * module is stopped, prototype beans instances referenced in singleton beans instances or referenced outside the module are always destroyed and they might be destroyed if they have been, but are no
+ * module is stopped, prototype beans instances referenced in singleton beans instances or referenced outside the module are always destroyed, and they might be destroyed if they have been, but are no
  * longer, referenced outside the module.
  * </p>
  *
@@ -162,12 +162,12 @@ abstract class PrototypeWeakModuleBean<T> extends AbstractModuleBean<T> {
 		if (this.instances != null) {
 			synchronized(this) {
 				LOGGER.debug("Destroying prototype bean {}", () ->  (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-				if(!this.override.isPresent()) {
+				if(this.override.isEmpty()) {
 					this.expungeStaleInstances();
 					this.instances.stream()
 						.map(WeakReference::get)
 						.filter(Objects::nonNull)
-						.forEach(instance -> this.destroyInstance(instance));
+						.forEach(this::destroyInstance);
 					this.instances.clear();
 				}
 				this.instances = null;

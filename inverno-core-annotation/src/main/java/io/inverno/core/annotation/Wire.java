@@ -27,8 +27,8 @@ import java.lang.annotation.Target;
  * </p>
  *
  * <p>
- * The Inverno compiler will fail it finds multiple beans matching a single socket, the Wire annotation is then used on a the module to explicitly tell the compiler which bean has to be injected in a
- * particular socket.
+ * The Inverno compiler will fail if it finds multiple beans matching a single socket, the {@code @Wire} annotation is then used on the module to explicitly tell the compiler which bean has to be
+ * injected in a particular socket.
  * </p>
  *
  * <p>
@@ -49,7 +49,8 @@ public @interface Wire {
 	 * </p>
 	 *
 	 * <p>
-	 * A bean's name can be fully qualified (eg. [MODULE_NAME]:[BEAN_NAME]) to refer to a bean provided by an external module or simple to refer to a bean inside the current module (eg. [BEAN_NAME]).
+	 * A bean's name can be fully qualified (e.g. [MODULE_NAME]:[BEAN_NAME]) to refer to a bean provided by an external module or simple to refer to a bean inside the current module (e.g.
+	 * [BEAN_NAME]).
 	 * </p>
 	 *
 	 * @return A list of beans

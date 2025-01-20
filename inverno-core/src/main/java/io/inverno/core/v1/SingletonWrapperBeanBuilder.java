@@ -68,7 +68,7 @@ class SingletonWrapperBeanBuilder<P, T, W extends Supplier<T>> extends AbstractW
 	}
 
 	@Override
-	public <P> Module.WrapperBeanBuilder<P, T, W> override(Optional<Supplier<P>> override) {
+	public <U> Module.WrapperBeanBuilder<U, T, W> override(Optional<Supplier<U>> override) {
 		return new SingletonWrapperBeanBuilder<>(this, override);
 	}
 	
@@ -87,7 +87,7 @@ class SingletonWrapperBeanBuilder<P, T, W extends Supplier<T>> extends AbstractW
 			protected ProvidingWrapper createWrapper() {
 				W wrapper =	constructor.get();
 				if(inits != null) {
-					inits.stream().forEach(init -> {
+					inits.forEach(init -> {
 						try {
 							init.accept(wrapper);
 						} 
@@ -103,7 +103,7 @@ class SingletonWrapperBeanBuilder<P, T, W extends Supplier<T>> extends AbstractW
 			@Override
 			protected void destroyWrapper(ProvidingWrapper wrapper) {
 				if(destroys != null) {
-					destroys.stream().forEach(destroy -> {
+					destroys.forEach(destroy -> {
 						try {
 							destroy.accept(wrapper.wrapper);
 						} catch (Exception e) {

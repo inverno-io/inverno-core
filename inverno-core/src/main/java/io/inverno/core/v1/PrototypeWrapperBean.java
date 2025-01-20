@@ -38,10 +38,10 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>
  * The actual bean instance of a wrapper bean is provided by a wrapper instance to which instantiation, initialization and destruction operations are delegated. To each bean instance corresponds a
- * wrapper instance. There is no requirement that a new or distinct result be returned each time the wrapper is invoked, however when initialization and destruction operations are specified, the
- * wrapper, as indicated by its name, will usually wrap a single instance so that destruction operations can be invoked at later stage when the bean is destroyed. In that case, particular care must be
- * taken to make sure the wrapper instance does not hold a strong reference to the actual instance, otherwise bean instances created outside the module might not be reclaimed by the garbage collector
- * leading to memory leaks. A {@link WeakReference} should be then used in such situations. Note that this issue does not exist for singleton wrapper beans.
+ * wrapper instance. There is no requirement that a new or distinct result be returned each time the wrapper is invoked, however when specifying initialization or destruction operations, the wrapper,
+ * as indicated by its name, will usually wrap a single instance so that destruction operations can be invoked at later stage when the bean is destroyed. In that case, particular care must be taken to
+ * make sure the wrapper instance does not hold a strong reference to the actual instance, otherwise bean instances created outside the module might not be reclaimed by the garbage collector leading
+ * to memory leaks. A {@link WeakReference} should be then used in such situations. Note that this issue does not exist for singleton wrapper beans.
  * </p>
  *
  * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

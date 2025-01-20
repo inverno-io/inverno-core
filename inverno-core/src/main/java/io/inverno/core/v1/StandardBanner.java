@@ -53,9 +53,8 @@ public class StandardBanner implements Banner {
 			+ "     ║                  ,     /\\     ,                                                            ║\n"
 			+ "     ║                    ,   \\/   ,         %35s                  ║\n"
 			+ "     ║                      ' -- '                                                                ║\n"
-			+ "     ╠════════════════════════════════════════════════════════════════════════════════════════════╣\n"
-			+ "";
-	
+			+ "     ╠════════════════════════════════════════════════════════════════════════════════════════════╣\n";
+
 	/**
 	 * The banner body format.
 	 */
@@ -131,7 +130,7 @@ public class StandardBanner implements Banner {
 	
 	private StringBuilder buildBodyProperty(String name, String value) {
 		StringBuilder bodyProperty = new StringBuilder();
-		if(value == null || value.length() == 0) {
+		if(value == null || value.isEmpty()) {
 			bodyProperty.append(String.format(BANNER_BODY_PROPERTY, name, ":", ""));
 		}
 		else {
@@ -146,7 +145,7 @@ public class StandardBanner implements Banner {
 	
 	private StringBuilder buildBodyItem(String value) {
 		StringBuilder bodyProperty = new StringBuilder();
-		if(value == null || value.length() == 0) {
+		if(value == null || value.isEmpty()) {
 			bodyProperty.append(String.format(BANNER_BODY_ITEM, "*", ""));
 		}
 		else {

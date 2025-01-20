@@ -220,7 +220,7 @@ public abstract class Module {
 
 	/**
 	 * <p>
-	 * Determines whether the module is active (ie. started).
+	 * Determines whether the module is active (i.e. started).
 	 * </p>
 	 * 
 	 * @return true if the module is active, false otherwise.
@@ -259,8 +259,8 @@ public abstract class Module {
 		this.active = true;
 		long t0 = System.nanoTime();
 		this.logger.info("Starting Module {}...", () -> this.name);
-		this.modules.stream().filter(module -> !module.isActive()).forEach(module -> module.start());
-		this.beans.stream().forEach(bean -> bean.create());
+		this.modules.stream().filter(module -> !module.isActive()).forEach(Module::start);
+		this.beans.forEach(Bean::create);
 		this.logger.info("Module {} started in {}ms", () -> this.name, () -> ((System.nanoTime() - t0) / 1000000));
 	}
 
@@ -270,7 +270,7 @@ public abstract class Module {
 	 * </p>
 	 *
 	 * <p>
-	 * This methods basically destroy the beans created during startup in the reverse order.
+	 * This method basically destroys the beans created during startup in the reverse order.
 	 * </p>
 	 */
 	public void stop() {
@@ -289,7 +289,7 @@ public abstract class Module {
 					this.logger.debug("Bean {} destroyed in {}ms", () -> (bean.parent != null ? bean.parent.getName() + ":" : "") + bean.name, () -> ((System.nanoTime() - bean_t0) / 1000000));
 				}
 			});
-			this.modules.stream().forEach(module -> module.stop());
+			this.modules.forEach(Module::stop);
 			this.beansStack.clear();
 			this.logger.info("Module {} stopped in {}ms", () -> this.name, () -> ((System.nanoTime() - t0) / 1000000));
 			this.active = false;
@@ -514,7 +514,7 @@ public abstract class Module {
 			}
 			if (!nullSockets.isEmpty()) {
 				throw new IllegalArgumentException("Following non-optional sockets are null: "
-						+ nullSockets.stream().collect(Collectors.joining(", ")));
+						+ String.join(", ", nullSockets));
 			}
 		}
 
@@ -530,8 +530,7 @@ public abstract class Module {
 		 * @return a new module instance
 		 */
 		public final T build() {
-			T thisModule = this.doBuild();
-			return thisModule;
+			return this.doBuild();
 		}
 
 		/**
@@ -594,7 +593,7 @@ public abstract class Module {
 		 *
 		 * <p>
 		 * In case the enclosing module is not active but one of its ancestors is active, this method starts the enclosing module in order to start modules in their natural order. If no ancestor is
-		 * active (ie. the enclosing module is not part of a module initialization process), an {@link IllegalStateException} is thrown.
+		 * active (i.e. the enclosing module is not part of a module initialization process), an {@link IllegalStateException} is thrown.
 		 * </p>
 		 *
 		 * @throws IllegalStateException if the enclosing module is inactive and not part of a module initialization process.
@@ -667,7 +666,7 @@ public abstract class Module {
 		 * @param <T> the type of the input to the operation
 		 */
 		@FunctionalInterface
-		static interface FallibleConsumer<T> {
+		interface FallibleConsumer<T> {
 			
 			/**
 			 * <p>
@@ -786,12 +785,12 @@ public abstract class Module {
 		 * Specifies an override that, when present, provides bean instances instead of the builder.
 		 * </p>
 		 * 
-		 * @param <P>      the type provided by the bean to build
+		 * @param <U>      the type provided by the bean to build
 		 * @param override an optional override
 		 * 
 		 * @return this builder
 		 */
-		<P> ModuleBeanBuilder<P, T> override(Optional<Supplier<P>> override);
+		<U> ModuleBeanBuilder<U, T> override(Optional<Supplier<U>> override);
 	}
 	
 	/**
@@ -877,19 +876,19 @@ public abstract class Module {
 		 * 
 		 * @return a bean
 		 */
-		public Bean<P> build();
+		Bean<P> build();
 		
 		/**
 		 * <p>
 		 * Specifies an override that, when present, provides bean instances instead of the builder.
 		 * </p>
 		 *
-		 * @param <P>      the type provided by the override and therefore the bean to build
+		 * @param <U>      the type provided by the override and therefore the bean to build
 		 * @param override An optional override
 		 *
 		 * @return this builder
 		 */
-		<P> WrapperBeanBuilder<P, T, W> override(Optional<Supplier<P>> override);
+		<U> WrapperBeanBuilder<U, T, W> override(Optional<Supplier<U>> override);
 	}
 	
 	/**
@@ -898,7 +897,7 @@ public abstract class Module {
 	 * </p>
 	 *
 	 * <p>
-	 * These information are necessary for the compiler to be able to load component modules in a module while preserving socket names and preventing dependency cycles.
+	 * This information is necessary for the compiler to be able to load component modules in a module while preserving socket names and preventing dependency cycles.
 	 * </p>
 	 *
 	 * @author <a href="mailto:jeremy.kuhn@inverno.io">Jeremy Kuhn</a>

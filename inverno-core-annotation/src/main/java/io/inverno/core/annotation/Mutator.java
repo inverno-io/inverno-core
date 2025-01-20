@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
  * </p>
  * 
  * <p>
- * A mutating socket bean must implement {@link java.util.function.Function Function<A, B>} where {@code A} is the type of the socket exposed by the module and {@code B} is the type of the instance
+ * A mutating socket bean must implement {@link java.util.function.Function Function&lt;A, B&gt;} where {@code A} is the type of the socket exposed by the module and {@code B} is the type of the instance
  * after transformation and used during dependency injection.
  * </p>
  * 
@@ -54,7 +54,7 @@ public @interface Mutator {
 
 	/**
 	 * <p>
-	 * Indicates whether the socket should be required and mutator always invoked regardless on whether the the socket is wired or not.
+	 * Indicates whether the socket should be required and mutator always invoked regardless on whether the socket is wired or not.
 	 * </p>
 	 *
 	 * @return true to make the socket required and always invoke the mutator on the wired instance, false otherwise

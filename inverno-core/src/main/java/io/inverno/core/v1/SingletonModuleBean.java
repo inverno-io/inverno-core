@@ -107,7 +107,7 @@ abstract class SingletonModuleBean<T> extends AbstractModuleBean<T> {
 		if (this.instance != null) {
 			synchronized(this) {
 				LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-				if(!this.override.isPresent()) {
+				if(this.override.isEmpty()) {
 					this.destroyInstance(this.instance);
 				}
 				this.instance = null;

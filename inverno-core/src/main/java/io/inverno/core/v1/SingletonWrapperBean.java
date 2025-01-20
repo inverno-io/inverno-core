@@ -106,14 +106,14 @@ abstract class SingletonWrapperBean<W extends Supplier<T>, T> extends AbstractWr
 	 * </p>
 	 *
 	 * <p>
-	 * This method delegates bean wrapper instance destruction to the {@link #destroyWrapper(Object)} method.
+	 * This method delegates bean wrapper instance destruction to the {@link #destroyWrapper(Supplier)} method.
 	 * </p>
 	 */
 	public final void destroy() {
 		if (this.wrapper != null) {
 			synchronized(this) {
 				LOGGER.debug("Destroying singleton bean {}", () -> (this.parent != null ? this.parent.getName() + ":" : "") + this.name);
-				if(!this.override.isPresent()) {
+				if(this.override.isEmpty()) {
 					this.destroyWrapper(this.wrapper);
 					this.wrapper = null;
 				}
